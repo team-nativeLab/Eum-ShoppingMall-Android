@@ -219,6 +219,18 @@ fun CatalogProductRow(
                 contentDescription = stringResource(R.string.catalog_product_image_placeholder),
                 tint = MaterialTheme.eumColors.placeholderGlyph,
             )
+            if (product.isSoldOut) {
+                Box(Modifier.fillMaxSize().background(MaterialTheme.eumColors.inverse.copy(alpha = 0.6f)))
+                Text(
+                    stringResource(R.string.product_sold_out),
+                    modifier = Modifier.align(Alignment.Center)
+                        .clip(RoundedCornerShape(EumRadius.x4))
+                        .background(MaterialTheme.eumColors.dangerTint)
+                        .padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x4),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.eumColors.danger,
+                )
+            }
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
             Text(product.name, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textPrimary, maxLines = 2)

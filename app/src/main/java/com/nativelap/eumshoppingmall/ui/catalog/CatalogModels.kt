@@ -48,11 +48,15 @@ data class CatalogOptionUiModel(
     val priceLabel: String?,
 )
 
+data class CatalogSelectedOptionUiModel(
+    val groupId: String,
+    val option: CatalogOptionUiModel,
+)
+
 data class CatalogOptionGroupUiModel(
     val id: String,
     val label: String,
     val options: List<CatalogOptionUiModel> = emptyList(),
-    val selectedOptionId: String? = null,
 )
 
 data class CatalogKeyValueUiModel(
@@ -163,14 +167,15 @@ data class CatalogProductDetailUiModel(
     val questions: List<CatalogQuestionUiModel> = emptyList(),
     val relatedProducts: List<CatalogProductUiModel> = emptyList(),
     val optionGroups: List<CatalogOptionGroupUiModel> = emptyList(),
-    val selectedOptions: List<CatalogOptionUiModel> = emptyList(),
+    val selectedOptions: List<CatalogSelectedOptionUiModel> = emptyList(),
     val optionsSheetVisible: Boolean = false,
-    val pendingPurchaseAction: CatalogPurchaseAction = CatalogPurchaseAction.AddToCart,
+    val totalPriceLabel: String? = null,
 )
 
 enum class CatalogPurchaseAction {
     AddToCart,
     BuyNow,
+    QuoteRequest,
 }
 
 sealed interface CatalogProductDetailEvent {
@@ -181,7 +186,8 @@ sealed interface CatalogProductDetailEvent {
     data class TabSelected(val tabIndex: Int) : CatalogProductDetailEvent
     data class SelectOptionClicked(val action: CatalogPurchaseAction = CatalogPurchaseAction.AddToCart) : CatalogProductDetailEvent
     data class OptionSelected(val groupId: String, val optionId: String) : CatalogProductDetailEvent
-    data class QuantityChanged(val optionId: String, val quantity: Int) : CatalogProductDetailEvent
+    data class QuantityChanged(val groupId: String, val optionId: String, val quantity: Int) : CatalogProductDetailEvent
+    data class OptionRemoved(val groupId: String, val optionId: String) : CatalogProductDetailEvent
     data object AddToCartClicked : CatalogProductDetailEvent
     data object BuyNowClicked : CatalogProductDetailEvent
     data object QuoteRequestClicked : CatalogProductDetailEvent

@@ -20,10 +20,13 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -44,7 +47,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogOptionGroupSelector
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
+import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogSelectedOptionCard
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBarAction
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
@@ -81,9 +86,10 @@ fun CatalogProductDetailScreen(
     ) { padding ->
         val listState = rememberLazyListState()
         var hasInitializedTabs by remember { mutableStateOf(false) }
-        LaunchedEffect(uiModel.selectedTabIndex) {
+        val selectedTabIndex = uiModel.selectedTabIndex.coerceIn(0, 3)
+        LaunchedEffect(selectedTabIndex) {
             if (hasInitializedTabs) {
-                val targetItemIndex = when (uiModel.selectedTabIndex) {
+                val targetItemIndex = when (selectedTabIndex) {
                     0 -> 2
                     1 -> 0
                     2 -> 3
@@ -193,7 +199,8 @@ fun CatalogProductDetailScreen(
 private fun ProductGallery(uiModel: CatalogProductDetailUiModel, onEvent: (CatalogProductDetailEvent) -> Unit) {
     val product = uiModel.product
     val galleryImages = uiModel.galleryImageResIds.ifEmpty { listOf(product.imageResId) }
-    val selectedImage = galleryImages.getOrNull(uiModel.selectedImageIndex)
+    val selectedImageIndex = uiModel.selectedImageIndex.coerceIn(0, galleryImages.lastIndex)
+    val selectedImage = galleryImages.getOrNull(selectedImageIndex)
     Box(
         Modifier.fillMaxWidth().aspectRatio(1f).background(MaterialTheme.eumColors.surface),
         contentAlignment = Alignment.Center,
@@ -203,22 +210,22 @@ private fun ProductGallery(uiModel: CatalogProductDetailUiModel, onEvent: (Catal
         } ?: Icon(painterResource(R.drawable.ic_image), stringResource(R.string.catalog_product_image_placeholder), Modifier.size(48.dp), tint = MaterialTheme.eumColors.placeholderGlyph)
         if (galleryImages.size > 1) {
             androidx.compose.material3.IconButton(
-                onClick = { onEvent(CatalogProductDetailEvent.ImageSelected((uiModel.selectedImageIndex - 1).coerceAtLeast(0))) },
-                enabled = uiModel.selectedImageIndex > 0,
+                onClick = { onEvent(CatalogProductDetailEvent.ImageSelected((selectedImageIndex - 1).coerceAtLeast(0))) },
+                enabled = selectedImageIndex > 0,
                 modifier = Modifier.align(Alignment.CenterStart).size(48.dp),
             ) {
                 Icon(painterResource(R.drawable.ic_chevron_left), stringResource(R.string.common_previous))
             }
             androidx.compose.material3.IconButton(
-                onClick = { onEvent(CatalogProductDetailEvent.ImageSelected((uiModel.selectedImageIndex + 1).coerceAtMost(galleryImages.lastIndex))) },
-                enabled = uiModel.selectedImageIndex < galleryImages.lastIndex,
+                onClick = { onEvent(CatalogProductDetailEvent.ImageSelected((selectedImageIndex + 1).coerceAtMost(galleryImages.lastIndex))) },
+                enabled = selectedImageIndex < galleryImages.lastIndex,
                 modifier = Modifier.align(Alignment.CenterEnd).size(48.dp),
             ) {
                 Icon(painterResource(R.drawable.ic_chevron_right), stringResource(R.string.common_next))
             }
         }
         Text(
-            "${uiModel.selectedImageIndex + 1} / ${galleryImages.size}",
+            "${selectedImageIndex + 1} / ${galleryImages.size}",
             Modifier.align(Alignment.BottomEnd).padding(EumSpacing.x12)
                 .clip(RoundedCornerShape(EumRadius.capsule)).background(MaterialTheme.eumColors.textPrimary.copy(alpha = 0.72f))
                 .padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x4),
@@ -241,7 +248,7 @@ private fun ProductDetailTabs(uiModel: CatalogProductDetailUiModel, onEvent: (Ca
                 onClick = { onEvent(CatalogProductDetailEvent.TabSelected(index)) },
                 modifier = Modifier.weight(1f).heightIn(min = 52.dp),
                 color = MaterialTheme.eumColors.background,
-                border = BorderStroke(1.dp, if (uiModel.selectedTabIndex == index) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.line),
+                border = BorderStroke(1.dp, if (uiModel.selectedTabIndex.coerceIn(0, 3) == index) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.line),
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(label, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center)
@@ -321,7 +328,15 @@ private fun ProductDetailBottomActions(
     ) {
         if (isQuoteRequired) {
             Button(
-                onClick = { onEvent(CatalogProductDetailEvent.QuoteRequestClicked) },
+                onClick = {
+                    onEvent(
+                        if (uiModel.optionGroups.isEmpty()) {
+                            CatalogProductDetailEvent.QuoteRequestClicked
+                        } else {
+                            CatalogProductDetailEvent.SelectOptionClicked(CatalogPurchaseAction.QuoteRequest)
+                        },
+                    )
+                },
                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
             ) {
                 Text(stringResource(R.string.catalog_quote_request))
@@ -363,87 +378,146 @@ private fun ProductDetailBottomActions(
 
 @Composable
 private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (CatalogProductDetailEvent) -> Unit) {
+    val isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired
+    val hasRequiredSelections = uiModel.optionGroups.all { group ->
+        uiModel.selectedOptions.any { selectedOption ->
+            selectedOption.groupId == group.id && group.options.any { it.id == selectedOption.option.id }
+        }
+    }
+
     Column(
-        Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20).padding(bottom = EumSpacing.x24),
+        Modifier.fillMaxWidth().heightIn(max = 760.dp)
+            .padding(horizontal = EumSpacing.x20).padding(bottom = EumSpacing.x24),
         verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
     ) {
-        Text(stringResource(R.string.catalog_product_options), style = MaterialTheme.typography.titleMedium)
-        if (uiModel.product.price is CatalogPriceUiModel.Available && uiModel.optionGroups.isEmpty()) {
-            Text(stringResource(R.string.catalog_no_options), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 56.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                stringResource(R.string.catalog_product_options),
+                Modifier.weight(1f),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            IconButton(
+                onClick = { onEvent(CatalogProductDetailEvent.CloseOptionsSheet) },
+                modifier = Modifier.size(48.dp),
+            ) {
+                Icon(
+                    painterResource(R.drawable.ic_x),
+                    contentDescription = stringResource(R.string.common_close),
+                )
+            }
         }
-        if (uiModel.product.price is CatalogPriceUiModel.QuoteRequired) {
-            Text(stringResource(R.string.catalog_quote_options_notice), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-        } else {
+        Column(
+            Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+        ) {
+            if (!isQuoteRequired && uiModel.optionGroups.isEmpty()) {
+                Text(stringResource(R.string.catalog_no_options), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
+            }
             uiModel.optionGroups.forEach { group ->
-                Text(group.label, style = MaterialTheme.typography.labelLarge)
-                group.options.forEach { option ->
-                    Surface(
-                        onClick = { onEvent(CatalogProductDetailEvent.OptionSelected(group.id, option.id)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(EumRadius.x8),
-                        color = MaterialTheme.eumColors.surface,
-                        border = BorderStroke(
-                            1.dp,
-                            if (option.id == group.selectedOptionId) {
-                                MaterialTheme.eumColors.textPrimary
-                            } else {
-                                MaterialTheme.eumColors.lineControl
-                            },
-                        ),
+                CatalogOptionGroupSelector(
+                    group = group,
+                    onOptionSelected = { optionId ->
+                        onEvent(CatalogProductDetailEvent.OptionSelected(group.id, optionId))
+                    },
+                )
+            }
+            if (uiModel.selectedOptions.isEmpty() && uiModel.optionGroups.isNotEmpty()) {
+                Text(
+                    stringResource(R.string.catalog_option_select_prompt),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.eumColors.textTertiary,
+                )
+            }
+
+            uiModel.selectedOptions.forEach { selectedOption ->
+                val option = selectedOption.option
+                CatalogSelectedOptionCard(
+                    option = option,
+                    isQuoteRequired = isQuoteRequired,
+                    onQuantityChanged = { quantity ->
+                        onEvent(CatalogProductDetailEvent.QuantityChanged(selectedOption.groupId, option.id, quantity))
+                    },
+                    onRemove = { onEvent(CatalogProductDetailEvent.OptionRemoved(selectedOption.groupId, option.id)) },
+                )
+            }
+
+            if (uiModel.selectedOptions.isNotEmpty()) {
+                if (isQuoteRequired) {
+                    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                        Text(stringResource(R.string.catalog_options_selected_quantity), style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            stringResource(
+                                R.string.catalog_options_selected_count,
+                                uiModel.selectedOptions.sumOf { it.option.quantity.coerceAtLeast(1).toLong() },
+                            ),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.eumColors.textPrimary,
+                        )
+                        Text(
+                            stringResource(R.string.catalog_quote_options_notice),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.eumColors.textSecondary,
+                        )
+                    }
+                } else {
+                    Row(
+                        Modifier.fillMaxWidth().padding(vertical = EumSpacing.x8),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Row(Modifier.padding(EumSpacing.x12), verticalAlignment = Alignment.CenterVertically) {
-                            Text(option.label, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                            Text(option.priceLabel.orEmpty(), style = MaterialTheme.typography.labelSmall)
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+                            Text(stringResource(R.string.catalog_options_total_amount), style = MaterialTheme.typography.bodySmall)
+                            Text(
+                                stringResource(
+                                    R.string.catalog_options_total_count,
+                                    uiModel.selectedOptions.sumOf { it.option.quantity.coerceAtLeast(1).toLong() },
+                                ),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.eumColors.textTertiary,
+                            )
+                        }
+                        uiModel.totalPriceLabel?.takeIf(String::isNotBlank)?.let { totalPriceLabel ->
+                            Text(
+                                totalPriceLabel,
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.eumColors.textPrimary,
+                            )
                         }
                     }
                 }
             }
         }
-        if (uiModel.product.price is CatalogPriceUiModel.Available) {
-            uiModel.selectedOptions.forEach { option ->
-                Row(Modifier.fillMaxWidth().heightIn(min = 44.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(option.label, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                    Text(stringResource(R.string.catalog_quantity), Modifier.padding(end = EumSpacing.x8), style = MaterialTheme.typography.labelSmall)
-                    androidx.compose.material3.IconButton(
-                        onClick = { onEvent(CatalogProductDetailEvent.QuantityChanged(option.id, option.quantity - 1)) },
-                        enabled = option.quantity > 1,
-                        modifier = Modifier.size(40.dp),
-                    ) {
-                        Icon(painterResource(R.drawable.ic_minus), stringResource(R.string.catalog_quantity_decrease))
-                    }
-                    Text(option.quantity.toString(), style = MaterialTheme.typography.labelMedium)
-                    androidx.compose.material3.IconButton(
-                        onClick = { onEvent(CatalogProductDetailEvent.QuantityChanged(option.id, option.quantity + 1)) },
-                        modifier = Modifier.size(40.dp),
-                    ) {
-                        Icon(painterResource(R.drawable.ic_plus), stringResource(R.string.catalog_quantity_increase))
-                    }
+
+        if (isQuoteRequired) {
+            Button(
+                onClick = { onEvent(CatalogProductDetailEvent.QuoteRequestClicked) },
+                enabled = hasRequiredSelections,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+            ) {
+                Text(stringResource(R.string.catalog_quote_request))
+            }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+            ) {
+                OutlinedButton(
+                    onClick = { onEvent(CatalogProductDetailEvent.AddToCartClicked) },
+                    enabled = hasRequiredSelections,
+                    modifier = Modifier.weight(1f).heightIn(min = 52.dp),
+                ) {
+                    Text(stringResource(R.string.catalog_add_to_cart_options))
+                }
+                Button(
+                    onClick = { onEvent(CatalogProductDetailEvent.BuyNowClicked) },
+                    enabled = hasRequiredSelections,
+                    modifier = Modifier.weight(1f).heightIn(min = 52.dp),
+                ) {
+                    Text(stringResource(R.string.catalog_buy_now))
                 }
             }
-        }
-        Button(
-            onClick = {
-                onEvent(
-                    if (uiModel.product.price is CatalogPriceUiModel.QuoteRequired) {
-                        CatalogProductDetailEvent.QuoteRequestClicked
-                    } else if (uiModel.pendingPurchaseAction == CatalogPurchaseAction.BuyNow) {
-                        CatalogProductDetailEvent.BuyNowClicked
-                    } else {
-                        CatalogProductDetailEvent.AddToCartClicked
-                    },
-                )
-            },
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-        ) {
-            Text(
-                if (uiModel.product.price is CatalogPriceUiModel.QuoteRequired) {
-                    stringResource(R.string.catalog_quote_request)
-                } else if (uiModel.pendingPurchaseAction == CatalogPurchaseAction.BuyNow) {
-                    stringResource(R.string.catalog_buy_now)
-                } else {
-                    stringResource(R.string.catalog_add_to_cart)
-                },
-            )
         }
     }
 }
