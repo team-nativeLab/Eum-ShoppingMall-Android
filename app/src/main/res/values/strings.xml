@@ -181,6 +181,31 @@
     <string name="orders_status_shipping_started">배송시작</string>
     <string name="orders_shipping_details">배송 상세</string>
     <string name="orders_cancel_return">취소·반품</string>
+    <string name="orders_order_number_short">주문번호 %1$s</string>
+    <string name="orders_order_date_title">%1$s 주문</string>
+    <string name="orders_cancel_order">주문 취소</string>
+    <string name="orders_track_delivery">배송 조회</string>
+    <string name="orders_buy_again">다시 담기</string>
+    <string name="orders_filter_all">전체</string>
+    <string name="orders_empty_title">주문 내역이 없습니다</string>
+    <string name="orders_empty_description">상품을 주문하면 이곳에서
+주문·배송 상태를 확인할 수 있어요.</string>
+    <string name="orders_no_results_title">주문 내역이 없습니다</string>
+    <string name="orders_no_results_description">선택한 조건에 해당하는 주문이 없습니다.</string>
+    <string name="orders_clear_filter">전체 주문 보기</string>
+    <string name="orders_browse_products">상품 둘러보기</string>
+    <string name="orders_products_title">주문 상품</string>
+    <string name="orders_address">주소</string>
+    <string name="orders_delivery_request">요청사항</string>
+    <string name="orders_exchange_return_request">교환/반품 신청</string>
+    <string name="orders_download_statement">거래명세서 다운로드</string>
+    <string name="orders_view_receipt">영수증 보기</string>
+    <string name="orders_expected_arrival">%1$s 도착 예정</string>
+    <string name="orders_delivery_history_empty">배송 이력이 아직 없습니다.</string>
+    <string name="orders_delivery_info_unavailable">배송 정보를 확인할 수 없습니다.</string>
+    <string name="orders_tracking_number_only">송장번호 %1$s</string>
+    <string name="common_expand">펼치기</string>
+    <string name="common_copy">복사</string>
 
     <!-- Account, membership, and consent -->
     <string name="account_greeting">안녕하세요!</string>
