@@ -1,12 +1,16 @@
 # Eum ShoppingMall Android
 
-이음산업건설 쇼핑몰 Android 앱을 위한 단일 모듈 Jetpack Compose 프로젝트입니다. 현재 앱 진입 화면으로 Figma Home A-02를 기반으로 한 홈 UI를 제공하며, 나머지 쇼핑몰 화면과 실제 서비스 연동은 아직 구현되지 않았습니다.
+이음산업건설 쇼핑몰 Android 앱을 위한 단일 모듈 Jetpack Compose 프로젝트입니다. Figma A-01 스플래시·A-02 홈과 A-03~A-06·A-33/A-34 카탈로그·검색·브랜드 UI를 포함합니다. 전체 Figma 페이지와 실제 서비스 연동은 아직 완료되지 않았습니다.
 
 ## 프로젝트 현황
 
-- `MainActivity`에서 홈 화면 `HomeRoute`를 표시합니다. 홈 화면에는 상단 바, 검색창, 카테고리, 배너, 상품 섹션, 견적 배너, 하단 탐색 UI가 포함되어 있습니다.
-- 홈 UI는 콜백과 UI 모델을 통해 입력을 전달하며, 상품 데이터는 기본값으로 비어 있습니다. 실제 검색·상품 조회·화면 이동을 처리하는 서비스 로직은 확인되지 않았습니다.
-- Figma Light 디자인 토큰과 공통 Android 리소스가 반영되어 있습니다. 다른 Figma 화면의 화면별 UI 구현 여부는 확인되지 않았으며, 현재 앱 진입 화면에는 홈 UI만 연결되어 있습니다.
+- `MainActivity`에서 홈 화면 `HomeRoute`를 표시합니다. 홈 UI에는 상단 바, 검색창, 배너, 상품 섹션, 견적 배너, 하단 탐색 UI가 포함됩니다. 스플래시 화면은 독립 Composable 및 Preview로 제공되며 앱 진입점에는 연결되어 있지 않습니다.
+- 홈과 카탈로그 화면은 UI 모델·이벤트 콜백을 사용합니다. 카탈로그에는 카테고리, 상품 목록, 검색·검색 결과·빈 결과, 상품 상세, 브랜드 목록·상세 및 견적 상품 옵션 시트가 있으며 검색·브랜드 그리드는 화면 폭에 따라 열 수가 바뀝니다.
+- 상품 데이터의 실제 서버 연동과 화면 간 앱 내비게이션은 포함되어 있지 않습니다. 합성 상품·브랜드 데이터는 Compose Preview에서만 사용합니다.
+- Figma A-01~A-06, A-33/A-34 화면의 Preview가 있습니다. Preview 선언은 화면 캡처나 시각 검증 완료를 뜻하지 않습니다. 남은 프레임과 상태별 변형은 미구현입니다.
+- 상품 이미지용 리소스 대응은 아직 없습니다. `figma_image_map.csv`에는 스플래시, 홈 배너, 드로어, 브랜드 상세 배너, 회사 소개 이미지가 매핑되어 있습니다.
+- 320dp, 태블릿 폭, 글자 크기 확대 조건의 스크린샷 검증 및 전체 프레임 대조가 남아 있습니다.
+- Figma Light 디자인 토큰과 공통 Android 리소스가 반영되어 있습니다.
 - 제품 요구사항 문서(PRD)는 저장소에서 확인되지 않았습니다.
 
 ## 기술 구성
@@ -51,10 +55,10 @@ Android Studio와 Android SDK 37을 설치한 뒤 프로젝트를 엽니다. Gra
 - Figma Light 팔레트와 타이포그래피를 기본 테마로 사용하며 Android 동적 색상은 사용하지 않습니다.
 - Figma 화면은 390px 폭의 모바일 프레임이며 spacing 값은 해당 dp 기준과 1:1로 옮겼습니다.
 - Figma의 타이포그래피 변수는 Noto Sans KR로 정의되어 있지만, 프로젝트에는 별도 글꼴 파일이나 라이선스 정보가 없어 시스템 기본 글꼴로 대체합니다.
-- 고정 UI 문구는 `app/src/main/res/values/strings.xml`에 두고, 예시 상품·가격·사용자 데이터는 포함하지 않습니다.
+- 고정 UI 문구는 `app/src/main/res/values/strings.xml`에 둡니다. 실행 화면은 실제 상품·가격·사용자 데이터를 제공하지 않으며, 합성 예시 값은 Compose Preview에만 있습니다.
 - Figma의 아이콘 102종은 `drawable/ic_*.xml` VectorDrawable로 가져왔으며 원본 노드명과 Android 리소스 대응표는 `app/src/main/assets/figma_icon_map.csv`에 있습니다. (총 104개 `ic_*.xml` 중 런처 아이콘 2개 제외)
 - Figma 앱 페이지 이미지 7종은 `drawable-nodpi/figma_*.png`에 원본 픽셀로 보관합니다.
-- Compose foundation 확인: `./gradlew :app:compileDebugKotlin :app:testDebugUnitTest`
+- Compose 기반 확인 명령: `./gradlew :app:compileDebugKotlin :app:testDebugUnitTest`
 
 ## CI와 개발 스킬
 
@@ -73,6 +77,8 @@ EumShoppingMall/
 │       │   ├── java/com/nativelap/eumshoppingmall/
 │       │   │   ├── MainActivity.kt # 앱 진입점, 홈 Route 연결
 │       │   │   ├── ui/home/         # 홈 화면, UI 모델, 화면 컴포넌트
+│       │   │   ├── ui/catalog/      # 독립 카테고리·검색·상품·브랜드 Compose 화면
+│       │   │   ├── ui/splash/       # 스플래시 화면 컴포넌트
 │       │   │   └── ui/theme/        # Compose 테마 및 디자인 토큰
 │       │   └── res/                # Android 리소스
 │       ├── test/                   # 로컬 단위 테스트

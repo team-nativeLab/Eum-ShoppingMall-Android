@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="hf_text_1">#FF111111</color>
-    <color name="hf_text_2">#FF555555</color>
-    <color name="hf_text_3">#FF707070</color>
-    <color name="hf_text_disabled">#FFB3B3B3</color>
-    <color name="hf_bg">#FFFFFFFF</color>
-    <color name="hf_bg_subtle">#FFFAFAFA</color>
-    <color name="hf_surface">#FFF5F5F5</color>
-    <color name="hf_surface_2">#FFEBEBEB</color>
-    <color name="hf_line">#FFEBEBEB</color>
-    <color name="hf_line_strong">#FFD4D4D4</color>
-    <color name="hf_line_control">#FF949494</color>
+    <color name="hf_text_1">#FF171B19</color>
+    <color name="hf_text_2">#FF48534D</color>
+    <color name="hf_text_3">#FF65716A</color>
+    <color name="hf_text_disabled">#FF7D8982</color>
+    <color name="hf_bg">#FFFAFBFA</color>
+    <color name="hf_bg_subtle">#FFF6F8F6</color>
+    <color name="hf_surface">#FFFFFFFF</color>
+    <color name="hf_surface_2">#FFF1F4F2</color>
+    <color name="hf_line">#FFD7DED9</color>
+    <color name="hf_line_strong">#FF89938D</color>
+    <color name="hf_line_control">#FF75817A</color>
     <color name="hf_inverse">#FFFFFFFF</color>
-    <color name="hf_inverse_2">#B8FFFFFF</color>
+    <color name="hf_inverse_2">#FFF1F4F2</color>
     <color name="hf_dim">#7A111111</color>
     <color name="hf_pressed_dark">#FF333333</color>
     <color name="hf_toast">#FF222222</color>
-    <color name="hf_ph_glyph">#FFD6D6D6</color>
+    <color name="hf_ph_glyph">#FFA6B0AA</color>
     <color name="hf_danger">#FFC5221F</color>
     <color name="hf_danger_tint">#FFFDECEA</color>
     <color name="hf_success">#FF1E7A3C</color>
@@ -25,4 +25,8 @@
     <color name="hf_warning_tint">#FFFFF4E0</color>
     <color name="hf_info">#FF1A5DC8</color>
     <color name="hf_info_tint">#FFEAF1FB</color>
+    <color name="hf_heart_idle">#FF65716A</color>
+    <color name="hf_heart_active">#FFE5484D</color>
+    <color name="hf_chart_base">#FF8F8F8F</color>
+    <color name="hf_chart_up">#FFCC2E2E</color>
 </resources>
