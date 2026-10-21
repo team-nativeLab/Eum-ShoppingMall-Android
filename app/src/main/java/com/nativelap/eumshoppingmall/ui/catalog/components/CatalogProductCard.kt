@@ -103,7 +103,7 @@ fun CatalogProductCard(
             }
             IconButton(
                 onClick = onFavoriteClick,
-                modifier = Modifier.align(Alignment.TopEnd).size(44.dp),
+                modifier = Modifier.align(Alignment.TopEnd).size(48.dp),
             ) {
                 Icon(
                     painterResource(if (product.isFavorite) R.drawable.ic_heart_filled else R.drawable.ic_heart),
