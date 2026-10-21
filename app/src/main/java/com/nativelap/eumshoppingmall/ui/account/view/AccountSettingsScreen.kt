@@ -109,7 +109,7 @@ fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSetti
                         SettingSection(stringResource(R.string.settings_account)) {
                             SettingNavigationRow(stringResource(R.string.account_logout)) { onEvent(AccountSettingsScreenEvent.LogoutClicked) }
                         }
-                        Text(stringResource(R.string.account_withdrawal), Modifier.clickable { onEvent(AccountSettingsScreenEvent.WithdrawalClicked) }.padding(vertical = EumSpacing.x8), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                        Text(stringResource(R.string.account_withdrawal), Modifier.clickable { onEvent(AccountSettingsScreenEvent.WithdrawalClicked) }.heightIn(min = 48.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
                     }
                 }
             }

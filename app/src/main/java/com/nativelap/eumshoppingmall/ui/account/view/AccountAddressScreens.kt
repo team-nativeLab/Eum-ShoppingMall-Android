@@ -26,6 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
@@ -157,6 +159,6 @@ fun AccountAddressFormScreen(uiModel: AccountAddressFormUiModel, onEvent: (Accou
 private fun AddressInput(label: String, value: String, placeholder: String, onValueChange: (String) -> Unit, keyboardType: KeyboardType = KeyboardType.Text, isError: Boolean = false, errorMessage: String? = null, modifier: Modifier = Modifier, enabled: Boolean = true) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(EumSpacing.x6)) {
         Text(label, style = MaterialTheme.typography.labelMedium)
-        OutlinedTextField(value, onValueChange, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), placeholder = { Text(placeholder) }, keyboardOptions = KeyboardOptions(keyboardType = keyboardType), isError = isError, supportingText = errorMessage?.let { { Text(it) } }, enabled = enabled, singleLine = true)
+        OutlinedTextField(value, onValueChange, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).semantics { contentDescription = label }, placeholder = { Text(placeholder) }, keyboardOptions = KeyboardOptions(keyboardType = keyboardType), isError = isError, supportingText = errorMessage?.let { { Text(it) } }, enabled = enabled, singleLine = true)
     }
 }
