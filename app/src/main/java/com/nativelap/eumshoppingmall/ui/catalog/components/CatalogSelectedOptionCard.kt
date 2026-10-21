@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -67,13 +68,13 @@ fun CatalogSelectedOptionCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Row(
-                    Modifier.height(42.dp),
+                    Modifier.heightIn(min = 48.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(
                         onClick = { onQuantityChanged(quantity - 1) },
                         enabled = quantity > 1,
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier.size(48.dp),
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_minus),
@@ -90,7 +91,7 @@ fun CatalogSelectedOptionCard(
                     IconButton(
                         onClick = { onQuantityChanged(if (quantity < Int.MAX_VALUE) quantity + 1 else Int.MAX_VALUE) },
                         enabled = quantity < Int.MAX_VALUE,
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier.size(48.dp),
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_plus),

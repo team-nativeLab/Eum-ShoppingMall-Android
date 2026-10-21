@@ -322,11 +322,34 @@ private fun ProductDetailBottomActions(
     modifier: Modifier = Modifier,
 ) {
     val isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired
+    val isSoldOut = uiModel.product.isSoldOut
     Row(
         modifier.fillMaxWidth().background(MaterialTheme.eumColors.background).padding(horizontal = EumSpacing.x16, vertical = EumSpacing.x8),
         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
     ) {
-        if (isQuoteRequired) {
+        if (isSoldOut) {
+            androidx.compose.material3.IconButton(
+                onClick = { onEvent(CatalogProductDetailEvent.ProductFavoriteToggled) },
+                modifier = Modifier.size(48.dp),
+            ) {
+                Icon(
+                    painterResource(if (uiModel.product.isFavorite) R.drawable.ic_heart_filled else R.drawable.ic_heart),
+                    stringResource(
+                        if (uiModel.product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
+                        uiModel.product.name,
+                    ),
+                    tint = if (uiModel.product.isFavorite) MaterialTheme.eumColors.danger else MaterialTheme.eumColors.textSecondary,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+            Button(
+                onClick = {},
+                enabled = false,
+                modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+            ) {
+                Text(stringResource(R.string.product_sold_out))
+            }
+        } else if (isQuoteRequired) {
             Button(
                 onClick = {
                     onEvent(
@@ -379,6 +402,7 @@ private fun ProductDetailBottomActions(
 @Composable
 private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (CatalogProductDetailEvent) -> Unit) {
     val isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired
+    val isSoldOut = uiModel.product.isSoldOut
     val hasRequiredSelections = uiModel.optionGroups.all { group ->
         uiModel.selectedOptions.any { selectedOption ->
             selectedOption.groupId == group.id && group.options.any { it.id == selectedOption.option.id }
@@ -490,7 +514,15 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
             }
         }
 
-        if (isQuoteRequired) {
+        if (isSoldOut) {
+            Button(
+                onClick = {},
+                enabled = false,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+            ) {
+                Text(stringResource(R.string.product_sold_out))
+            }
+        } else if (isQuoteRequired) {
             Button(
                 onClick = { onEvent(CatalogProductDetailEvent.QuoteRequestClicked) },
                 enabled = hasRequiredSelections,
