@@ -23,6 +23,13 @@ private val previewProducts = listOf(
         ratingLabel = "4.6",
         reviewCountLabel = "(42)",
     ),
+    CatalogProductUiModel(
+        id = "preview-sold-out",
+        name = "품절 상품 긴 이름이 여러 줄에 표시되는 예시 제품",
+        subtitle = "재입고 알림 신청 가능",
+        price = CatalogPriceUiModel.Available("₩00,000"),
+        isSoldOut = true,
+    ),
 )
 
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "검색 결과 populated")
@@ -66,11 +73,17 @@ private fun CatalogProductDetailPreview() {
                     CatalogOptionGroupUiModel(
                         id = "size",
                         label = "사이즈 선택",
-                        options = listOf(CatalogOptionUiModel("size-m", "M", 1, "₩00,000")),
-                        selectedOptionId = "size-m",
+                        options = listOf(
+                            CatalogOptionUiModel("size-l", "사이즈 L", 1, "₩00,000"),
+                            CatalogOptionUiModel("size-xl", "사이즈 XL", 1, "₩00,000"),
+                        ),
                     ),
                 ),
-                selectedOptions = listOf(CatalogOptionUiModel("size-m", "M", 1, "₩00,000")),
+                selectedOptions = listOf(
+                    CatalogSelectedOptionUiModel("size", CatalogOptionUiModel("size-l", "사이즈 L", 1, "₩00,000")),
+                    CatalogSelectedOptionUiModel("size", CatalogOptionUiModel("size-xl", "사이즈 XL", 1, "₩00,000")),
+                ),
+                totalPriceLabel = "₩00,000",
             ),
             onEvent = {},
         )
@@ -89,11 +102,40 @@ private fun CatalogQuoteOptionsPreview() {
                     CatalogOptionGroupUiModel(
                         id = "size",
                         label = "사이즈 선택",
-                        options = listOf(CatalogOptionUiModel("size-l", "L", 2, null)),
-                        selectedOptionId = "size-l",
+                        options = listOf(
+                            CatalogOptionUiModel("size-l", "사이즈 L", 1, null),
+                            CatalogOptionUiModel("size-xl", "사이즈 XL", 1, null),
+                        ),
                     ),
                 ),
-                selectedOptions = listOf(CatalogOptionUiModel("size-l", "L", 2, null)),
+                selectedOptions = listOf(
+                    CatalogSelectedOptionUiModel("size", CatalogOptionUiModel("size-l", "사이즈 L", 1, null)),
+                    CatalogSelectedOptionUiModel("size", CatalogOptionUiModel("size-xl", "사이즈 XL", 1, null)),
+                ),
+            ),
+            onEvent = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "일반 상품 옵션 미선택")
+@Composable
+private fun CatalogUnselectedOptionsPreview() {
+    EumShoppingMallTheme {
+        CatalogProductDetailScreen(
+            uiModel = CatalogProductDetailUiModel(
+                product = previewProducts.first(),
+                optionsSheetVisible = true,
+                optionGroups = listOf(
+                    CatalogOptionGroupUiModel(
+                        id = "size",
+                        label = "사이즈",
+                        options = listOf(
+                            CatalogOptionUiModel("size-m", "M", 1, "₩00,000"),
+                            CatalogOptionUiModel("size-l", "L", 1, "₩00,000"),
+                        ),
+                    ),
+                ),
             ),
             onEvent = {},
         )
@@ -176,6 +218,58 @@ private fun CatalogProductListPreview() {
                 resultCountLabel = "총 24개",
                 sortLabel = "인기순",
                 products = previewProducts,
+            ),
+            onEvent = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "상품 목록 리스트·품절 상품")
+@Composable
+private fun CatalogProductListRowsPreview() {
+    EumShoppingMallTheme {
+        CatalogProductListScreen(
+            uiModel = CatalogProductListUiModel(
+                title = "개인보호장비",
+                categories = listOf("전체", "안전모", "보호구", "작업복"),
+                selectedCategory = "전체",
+                resultCountLabel = "총 24개",
+                sortLabel = "인기순",
+                products = previewProducts,
+                isListLayout = true,
+            ),
+            onEvent = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "상품 목록 빈 상태")
+@Composable
+private fun CatalogProductListEmptyPreview() {
+    EumShoppingMallTheme {
+        CatalogProductListScreen(
+            uiModel = CatalogProductListUiModel(
+                title = "개인보호장비",
+                sortLabel = "인기순",
+            ),
+            onEvent = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320, heightDp = 720, fontScale = 1.2f, name = "좁은 화면 상품 목록")
+@Composable
+private fun CatalogProductListNarrowPreview() {
+    EumShoppingMallTheme {
+        CatalogProductListScreen(
+            uiModel = CatalogProductListUiModel(
+                title = "개인보호장비",
+                categories = listOf("전체", "안전모", "보호구", "작업복"),
+                selectedCategory = "전체",
+                resultCountLabel = "총 24개",
+                sortLabel = "인기순",
+                products = previewProducts,
+                isListLayout = true,
             ),
             onEvent = {},
         )

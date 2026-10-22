@@ -175,6 +175,13 @@
     <string name="catalog_question_write">상품 문의하기</string>
     <string name="catalog_answer">답변</string>
     <string name="catalog_quote_options_notice">가격 및 구매 조건은 견적 문의를 통해 확인해 주세요.</string>
+    <string name="catalog_option_select_prompt">옵션을 선택해 주세요</string>
+    <string name="catalog_option_remove">%1$s 옵션 삭제</string>
+    <string name="catalog_options_total_amount">총 금액</string>
+    <string name="catalog_options_total_count">총 %1$d개</string>
+    <string name="catalog_options_selected_quantity">선택 수량</string>
+    <string name="catalog_options_selected_count">%1$d개</string>
+    <string name="catalog_add_to_cart_options">장바구니 담기</string>
     <string name="catalog_popular_search_basis">기준 %1$s</string>
     <string name="catalog_empty_products">등록된 제품이 없습니다.</string>
     <string name="catalog_toggle_layout">목록 보기 방식 변경</string>
