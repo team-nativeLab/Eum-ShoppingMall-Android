@@ -21,6 +21,7 @@ data class EumColorTokens(
     val surface: Color,
     val surfaceSecondary: Color,
     val line: Color,
+    val lineNeutral: Color,
     val lineStrong: Color,
     val lineControl: Color,
     val inverse: Color,
@@ -47,6 +48,7 @@ data class EumColorTokens(
     val infoTint: Color,
     val heartIdle: Color,
     val heartActive: Color,
+    val ratingStarOutline: Color,
     val chartBase: Color,
     val chartUp: Color,
 )
@@ -62,6 +64,7 @@ val LightEumColorTokens =
         surface = Color(0xFFFFFFFF),
         surfaceSecondary = Color(0xFFF1F4F2),
         line = Color(0xFFD7DED9),
+        lineNeutral = Color(0xFFE5E5E5),
         lineStrong = Color(0xFF89938D),
         lineControl = Color(0xFF75817A),
         inverse = Color(0xFFFFFFFF),
@@ -88,6 +91,7 @@ val LightEumColorTokens =
         infoTint = Color(0xFFEAF1FB),
         heartIdle = Color(0xFF65716A),
         heartActive = Color(0xFFE5484D),
+        ratingStarOutline = Color(0xFFA96F16),
         chartBase = Color(0xFF8F8F8F),
         chartUp = Color(0xFFCC2E2E),
     )

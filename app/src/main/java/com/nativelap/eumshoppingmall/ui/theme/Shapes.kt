@@ -8,6 +8,7 @@ object EumRadius {
     val x4 = 4.dp
     val x6 = 6.dp
     val x8 = 8.dp
+    val x10 = 10.dp
     val x12 = 12.dp
     val capsule = 999.dp
 }
