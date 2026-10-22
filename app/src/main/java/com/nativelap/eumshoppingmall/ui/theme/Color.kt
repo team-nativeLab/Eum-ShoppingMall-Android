@@ -47,6 +47,8 @@ data class EumColorTokens(
     val infoTint: Color,
     val heartIdle: Color,
     val heartActive: Color,
+    val ratingStar: Color,
+    val ratingStarOutline: Color,
     val chartBase: Color,
     val chartUp: Color,
 )
@@ -88,6 +90,8 @@ val LightEumColorTokens =
         infoTint = Color(0xFFEAF1FB),
         heartIdle = Color(0xFF65716A),
         heartActive = Color(0xFFE5484D),
+        ratingStar = Color(0xFFF5B301),
+        ratingStarOutline = Color(0xFFA96F16),
         chartBase = Color(0xFF8F8F8F),
         chartUp = Color(0xFFCC2E2E),
     )
