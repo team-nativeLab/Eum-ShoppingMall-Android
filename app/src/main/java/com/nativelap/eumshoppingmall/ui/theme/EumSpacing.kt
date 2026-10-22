@@ -18,6 +18,7 @@ object EumSpacing {
     val x40 = 40.dp
     val x52 = 52.dp
     val x56 = 56.dp
+    val x64 = 64.dp
     val x100 = 100.dp
     val x150 = 150.dp
     val x160 = 160.dp

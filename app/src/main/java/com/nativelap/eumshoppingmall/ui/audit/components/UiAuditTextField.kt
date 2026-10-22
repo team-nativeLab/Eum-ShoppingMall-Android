@@ -52,7 +52,7 @@ fun UiAuditTextField(
         color = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.eumColors.surface,
         border = BorderStroke(
             EumSpacing.x1,
-            if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.eumColors.line,
+            if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.eumColors.lineNeutral,
         ),
     ) {
         Box(Modifier.padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x12)) {

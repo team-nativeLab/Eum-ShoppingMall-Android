@@ -36,7 +36,7 @@ fun UiAuditTopBar(
         Text(
             text = title,
             modifier = Modifier.fillMaxWidth().align(Alignment.CenterStart)
-                .padding(start = EumSpacing.x56, end = EumSpacing.x16),
+                .padding(start = EumSpacing.x64, end = EumSpacing.x16),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.eumColors.textPrimary,
             textAlign = TextAlign.Start,

@@ -91,7 +91,7 @@ fun ProductReviewScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(EumRadius.x8),
                         color = MaterialTheme.eumColors.surface,
-                        border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.line),
+                        border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.lineNeutral),
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = EumSpacing.x16, vertical = EumSpacing.x12),

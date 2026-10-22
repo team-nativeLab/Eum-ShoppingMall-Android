@@ -305,7 +305,6 @@
     <string name="orders_delivery_info_unavailable">배송 정보를 확인할 수 없습니다.</string>
     <string name="orders_tracking_number_only">송장번호 %1$s</string>
     <string name="common_expand">펼치기</string>
-    <string name="common_copy">복사</string>
 
     <!-- Account, membership, and consent -->
     <string name="account_greeting">안녕하세요!</string>
