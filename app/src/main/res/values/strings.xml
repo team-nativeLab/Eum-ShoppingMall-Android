@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">이음산업건설</string>
+    <string name="splash_tagline">사람이 있는 곳에\n더 안전한 내일을.</string>
+    <string name="splash_caption_safety">SAFETY</string>
+    <string name="splash_caption_connects">CONNECTS</string>
+    <string name="splash_caption_tomorrow">A BETTER TOMORROW</string>
     <string name="starter_greeting">Hello %1$s!</string>
 
     <!-- Common navigation and actions -->
@@ -44,6 +48,50 @@
     <string name="home_recommended_products">추천 제품</string>
     <string name="home_best_sellers">베스트 셀러</string>
     <string name="home_all_products">전체 제품 보기</string>
+    <string name="home_see_all">전체 보기</string>
+    <string name="home_see_more">더보기</string>
+    <string name="home_search_hint">어떤 제품을 찾고 계신가요?</string>
+    <string name="home_open_menu">메뉴 열기</string>
+    <string name="home_notifications">알림</string>
+    <string name="home_products_empty">등록된 제품이 없습니다.</string>
+    <string name="home_product_image_placeholder">제품 이미지</string>
+    <string name="home_product_favorite_add">%1$s 찜하기</string>
+    <string name="home_product_favorite_remove">%1$s 찜 해제</string>
+    <string name="home_product_purchase_unavailable">구매 불가</string>
+    <string name="home_product_unavailable_badge">가격 미표시</string>
+    <string name="home_quote_action">견적 문의하기</string>
+    <string name="home_quote_banner_title">맞춤 제작·대량 납품 견적</string>
+    <string name="home_quote_banner_description">현장에 맞는 수량과 사양을 제안해 드립니다.</string>
+    <string name="home_tab_home">홈</string>
+    <string name="home_tab_categories">카테고리</string>
+    <string name="home_tab_search">검색</string>
+    <string name="home_tab_cart">장바구니</string>
+    <string name="home_tab_my_page">마이</string>
+    <string name="home_cart_badge_content_description">장바구니 %1$d개</string>
+    <string name="home_category_protective_equipment">개인보호장비</string>
+    <string name="home_category_workwear">작업복·유니폼</string>
+    <string name="home_category_traffic_safety">교통·도로 안전</string>
+    <string name="home_category_fire_safety">소방·방재용품</string>
+    <string name="home_category_industrial_supplies">산업 현장용품</string>
+    <string name="home_category_security">보안·감시</string>
+    <string name="home_category_home_safety">생활 안전용품</string>
+    <string name="home_category_custom_orders">맞춤 제작·납품</string>
+    <string name="home_hero_safe_eyebrow">SAFE TOMORROW</string>
+    <string name="home_hero_safe_title">사람이 있는 곳에,\n더 안전한 내일을.</string>
+    <string name="home_hero_safe_description">현장의 안전이, 모두의 일상을 지킵니다.</string>
+    <string name="home_hero_browse_products">제품 둘러보기</string>
+    <string name="home_hero_safe_image_description">현장의 안전을 강조하는 배너 이미지</string>
+    <string name="home_hero_custom_eyebrow">CUSTOM SOLUTION</string>
+    <string name="home_hero_custom_title">현장에 꼭 맞는,\n맞춤 안전 솔루션.</string>
+    <string name="home_hero_custom_description">공간과 환경에 맞는 최적의 솔루션을 제안합니다.</string>
+    <string name="home_hero_quote_action">견적 문의하기</string>
+    <string name="home_hero_custom_image_description">맞춤 안전 솔루션 배너 이미지</string>
+    <string name="home_hero_sustainable_eyebrow">SUSTAINABLE VALUE</string>
+    <string name="home_hero_sustainable_title">지속 가능한\n안전의 가치.</string>
+    <string name="home_hero_sustainable_description">제조부터 현장까지, 안전의 기준을 지킵니다.</string>
+    <string name="home_hero_company_action">회사소개 보기</string>
+    <string name="home_hero_sustainable_image_description">지속 가능한 안전 가치를 소개하는 배너 이미지</string>
+    <string name="home_best_sellers_see_all">베스트 셀러 전체 보기</string>
     <string name="home_related_products">함께 보면 좋은 제품</string>
     <string name="home_recent_products">최근 본 상품</string>
     <string name="product_information">제품 정보</string>
