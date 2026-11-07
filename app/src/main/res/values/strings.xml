@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
     <string name="app_name">이음산업건설</string>
     <string name="splash_tagline">사람이 있는 곳에\n더 안전한 내일을.</string>
@@ -6,7 +6,6 @@
     <string name="splash_caption_connects">CONNECTS</string>
     <string name="splash_caption_tomorrow">A BETTER TOMORROW</string>
     <string name="starter_greeting">Hello %1$s!</string>
-
     <!-- Common navigation and actions -->
     <string name="common_home">홈</string>
     <string name="common_categories">카테고리</string>
@@ -44,7 +43,6 @@
     <string name="common_sort_label">정렬: %1$s</string>
     <string name="common_select_all_progress">전체 선택 (%1$d/%2$d)</string>
     <string name="common_zero_currency">₩0</string>
-
     <!-- Home and product copy -->
     <string name="home_recommended_products">추천 제품</string>
     <string name="home_best_sellers">베스트 셀러</string>
@@ -191,7 +189,6 @@
     <string name="catalog_popular_searches_view">인기 검색어 보기</string>
     <string name="catalog_quote_help_title">찾는 제품이 없나요?</string>
     <string name="catalog_quote_help_description">원하시는 제품을 알려주시면 견적을 보내드립니다.</string>
-
     <!-- Search, cart, checkout, and orders -->
     <string name="search_recent_terms">최근 검색어</string>
     <string name="search_popular_terms">인기 검색어</string>
@@ -305,7 +302,6 @@
     <string name="orders_delivery_info_unavailable">배송 정보를 확인할 수 없습니다.</string>
     <string name="orders_tracking_number_only">송장번호 %1$s</string>
     <string name="common_expand">펼치기</string>
-
     <!-- Account, membership, and consent -->
     <string name="account_greeting">안녕하세요!</string>
     <string name="account_favorites">찜한 상품</string>
@@ -353,7 +349,6 @@
     <string name="policy_processor">수탁자</string>
     <string name="policy_entrusted_task">위탁 업무</string>
     <string name="policy_entrusted_items">위탁 항목</string>
-
     <!-- Quotes, support, and returns -->
     <string name="quote_custom_order">맞춤 제작·견적 문의</string>
     <string name="quote_custom_order_english">Custom Order</string>
@@ -398,7 +393,6 @@
     <string name="return_expected_refund">환불 예정 금액</string>
     <string name="return_refund_method">환불 수단</string>
     <string name="return_same_as_payment_method">결제 수단과 동일</string>
-
     <!-- My page, notifications, and company information -->
     <string name="points_balance">보유 적립금</string>
     <string name="points_available">사용 가능 적립금</string>
@@ -453,7 +447,6 @@
     <string name="business_registration_certificate">사업자등록증</string>
     <string name="file_select_prompt">파일을 선택해 주세요</string>
     <string name="file_attachment_count">첨부파일 %1$d</string>
-
     <!-- Figma screen copy and formatted UI labels -->
     <string name="checkout_payment_total_label">결제금액</string>
     <string name="checkout_product_amount_label">상품 금액</string>
@@ -516,7 +509,6 @@
     <string name="delivery_address_name">배송지명</string>
     <string name="delivery_address_limit">배송지는 최대 %1$d개까지 등록할 수 있습니다.</string>
     <string name="return_shipping_fee_value">편도 %1$s</string>
-
     <string name="account_basic_information">기본 정보</string>
     <string name="account_business_information">사업자 정보</string>
     <string name="account_business_information_notice">사업자 회원에게만 표시됩니다.</string>
@@ -627,7 +619,6 @@
     <string name="auth_withdrawal_dialog_description">탈퇴하면 계정을 복구할 수 없습니다. 아래 혜택은 즉시 소멸됩니다.</string>
     <string name="auth_withdrawal_complete_thanks">그동안 이음산업건설을 이용해 주셔서 감사합니다. 언제든 다시 찾아 주세요.</string>
     <string name="auth_withdrawal_record_retention">주문·결제 기록은 관련 법령에 따라 %1$s간 보관된 뒤 파기됩니다.</string>
-
     <string name="quote_inquiry_product_count">문의 상품 (%1$d)</string>
     <string name="quote_inquiry_number">문의번호 %1$s</string>
     <string name="quote_arrived_notice">견적서가 도착했습니다</string>
@@ -691,7 +682,6 @@
     <string name="quote_detail_view">상세 보기</string>
     <string name="quote_filter_empty_title">선택한 상태의 문의가 없습니다</string>
     <string name="notifications_unread_count">읽지 않은 알림 %1$d개</string>
-
     <string name="policy_last_changed">최종 변경 %1$s</string>
     <string name="policy_effective_date">시행일 %1$s</string>
     <string name="policy_effective_sentence">이 약관은 %1$s부터 시행합니다.</string>
@@ -701,7 +691,6 @@
     <string name="policy_notice_effective_at">%1$s 시행 예정</string>
     <string name="policy_current_effective_at">%1$s 시행 (현재)</string>
     <string name="policy_effective_at">%1$s 시행</string>
-
     <string name="company_brand_story">브랜드 스토리</string>
     <string name="company_primary_fields">주력 분야</string>
     <string name="company_primary_certifications">주요 인증</string>
@@ -716,7 +705,6 @@
     <string name="company_tagline_home">사람이 있는 곳에, 더 안전한 내일을 연결합니다.</string>
     <string name="company_support_hours">평일 %1$s – %2$s (주말·공휴일 휴무)</string>
     <string name="company_search_results_count">검색 결과 %1$d건</string>
-
     <string name="order_process_cart_description">상품과 옵션을 골라 장바구니에 담습니다.</string>
     <string name="order_process_form_title">주문서 작성</string>
     <string name="order_process_form_description">배송지와 결제수단을 입력합니다.</string>
@@ -726,7 +714,6 @@
     <string name="order_process_quote_response">담당자가 확인한 뒤 견적서를 보내 드립니다.</string>
     <string name="order_process_continue">주문 진행</string>
     <string name="order_process_quote_continue">견적을 확인한 뒤 주문을 진행합니다.</string>
-
     <!-- 취소·반품·교환 신청 UI -->
     <string name="request_hub_title">취소·반품·교환</string>
     <string name="request_hub_description">주문 관련 문의를 확인하고 신청할 수 있어요.</string>
@@ -805,4 +792,84 @@
     <string name="request_reason_wrong">오배송</string>
     <string name="request_reason_delayed">배송 지연</string>
     <string name="request_reason_other">기타</string>
+    <string name="account_address_manage">배송지 관리</string>
+    <string name="account_business_badge">사업자</string>
+    <string name="account_change">변경</string>
+    <string name="account_company_name">회사명</string>
+    <string name="account_department">담당 부서</string>
+    <string name="account_drawer_company">회사소개</string>
+    <string name="account_drawer_custom_quote">맞춤 제작·견적 문의</string>
+    <string name="account_drawer_events">이벤트</string>
+    <string name="account_drawer_member_name">%1$s님</string>
+    <string name="account_drawer_notices">공지사항</string>
+    <string name="account_drawer_open">메뉴 열기</string>
+    <string name="account_drawer_support">고객지원</string>
+    <string name="account_email">이메일</string>
+    <string name="account_inquiries_support">문의·고객지원</string>
+    <string name="account_my_info_section">내 정보</string>
+    <string name="account_name">이름</string>
+    <string name="account_order_quote_section">주문·견적 관리</string>
+    <string name="account_order_status_section">주문 현황</string>
+    <string name="account_password">비밀번호</string>
+    <string name="account_password_change">비밀번호 변경</string>
+    <string name="account_password_incorrect">비밀번호가 일치하지 않습니다.</string>
+    <string name="account_password_placeholder">비밀번호를 입력해 주세요</string>
+    <string name="account_password_verify_description">회원님의 정보를 안전하게 보호하기 위해 한 번 더 확인합니다.</string>
+    <string name="account_phone_number">휴대폰 번호</string>
+    <string name="account_phone_placeholder">010-0000-0000</string>
+    <string name="account_profile_edit">내 정보 수정</string>
+    <string name="account_profile_manage">내 정보 관리</string>
+    <string name="account_save_changes">저장</string>
+    <string name="account_withdrawal">회원 탈퇴</string>
+    <string name="address_add">배송지 추가</string>
+    <string name="address_default">기본 배송지</string>
+    <string name="address_default_checkbox">기본 배송지로 설정</string>
+    <string name="address_delete">삭제</string>
+    <string name="address_delivery_request">배송 요청사항</string>
+    <string name="address_delivery_request_door">문 앞에 놓아 주세요</string>
+    <string name="address_delivery_request_none">요청사항 없음</string>
+    <string name="address_delivery_request_placeholder">선택해 주세요</string>
+    <string name="address_detail">상세 주소</string>
+    <string name="address_detail_placeholder">상세 주소를 입력해 주세요</string>
+    <string name="address_edit">수정</string>
+    <string name="address_empty_description">자주 사용하는 배송지를 등록해 주세요.</string>
+    <string name="address_empty_title">등록된 배송지가 없습니다</string>
+    <string name="address_form_add_title">배송지 추가</string>
+    <string name="address_form_edit_title">배송지 수정</string>
+    <string name="address_label_placeholder">예: 본사, 현장</string>
+    <string name="address_limit_notice">배송지는 최대 %1$d개까지 등록할 수 있습니다.</string>
+    <string name="address_phone_invalid">휴대폰 번호 형식이 올바르지 않습니다.</string>
+    <string name="address_placeholder">주소</string>
+    <string name="address_postal_code">우편번호</string>
+    <string name="address_postal_placeholder">00000</string>
+    <string name="address_recipient">받는 분</string>
+    <string name="address_recipient_placeholder">받는 분 이름을 입력해 주세요</string>
+    <string name="address_search">주소 검색</string>
+    <string name="address_set_default">기본 설정</string>
+    <string name="address_title">배송지 관리</string>
+    <string name="settings_app_info">앱 정보</string>
+    <string name="settings_app_push">앱 푸시 알림</string>
+    <string name="settings_app_version">앱 버전</string>
+    <string name="settings_cancel">취소</string>
+    <string name="settings_confirm_logout">로그아웃</string>
+    <string name="settings_consent_changed">최종 변경 %1$s</string>
+    <string name="settings_device_notification_disabled">기기 알림이 꺼져 있어 알림을 받을 수 없습니다. 기기 설정 열기</string>
+    <string name="settings_guest_login_message">로그인하고 주문·배송 정보를 확인해 보세요.</string>
+    <string name="settings_logout_confirm">로그아웃하시겠습니까?</string>
+    <string name="settings_marketing_app">앱 푸시</string>
+    <string name="settings_marketing_consent">마케팅 정보 수신</string>
+    <string name="settings_marketing_description">혜택·이벤트 소식을 보내 드립니다. 변경하면 처리 결과를 알려 드립니다.</string>
+    <string name="settings_marketing_email">이메일</string>
+    <string name="settings_marketing_night">야간 혜택 알림 (21시~8시)</string>
+    <string name="settings_marketing_night_description">마케팅 앱 푸시를 켜야 받을 수 있습니다.</string>
+    <string name="settings_marketing_sms">문자(SMS)</string>
+    <string name="settings_marketing_updated">수신 설정이 변경되었습니다.</string>
+    <string name="settings_notification_group">알림</string>
+    <string name="settings_open_source">오픈소스 라이선스</string>
+    <string name="settings_order_push_description">주문·배송, 견적·문의 답변 알림</string>
+    <string name="settings_privacy">개인정보처리방침</string>
+    <string name="settings_terms">이용약관</string>
+    <string name="settings_terms_policy">약관 및 정책</string>
+    <string name="settings_title">설정</string>
+    <string name="settings_usage_guide">이용안내</string>
 </resources>
