@@ -416,6 +416,8 @@
     <string name="auth_phone_placeholder">010-0000-0000</string>
     <string name="auth_phone_resend">재전송</string>
     <string name="auth_verification_code_placeholder">인증번호 6자리</string>
+    <string name="auth_verification_code_show">인증번호 표시</string>
+    <string name="auth_verification_code_hide">인증번호 숨기기</string>
     <string name="auth_verification_remaining">남은 시간 %1$s</string>
     <string name="auth_verified">인증되었습니다.</string>
     <string name="auth_verify">확인</string>
