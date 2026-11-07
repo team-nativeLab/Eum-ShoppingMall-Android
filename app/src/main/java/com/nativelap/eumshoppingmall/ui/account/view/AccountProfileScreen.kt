@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -26,6 +27,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -153,11 +158,14 @@ private fun AccountTextField(
     password: Boolean = false,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(EumSpacing.x6)) {
-        Text(label, style = MaterialTheme.typography.labelMedium)
+        Text(label, Modifier.clearAndSetSemantics {}, style = MaterialTheme.typography.labelMedium)
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 48.dp)
+                .semantics { contentDescription = label },
             enabled = enabled,
             singleLine = true,
             isError = isError,
@@ -171,8 +179,18 @@ private fun AccountTextField(
 
 @Composable
 private fun AccountConsentRow(label: String, isChecked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-        Checkbox(checked = isChecked, onCheckedChange = onCheckedChange)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .toggleable(
+                value = isChecked,
+                role = Role.Checkbox,
+                onValueChange = onCheckedChange,
+            ),
+        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+    ) {
+        Checkbox(checked = isChecked, onCheckedChange = null)
         Text(label, Modifier.padding(top = EumSpacing.x12), style = MaterialTheme.typography.bodySmall)
     }
 }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +27,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
@@ -43,7 +46,7 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
 fun AccountAddressListScreen(uiModel: AccountAddressListUiModel, onEvent: (AccountAddressListScreenEvent) -> Unit) {
-    val hasCapacity = uiModel.addresses.size < uiModel.maximumAddressCount
+    val hasCapacity = uiModel.canAddAddress
     Scaffold(
         topBar = { CatalogTopBar(stringResource(R.string.address_title), onBackClick = { onEvent(AccountAddressListScreenEvent.BackClicked) }, modifier = Modifier.statusBarsPadding()) },
         bottomBar = {
@@ -141,12 +144,16 @@ fun AccountAddressFormScreen(uiModel: AccountAddressFormUiModel, onEvent: (Accou
                     Modifier
                         .fillMaxWidth()
                         .heightIn(min = 48.dp)
-                        .clickable { onEvent(AccountAddressFormScreenEvent.DefaultChanged(!uiModel.address.isDefault)) },
+                        .toggleable(
+                            value = uiModel.address.isDefault,
+                            role = Role.Checkbox,
+                            onValueChange = { onEvent(AccountAddressFormScreenEvent.DefaultChanged(it)) },
+                        ),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     androidx.compose.material3.Checkbox(
                         checked = uiModel.address.isDefault,
-                        onCheckedChange = { onEvent(AccountAddressFormScreenEvent.DefaultChanged(it)) },
+                        onCheckedChange = null,
                     )
                     Text(stringResource(R.string.address_default_checkbox), style = MaterialTheme.typography.bodySmall)
                 }
@@ -158,7 +165,7 @@ fun AccountAddressFormScreen(uiModel: AccountAddressFormUiModel, onEvent: (Accou
 @Composable
 private fun AddressInput(label: String, value: String, placeholder: String, onValueChange: (String) -> Unit, keyboardType: KeyboardType = KeyboardType.Text, isError: Boolean = false, errorMessage: String? = null, modifier: Modifier = Modifier, enabled: Boolean = true) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(EumSpacing.x6)) {
-        Text(label, style = MaterialTheme.typography.labelMedium)
+        Text(label, Modifier.clearAndSetSemantics {}, style = MaterialTheme.typography.labelMedium)
         OutlinedTextField(value, onValueChange, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).semantics { contentDescription = label }, placeholder = { Text(placeholder) }, keyboardOptions = KeyboardOptions(keyboardType = keyboardType), isError = isError, supportingText = errorMessage?.let { { Text(it) } }, enabled = enabled, singleLine = true)
     }
 }

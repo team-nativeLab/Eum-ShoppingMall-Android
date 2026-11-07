@@ -45,7 +45,10 @@ data class AccountProfileEditUiModel(
     val isSaveEnabled: Boolean = true,
 )
 
-data class AccountAddressListUiModel(val addresses: List<AccountAddressUiModel>, val maximumAddressCount: Int)
+data class AccountAddressListUiModel(val addresses: List<AccountAddressUiModel>, val maximumAddressCount: Int) {
+    val canAddAddress: Boolean
+        get() = addresses.size < maximumAddressCount
+}
 
 data class AccountAddressFormUiModel(
     val address: AccountAddressUiModel,
