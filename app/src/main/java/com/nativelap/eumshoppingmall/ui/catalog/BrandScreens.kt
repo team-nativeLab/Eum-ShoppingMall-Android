@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.catalog
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -32,9 +34,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
@@ -69,10 +73,10 @@ fun CatalogBrandListScreen(
         ) {
             item {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                    CatalogSelectionChip(stringResource(R.string.catalog_product_tab), !uiModel.brandModeSelected) {
+                    BrandSelectionChip(stringResource(R.string.catalog_product_tab), !uiModel.brandModeSelected) {
                         onEvent(CatalogBrandListEvent.ProductModeSelected)
                     }
-                    CatalogSelectionChip(stringResource(R.string.catalog_brand_tab), uiModel.brandModeSelected) {}
+                    BrandSelectionChip(stringResource(R.string.catalog_brand_tab), uiModel.brandModeSelected) {}
                 }
             }
             uiModel.featuredBrand?.let { featured ->
@@ -108,22 +112,30 @@ fun CatalogBrandListScreen(
                         BasicTextField(
                             uiModel.query,
                             onValueChange = { onEvent(CatalogBrandListEvent.QueryChanged(it)) },
-                            modifier = Modifier.weight(1f).heightIn(min = 44.dp).padding(start = EumSpacing.x8),
+                            modifier = Modifier.weight(1f).heightIn(min = 48.dp).padding(start = EumSpacing.x8),
                             singleLine = true,
                             textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.eumColors.textPrimary),
                             decorationBox = { inner ->
-                                if (uiModel.query.isEmpty()) Text(stringResource(R.string.catalog_brand_search), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
+                                if (uiModel.query.isEmpty()) {
+                                    Text(
+                                        stringResource(R.string.catalog_brand_search),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.eumColors.textTertiary,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
                                 inner()
                             },
                         )
                     }
-                    Text(
-                        if (uiModel.sortAscending) "A–Z" else "Z–A",
-                        Modifier.padding(start = EumSpacing.x12).heightIn(min = 44.dp).clickable {
-                            onEvent(CatalogBrandListEvent.SortToggled)
-                        },
-                        style = MaterialTheme.typography.labelMedium,
-                    )
+                    Box(
+                        Modifier.padding(start = EumSpacing.x12).widthIn(min = 48.dp).heightIn(min = 48.dp)
+                            .clickable { onEvent(CatalogBrandListEvent.SortToggled) },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(if (uiModel.sortAscending) "A–Z" else "Z–A", style = MaterialTheme.typography.labelMedium)
+                    }
                 }
             }
             uiModel.letters.forEach { letter ->
@@ -185,7 +197,12 @@ fun CatalogBrandDetailScreen(
                         Modifier.fillMaxWidth().aspectRatio(1.8f).background(MaterialTheme.eumColors.surface),
                         contentAlignment = Alignment.Center,
                     ) {
-                        CatalogBrandImage(uiModel.brand, Modifier.fillMaxSize())
+                        Image(
+                            painter = painterResource(R.drawable.figma_brand_detail_banner),
+                            contentDescription = uiModel.brand.name,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                        )
                     }
                     Column(Modifier.padding(horizontal = EumSpacing.x20)) {
                         Text(uiModel.brand.name, style = MaterialTheme.typography.headlineSmall)
@@ -209,18 +226,18 @@ fun CatalogBrandDetailScreen(
                             horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
                         ) {
                             items(uiModel.categories) { category ->
-                                CatalogSelectionChip(category, category == uiModel.selectedCategory) {
+                                BrandSelectionChip(category, category == uiModel.selectedCategory) {
                                     onEvent(CatalogBrandDetailEvent.CategorySelected(category))
                                 }
                             }
                         }
-                        Text(
-                            uiModel.sortLabel,
-                            Modifier.padding(top = EumSpacing.x12).heightIn(min = 44.dp).clickable {
-                                onEvent(CatalogBrandDetailEvent.SortClicked)
-                            },
-                            style = MaterialTheme.typography.labelMedium,
-                        )
+                        Box(
+                            Modifier.padding(top = EumSpacing.x12).widthIn(min = 48.dp).heightIn(min = 48.dp)
+                                .clickable { onEvent(CatalogBrandDetailEvent.SortClicked) },
+                            contentAlignment = Alignment.CenterStart,
+                        ) {
+                            Text(uiModel.sortLabel, style = MaterialTheme.typography.labelMedium)
+                        }
                     }
                 }
                 items(uiModel.products.chunked(columns)) { row ->
@@ -255,6 +272,25 @@ fun CatalogBrandDetailScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun BrandSelectionChip(label: String, selected: Boolean, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.heightIn(min = 48.dp),
+        shape = RoundedCornerShape(EumRadius.capsule),
+        color = if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.background,
+        border = if (selected) null else BorderStroke(1.dp, MaterialTheme.eumColors.lineControl),
+    ) {
+        Box(Modifier.padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x8), contentAlignment = Alignment.Center) {
+            Text(
+                label,
+                style = MaterialTheme.typography.labelMedium,
+                color = if (selected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textSecondary,
+            )
         }
     }
 }

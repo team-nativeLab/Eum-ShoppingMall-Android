@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.orders.view
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -37,11 +38,37 @@ fun OrderRequestFormScreen(uiModel: OrderRequestFormUiModel, onEvent: (OrderRequ
         Button(onClick = { onEvent(OrderRequestFormScreenEvent.SubmitClicked) }, enabled = uiModel.canSubmit, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), colors = darkButtonColors()) { Text(stringResource(R.string.request_request_type_format, requestTypeLabel(uiModel.type))) }
     }) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x12), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-            item { Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) { OrderRequestType.entries.forEach { type -> FilterPill(requestTypeLabel(type), uiModel.type == type) { onEvent(OrderRequestFormScreenEvent.TypeSelected(type)) } } } }
+            item {
+                BoxWithConstraints {
+                    val typeColumns = if (maxWidth < 320.dp) 2 else OrderRequestType.entries.size
+                    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                        OrderRequestType.entries.chunked(typeColumns).forEach { types ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                                types.forEach { type ->
+                                    FilterPill(requestTypeLabel(type), uiModel.type == type) { onEvent(OrderRequestFormScreenEvent.TypeSelected(type)) }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             item { SectionTitle(stringResource(R.string.request_order_products)) }
             items(uiModel.products, key = { it.id }) { product -> SelectableRequestProduct(product, { onEvent(OrderRequestFormScreenEvent.ProductSelectionChanged(product.id, !product.isSelected)) }, { onEvent(OrderRequestFormScreenEvent.ProductQuantityChanged(product.id, it)) }) }
             item { SectionTitle(stringResource(R.string.request_reason_title)) }
-            item { Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) { uiModel.reasons.chunked(3).forEach { group -> Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) { group.forEach { reason -> FilterPill(reasonLabel(reason), uiModel.selectedReason == reason) { onEvent(OrderRequestFormScreenEvent.ReasonSelected(reason)) } } } } } }
+            item {
+                BoxWithConstraints {
+                    val reasonColumns = if (maxWidth < 320.dp) 2 else 3
+                    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                        uiModel.reasons.chunked(reasonColumns).forEach { group ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                                group.forEach { reason ->
+                                    FilterPill(reasonLabel(reason), uiModel.selectedReason == reason) { onEvent(OrderRequestFormScreenEvent.ReasonSelected(reason)) }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             item { TextField(value = uiModel.reasonDetails, onValueChange = { onEvent(OrderRequestFormScreenEvent.ReasonDetailsChanged(it.take(500))) }, modifier = Modifier.fillMaxWidth().heightIn(min = 112.dp), placeholder = { Text(stringResource(R.string.request_form_reason_placeholder)) }, colors = TextFieldDefaults.colors(unfocusedContainerColor = MaterialTheme.eumColors.surface, focusedContainerColor = MaterialTheme.eumColors.surface)) }
             item { OutlinedButton(onClick = { onEvent(OrderRequestFormScreenEvent.PhotoAttachmentClicked) }, enabled = uiModel.photoCount < uiModel.maxPhotoCount, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(stringResource(R.string.request_photo_count, uiModel.photoCount, uiModel.maxPhotoCount)) } }
             if (uiModel.type != OrderRequestType.Cancel) item { SectionTitle(stringResource(R.string.request_collection_method)) }

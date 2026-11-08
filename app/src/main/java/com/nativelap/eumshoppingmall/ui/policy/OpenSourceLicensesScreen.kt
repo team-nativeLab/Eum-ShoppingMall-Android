@@ -1,5 +1,6 @@
 package com.nativelap.eumshoppingmall.ui.policy
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,8 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.nativelap.eumshoppingmall.R
-import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditFlatInfoRow
+import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditLicenseCard
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
+import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -41,6 +43,7 @@ fun OpenSourceLicensesScreen(
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(contentPadding).padding(top = EumSpacing.x20, bottom = EumSpacing.x24),
+            verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
         ) {
             Text(
                 text = stringResource(R.string.ui_audit_licenses_helper),
@@ -48,7 +51,7 @@ fun OpenSourceLicensesScreen(
                 color = MaterialTheme.eumColors.textDisabled,
             )
             licenses.forEach { license ->
-                UiAuditFlatInfoRow(
+                UiAuditLicenseCard(
                     title = license.libraryName,
                     description = license.licenseName,
                 )
@@ -57,6 +60,7 @@ fun OpenSourceLicensesScreen(
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)
 @Composable
 private fun OpenSourceLicensesScreenPreview() {

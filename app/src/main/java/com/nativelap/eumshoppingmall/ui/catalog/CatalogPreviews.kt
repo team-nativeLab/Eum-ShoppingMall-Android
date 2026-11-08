@@ -3,6 +3,7 @@ package com.nativelap.eumshoppingmall.ui.catalog
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 private val previewProducts = listOf(
@@ -32,6 +33,7 @@ private val previewProducts = listOf(
     ),
 )
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "검색 결과 populated")
 @Composable
 private fun CatalogSearchResultsPreview() {
@@ -50,6 +52,7 @@ private fun CatalogSearchResultsPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "상품 상세")
 @Composable
 private fun CatalogProductDetailPreview() {
@@ -90,6 +93,7 @@ private fun CatalogProductDetailPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "견적 상품 옵션 시트")
 @Composable
 private fun CatalogQuoteOptionsPreview() {
@@ -118,6 +122,7 @@ private fun CatalogQuoteOptionsPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "일반 상품 옵션 미선택")
 @Composable
 private fun CatalogUnselectedOptionsPreview() {
@@ -142,6 +147,7 @@ private fun CatalogUnselectedOptionsPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "검색 결과 없음")
 @Composable
 private fun CatalogSearchEmptyPreview() {
@@ -150,6 +156,7 @@ private fun CatalogSearchEmptyPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "브랜드 목록")
 @Composable
 private fun CatalogBrandListPreview() {
@@ -169,6 +176,7 @@ private fun CatalogBrandListPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "브랜드 상세")
 @Composable
 private fun CatalogBrandDetailPreview() {
@@ -189,6 +197,7 @@ private fun CatalogBrandDetailPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "카테고리 목록")
 @Composable
 private fun CatalogCategoryPreview() {
@@ -206,6 +215,7 @@ private fun CatalogCategoryPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "상품 목록")
 @Composable
 private fun CatalogProductListPreview() {
@@ -224,6 +234,7 @@ private fun CatalogProductListPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "상품 목록 리스트·품절 상품")
 @Composable
 private fun CatalogProductListRowsPreview() {
@@ -243,6 +254,7 @@ private fun CatalogProductListRowsPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "상품 목록 빈 상태")
 @Composable
 private fun CatalogProductListEmptyPreview() {
@@ -257,6 +269,7 @@ private fun CatalogProductListEmptyPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 720, fontScale = 1.2f, name = "좁은 화면 상품 목록")
 @Composable
 private fun CatalogProductListNarrowPreview() {
@@ -276,6 +289,7 @@ private fun CatalogProductListNarrowPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "검색 홈")
 @Composable
 private fun CatalogSearchPreview() {

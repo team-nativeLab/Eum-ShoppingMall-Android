@@ -89,10 +89,8 @@ fun OrderRequestRejectionScreen(uiModel: OrderRequestRejectionUiModel, onEvent: 
                     Text(uiModel.statusDescription, Modifier.padding(top = EumSpacing.x8), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
                 }
             }
-            item { DetailCard(stringResource(R.string.request_product_title), uiModel.productSummaryLabel) }
-            item { DetailCard(stringResource(R.string.request_reason_title), uiModel.requestReasonLabel) }
             item { DetailCard(stringResource(R.string.request_rejected_screen_title), uiModel.rejectionReasonLabel) }
-            item { OrderInfoCard(Modifier.fillMaxWidth()) { SummaryLine(stringResource(R.string.request_number), uiModel.requestNumber) } }
+            item { DetailCard(stringResource(R.string.request_number), uiModel.requestNumber) }
         }
     }
 }

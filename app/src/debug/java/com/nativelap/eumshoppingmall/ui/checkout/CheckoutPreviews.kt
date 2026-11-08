@@ -13,6 +13,7 @@ import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptDetail
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptMode
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
+import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 private val previewCheckoutModel = CheckoutUiModel(
@@ -29,18 +30,21 @@ private val previewCheckoutModel = CheckoutUiModel(
     paymentSummary = CheckoutPaymentSummaryUiModel("₩72,000", "₩0", "-₩0", "₩72,000"),
 )
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "주문 배송지")
 @Composable
 private fun CheckoutAddressPreview() {
     EumShoppingMallTheme { CheckoutAddressScreen(previewCheckoutModel, onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "주문 결제 기본")
 @Composable
 private fun CheckoutPaymentPreview() {
     EumShoppingMallTheme { CheckoutPaymentScreen(previewCheckoutModel, onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "세금계산서 직접 입력")
 @Composable
 private fun CheckoutTaxInvoicePreview() {
@@ -61,6 +65,7 @@ private fun CheckoutTaxInvoicePreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 720, fontScale = 1.2f, name = "현금영수증 입력 좁은 화면")
 @Composable
 private fun CheckoutCashReceiptNarrowPreview() {
@@ -73,6 +78,58 @@ private fun CheckoutCashReceiptNarrowPreview() {
                     receiptMode = CheckoutReceiptMode.ExpenseProof,
                 ),
             ),
+            onEvent = {},
+        )
+    }
+}
+
+@ResponsiveUiPreview
+@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "현금영수증 입력")
+@Composable
+private fun CheckoutCashReceiptReadyPreview() {
+    EumShoppingMallTheme {
+        CheckoutPaymentScreen(
+            previewCheckoutModel.copy(
+                receiptType = CheckoutReceiptType.CashReceipt,
+                receiptDetails = CheckoutReceiptDetailsUiModel(
+                    type = CheckoutReceiptDetailsType.CashReceiptPhone,
+                    phoneNumber = "010-0000-0000",
+                    receiptMode = CheckoutReceiptMode.IncomeDeduction,
+                ),
+            ),
+            onEvent = {},
+        )
+    }
+}
+
+@ResponsiveUiPreview
+@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "세금계산서 저장 사업자 정보")
+@Composable
+private fun CheckoutTaxInvoiceSavedPreview() {
+    EumShoppingMallTheme {
+        CheckoutPaymentScreen(
+            previewCheckoutModel.copy(
+                receiptType = CheckoutReceiptType.TaxInvoice,
+                receiptDetails = CheckoutReceiptDetailsUiModel(
+                    type = CheckoutReceiptDetailsType.SavedBusinessInformation,
+                    registrationNumber = "000-00-00000",
+                    businessName = "이음산업건설",
+                    representativeName = "홍길동",
+                    email = "info@example.com",
+                ),
+            ),
+            onEvent = {},
+        )
+    }
+}
+
+@ResponsiveUiPreview
+@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "가상 계좌 결제 선택")
+@Composable
+private fun CheckoutVirtualAccountPreview() {
+    EumShoppingMallTheme {
+        CheckoutPaymentScreen(
+            previewCheckoutModel.copy(paymentMethod = CheckoutPaymentMethod.VirtualAccount),
             onEvent = {},
         )
     }

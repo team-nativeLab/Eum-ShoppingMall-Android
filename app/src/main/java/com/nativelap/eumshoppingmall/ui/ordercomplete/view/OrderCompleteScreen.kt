@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutStepIndicator
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.ordercomplete.viewmodel.OrderCompleteScreenEvent
 import com.nativelap.eumshoppingmall.ui.ordercomplete.viewmodel.OrderCompleteUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -58,84 +60,88 @@ fun OrderCompleteScreen(
             }
         },
         bottomBar = {
-            Column(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface).navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                OutlinedButton(
-                    onClick = { onEvent(OrderCompleteScreenEvent.ContinueShoppingClicked) },
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
-                ) {
-                    Text(stringResource(R.string.checkout_continue_shopping))
-                }
-                Button(
-                    onClick = { onEvent(OrderCompleteScreenEvent.ViewOrderDetailsClicked) },
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.eumColors.textPrimary,
-                        contentColor = MaterialTheme.eumColors.inverse,
-                    ),
-                ) {
-                    Text(stringResource(R.string.orders_detail))
+            ResponsiveWidthContainer {
+                Column(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface).navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                    OutlinedButton(
+                        onClick = { onEvent(OrderCompleteScreenEvent.ContinueShoppingClicked) },
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                    ) {
+                        Text(stringResource(R.string.checkout_continue_shopping))
+                    }
+                    Button(
+                        onClick = { onEvent(OrderCompleteScreenEvent.ViewOrderDetailsClicked) },
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.eumColors.textPrimary,
+                            contentColor = MaterialTheme.eumColors.inverse,
+                        ),
+                    ) {
+                        Text(stringResource(R.string.orders_detail))
+                    }
                 }
             }
         },
         containerColor = MaterialTheme.eumColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { contentPadding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(contentPadding).verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
-        ) {
-            Surface(
-                modifier = Modifier.padding(top = EumSpacing.x24).size(64.dp),
-                shape = CircleShape,
-                color = if (uiModel.isVirtualAccount) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.success,
+        ResponsiveContentContainer(Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(contentPadding).verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
             ) {
-                Icon(
-                    painterResource(R.drawable.ic_check),
-                    contentDescription = null,
-                    tint = MaterialTheme.eumColors.inverse,
-                    modifier = Modifier.padding(EumSpacing.x16),
-                )
-            }
-            Text(
-                stringResource(if (uiModel.isVirtualAccount) R.string.checkout_order_received else R.string.checkout_order_complete),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.eumColors.textPrimary,
-            )
-            Text(
-                stringResource(R.string.checkout_order_number, uiModel.orderNumber),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.eumColors.textSecondary,
-            )
-            if (uiModel.isVirtualAccount) {
-                Text(stringResource(R.string.checkout_virtual_account_deadline_notice), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-                OrderInformationCard(
-                    rows = listOfNotNull(
-                        uiModel.bankLabel?.let { stringResource(R.string.checkout_bank) to it },
-                        uiModel.accountNumber?.let { stringResource(R.string.checkout_account_number) to it },
-                        uiModel.depositorLabel?.let { stringResource(R.string.checkout_depositor) to it },
-                        uiModel.depositAmountLabel?.let { stringResource(R.string.checkout_deposit_amount) to it },
-                        uiModel.depositDeadlineLabel?.let { stringResource(R.string.checkout_payment_deadline_short) to it },
-                    ),
-                    onCopyAccount = { onEvent(OrderCompleteScreenEvent.CopyAccountNumberClicked) },
-                    isAccountCard = true,
+                Surface(
+                    modifier = Modifier.padding(top = EumSpacing.x24).size(64.dp),
+                    shape = CircleShape,
+                    color = if (uiModel.isVirtualAccount) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.success,
+                ) {
+                    Icon(
+                        painterResource(R.drawable.ic_check),
+                        contentDescription = null,
+                        tint = MaterialTheme.eumColors.inverse,
+                        modifier = Modifier.padding(EumSpacing.x16),
+                    )
+                }
+                Text(
+                    stringResource(if (uiModel.isVirtualAccount) R.string.checkout_order_received else R.string.checkout_order_complete),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.eumColors.textPrimary,
                 )
                 Text(
-                    stringResource(R.string.checkout_virtual_account_expiry_notice),
-                    modifier = Modifier.fillMaxWidth().background(MaterialTheme.eumColors.dangerTint, MaterialTheme.shapes.small).padding(EumSpacing.x12),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.eumColors.danger,
+                    stringResource(R.string.checkout_order_number, uiModel.orderNumber),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.eumColors.textSecondary,
+                )
+                if (uiModel.isVirtualAccount) {
+                    Text(stringResource(R.string.checkout_virtual_account_deadline_notice), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                    OrderInformationCard(
+                        rows = listOfNotNull(
+                            uiModel.bankLabel?.let { stringResource(R.string.checkout_bank) to it },
+                            uiModel.accountNumber?.let { stringResource(R.string.checkout_account_number) to it },
+                            uiModel.depositorLabel?.let { stringResource(R.string.checkout_depositor) to it },
+                            uiModel.depositAmountLabel?.let { stringResource(R.string.checkout_deposit_amount) to it },
+                            uiModel.depositDeadlineLabel?.let { stringResource(R.string.checkout_payment_deadline_short) to it },
+                        ),
+                        onCopyAccount = { onEvent(OrderCompleteScreenEvent.CopyAccountNumberClicked) },
+                        isAccountCard = true,
+                    )
+                    Text(
+                        stringResource(R.string.checkout_virtual_account_expiry_notice),
+                        modifier = Modifier.fillMaxWidth().background(MaterialTheme.eumColors.dangerTint, MaterialTheme.shapes.small).padding(EumSpacing.x12),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.eumColors.danger,
+                    )
+                }
+                OrderInformationCard(
+                    rows = listOf(
+                        stringResource(R.string.checkout_payment_amount) to uiModel.paymentAmountLabel,
+                        stringResource(R.string.checkout_payment_method_label) to uiModel.paymentMethodLabel,
+                        stringResource(R.string.checkout_delivery_address) to uiModel.addressLabel,
+                    ),
+                    onCopyAccount = {},
+                    isAccountCard = false,
                 )
             }
-            OrderInformationCard(
-                rows = listOf(
-                    stringResource(R.string.checkout_payment_amount) to uiModel.paymentAmountLabel,
-                    stringResource(R.string.checkout_payment_method_label) to uiModel.paymentMethodLabel,
-                    stringResource(R.string.checkout_delivery_address) to uiModel.addressLabel,
-                ),
-                onCopyAccount = {},
-                isAccountCard = false,
-            )
         }
     }
 }

@@ -52,6 +52,8 @@ import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogSelectedOptionCard
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBarAction
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -80,7 +82,9 @@ fun CatalogProductDetailScreen(
             )
         },
         bottomBar = {
-            ProductDetailBottomActions(uiModel, onEvent, Modifier.navigationBarsPadding())
+            ResponsiveWidthContainer {
+                ProductDetailBottomActions(uiModel, onEvent, Modifier.navigationBarsPadding())
+            }
         },
         contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
     ) { padding ->
@@ -99,90 +103,92 @@ fun CatalogProductDetailScreen(
             }
             hasInitializedTabs = true
         }
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            state = listState,
-            contentPadding = PaddingValues(bottom = EumSpacing.x24),
-        ) {
-            item {
-                ProductGallery(uiModel, onEvent)
-                Column(Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x20)) {
-                    Text(uiModel.product.name, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.eumColors.textPrimary)
-                    uiModel.product.subtitle?.let {
-                        Text(it, Modifier.padding(top = EumSpacing.x8), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-                    }
-                    uiModel.product.ratingLabel?.let {
-                        Text(
-                            "$it  ${uiModel.product.reviewCountLabel.orEmpty()}",
-                            Modifier.padding(top = EumSpacing.x12),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.eumColors.textSecondary,
-                        )
-                    }
-                    Text(
-                        when (val price = uiModel.product.price) {
-                            is CatalogPriceUiModel.Available -> price.currentLabel
-                            CatalogPriceUiModel.QuoteRequired -> stringResource(R.string.product_price_inquiry)
-                        },
-                        Modifier.padding(top = EumSpacing.x16),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.eumColors.textPrimary,
-                    )
-                    uiModel.shippingRows.forEach { row -> ProductKeyValueRow(row) }
-                }
-            }
-            item { ProductDetailTabs(uiModel, onEvent) }
-            item {
-                Column(Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x24)) {
-                    Text(stringResource(R.string.catalog_product_details), style = MaterialTheme.typography.titleMedium)
-                    uiModel.specifications.forEach { ProductKeyValueRow(it) }
-                }
-            }
-            item {
-                Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
-                    ProductSectionTitle(stringResource(R.string.catalog_product_reviews), uiModel.reviewCount)
-                    if (uiModel.reviews.isEmpty()) {
-                        Text(stringResource(R.string.catalog_no_reviews), Modifier.padding(vertical = EumSpacing.x20), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
-                    } else {
-                        uiModel.reviews.forEach { review -> ProductReviewCard(review) }
-                    }
-                    OutlinedButton(onClick = { onEvent(CatalogProductDetailEvent.TabSelected(2)) }, modifier = Modifier.fillMaxWidth()) {
-                        Text(stringResource(R.string.catalog_review_write))
-                    }
-                }
-            }
-            item {
-                Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
-                    ProductSectionTitle(stringResource(R.string.catalog_product_questions), uiModel.questionCount)
-                    if (uiModel.questions.isEmpty()) {
-                        Text(stringResource(R.string.catalog_no_questions), Modifier.padding(vertical = EumSpacing.x20), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
-                    } else {
-                        uiModel.questions.forEach { question -> ProductQuestionCard(question) }
-                    }
-                    OutlinedButton(onClick = { onEvent(CatalogProductDetailEvent.TabSelected(3)) }, modifier = Modifier.fillMaxWidth()) {
-                        Text(stringResource(R.string.catalog_question_write))
-                    }
-                }
-            }
-            item {
-                Column(Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
-                    Text(stringResource(R.string.catalog_product_returns), style = MaterialTheme.typography.titleMedium)
-                    uiModel.returnRows.forEach { ProductKeyValueRow(it) }
-                }
-            }
-            if (uiModel.relatedProducts.isNotEmpty()) {
-                item { Text(stringResource(R.string.catalog_product_related), Modifier.padding(EumSpacing.x20), style = MaterialTheme.typography.titleMedium) }
-                items(uiModel.relatedProducts.chunked(2)) { row ->
-                    Row(Modifier.padding(horizontal = EumSpacing.x20), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                        row.forEach { product ->
-                            CatalogProductCard(
-                                product,
-                                onClick = { onEvent(CatalogProductDetailEvent.RelatedProductSelected(product.id)) },
-                                onFavoriteClick = { onEvent(CatalogProductDetailEvent.FavoriteToggled(product.id)) },
-                                modifier = Modifier.weight(1f),
+        ResponsiveContentContainer(Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                state = listState,
+                contentPadding = PaddingValues(bottom = EumSpacing.x24),
+            ) {
+                item {
+                    ProductGallery(uiModel, onEvent)
+                    Column(Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x20)) {
+                        Text(uiModel.product.name, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.eumColors.textPrimary)
+                        uiModel.product.subtitle?.let {
+                            Text(it, Modifier.padding(top = EumSpacing.x8), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                        }
+                        uiModel.product.ratingLabel?.let {
+                            Text(
+                                "$it  ${uiModel.product.reviewCountLabel.orEmpty()}",
+                                Modifier.padding(top = EumSpacing.x12),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.eumColors.textSecondary,
                             )
                         }
-                        if (row.size == 1) Spacer(Modifier.weight(1f))
+                        Text(
+                            when (val price = uiModel.product.price) {
+                                is CatalogPriceUiModel.Available -> price.currentLabel
+                                CatalogPriceUiModel.QuoteRequired -> stringResource(R.string.product_price_inquiry)
+                            },
+                            Modifier.padding(top = EumSpacing.x16),
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.eumColors.textPrimary,
+                        )
+                        uiModel.shippingRows.forEach { row -> ProductKeyValueRow(row) }
+                    }
+                }
+                item { ProductDetailTabs(uiModel, onEvent) }
+                item {
+                    Column(Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x24)) {
+                        Text(stringResource(R.string.catalog_product_details), style = MaterialTheme.typography.titleMedium)
+                        uiModel.specifications.forEach { ProductKeyValueRow(it) }
+                    }
+                }
+                item {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
+                        ProductSectionTitle(stringResource(R.string.catalog_product_reviews), uiModel.reviewCount)
+                        if (uiModel.reviews.isEmpty()) {
+                            Text(stringResource(R.string.catalog_no_reviews), Modifier.padding(vertical = EumSpacing.x20), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
+                        } else {
+                            uiModel.reviews.forEach { review -> ProductReviewCard(review) }
+                        }
+                        OutlinedButton(onClick = { onEvent(CatalogProductDetailEvent.TabSelected(2)) }, modifier = Modifier.fillMaxWidth()) {
+                            Text(stringResource(R.string.catalog_review_write))
+                        }
+                    }
+                }
+                item {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
+                        ProductSectionTitle(stringResource(R.string.catalog_product_questions), uiModel.questionCount)
+                        if (uiModel.questions.isEmpty()) {
+                            Text(stringResource(R.string.catalog_no_questions), Modifier.padding(vertical = EumSpacing.x20), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
+                        } else {
+                            uiModel.questions.forEach { question -> ProductQuestionCard(question) }
+                        }
+                        OutlinedButton(onClick = { onEvent(CatalogProductDetailEvent.TabSelected(3)) }, modifier = Modifier.fillMaxWidth()) {
+                            Text(stringResource(R.string.catalog_question_write))
+                        }
+                    }
+                }
+                item {
+                    Column(Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
+                        Text(stringResource(R.string.catalog_product_returns), style = MaterialTheme.typography.titleMedium)
+                        uiModel.returnRows.forEach { ProductKeyValueRow(it) }
+                    }
+                }
+                if (uiModel.relatedProducts.isNotEmpty()) {
+                    item { Text(stringResource(R.string.catalog_product_related), Modifier.padding(EumSpacing.x20), style = MaterialTheme.typography.titleMedium) }
+                    items(uiModel.relatedProducts.chunked(2)) { row ->
+                        Row(Modifier.padding(horizontal = EumSpacing.x20), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                            row.forEach { product ->
+                                CatalogProductCard(
+                                    product,
+                                    onClick = { onEvent(CatalogProductDetailEvent.RelatedProductSelected(product.id)) },
+                                    onFavoriteClick = { onEvent(CatalogProductDetailEvent.FavoriteToggled(product.id)) },
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
+                            if (row.size == 1) Spacer(Modifier.weight(1f))
+                        }
                     }
                 }
             }

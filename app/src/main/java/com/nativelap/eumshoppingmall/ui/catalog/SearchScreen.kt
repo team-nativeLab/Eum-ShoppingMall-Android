@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogScreenScaffold
@@ -69,7 +72,7 @@ fun CatalogSearchScreen(
                             Text(stringResource(R.string.search_recent_terms), Modifier.weight(1f), style = MaterialTheme.typography.labelLarge)
                             Text(
                                 stringResource(R.string.search_clear_all),
-                                modifier = Modifier.heightIn(min = 44.dp).clickable { onEvent(CatalogSearchEvent.ClearRecentTerms) },
+                                modifier = Modifier.heightIn(min = 48.dp).clickable { onEvent(CatalogSearchEvent.ClearRecentTerms) },
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.eumColors.textTertiary,
                             )
@@ -79,6 +82,7 @@ fun CatalogSearchScreen(
                                 val term = uiModel.recentTerms[index]
                                 Surface(
                                     onClick = { onEvent(CatalogSearchEvent.RecentTermSelected(term)) },
+                                    modifier = Modifier.heightIn(min = 48.dp),
                                     shape = RoundedCornerShape(EumRadius.capsule),
                                     color = MaterialTheme.eumColors.backgroundSubtle,
                                 ) {
@@ -104,13 +108,13 @@ fun CatalogSearchScreen(
                             Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
                                 pair.forEach { (index, term) ->
                                     Row(
-                                        modifier = Modifier.weight(1f).heightIn(min = 36.dp)
+                                        modifier = Modifier.weight(1f).heightIn(min = 48.dp)
                                             .clickable { onEvent(CatalogSearchEvent.PopularTermSelected(term)) },
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
                                     ) {
                                         Text((index + 1).toString(), style = MaterialTheme.typography.labelMedium)
-                                        Text(term, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                                        Text(term, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                     }
                                 }
                             }
@@ -150,14 +154,20 @@ internal fun CatalogSearchHeader(
             BasicTextField(
                 value = query,
                 onValueChange = onQueryChanged,
-                modifier = Modifier.weight(1f).heightIn(min = 44.dp),
+                modifier = Modifier.weight(1f).heightIn(min = 48.dp),
                 singleLine = true,
                 textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.eumColors.textPrimary),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { onSubmit() }),
                 decorationBox = { innerTextField ->
                     if (query.isEmpty()) {
-                        Text(stringResource(R.string.catalog_search_placeholder), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
+                        Text(
+                            stringResource(R.string.catalog_search_placeholder),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.eumColors.textTertiary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
                     innerTextField()
                 },
@@ -168,10 +178,11 @@ internal fun CatalogSearchHeader(
                 }
             }
         }
-        Text(
-            stringResource(R.string.catalog_cancel),
-            modifier = Modifier.heightIn(min = 44.dp).clickable(onClick = onCancel),
-            style = MaterialTheme.typography.labelMedium,
-        )
+        Box(
+            modifier = Modifier.widthIn(min = 48.dp).heightIn(min = 48.dp).clickable(onClick = onCancel),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(stringResource(R.string.catalog_cancel), style = MaterialTheme.typography.labelMedium)
+        }
     }
 }

@@ -40,6 +40,8 @@ import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountAddressListScre
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountAddressListUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountAddressUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -51,24 +53,28 @@ fun AccountAddressListScreen(uiModel: AccountAddressListUiModel, onEvent: (Accou
         topBar = { CatalogTopBar(stringResource(R.string.address_title), onBackClick = { onEvent(AccountAddressListScreenEvent.BackClicked) }, modifier = Modifier.statusBarsPadding()) },
         bottomBar = {
             if (uiModel.addresses.isNotEmpty()) {
-                Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8)) {
-                    Text(stringResource(R.string.address_limit_notice, uiModel.maximumAddressCount), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
-                    AccountPrimaryButton(stringResource(R.string.address_add), { onEvent(AccountAddressListScreenEvent.AddClicked) }, enabled = hasCapacity)
+                ResponsiveWidthContainer {
+                    Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8)) {
+                        Text(stringResource(R.string.address_limit_notice, uiModel.maximumAddressCount), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                        AccountPrimaryButton(stringResource(R.string.address_add), { onEvent(AccountAddressListScreenEvent.AddClicked) }, enabled = hasCapacity)
+                    }
                 }
             }
         },
         containerColor = MaterialTheme.eumColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
-        if (uiModel.addresses.isEmpty()) {
-            Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = EumSpacing.x24), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(stringResource(R.string.address_empty_title), style = MaterialTheme.typography.titleMedium)
-                Text(stringResource(R.string.address_empty_description), Modifier.padding(top = EumSpacing.x8), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-                AccountPrimaryButton(stringResource(R.string.address_add), { onEvent(AccountAddressListScreenEvent.AddClicked) }, enabled = hasCapacity)
-            }
-        } else {
-            LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = androidx.compose.foundation.layout.PaddingValues(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                items(uiModel.addresses, key = { it.id }) { address -> AddressCard(address, onEvent) }
+        ResponsiveContentContainer(Modifier.fillMaxSize()) {
+            if (uiModel.addresses.isEmpty()) {
+                Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = EumSpacing.x24), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(stringResource(R.string.address_empty_title), style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.address_empty_description), Modifier.padding(top = EumSpacing.x8), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                    AccountPrimaryButton(stringResource(R.string.address_add), { onEvent(AccountAddressListScreenEvent.AddClicked) }, enabled = hasCapacity)
+                }
+            } else {
+                LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = androidx.compose.foundation.layout.PaddingValues(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                    items(uiModel.addresses, key = { it.id }) { address -> AddressCard(address, onEvent) }
+                }
             }
         }
     }
@@ -103,59 +109,63 @@ fun AccountAddressFormScreen(uiModel: AccountAddressFormUiModel, onEvent: (Accou
     Scaffold(
         topBar = { CatalogTopBar(title, onBackClick = { onEvent(AccountAddressFormScreenEvent.BackClicked) }, modifier = Modifier.statusBarsPadding()) },
         bottomBar = {
-            AccountStickyPrimaryAction(
-                stringResource(R.string.common_save),
-                { onEvent(AccountAddressFormScreenEvent.SaveClicked) },
-                enabled = uiModel.isSaveEnabled,
-            )
+            ResponsiveWidthContainer {
+                AccountStickyPrimaryAction(
+                    stringResource(R.string.common_save),
+                    { onEvent(AccountAddressFormScreenEvent.SaveClicked) },
+                    enabled = uiModel.isSaveEnabled,
+                )
+            }
         },
         containerColor = MaterialTheme.eumColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding).imePadding(), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-            item { AddressInput(stringResource(R.string.delivery_address_name), uiModel.address.label, stringResource(R.string.address_label_placeholder), { onEvent(AccountAddressFormScreenEvent.LabelChanged(it)) }) }
-            item { AddressInput(stringResource(R.string.address_recipient), uiModel.address.recipient, stringResource(R.string.address_recipient_placeholder), { onEvent(AccountAddressFormScreenEvent.RecipientChanged(it)) }) }
-            item { AddressInput(stringResource(R.string.account_phone_number), uiModel.address.phoneNumber, stringResource(R.string.account_phone_placeholder), { onEvent(AccountAddressFormScreenEvent.PhoneChanged(it)) }, keyboardType = KeyboardType.Phone, isError = uiModel.isPhoneInvalid, errorMessage = if (uiModel.isPhoneInvalid) stringResource(R.string.address_phone_invalid) else null) }
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                    Text(stringResource(R.string.address_placeholder), style = MaterialTheme.typography.labelMedium)
-                    Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
-                        AddressInput(stringResource(R.string.address_postal_code), uiModel.address.postalCode, stringResource(R.string.address_postal_placeholder), { onEvent(AccountAddressFormScreenEvent.PostalCodeChanged(it)) }, modifier = Modifier.weight(1f))
-                        androidx.compose.material3.OutlinedButton(onClick = { onEvent(AccountAddressFormScreenEvent.AddressSearchClicked) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.address_search)) }
+        ResponsiveContentContainer(Modifier.fillMaxSize()) {
+            LazyColumn(Modifier.fillMaxSize().padding(padding).imePadding(), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                item { AddressInput(stringResource(R.string.delivery_address_name), uiModel.address.label, stringResource(R.string.address_label_placeholder), { onEvent(AccountAddressFormScreenEvent.LabelChanged(it)) }) }
+                item { AddressInput(stringResource(R.string.address_recipient), uiModel.address.recipient, stringResource(R.string.address_recipient_placeholder), { onEvent(AccountAddressFormScreenEvent.RecipientChanged(it)) }) }
+                item { AddressInput(stringResource(R.string.account_phone_number), uiModel.address.phoneNumber, stringResource(R.string.account_phone_placeholder), { onEvent(AccountAddressFormScreenEvent.PhoneChanged(it)) }, keyboardType = KeyboardType.Phone, isError = uiModel.isPhoneInvalid, errorMessage = if (uiModel.isPhoneInvalid) stringResource(R.string.address_phone_invalid) else null) }
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                        Text(stringResource(R.string.address_placeholder), style = MaterialTheme.typography.labelMedium)
+                        Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
+                            AddressInput(stringResource(R.string.address_postal_code), uiModel.address.postalCode, stringResource(R.string.address_postal_placeholder), { onEvent(AccountAddressFormScreenEvent.PostalCodeChanged(it)) }, modifier = Modifier.weight(1f))
+                            androidx.compose.material3.OutlinedButton(onClick = { onEvent(AccountAddressFormScreenEvent.AddressSearchClicked) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.address_search)) }
+                        }
+                        AddressInput(stringResource(R.string.address_placeholder), uiModel.address.address, stringResource(R.string.address_placeholder), { onEvent(AccountAddressFormScreenEvent.AddressChanged(it)) }, enabled = false)
+                        AddressInput(stringResource(R.string.address_detail), uiModel.address.addressDetail, stringResource(R.string.address_detail_placeholder), { onEvent(AccountAddressFormScreenEvent.AddressDetailChanged(it)) })
                     }
-                    AddressInput(stringResource(R.string.address_placeholder), uiModel.address.address, stringResource(R.string.address_placeholder), { onEvent(AccountAddressFormScreenEvent.AddressChanged(it)) }, enabled = false)
-                    AddressInput(stringResource(R.string.address_detail), uiModel.address.addressDetail, stringResource(R.string.address_detail_placeholder), { onEvent(AccountAddressFormScreenEvent.AddressDetailChanged(it)) })
                 }
-            }
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                    Text(stringResource(R.string.address_delivery_request), style = MaterialTheme.typography.labelMedium)
-                    Text(
-                        uiModel.address.deliveryRequest.ifBlank { stringResource(R.string.address_delivery_request_placeholder) },
-                        Modifier.fillMaxWidth().heightIn(min = 48.dp).border(1.dp, MaterialTheme.eumColors.lineControl, RoundedCornerShape(EumRadius.x8)).clickable {
-                            onEvent(AccountAddressFormScreenEvent.DeliveryRequestChanged(if (uiModel.address.deliveryRequest.isBlank()) doorDeliveryRequest else noDeliveryRequest))
-                        }.padding(EumSpacing.x12),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                        Text(stringResource(R.string.address_delivery_request), style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            uiModel.address.deliveryRequest.ifBlank { stringResource(R.string.address_delivery_request_placeholder) },
+                            Modifier.fillMaxWidth().heightIn(min = 48.dp).border(1.dp, MaterialTheme.eumColors.lineControl, RoundedCornerShape(EumRadius.x8)).clickable {
+                                onEvent(AccountAddressFormScreenEvent.DeliveryRequestChanged(if (uiModel.address.deliveryRequest.isBlank()) doorDeliveryRequest else noDeliveryRequest))
+                            }.padding(EumSpacing.x12),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                 }
-            }
-            item {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 48.dp)
-                        .toggleable(
-                            value = uiModel.address.isDefault,
-                            role = Role.Checkbox,
-                            onValueChange = { onEvent(AccountAddressFormScreenEvent.DefaultChanged(it)) },
-                        ),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    androidx.compose.material3.Checkbox(
-                        checked = uiModel.address.isDefault,
-                        onCheckedChange = null,
-                    )
-                    Text(stringResource(R.string.address_default_checkbox), style = MaterialTheme.typography.bodySmall)
+                item {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 48.dp)
+                            .toggleable(
+                                value = uiModel.address.isDefault,
+                                role = Role.Checkbox,
+                                onValueChange = { onEvent(AccountAddressFormScreenEvent.DefaultChanged(it)) },
+                            ),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        androidx.compose.material3.Checkbox(
+                            checked = uiModel.address.isDefault,
+                            onCheckedChange = null,
+                        )
+                        Text(stringResource(R.string.address_default_checkbox), style = MaterialTheme.typography.bodySmall)
+                    }
                 }
             }
         }

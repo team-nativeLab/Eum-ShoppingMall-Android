@@ -34,6 +34,8 @@ import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutSection
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutStepIndicator
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutScreenEvent
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -52,101 +54,105 @@ fun CheckoutAddressScreen(
             }
         },
         bottomBar = {
-            Button(
-                onClick = { onEvent(CheckoutScreenEvent.NextClicked) },
-                modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12).heightIn(min = 56.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.eumColors.textPrimary,
-                    contentColor = MaterialTheme.eumColors.inverse,
-                ),
-            ) {
-                Text(stringResource(R.string.checkout_next))
+            ResponsiveWidthContainer {
+                Button(
+                    onClick = { onEvent(CheckoutScreenEvent.NextClicked) },
+                    modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12).heightIn(min = 56.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.eumColors.textPrimary,
+                        contentColor = MaterialTheme.eumColors.inverse,
+                    ),
+                ) {
+                    Text(stringResource(R.string.checkout_next))
+                }
             }
         },
         containerColor = MaterialTheme.eumColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { contentPadding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(contentPadding),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
-        ) {
-            item { CheckoutSectionHeader(R.string.checkout_shipping_address) }
-            item {
-                Row(
-                    Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                            Text(uiModel.address.recipientName, style = MaterialTheme.typography.labelLarge)
-                            Text(uiModel.address.contactLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+        ResponsiveContentContainer(Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(contentPadding),
+                verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+            ) {
+                item { CheckoutSectionHeader(R.string.checkout_shipping_address) }
+                item {
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
+                        verticalAlignment = Alignment.Top,
+                    ) {
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                                Text(uiModel.address.recipientName, style = MaterialTheme.typography.labelLarge)
+                                Text(uiModel.address.contactLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                            }
+                            if (uiModel.address.isDefaultAddress) {
+                                Text(
+                                    stringResource(R.string.checkout_default_address),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.eumColors.inverse,
+                                    modifier = Modifier.background(MaterialTheme.eumColors.textPrimary, MaterialTheme.shapes.extraSmall).padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x4),
+                                )
+                            }
+                            Text(uiModel.address.addressLabel, style = MaterialTheme.typography.bodySmall)
                         }
-                        if (uiModel.address.isDefaultAddress) {
-                            Text(
-                                stringResource(R.string.checkout_default_address),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.eumColors.inverse,
-                                modifier = Modifier.background(MaterialTheme.eumColors.textPrimary, MaterialTheme.shapes.extraSmall).padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x4),
-                            )
+                        TextButton(onClick = { onEvent(CheckoutScreenEvent.AddressChangeClicked) }) {
+                            Text(stringResource(R.string.checkout_address_change))
                         }
-                        Text(uiModel.address.addressLabel, style = MaterialTheme.typography.bodySmall)
-                    }
-                    TextButton(onClick = { onEvent(CheckoutScreenEvent.AddressChangeClicked) }) {
-                        Text(stringResource(R.string.checkout_address_change))
                     }
                 }
-            }
-            item { CheckoutSectionHeader(R.string.checkout_shipping_request) }
-            item {
-                Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12)) {
-                    androidx.compose.foundation.layout.Box {
-                        androidx.compose.material3.OutlinedButton(
-                            onClick = { onEvent(CheckoutScreenEvent.DeliveryRequestPickerToggled) },
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                        ) {
-                            Text(uiModel.deliveryRequestLabel ?: stringResource(R.string.checkout_delivery_request_prompt), Modifier.weight(1f))
-                            androidx.compose.material3.Icon(
-                                androidx.compose.ui.res.painterResource(R.drawable.ic_chevron_down),
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp),
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = uiModel.isDeliveryRequestPickerVisible,
-                            onDismissRequest = { onEvent(CheckoutScreenEvent.DeliveryRequestPickerToggled) },
-                        ) {
-                            uiModel.deliveryRequestOptions.forEach { request ->
-                                DropdownMenuItem(
-                                    text = { Text(request) },
-                                    onClick = { onEvent(CheckoutScreenEvent.DeliveryRequestSelected(request)) },
+                item { CheckoutSectionHeader(R.string.checkout_shipping_request) }
+                item {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12)) {
+                        androidx.compose.foundation.layout.Box {
+                            androidx.compose.material3.OutlinedButton(
+                                onClick = { onEvent(CheckoutScreenEvent.DeliveryRequestPickerToggled) },
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            ) {
+                                Text(uiModel.deliveryRequestLabel ?: stringResource(R.string.checkout_delivery_request_prompt), Modifier.weight(1f))
+                                androidx.compose.material3.Icon(
+                                    androidx.compose.ui.res.painterResource(R.drawable.ic_chevron_down),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
                                 )
+                            }
+                            DropdownMenu(
+                                expanded = uiModel.isDeliveryRequestPickerVisible,
+                                onDismissRequest = { onEvent(CheckoutScreenEvent.DeliveryRequestPickerToggled) },
+                            ) {
+                                uiModel.deliveryRequestOptions.forEach { request ->
+                                    DropdownMenuItem(
+                                        text = { Text(request) },
+                                        onClick = { onEvent(CheckoutScreenEvent.DeliveryRequestSelected(request)) },
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
-            item { CheckoutSectionHeader(R.string.checkout_delivery_method) }
-            item {
-                Row(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
-                    Text(uiModel.deliveryMethodLabel, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                    Text(stringResource(R.string.checkout_delivery_free), style = MaterialTheme.typography.labelMedium)
+                item { CheckoutSectionHeader(R.string.checkout_delivery_method) }
+                item {
+                    Row(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
+                        Text(uiModel.deliveryMethodLabel, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.checkout_delivery_free), style = MaterialTheme.typography.labelMedium)
+                    }
                 }
-            }
-            item { CheckoutSectionHeader(R.string.checkout_order_products) }
-            item {
-                CheckoutOrderProductsCard(
-                    products = uiModel.products,
-                    isExpanded = uiModel.productsExpanded,
-                    onExpandedChanged = { onEvent(CheckoutScreenEvent.ProductsExpandedChanged(it)) },
-                    modifier = Modifier.padding(vertical = EumSpacing.x8),
-                )
-            }
-            item {
-                CheckoutPriceSummaryCard(
-                    summary = uiModel.paymentSummary,
-                    showDiscount = false,
-                    modifier = Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
-                )
+                item { CheckoutSectionHeader(R.string.checkout_order_products) }
+                item {
+                    CheckoutOrderProductsCard(
+                        products = uiModel.products,
+                        isExpanded = uiModel.productsExpanded,
+                        onExpandedChanged = { onEvent(CheckoutScreenEvent.ProductsExpandedChanged(it)) },
+                        modifier = Modifier.padding(vertical = EumSpacing.x8),
+                    )
+                }
+                item {
+                    CheckoutPriceSummaryCard(
+                        summary = uiModel.paymentSummary,
+                        showDiscount = false,
+                        modifier = Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
+                    )
+                }
             }
         }
     }

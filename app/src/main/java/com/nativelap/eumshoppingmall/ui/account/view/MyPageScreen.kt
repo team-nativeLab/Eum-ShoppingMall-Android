@@ -37,6 +37,7 @@ import com.nativelap.eumshoppingmall.ui.account.viewmodel.MyPageUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogBottomNavigation
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBarAction
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -61,78 +62,80 @@ fun MyPageScreen(uiModel: MyPageUiModel, onEvent: (MyPageScreenEvent) -> Unit) {
         containerColor = MaterialTheme.eumColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                horizontal = EumSpacing.x20,
-                vertical = EumSpacing.x8,
-            ),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
-        ) {
-            if (uiModel.isLoggedIn) {
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().clickable { onEvent(MyPageScreenEvent.ProfileClicked) },
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            painterResource(R.drawable.ic_user_round),
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp).background(MaterialTheme.eumColors.backgroundSubtle, CircleShape).padding(18.dp),
-                            tint = MaterialTheme.eumColors.textTertiary,
+        ResponsiveContentContainer(Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                    horizontal = EumSpacing.x20,
+                    vertical = EumSpacing.x8,
+                ),
+                verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
+            ) {
+                if (uiModel.isLoggedIn) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable { onEvent(MyPageScreenEvent.ProfileClicked) },
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.ic_user_round),
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp).background(MaterialTheme.eumColors.backgroundSubtle, CircleShape).padding(18.dp),
+                                tint = MaterialTheme.eumColors.textTertiary,
+                            )
+                            Column(Modifier.weight(1f).padding(start = EumSpacing.x16)) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
+                                    Text(uiModel.profile.name, style = MaterialTheme.typography.titleLarge)
+                                    if (uiModel.profile.isBusinessMember) {
+                                        Text(stringResource(R.string.account_business_badge), modifier = Modifier.border(1.dp, MaterialTheme.eumColors.lineStrong, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x4)).padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x2), style = MaterialTheme.typography.labelSmall)
+                                    }
+                                }
+                                Text(stringResource(R.string.account_greeting), color = MaterialTheme.eumColors.textSecondary, style = MaterialTheme.typography.bodySmall)
+                            }
+                            Icon(painterResource(R.drawable.ic_chevron_right), null, tint = MaterialTheme.eumColors.textTertiary)
+                        }
+                    }
+                    item { AccountShortcutRow(uiModel.shortcuts, onEvent) }
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                            Text(stringResource(R.string.account_order_status_section), style = MaterialTheme.typography.titleMedium)
+                            Row(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).background(MaterialTheme.eumColors.surfaceSecondary, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).padding(vertical = EumSpacing.x12), horizontalArrangement = Arrangement.SpaceEvenly) {
+                                uiModel.orderStatuses.forEach { status ->
+                                    Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text(status.count, style = MaterialTheme.typography.titleMedium)
+                                        Text(status.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    item {
+                        AccountMenuGroup(
+                            stringResource(R.string.account_my_info_section),
+                            listOf(
+                                AccountMenuRowUiModel("profile", stringResource(R.string.account_profile_manage)),
+                                AccountMenuRowUiModel("addresses", stringResource(R.string.account_address_manage)),
+                            ),
+                            onEvent,
                         )
-                        Column(Modifier.weight(1f).padding(start = EumSpacing.x16)) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
-                                Text(uiModel.profile.name, style = MaterialTheme.typography.titleLarge)
-                                if (uiModel.profile.isBusinessMember) {
-                                    Text(stringResource(R.string.account_business_badge), modifier = Modifier.border(1.dp, MaterialTheme.eumColors.lineStrong, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x4)).padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x2), style = MaterialTheme.typography.labelSmall)
-                                }
-                            }
-                            Text(stringResource(R.string.account_greeting), color = MaterialTheme.eumColors.textSecondary, style = MaterialTheme.typography.bodySmall)
-                        }
-                        Icon(painterResource(R.drawable.ic_chevron_right), null, tint = MaterialTheme.eumColors.textTertiary)
                     }
-                }
-                item { AccountShortcutRow(uiModel.shortcuts, onEvent) }
-                item {
-                    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                        Text(stringResource(R.string.account_order_status_section), style = MaterialTheme.typography.titleMedium)
-                        Row(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).background(MaterialTheme.eumColors.surfaceSecondary, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).padding(vertical = EumSpacing.x12), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            uiModel.orderStatuses.forEach { status ->
-                                Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(status.count, style = MaterialTheme.typography.titleMedium)
-                                    Text(status.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                }
-                            }
+                    item { AccountMenuGroup(stringResource(R.string.account_order_quote_section), uiModel.orderRows, onEvent) }
+                    item { AccountMenuGroup(stringResource(R.string.account_inquiries_support), uiModel.supportRows, onEvent) }
+                    item {
+                        Text(stringResource(R.string.account_settings), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(MyPageScreenEvent.SettingsClicked) }.padding(vertical = EumSpacing.x12), style = MaterialTheme.typography.bodySmall)
+                    }
+                } else {
+                    item {
+                        Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                            Text(stringResource(R.string.account_login_benefits_message), style = MaterialTheme.typography.bodyMedium)
+                            AccountPrimaryButton(stringResource(R.string.account_login), onClick = { onEvent(MyPageScreenEvent.LoginClicked) })
                         }
                     }
+                    item { Text(stringResource(R.string.home_recent_products), style = MaterialTheme.typography.titleMedium) }
+                    items(uiModel.recentProducts) { product -> Text(product, modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp).border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x8)).padding(EumSpacing.x12), style = MaterialTheme.typography.bodySmall) }
+                    item { AccountMenuGroup(stringResource(R.string.account_drawer_support), uiModel.supportRows, onEvent) }
+                    item { Text(stringResource(R.string.account_settings), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(MyPageScreenEvent.SettingsClicked) }.padding(vertical = EumSpacing.x12)) }
                 }
-                item {
-                    AccountMenuGroup(
-                        stringResource(R.string.account_my_info_section),
-                        listOf(
-                            AccountMenuRowUiModel("profile", stringResource(R.string.account_profile_manage)),
-                            AccountMenuRowUiModel("addresses", stringResource(R.string.account_address_manage)),
-                        ),
-                        onEvent,
-                    )
-                }
-                item { AccountMenuGroup(stringResource(R.string.account_order_quote_section), uiModel.orderRows, onEvent) }
-                item { AccountMenuGroup(stringResource(R.string.account_inquiries_support), uiModel.supportRows, onEvent) }
-                item {
-                    Text(stringResource(R.string.account_settings), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(MyPageScreenEvent.SettingsClicked) }.padding(vertical = EumSpacing.x12), style = MaterialTheme.typography.bodySmall)
-                }
-            } else {
-                item {
-                    Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                        Text(stringResource(R.string.account_login_benefits_message), style = MaterialTheme.typography.bodyMedium)
-                        AccountPrimaryButton(stringResource(R.string.account_login), onClick = { onEvent(MyPageScreenEvent.LoginClicked) })
-                    }
-                }
-                item { Text(stringResource(R.string.home_recent_products), style = MaterialTheme.typography.titleMedium) }
-                items(uiModel.recentProducts) { product -> Text(product, modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp).border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x8)).padding(EumSpacing.x12), style = MaterialTheme.typography.bodySmall) }
-                item { AccountMenuGroup(stringResource(R.string.account_drawer_support), uiModel.supportRows, onEvent) }
-                item { Text(stringResource(R.string.account_settings), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(MyPageScreenEvent.SettingsClicked) }.padding(vertical = EumSpacing.x12)) }
             }
         }
     }

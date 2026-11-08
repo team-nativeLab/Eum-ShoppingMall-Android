@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -119,14 +121,46 @@ fun CartProductRow(
                     textDecoration = TextDecoration.LineThrough,
                 )
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = if (item.type == CartItemType.QuoteRequired) stringResource(R.string.catalog_quote_request) else item.totalPriceLabel,
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = textColor,
-                )
-                CartQuantityStepper(quantity = item.quantity, onQuantityChanged = onQuantityChanged, enabled = canEditQuantity)
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val fontScale = LocalDensity.current.fontScale
+                val priceLabel = if (item.type == CartItemType.QuoteRequired) {
+                    stringResource(R.string.catalog_quote_request)
+                } else {
+                    item.totalPriceLabel
+                }
+                if (maxWidth < 180.dp || fontScale >= 1.3f) {
+                    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+                        Text(
+                            text = priceLabel,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = textColor,
+                            maxLines = 1,
+                            softWrap = false,
+                        )
+                        CartQuantityStepper(
+                            quantity = item.quantity,
+                            onQuantityChanged = onQuantityChanged,
+                            enabled = canEditQuantity,
+                            modifier = Modifier.align(Alignment.End),
+                        )
+                    }
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = priceLabel,
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = textColor,
+                            maxLines = 1,
+                            softWrap = false,
+                        )
+                        CartQuantityStepper(
+                            quantity = item.quantity,
+                            onQuantityChanged = onQuantityChanged,
+                            enabled = canEditQuantity,
+                        )
+                    }
+                }
             }
         }
     }

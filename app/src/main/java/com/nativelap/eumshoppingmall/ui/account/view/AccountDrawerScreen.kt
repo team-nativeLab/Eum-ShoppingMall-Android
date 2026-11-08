@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -54,7 +56,10 @@ fun AccountDrawerScreen(profile: AccountProfileUiModel, isLoggedIn: Boolean, onE
                     }
                 }
                 Text(stringResource(R.string.company_tagline), Modifier.padding(horizontal = EumSpacing.x20), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-                Column(Modifier.weight(1f).padding(horizontal = EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                Column(
+                    Modifier.weight(1f).padding(horizontal = EumSpacing.x20).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+                ) {
                     Spacer(Modifier.padding(top = EumSpacing.x8))
                     Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).background(MaterialTheme.eumColors.surface, MaterialTheme.shapes.large).clickable { onEvent(if (isLoggedIn) AccountDrawerScreenEvent.ProfileClicked else AccountDrawerScreenEvent.MenuClicked("login")) }.padding(horizontal = EumSpacing.x16), verticalAlignment = Alignment.CenterVertically) {
                         Text(if (isLoggedIn) stringResource(R.string.account_drawer_member_name, profile.name) else stringResource(R.string.account_login), Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)

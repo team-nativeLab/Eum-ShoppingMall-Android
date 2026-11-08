@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditSectionCard
+import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -82,6 +83,7 @@ fun EventDetailScreen(
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)
 @Composable
 private fun EventDetailScreenPreview() {

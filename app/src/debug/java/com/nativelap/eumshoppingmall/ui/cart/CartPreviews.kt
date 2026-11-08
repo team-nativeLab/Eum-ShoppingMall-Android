@@ -6,6 +6,7 @@ import com.nativelap.eumshoppingmall.ui.cart.view.CartScreen
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemType
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemUiModel
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartUiModel
+import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 private val previewCartItems = listOf(
@@ -15,6 +16,7 @@ private val previewCartItems = listOf(
     CartItemUiModel("quote", "코팅 장갑 10켤레", "옵션: 옵션명", 1, "", "", type = CartItemType.QuoteRequired),
 )
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "장바구니 선택·품절·견적 혼합")
 @Composable
 private fun CartMixedPreview() {
@@ -26,6 +28,7 @@ private fun CartMixedPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "장바구니 빈 상태")
 @Composable
 private fun CartEmptyPreview() {
@@ -34,6 +37,7 @@ private fun CartEmptyPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 720, fontScale = 1.2f, name = "좁은 장바구니")
 @Composable
 private fun CartNarrowPreview() {

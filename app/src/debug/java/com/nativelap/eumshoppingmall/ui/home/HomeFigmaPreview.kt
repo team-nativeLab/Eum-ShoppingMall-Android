@@ -2,6 +2,7 @@ package com.nativelap.eumshoppingmall.ui.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 private val homePreviewRecommendedProducts = listOf(
@@ -67,6 +68,7 @@ private val homePreviewBestSellerProducts = listOf(
     ),
 )
 
+@ResponsiveUiPreview
 @Preview(name = "A-02 Home · Figma content", showBackground = true, widthDp = 390, heightDp = 852)
 @Composable
 private fun HomeFigmaPreview() {

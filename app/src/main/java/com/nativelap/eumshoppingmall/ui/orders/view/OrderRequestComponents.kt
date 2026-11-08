@@ -36,6 +36,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderInfoCard
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrdersTopBar
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryFilter
@@ -50,7 +52,11 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
 internal fun RequestScaffold(title: String, onBack: () -> Unit, modifier: Modifier = Modifier, bottomContent: (@Composable () -> Unit)? = null, content: @Composable (PaddingValues) -> Unit) {
-    Scaffold(modifier.fillMaxSize(), topBar = { OrdersTopBar(title, onBackClick = onBack, modifier = Modifier.statusBarsPadding().background(MaterialTheme.eumColors.background)) }, bottomBar = { if (bottomContent != null) Column(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface).navigationBarsPadding().imePadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12)) { bottomContent() } }, containerColor = MaterialTheme.eumColors.background, contentWindowInsets = WindowInsets(0, 0, 0, 0), content = content)
+    Scaffold(modifier.fillMaxSize(), topBar = { OrdersTopBar(title, onBackClick = onBack, modifier = Modifier.statusBarsPadding().background(MaterialTheme.eumColors.background)) }, bottomBar = { if (bottomContent != null) ResponsiveWidthContainer { Column(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface).navigationBarsPadding().imePadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12)) { bottomContent() } } }, containerColor = MaterialTheme.eumColors.background, contentWindowInsets = WindowInsets(0, 0, 0, 0)) { padding ->
+        ResponsiveContentContainer(Modifier.fillMaxSize()) {
+            content(padding)
+        }
+    }
 }
 
 @Composable

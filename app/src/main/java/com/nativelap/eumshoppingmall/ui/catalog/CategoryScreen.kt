@@ -159,7 +159,7 @@ private fun CategoryModeItem(
 ) {
     Surface(
         onClick = onClick,
-        modifier = modifier.heightIn(min = 36.dp),
+        modifier = modifier.heightIn(min = 48.dp),
         shape = RoundedCornerShape(EumRadius.x6),
         color = if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.background,
         border = if (selected) null else BorderStroke(1.dp, MaterialTheme.eumColors.line),

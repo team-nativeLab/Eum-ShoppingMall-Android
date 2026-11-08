@@ -37,6 +37,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nativelap.eumshoppingmall.R
@@ -290,8 +291,8 @@ private fun QuoteProductRow(product: CatalogProductUiModel, onRemove: () -> Unit
             }
         }
         Column(Modifier.weight(1f).padding(horizontal = EumSpacing.x8)) {
-            Text(product.name, style = MaterialTheme.typography.labelSmall, maxLines = 1)
-            product.subtitle?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary, maxLines = 1) }
+            Text(product.name, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            product.subtitle?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary, maxLines = 1, overflow = TextOverflow.Ellipsis) }
         }
         IconButton(onClick = onRemove, modifier = Modifier.size(48.dp)) {
             Icon(painterResource(R.drawable.ic_x), stringResource(R.string.quote_product_remove, product.name), modifier = Modifier.size(18.dp))

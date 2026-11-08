@@ -33,6 +33,7 @@ import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountSettingUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountSettingsScreenEvent
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -45,71 +46,73 @@ fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSetti
             containerColor = MaterialTheme.eumColors.background,
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
         ) { padding ->
-            LazyColumn(
-                Modifier.fillMaxSize().padding(padding).navigationBarsPadding(),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x24),
-                verticalArrangement = Arrangement.spacedBy(EumSpacing.x24),
-            ) {
-                if (!uiModel.isLoggedIn) {
-                    item {
-                        Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                            Text(stringResource(R.string.settings_guest_login_message), style = MaterialTheme.typography.bodyMedium)
-                            AccountPrimaryButton(stringResource(R.string.account_login), onClick = { onEvent(AccountSettingsScreenEvent.LoginClicked) })
-                        }
-                    }
-                }
-                item {
-                    SettingSection(stringResource(R.string.settings_notification_group)) {
-                        SettingSwitchRow(stringResource(R.string.settings_app_push), stringResource(R.string.settings_order_push_description), uiModel.isDeviceNotificationEnabled, onClick = { onEvent(AccountSettingsScreenEvent.DeviceNotificationChanged) })
-                    }
-                    if (uiModel.isDeviceNotificationWarningVisible) {
-                        Text(
-                            stringResource(R.string.settings_device_notification_disabled),
-                            Modifier.fillMaxWidth().padding(top = EumSpacing.x8).border(1.dp, MaterialTheme.eumColors.dangerTint, RoundedCornerShape(EumRadius.x8)).clickable(role = Role.Button) { onEvent(AccountSettingsScreenEvent.NotificationSettingsClicked) }.heightIn(min = 48.dp).padding(EumSpacing.x12),
-                            color = MaterialTheme.eumColors.danger,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                }
-                if (uiModel.isLoggedIn) {
-                    item {
-                        Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                            Text(stringResource(R.string.settings_marketing_consent), style = MaterialTheme.typography.labelMedium)
-                            Text(stringResource(R.string.settings_marketing_description), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
-                            SettingSection(null) {
-                                SettingSwitchRow(stringResource(R.string.settings_marketing_app), enabled = uiModel.isAppMarketingEnabled, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("app", !uiModel.isAppMarketingEnabled)) })
-                                SettingSwitchRow(stringResource(R.string.settings_marketing_sms), enabled = uiModel.isSmsMarketingEnabled, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("sms", !uiModel.isSmsMarketingEnabled)) })
-                                SettingSwitchRow(stringResource(R.string.settings_marketing_email), enabled = uiModel.isEmailMarketingEnabled, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("email", !uiModel.isEmailMarketingEnabled)) })
-                                SettingSwitchRow(stringResource(R.string.settings_marketing_night), stringResource(R.string.settings_marketing_night_description), uiModel.isNightMarketingEnabled, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("night", !uiModel.isNightMarketingEnabled)) })
+            ResponsiveContentContainer(Modifier.fillMaxSize().padding(padding)) {
+                LazyColumn(
+                    Modifier.fillMaxSize().navigationBarsPadding(),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x24),
+                    verticalArrangement = Arrangement.spacedBy(EumSpacing.x24),
+                ) {
+                    if (!uiModel.isLoggedIn) {
+                        item {
+                            Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                                Text(stringResource(R.string.settings_guest_login_message), style = MaterialTheme.typography.bodyMedium)
+                                AccountPrimaryButton(stringResource(R.string.account_login), onClick = { onEvent(AccountSettingsScreenEvent.LoginClicked) })
                             }
-                            Text(stringResource(R.string.settings_consent_changed, uiModel.lastConsentChangedLabel), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
                         }
                     }
-                }
-                item {
-                    SettingSection(stringResource(R.string.settings_terms_policy)) {
-                        listOf(
-                            "terms" to R.string.settings_terms,
-                            "privacy" to R.string.settings_privacy,
-                            "guide" to R.string.settings_usage_guide,
-                            "open_source" to R.string.settings_open_source,
-                        ).forEach { (id, label) -> SettingNavigationRow(stringResource(label)) { onEvent(AccountSettingsScreenEvent.PolicyClicked(id)) } }
-                    }
-                }
-                item {
-                    SettingSection(stringResource(R.string.settings_app_info)) {
-                        Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(horizontal = EumSpacing.x16), verticalAlignment = Alignment.CenterVertically) {
-                            Text(stringResource(R.string.settings_app_version), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                            Text(uiModel.appVersionLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
-                        }
-                    }
-                }
-                if (uiModel.isLoggedIn) {
                     item {
-                        SettingSection(stringResource(R.string.settings_account)) {
-                            SettingNavigationRow(stringResource(R.string.account_logout)) { onEvent(AccountSettingsScreenEvent.LogoutClicked) }
+                        SettingSection(stringResource(R.string.settings_notification_group)) {
+                            SettingSwitchRow(stringResource(R.string.settings_app_push), stringResource(R.string.settings_order_push_description), uiModel.isDeviceNotificationEnabled, onClick = { onEvent(AccountSettingsScreenEvent.DeviceNotificationChanged) })
                         }
-                        Text(stringResource(R.string.account_withdrawal), Modifier.clickable { onEvent(AccountSettingsScreenEvent.WithdrawalClicked) }.heightIn(min = 48.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                        if (uiModel.isDeviceNotificationWarningVisible) {
+                            Text(
+                                stringResource(R.string.settings_device_notification_disabled),
+                                Modifier.fillMaxWidth().padding(top = EumSpacing.x8).border(1.dp, MaterialTheme.eumColors.dangerTint, RoundedCornerShape(EumRadius.x8)).clickable(role = Role.Button) { onEvent(AccountSettingsScreenEvent.NotificationSettingsClicked) }.heightIn(min = 48.dp).padding(EumSpacing.x12),
+                                color = MaterialTheme.eumColors.danger,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+                    if (uiModel.isLoggedIn) {
+                        item {
+                            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                                Text(stringResource(R.string.settings_marketing_consent), style = MaterialTheme.typography.labelMedium)
+                                Text(stringResource(R.string.settings_marketing_description), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                                SettingSection(null) {
+                                    SettingSwitchRow(stringResource(R.string.settings_marketing_app), enabled = uiModel.isAppMarketingEnabled, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("app", !uiModel.isAppMarketingEnabled)) })
+                                    SettingSwitchRow(stringResource(R.string.settings_marketing_sms), enabled = uiModel.isSmsMarketingEnabled, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("sms", !uiModel.isSmsMarketingEnabled)) })
+                                    SettingSwitchRow(stringResource(R.string.settings_marketing_email), enabled = uiModel.isEmailMarketingEnabled, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("email", !uiModel.isEmailMarketingEnabled)) })
+                                    SettingSwitchRow(stringResource(R.string.settings_marketing_night), stringResource(R.string.settings_marketing_night_description), uiModel.isNightMarketingEnabled, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("night", !uiModel.isNightMarketingEnabled)) })
+                                }
+                                Text(stringResource(R.string.settings_consent_changed, uiModel.lastConsentChangedLabel), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                            }
+                        }
+                    }
+                    item {
+                        SettingSection(stringResource(R.string.settings_terms_policy)) {
+                            listOf(
+                                "terms" to R.string.settings_terms,
+                                "privacy" to R.string.settings_privacy,
+                                "guide" to R.string.settings_usage_guide,
+                                "open_source" to R.string.settings_open_source,
+                            ).forEach { (id, label) -> SettingNavigationRow(stringResource(label)) { onEvent(AccountSettingsScreenEvent.PolicyClicked(id)) } }
+                        }
+                    }
+                    item {
+                        SettingSection(stringResource(R.string.settings_app_info)) {
+                            Row(Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(horizontal = EumSpacing.x16), verticalAlignment = Alignment.CenterVertically) {
+                                Text(stringResource(R.string.settings_app_version), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                                Text(uiModel.appVersionLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                            }
+                        }
+                    }
+                    if (uiModel.isLoggedIn) {
+                        item {
+                            SettingSection(stringResource(R.string.settings_account)) {
+                                SettingNavigationRow(stringResource(R.string.account_logout)) { onEvent(AccountSettingsScreenEvent.LogoutClicked) }
+                            }
+                            Text(stringResource(R.string.account_withdrawal), Modifier.clickable { onEvent(AccountSettingsScreenEvent.WithdrawalClicked) }.heightIn(min = 48.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                        }
                     }
                 }
             }

@@ -62,7 +62,7 @@ fun AuthLoginScreen(uiModel: AuthLoginUiModel, onEvent: (AuthScreenEvent) -> Uni
                 errorText = if (uiModel.isCredentialsInvalid) stringResource(R.string.auth_login_mismatch, uiModel.failedAttemptCount) else null,
             )
             Row(
-                Modifier.fillMaxWidth().height(48.dp).clickable { onEvent(AuthScreenEvent.RememberLoginChanged(!uiModel.isRemembered)) },
+                Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(AuthScreenEvent.RememberLoginChanged(!uiModel.isRemembered)) },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Checkbox(checked = uiModel.isRemembered, onCheckedChange = { onEvent(AuthScreenEvent.RememberLoginChanged(it)) })
@@ -81,10 +81,10 @@ fun AuthLoginScreen(uiModel: AuthLoginUiModel, onEvent: (AuthScreenEvent) -> Uni
                 Text(stringResource(R.string.common_or), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
                 HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.eumColors.line)
             }
-            OutlinedButton(onClick = { onEvent(AuthScreenEvent.SocialLoginClicked("provider_a")) }, modifier = Modifier.fillMaxWidth().height(48.dp)) {
+            OutlinedButton(onClick = { onEvent(AuthScreenEvent.SocialLoginClicked("provider_a")) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                 Text(stringResource(R.string.auth_social_login_a))
             }
-            OutlinedButton(onClick = { onEvent(AuthScreenEvent.SocialLoginClicked("provider_b")) }, modifier = Modifier.fillMaxWidth().height(48.dp)) {
+            OutlinedButton(onClick = { onEvent(AuthScreenEvent.SocialLoginClicked("provider_b")) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                 Text(stringResource(R.string.auth_social_login_b))
             }
             Spacer(Modifier.height(EumSpacing.x24))

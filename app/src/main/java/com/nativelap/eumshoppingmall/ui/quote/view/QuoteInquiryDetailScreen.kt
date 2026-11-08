@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.quote.view
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -15,7 +16,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.quote.view.components.QuoteAttachmentLabel
 import com.nativelap.eumshoppingmall.ui.quote.view.components.QuoteBottomActions
@@ -42,17 +45,33 @@ fun QuoteInquiryDetailScreen(
         onBack = { onEvent(QuoteInquiryDetailEvent.BackClicked) },
         bottomBar = {
             QuoteBottomActions {
-                Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                    QuoteSecondaryButton(
-                        label = stringResource(R.string.quote_contact_manager),
-                        onClick = { onEvent(QuoteInquiryDetailEvent.ContactManagerClicked) },
-                        modifier = Modifier.weight(1f),
-                    )
-                    QuotePrimaryButton(
-                        label = stringResource(R.string.quote_request_again),
-                        onClick = { onEvent(QuoteInquiryDetailEvent.RequestAgainClicked) },
-                        modifier = Modifier.weight(1f),
-                    )
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    val fontScale = LocalDensity.current.fontScale
+                    if (maxWidth < 320.dp || fontScale >= 1.3f) {
+                        Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                            QuoteSecondaryButton(
+                                label = stringResource(R.string.quote_contact_manager),
+                                onClick = { onEvent(QuoteInquiryDetailEvent.ContactManagerClicked) },
+                            )
+                            QuotePrimaryButton(
+                                label = stringResource(R.string.quote_request_again),
+                                onClick = { onEvent(QuoteInquiryDetailEvent.RequestAgainClicked) },
+                            )
+                        }
+                    } else {
+                        Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                            QuoteSecondaryButton(
+                                label = stringResource(R.string.quote_contact_manager),
+                                onClick = { onEvent(QuoteInquiryDetailEvent.ContactManagerClicked) },
+                                modifier = Modifier.weight(1f),
+                            )
+                            QuotePrimaryButton(
+                                label = stringResource(R.string.quote_request_again),
+                                onClick = { onEvent(QuoteInquiryDetailEvent.RequestAgainClicked) },
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                    }
                 }
             }
         },
@@ -68,7 +87,21 @@ fun QuoteInquiryDetailScreen(
                         QuoteStatusChip(uiModel.status)
                         Text(uiModel.title, style = MaterialTheme.typography.titleMedium)
                         Text(uiModel.dateLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
-                        QuoteSummaryRow(stringResource(R.string.quote_inquiry_number_label), uiModel.inquiryNumber)
+                        BoxWithConstraints(Modifier.fillMaxWidth()) {
+                            val inquiryNumberLabel = stringResource(R.string.quote_inquiry_number_label)
+                            if (maxWidth < 300.dp) {
+                                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+                                    Text(
+                                        inquiryNumberLabel,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.eumColors.textTertiary,
+                                    )
+                                    Text(uiModel.inquiryNumber, style = MaterialTheme.typography.bodySmall)
+                                }
+                            } else {
+                                QuoteSummaryRow(inquiryNumberLabel, uiModel.inquiryNumber)
+                            }
+                        }
                     }
                 }
             }
