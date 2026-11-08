@@ -51,6 +51,11 @@ data class EumColorTokens(
     val ratingStarOutline: Color,
     val chartBase: Color,
     val chartUp: Color,
+    // Figma A-46 주소 검색 값은 기존 토큰과 정확히 일치하지 않아 신규 semantic 토큰으로 둔다.
+    val addressMuted: Color,
+    val addressPlaceholder: Color,
+    val addressRoad: Color,
+    val addressDivider: Color,
 )
 
 val LightEumColorTokens =
@@ -94,6 +99,10 @@ val LightEumColorTokens =
         ratingStarOutline = Color(0xFFA96F16),
         chartBase = Color(0xFF8F8F8F),
         chartUp = Color(0xFFCC2E2E),
+        addressMuted = Color(0xFF666666),
+        addressPlaceholder = Color(0xFFA0A0A0),
+        addressRoad = Color(0xFF1F2126),
+        addressDivider = Color(0xFFEEEEEE),
     )
 
 val LocalEumColorTokens = staticCompositionLocalOf { LightEumColorTokens }

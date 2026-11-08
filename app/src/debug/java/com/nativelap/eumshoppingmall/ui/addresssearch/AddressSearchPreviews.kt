@@ -7,8 +7,8 @@ import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 private val addressPreviewResults = listOf(
     AddressSearchResultUiModel("preview-1", "경기 성남시 분당구 판교역로 235", "경기 성남시 분당구 백현동 532"),
-    AddressSearchResultUiModel("preview-2", "경기 성남시 분당구 판교역로 240", "경기 성남시 분당구 삼평동 670"),
-    AddressSearchResultUiModel("preview-3", "경기 성남시 분당구 대왕판교로 660", "경기 성남시 분당구 삼평동 670"),
+    AddressSearchResultUiModel("preview-2", "서울 강남구 테헤란로 152", "서울 강남구 역삼동 737"),
+    AddressSearchResultUiModel("preview-3", "서울 송파구 올림픽로 300", "서울 송파구 신천동 29"),
 )
 
 @ResponsiveUiPreview
