@@ -2,7 +2,7 @@ package com.nativelap.eumshoppingmall.ui.audit.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,7 +32,7 @@ fun UiAuditTopBar(
     val backActionDescription = stringResource(
         if (isCloseAction) R.string.ui_audit_close else R.string.ui_audit_back,
     )
-    Box(modifier.fillMaxWidth().height(EumSpacing.x56)) {
+    Box(modifier.fillMaxWidth().heightIn(min = EumSpacing.x56)) {
         Text(
             text = title,
             modifier = Modifier.fillMaxWidth().align(Alignment.CenterStart)
@@ -40,7 +40,7 @@ fun UiAuditTopBar(
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.eumColors.textPrimary,
             textAlign = TextAlign.Start,
-            maxLines = 1,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
         IconButton(

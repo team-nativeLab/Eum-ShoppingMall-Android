@@ -4,8 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.nativelap.eumshoppingmall.ui.ordercomplete.view.OrderCompleteScreen
 import com.nativelap.eumshoppingmall.ui.ordercomplete.viewmodel.OrderCompleteUiModel
+import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "주문 완료")
 @Composable
 private fun OrderCompletePreview() {
@@ -17,6 +19,7 @@ private fun OrderCompletePreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 972, name = "가상계좌 주문 완료")
 @Composable
 private fun VirtualAccountOrderCompletePreview() {

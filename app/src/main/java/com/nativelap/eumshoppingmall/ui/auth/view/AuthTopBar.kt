@@ -33,7 +33,7 @@ internal fun AuthTopBar(title: String, onBack: () -> Unit, isClose: Boolean = fa
                 contentDescription = stringResource(if (isClose) R.string.common_close else R.string.common_back),
             )
         }
-        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
         Spacer(Modifier.size(48.dp))
     }
 }

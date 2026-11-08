@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -27,7 +28,9 @@ fun CatalogScreenScaffold(
         containerColor = MaterialTheme.eumColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { contentPadding ->
-        content(Modifier.fillMaxSize().padding(contentPadding))
+        ResponsiveContentContainer(Modifier.fillMaxSize().padding(contentPadding)) {
+            content(Modifier.fillMaxSize())
+        }
     }
 }
 

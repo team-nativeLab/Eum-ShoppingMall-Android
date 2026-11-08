@@ -27,6 +27,7 @@ import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestStatus
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestType
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderStatus
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.RequestableOrderUiModel
+import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 private val sampleRequestProduct = OrderRequestProductUiModel(
@@ -77,12 +78,14 @@ private val sampleRequestDetail = OrderRequestDetailUiModel(
     canWithdraw = true,
 )
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-19 신청 허브")
 @Composable
 private fun RequestHubPreview() {
     EumShoppingMallTheme { OrderRequestHubScreen(onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-19 주문 선택")
 @Composable
 private fun RequestOrderSelectionPreview() {
@@ -90,12 +93,14 @@ private fun RequestOrderSelectionPreview() {
     EumShoppingMallTheme { OrderRequestOrderSelectionScreen(OrderRequestOrderSelectionUiModel(periodLabel = "최근 3개월", periods = listOf("최근 3개월", "최근 6개월", "최근 1년"), orders = listOf(order)), onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-19 신청 주문 없음")
 @Composable
 private fun RequestOrderEmptyPreview() {
     EumShoppingMallTheme { OrderRequestOrderSelectionScreen(OrderRequestOrderSelectionUiModel(periodLabel = "최근 3개월"), onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-19 필터 결과 없음")
 @Composable
 private fun RequestOrderNoMatchingPreview() {
@@ -111,36 +116,42 @@ private fun RequestOrderNoMatchingPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-19 반품 신청")
 @Composable
 private fun ReturnRequestPreview() {
     EumShoppingMallTheme { OrderRequestFormScreen(sampleOrderRequestForm, onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-19 교환 신청")
 @Composable
 private fun ExchangeRequestPreview() {
     EumShoppingMallTheme { OrderRequestFormScreen(sampleOrderRequestForm.copy(type = OrderRequestType.Exchange, exchangeOptionLabel = "검정 · 사이즈 270"), onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-19 취소 신청")
 @Composable
 private fun CancelRequestPreview() {
     EumShoppingMallTheme { OrderRequestFormScreen(sampleOrderRequestForm.copy(type = OrderRequestType.Cancel), onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-19 신청 내역")
 @Composable
 private fun RequestHistoryPreview() {
     EumShoppingMallTheme { OrderRequestHistoryScreen(OrderRequestHistoryUiModel(items = listOf(sampleRequestHistoryItem)), onEvent = {}) }
 }
 
-@Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-19 신청 내역 없음")
+@ResponsiveUiPreview
+@Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-19le 철회 후 신청 내역 빈 상태")
 @Composable
 private fun RequestHistoryEmptyPreview() {
     EumShoppingMallTheme { OrderRequestHistoryScreen(OrderRequestHistoryUiModel(hasNoRequests = true), onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-19 신청 유형 필터 결과 없음")
 @Composable
 private fun RequestHistoryNoMatchingPreview() {
@@ -152,30 +163,51 @@ private fun RequestHistoryNoMatchingPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-51 신청 상세")
 @Composable
 private fun RequestDetailPreview() {
     EumShoppingMallTheme { OrderRequestDetailScreen(sampleRequestDetail, onEvent = {}) }
 }
 
+@ResponsiveUiPreview
+@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-51 신청 상세 · 취소 완료")
+@Composable
+private fun RequestDetailCancelledPreview() {
+    EumShoppingMallTheme {
+        OrderRequestDetailScreen(
+            sampleRequestDetail.copy(
+                status = OrderRequestStatus.Withdrawn,
+                statusDescription = "신청이 취소되었습니다.",
+                canWithdraw = false,
+            ),
+            onEvent = {},
+        )
+    }
+}
+
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-50 신청 접수")
 @Composable
 private fun RequestCompletePreview() {
     EumShoppingMallTheme { OrderRequestResultScreen(OrderRequestResultUiModel("RQ-00000001", "신청이 접수됐어요", "신청 내용 확인 후 순차적으로 안내해 드릴게요."), onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-53 신청 철회 완료")
 @Composable
 private fun WithdrawalCompletePreview() {
     EumShoppingMallTheme { OrderRequestWithdrawalCompleteScreen(OrderRequestResultUiModel("RQ-00000001", "철회", "신청이 철회되었습니다."), onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-54 반려 사유")
 @Composable
 private fun RejectionReasonPreview() {
     EumShoppingMallTheme { OrderRequestRejectionScreen(OrderRequestRejectionUiModel("RQ-00000001", sampleRequestProduct.name, "단순 변심", "신청하신 내용을 확인했습니다.", "상품 포장 훼손으로 반품이 어렵습니다."), onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-52 신청 철회 확인")
 @Composable
 private fun WithdrawalConfirmPreview() {

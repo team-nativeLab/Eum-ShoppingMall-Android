@@ -40,6 +40,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrdersTopBar
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryEmptyState
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryFilter
@@ -69,71 +70,73 @@ fun OrderHistoryScreen(
         containerColor = MaterialTheme.eumColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { contentPadding ->
-        if (uiModel.orders.isEmpty() && uiModel.emptyState != OrderHistoryEmptyState.NoMatchingOrders) {
-            EmptyOrderHistory(
-                emptyState = uiModel.emptyState ?: OrderHistoryEmptyState.NoOrders,
-                onBrowseProducts = { onEvent(OrderHistoryScreenEvent.BrowseProductsClicked) },
-                modifier = Modifier.fillMaxSize().padding(contentPadding),
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(contentPadding),
-                verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
-            ) {
-                item {
-                    androidx.compose.foundation.layout.Row(
-                        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20),
-                        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
-                    ) {
-                        OrderHistoryFilter.entries.forEach { filter ->
-                            OrderHistoryFilterChip(
-                                filter = filter,
-                                selected = filter == uiModel.filter,
-                                onClick = { onEvent(OrderHistoryScreenEvent.FilterSelected(filter)) },
-                            )
-                        }
-                    }
-                }
-                item {
-                    Box(Modifier.padding(horizontal = EumSpacing.x20)) {
-                        TextButton(
-                            onClick = { onEvent(OrderHistoryScreenEvent.PeriodPickerToggled) },
-                            modifier = Modifier.heightIn(min = 48.dp),
+        ResponsiveContentContainer(Modifier.fillMaxSize()) {
+            if (uiModel.orders.isEmpty() && uiModel.emptyState != OrderHistoryEmptyState.NoMatchingOrders) {
+                EmptyOrderHistory(
+                    emptyState = uiModel.emptyState ?: OrderHistoryEmptyState.NoOrders,
+                    onBrowseProducts = { onEvent(OrderHistoryScreenEvent.BrowseProductsClicked) },
+                    modifier = Modifier.fillMaxSize().padding(contentPadding),
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().padding(contentPadding),
+                    verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+                ) {
+                    item {
+                        androidx.compose.foundation.layout.Row(
+                            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20),
+                            horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
                         ) {
-                            Text(uiModel.periodLabel, color = MaterialTheme.eumColors.textPrimary)
-                            Icon(painterResource(R.drawable.ic_chevron_down), contentDescription = null, modifier = Modifier.size(16.dp))
-                        }
-                        DropdownMenu(
-                            expanded = uiModel.isPeriodPickerVisible,
-                            onDismissRequest = { onEvent(OrderHistoryScreenEvent.PeriodPickerToggled) },
-                        ) {
-                            uiModel.periods.forEach { period ->
-                                DropdownMenuItem(
-                                    text = { Text(period) },
-                                    onClick = { onEvent(OrderHistoryScreenEvent.PeriodSelected(period)) },
+                            OrderHistoryFilter.entries.forEach { filter ->
+                                OrderHistoryFilterChip(
+                                    filter = filter,
+                                    selected = filter == uiModel.filter,
+                                    onClick = { onEvent(OrderHistoryScreenEvent.FilterSelected(filter)) },
                                 )
                             }
                         }
                     }
-                }
-                if (uiModel.orders.isEmpty()) {
                     item {
-                        NoMatchingOrderResults(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x32),
-                            onResetFilter = { onEvent(OrderHistoryScreenEvent.FiltersReset) },
-                        )
+                        Box(Modifier.padding(horizontal = EumSpacing.x20)) {
+                            TextButton(
+                                onClick = { onEvent(OrderHistoryScreenEvent.PeriodPickerToggled) },
+                                modifier = Modifier.heightIn(min = 48.dp),
+                            ) {
+                                Text(uiModel.periodLabel, color = MaterialTheme.eumColors.textPrimary)
+                                Icon(painterResource(R.drawable.ic_chevron_down), contentDescription = null, modifier = Modifier.size(16.dp))
+                            }
+                            DropdownMenu(
+                                expanded = uiModel.isPeriodPickerVisible,
+                                onDismissRequest = { onEvent(OrderHistoryScreenEvent.PeriodPickerToggled) },
+                            ) {
+                                uiModel.periods.forEach { period ->
+                                    DropdownMenuItem(
+                                        text = { Text(period) },
+                                        onClick = { onEvent(OrderHistoryScreenEvent.PeriodSelected(period)) },
+                                    )
+                                }
+                            }
+                        }
                     }
-                } else {
-                    items(uiModel.orders, key = { it.id }) { order ->
-                        OrderHistoryCard(
-                            order = order,
-                            onDetailsClicked = { onEvent(OrderHistoryScreenEvent.OrderDetailsClicked(order.id)) },
-                            onActionClicked = { onEvent(OrderHistoryScreenEvent.ActionClicked(order.id, it)) },
-                            modifier = Modifier.padding(horizontal = EumSpacing.x20),
-                        )
+                    if (uiModel.orders.isEmpty()) {
+                        item {
+                            NoMatchingOrderResults(
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x32),
+                                onResetFilter = { onEvent(OrderHistoryScreenEvent.FiltersReset) },
+                            )
+                        }
+                    } else {
+                        items(uiModel.orders, key = { it.id }) { order ->
+                            OrderHistoryCard(
+                                order = order,
+                                onDetailsClicked = { onEvent(OrderHistoryScreenEvent.OrderDetailsClicked(order.id)) },
+                                onActionClicked = { onEvent(OrderHistoryScreenEvent.ActionClicked(order.id, it)) },
+                                modifier = Modifier.padding(horizontal = EumSpacing.x20),
+                            )
+                        }
                     }
+                    item { androidx.compose.foundation.layout.Spacer(Modifier.size(EumSpacing.x12)) }
                 }
-                item { androidx.compose.foundation.layout.Spacer(Modifier.size(EumSpacing.x12)) }
             }
         }
     }

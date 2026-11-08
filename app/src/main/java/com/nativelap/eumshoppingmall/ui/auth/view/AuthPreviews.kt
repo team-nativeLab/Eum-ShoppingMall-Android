@@ -13,6 +13,7 @@ import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthPasswordChangeUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthPasswordResetUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthPhoneVerificationUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthSignupUiModel
+import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 private val previewVerifiedPhone = AuthPhoneVerificationUiModel(
@@ -22,13 +23,15 @@ private val previewVerifiedPhone = AuthPhoneVerificationUiModel(
     isVerified = true,
 )
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "로그인 기본")
 @Composable
 private fun AuthLoginPreview() {
     EumShoppingMallTheme { AuthLoginScreen(AuthLoginUiModel(email = "example@email.com"), {}) }
 }
 
-@Preview(showBackground = true, widthDp = 320, heightDp = 800, fontScale = 1.2f, name = "로그인 오류 · 좁은 화면")
+@ResponsiveUiPreview
+@Preview(showBackground = true, widthDp = 320, heightDp = 800, fontScale = 1.2f, name = "A-13e 로그인 오류 · 좁은 화면")
 @Composable
 private fun AuthLoginErrorPreview() {
     EumShoppingMallTheme {
@@ -36,6 +39,7 @@ private fun AuthLoginErrorPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "개인 회원가입")
 @Composable
 private fun AuthSignupPersonalPreview() {
@@ -47,6 +51,7 @@ private fun AuthSignupPersonalPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 800, fontScale = 1.1f, name = "사업자 회원가입 · 좁은 화면")
 @Composable
 private fun AuthSignupBusinessPreview() {
@@ -69,6 +74,7 @@ private fun AuthSignupBusinessPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "이메일 찾기")
 @Composable
 private fun AccountRecoveryEmailPreview() {
@@ -77,6 +83,7 @@ private fun AccountRecoveryEmailPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "이메일 찾기 결과")
 @Composable
 private fun AccountRecoveryFoundPreview() {
@@ -88,6 +95,7 @@ private fun AccountRecoveryFoundPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "이메일 찾기 결과 없음")
 @Composable
 private fun AccountRecoveryNotFoundPreview() {
@@ -96,6 +104,7 @@ private fun AccountRecoveryNotFoundPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "비밀번호 찾기 · 인증 완료")
 @Composable
 private fun AccountRecoveryPasswordPreview() {
@@ -107,6 +116,7 @@ private fun AccountRecoveryPasswordPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "비밀번호 재설정 오류")
 @Composable
 private fun AuthPasswordResetErrorPreview() {
@@ -118,12 +128,26 @@ private fun AuthPasswordResetErrorPreview() {
     }
 }
 
+@ResponsiveUiPreview
+@Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "비밀번호 재설정 기본")
+@Composable
+private fun AuthPasswordResetReadyPreview() {
+    EumShoppingMallTheme {
+        AuthPasswordResetScreen(
+            AuthPasswordResetUiModel(isSubmitEnabled = true),
+            {},
+        )
+    }
+}
+
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "비밀번호 변경 완료")
 @Composable
 private fun AuthPasswordUpdatedPreview() {
     EumShoppingMallTheme { AuthPasswordUpdatedScreen {} }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "비밀번호 변경 오류")
 @Composable
 private fun AuthPasswordChangeErrorPreview() {
@@ -141,6 +165,7 @@ private fun AuthPasswordChangeErrorPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "휴대폰 번호 변경")
 @Composable
 private fun AuthPhoneNumberChangePreview() {
@@ -149,6 +174,7 @@ private fun AuthPhoneNumberChangePreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "회원 탈퇴 안내")
 @Composable
 private fun AccountWithdrawalGuidePreview() {
@@ -157,6 +183,7 @@ private fun AccountWithdrawalGuidePreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "회원 탈퇴 불가")
 @Composable
 private fun AccountWithdrawalUnavailablePreview() {
@@ -165,6 +192,7 @@ private fun AccountWithdrawalUnavailablePreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "회원 탈퇴 사유 · 확인")
 @Composable
 private fun AccountWithdrawalConfirmationPreview() {
@@ -173,6 +201,7 @@ private fun AccountWithdrawalConfirmationPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 800, fontScale = 1.1f, name = "회원 탈퇴 비밀번호 오류 · 좁은 화면")
 @Composable
 private fun AccountWithdrawalPasswordErrorPreview() {
@@ -181,6 +210,7 @@ private fun AccountWithdrawalPasswordErrorPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "회원 탈퇴 완료")
 @Composable
 private fun AccountWithdrawalCompletePreview() {

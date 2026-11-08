@@ -41,6 +41,8 @@ import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptMode
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutScreenEvent
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -64,127 +66,131 @@ fun CheckoutPaymentScreen(
             }
         },
         bottomBar = {
-            androidx.compose.material3.Button(
-                onClick = { onEvent(CheckoutScreenEvent.PaymentClicked) },
-                enabled = uiModel.paymentMethod != null && uiModel.isOrderAgreementAccepted && isReceiptDetailsValid(uiModel),
-                modifier = Modifier.fillMaxWidth().imePadding().navigationBarsPadding()
-                    .padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12).heightIn(min = 52.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.eumColors.textPrimary,
-                    contentColor = MaterialTheme.eumColors.inverse,
-                    disabledContainerColor = MaterialTheme.eumColors.surfaceSecondary,
-                    disabledContentColor = MaterialTheme.eumColors.textTertiary,
-                ),
-            ) {
-                Text(stringResource(R.string.checkout_payment_button, uiModel.paymentSummary.finalAmountLabel))
+            ResponsiveWidthContainer {
+                androidx.compose.material3.Button(
+                    onClick = { onEvent(CheckoutScreenEvent.PaymentClicked) },
+                    enabled = uiModel.paymentMethod != null && uiModel.isOrderAgreementAccepted && isReceiptDetailsValid(uiModel),
+                    modifier = Modifier.fillMaxWidth().imePadding().navigationBarsPadding()
+                        .padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12).heightIn(min = 52.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.eumColors.textPrimary,
+                        contentColor = MaterialTheme.eumColors.inverse,
+                        disabledContainerColor = MaterialTheme.eumColors.surfaceSecondary,
+                        disabledContentColor = MaterialTheme.eumColors.textTertiary,
+                    ),
+                ) {
+                    Text(stringResource(R.string.checkout_payment_button, uiModel.paymentSummary.finalAmountLabel))
+                }
             }
         },
         containerColor = MaterialTheme.eumColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { contentPadding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(contentPadding),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
-        ) {
-            item { CheckoutSectionHeader(R.string.checkout_discount) }
-            item {
-                Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                    InfoActionRow(
-                        title = stringResource(R.string.checkout_coupon),
-                        value = stringResource(R.string.checkout_available_coupons, uiModel.couponCount),
-                        onClick = { onEvent(CheckoutScreenEvent.CouponClicked) },
-                    )
-                    InfoActionRow(
-                        title = stringResource(R.string.checkout_points),
-                        value = uiModel.pointsAvailableLabel.ifBlank { stringResource(R.string.checkout_zero_points) },
-                        onClick = { onEvent(CheckoutScreenEvent.UseAllPointsClicked) },
-                        actionLabel = stringResource(if (uiModel.isUsingAllPoints) R.string.common_cancel else R.string.checkout_use_all_points),
+        ResponsiveContentContainer(Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(contentPadding),
+                verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+            ) {
+                item { CheckoutSectionHeader(R.string.checkout_discount) }
+                item {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                        InfoActionRow(
+                            title = stringResource(R.string.checkout_coupon),
+                            value = stringResource(R.string.checkout_available_coupons, uiModel.couponCount),
+                            onClick = { onEvent(CheckoutScreenEvent.CouponClicked) },
+                        )
+                        InfoActionRow(
+                            title = stringResource(R.string.checkout_points),
+                            value = uiModel.pointsAvailableLabel.ifBlank { stringResource(R.string.checkout_zero_points) },
+                            onClick = { onEvent(CheckoutScreenEvent.UseAllPointsClicked) },
+                            actionLabel = stringResource(if (uiModel.isUsingAllPoints) R.string.common_cancel else R.string.checkout_use_all_points),
+                        )
+                    }
+                }
+                item { CheckoutSectionHeader(R.string.checkout_payment_method) }
+                item {
+                    CheckoutPaymentMethodSelector(
+                        selectedMethod = uiModel.paymentMethod,
+                        onMethodSelected = { onEvent(CheckoutScreenEvent.PaymentMethodSelected(it)) },
+                        modifier = Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8),
                     )
                 }
-            }
-            item { CheckoutSectionHeader(R.string.checkout_payment_method) }
-            item {
-                CheckoutPaymentMethodSelector(
-                    selectedMethod = uiModel.paymentMethod,
-                    onMethodSelected = { onEvent(CheckoutScreenEvent.PaymentMethodSelected(it)) },
-                    modifier = Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8),
-                )
-            }
-            item { CheckoutSectionHeader(R.string.checkout_receipt_document) }
-            item {
-                Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x4)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4), verticalAlignment = Alignment.CenterVertically) {
-                        receiptTypes.forEach { (type, labelResId) ->
-                            val isSelected = uiModel.receiptType == type
-                            Row(
-                                modifier = Modifier.weight(1f)
-                                    .clickable(role = Role.RadioButton) { onEvent(CheckoutScreenEvent.ReceiptTypeSelected(type)) }
-                                    .semantics { selected = isSelected },
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                RadioButton(selected = isSelected, onClick = { onEvent(CheckoutScreenEvent.ReceiptTypeSelected(type)) })
-                                Text(stringResource(labelResId), style = MaterialTheme.typography.labelSmall)
+                item { CheckoutSectionHeader(R.string.checkout_receipt_document) }
+                item {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x4)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4), verticalAlignment = Alignment.CenterVertically) {
+                            receiptTypes.forEach { (type, labelResId) ->
+                                val isSelected = uiModel.receiptType == type
+                                Row(
+                                    modifier = Modifier.weight(1f)
+                                        .clickable(role = Role.RadioButton) { onEvent(CheckoutScreenEvent.ReceiptTypeSelected(type)) }
+                                        .semantics { selected = isSelected },
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    RadioButton(selected = isSelected, onClick = { onEvent(CheckoutScreenEvent.ReceiptTypeSelected(type)) })
+                                    Text(stringResource(labelResId), style = MaterialTheme.typography.labelSmall)
+                                }
                             }
                         }
                     }
                 }
-            }
-            if (uiModel.receiptType == CheckoutReceiptType.CashReceipt && uiModel.receiptDetails.type == CheckoutReceiptDetailsType.CashReceiptPhone) {
-                item {
-                    Row(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20)) {
-                        ReceiptModeButton(
-                            label = stringResource(R.string.checkout_cash_receipt_income),
-                            isSelected = uiModel.receiptDetails.receiptMode == CheckoutReceiptMode.IncomeDeduction,
-                            onClick = { onEvent(CheckoutScreenEvent.ReceiptModeSelected(CheckoutReceiptMode.IncomeDeduction)) },
-                            modifier = Modifier.weight(1f),
-                        )
-                        ReceiptModeButton(
-                            label = stringResource(R.string.checkout_cash_receipt_expense),
-                            isSelected = uiModel.receiptDetails.receiptMode == CheckoutReceiptMode.ExpenseProof,
-                            onClick = { onEvent(CheckoutScreenEvent.ReceiptModeSelected(CheckoutReceiptMode.ExpenseProof)) },
-                            modifier = Modifier.weight(1f),
+                if (uiModel.receiptType == CheckoutReceiptType.CashReceipt && uiModel.receiptDetails.type == CheckoutReceiptDetailsType.CashReceiptPhone) {
+                    item {
+                        Row(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20)) {
+                            ReceiptModeButton(
+                                label = stringResource(R.string.checkout_cash_receipt_income),
+                                isSelected = uiModel.receiptDetails.receiptMode == CheckoutReceiptMode.IncomeDeduction,
+                                onClick = { onEvent(CheckoutScreenEvent.ReceiptModeSelected(CheckoutReceiptMode.IncomeDeduction)) },
+                                modifier = Modifier.weight(1f),
+                            )
+                            ReceiptModeButton(
+                                label = stringResource(R.string.checkout_cash_receipt_expense),
+                                isSelected = uiModel.receiptDetails.receiptMode == CheckoutReceiptMode.ExpenseProof,
+                                onClick = { onEvent(CheckoutScreenEvent.ReceiptModeSelected(CheckoutReceiptMode.ExpenseProof)) },
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                    }
+                }
+                if (uiModel.receiptType != CheckoutReceiptType.None) {
+                    item {
+                        CheckoutReceiptDetailsCard(
+                            details = uiModel.receiptDetails,
+                            onEvent = onEvent,
+                            modifier = Modifier.padding(horizontal = EumSpacing.x20),
                         )
                     }
                 }
-            }
-            if (uiModel.receiptType != CheckoutReceiptType.None) {
+                item { CheckoutSectionHeader(R.string.checkout_payment_summary) }
                 item {
-                    CheckoutReceiptDetailsCard(
-                        details = uiModel.receiptDetails,
-                        onEvent = onEvent,
-                        modifier = Modifier.padding(horizontal = EumSpacing.x20),
+                    CheckoutPriceSummaryCard(
+                        summary = uiModel.paymentSummary,
+                        showDiscount = true,
+                        modifier = Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8),
                     )
                 }
-            }
-            item { CheckoutSectionHeader(R.string.checkout_payment_summary) }
-            item {
-                CheckoutPriceSummaryCard(
-                    summary = uiModel.paymentSummary,
-                    showDiscount = true,
-                    modifier = Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8),
-                )
-            }
-            item {
-                Row(
-                    Modifier.fillMaxWidth().clickable { onEvent(CheckoutScreenEvent.OrderAgreementChanged(!uiModel.isOrderAgreementAccepted)) }
-                        .padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x8),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(
-                        checked = uiModel.isOrderAgreementAccepted,
-                        onCheckedChange = { onEvent(CheckoutScreenEvent.OrderAgreementChanged(it)) },
-                    )
-                    Text(stringResource(R.string.checkout_order_agreement), modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
-                    TextButton(onClick = { onEvent(CheckoutScreenEvent.AgreementDetailsClicked) }) {
-                        Text(stringResource(R.string.common_view_details))
+                item {
+                    Row(
+                        Modifier.fillMaxWidth().clickable { onEvent(CheckoutScreenEvent.OrderAgreementChanged(!uiModel.isOrderAgreementAccepted)) }
+                            .padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x8),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = uiModel.isOrderAgreementAccepted,
+                            onCheckedChange = { onEvent(CheckoutScreenEvent.OrderAgreementChanged(it)) },
+                        )
+                        Text(stringResource(R.string.checkout_order_agreement), modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
+                        TextButton(onClick = { onEvent(CheckoutScreenEvent.AgreementDetailsClicked) }) {
+                            Text(stringResource(R.string.common_view_details))
+                        }
                     }
+                    Text(
+                        stringResource(R.string.checkout_agreement_required_notice),
+                        modifier = Modifier.fillMaxWidth().padding(start = EumSpacing.x40, bottom = EumSpacing.x16),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.eumColors.textTertiary,
+                    )
                 }
-                Text(
-                    stringResource(R.string.checkout_agreement_required_notice),
-                    modifier = Modifier.fillMaxWidth().padding(start = EumSpacing.x40, bottom = EumSpacing.x16),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.eumColors.textTertiary,
-                )
             }
         }
     }

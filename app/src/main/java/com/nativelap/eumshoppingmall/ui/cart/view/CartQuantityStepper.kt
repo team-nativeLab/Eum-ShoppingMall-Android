@@ -2,8 +2,9 @@ package com.nativelap.eumshoppingmall.ui.cart.view
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,7 +30,7 @@ fun CartQuantityStepper(
 ) {
     val safeQuantity = quantity.coerceAtLeast(1)
     Surface(
-        modifier = modifier.height(48.dp),
+        modifier = modifier.heightIn(min = 48.dp),
         shape = RoundedCornerShape(EumRadius.x8),
         color = if (enabled) MaterialTheme.eumColors.surface else MaterialTheme.eumColors.surfaceSecondary,
         border = BorderStroke(1.dp, MaterialTheme.eumColors.lineControl),
@@ -38,7 +39,7 @@ fun CartQuantityStepper(
             IconButton(
                 onClick = { onQuantityChanged((safeQuantity - 1).coerceAtLeast(1)) },
                 enabled = enabled && safeQuantity > 1,
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.widthIn(min = 48.dp).heightIn(min = 48.dp),
             ) {
                 Icon(
                     painterResource(R.drawable.ic_minus),
@@ -50,7 +51,7 @@ fun CartQuantityStepper(
             IconButton(
                 onClick = { onQuantityChanged(if (safeQuantity < Int.MAX_VALUE) safeQuantity + 1 else Int.MAX_VALUE) },
                 enabled = enabled && safeQuantity < Int.MAX_VALUE,
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.widthIn(min = 48.dp).heightIn(min = 48.dp),
             ) {
                 Icon(
                     painterResource(R.drawable.ic_plus),

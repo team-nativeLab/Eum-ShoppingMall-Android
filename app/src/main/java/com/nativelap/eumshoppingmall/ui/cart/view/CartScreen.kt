@@ -32,6 +32,8 @@ import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogBottomNavigation
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBarAction
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -59,13 +61,15 @@ fun CartScreen(
         },
         bottomBar = {
             Column(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface)) {
-                CartBottomActionBar(
-                    uiModel = uiModel,
-                    selectedCount = selectedCount,
-                    quoteCount = quoteItems.size,
-                    onQuoteClicked = { onEvent(CartScreenEvent.QuoteRequestClicked) },
-                    onCheckoutClicked = { onEvent(CartScreenEvent.CheckoutClicked) },
-                )
+                ResponsiveWidthContainer {
+                    CartBottomActionBar(
+                        uiModel = uiModel,
+                        selectedCount = selectedCount,
+                        quoteCount = quoteItems.size,
+                        onQuoteClicked = { onEvent(CartScreenEvent.QuoteRequestClicked) },
+                        onCheckoutClicked = { onEvent(CartScreenEvent.CheckoutClicked) },
+                    )
+                }
                 CatalogBottomNavigation(
                     selectedItem = "cart",
                     onItemSelected = { onEvent(CartScreenEvent.BottomTabSelected(it)) },
@@ -75,89 +79,91 @@ fun CartScreen(
         containerColor = MaterialTheme.eumColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { contentPadding ->
-        if (uiModel.items.isEmpty()) {
-            Column(
-                Modifier.fillMaxSize().padding(contentPadding).padding(EumSpacing.x20),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(stringResource(R.string.cart_empty), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary)
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(contentPadding),
-                verticalArrangement = Arrangement.spacedBy(EumSpacing.x4),
-            ) {
-                item {
-                    Row(
-                        Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = EumSpacing.x12),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Checkbox(
-                            checked = isAllSelected,
-                            onCheckedChange = { onEvent(CartScreenEvent.SelectAllChanged(it)) },
-                            enabled = selectableItems.isNotEmpty(),
-                        )
-                        Text(
-                            stringResource(R.string.common_select_all_progress, selectedCount, orderableItems.size),
-                            modifier = Modifier.weight(1f),
-                            style = MaterialTheme.typography.labelMedium,
-                        )
-                        TextButton(onClick = { onEvent(CartScreenEvent.DeleteSelectedClicked) }, enabled = selectedCount > 0) {
-                            Text(stringResource(R.string.common_delete_selected))
-                        }
-                    }
-                    HorizontalDivider(color = MaterialTheme.eumColors.line)
+        ResponsiveContentContainer(Modifier.fillMaxSize().padding(contentPadding)) {
+            if (uiModel.items.isEmpty()) {
+                Column(
+                    Modifier.fillMaxSize().padding(EumSpacing.x20),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Text(stringResource(R.string.cart_empty), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary)
                 }
-                if (orderableItems.isNotEmpty()) {
-                    item { CartSectionLabel(stringResource(R.string.cart_orderable_products, orderableItems.size)) }
-                    items(orderableItems, key = { it.id }) { item ->
-                        Column(Modifier.padding(horizontal = EumSpacing.x20)) {
-                            CartProductRow(
-                                item = item,
-                                onSelectionChanged = { onEvent(CartScreenEvent.ItemSelectionChanged(item.id, it)) },
-                                onQuantityChanged = { onEvent(CartScreenEvent.QuantityChanged(item.id, it)) },
-                                onOptionChangeClicked = { onEvent(CartScreenEvent.OptionChangeClicked(item.id)) },
-                                onRemoveClicked = { onEvent(CartScreenEvent.ItemRemoved(item.id)) },
-                            )
-                            HorizontalDivider(color = MaterialTheme.eumColors.line)
-                        }
-                    }
-                }
-                if (quoteItems.isNotEmpty()) {
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(EumSpacing.x4),
+                ) {
                     item {
                         Row(
-                            Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
+                            Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = EumSpacing.x12),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(
-                                stringResource(R.string.cart_quote_products, quoteItems.size),
-                                modifier = Modifier.weight(1f),
-                                style = MaterialTheme.typography.titleSmall,
+                            Checkbox(
+                                checked = isAllSelected,
+                                onCheckedChange = { onEvent(CartScreenEvent.SelectAllChanged(it)) },
+                                enabled = selectableItems.isNotEmpty(),
                             )
-                            TextButton(onClick = { onEvent(CartScreenEvent.QuoteRequestClicked) }) {
-                                Text(stringResource(R.string.cart_request_all_quotes))
+                            Text(
+                                stringResource(R.string.common_select_all_progress, selectedCount, orderableItems.size),
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.labelMedium,
+                            )
+                            TextButton(onClick = { onEvent(CartScreenEvent.DeleteSelectedClicked) }, enabled = selectedCount > 0) {
+                                Text(stringResource(R.string.common_delete_selected))
+                            }
+                        }
+                        HorizontalDivider(color = MaterialTheme.eumColors.line)
+                    }
+                    if (orderableItems.isNotEmpty()) {
+                        item { CartSectionLabel(stringResource(R.string.cart_orderable_products, orderableItems.size)) }
+                        items(orderableItems, key = { it.id }) { item ->
+                            Column(Modifier.padding(horizontal = EumSpacing.x20)) {
+                                CartProductRow(
+                                    item = item,
+                                    onSelectionChanged = { onEvent(CartScreenEvent.ItemSelectionChanged(item.id, it)) },
+                                    onQuantityChanged = { onEvent(CartScreenEvent.QuantityChanged(item.id, it)) },
+                                    onOptionChangeClicked = { onEvent(CartScreenEvent.OptionChangeClicked(item.id)) },
+                                    onRemoveClicked = { onEvent(CartScreenEvent.ItemRemoved(item.id)) },
+                                )
+                                HorizontalDivider(color = MaterialTheme.eumColors.line)
                             }
                         }
                     }
-                    items(quoteItems, key = { it.id }) { item ->
-                        Column(Modifier.padding(horizontal = EumSpacing.x20)) {
-                            CartProductRow(
-                                item = item,
-                                onSelectionChanged = {},
-                                onQuantityChanged = { onEvent(CartScreenEvent.QuantityChanged(item.id, it)) },
-                                onOptionChangeClicked = { onEvent(CartScreenEvent.OptionChangeClicked(item.id)) },
-                                onRemoveClicked = { onEvent(CartScreenEvent.ItemRemoved(item.id)) },
-                            )
-                            HorizontalDivider(color = MaterialTheme.eumColors.line)
+                    if (quoteItems.isNotEmpty()) {
+                        item {
+                            Row(
+                                Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    stringResource(R.string.cart_quote_products, quoteItems.size),
+                                    modifier = Modifier.weight(1f),
+                                    style = MaterialTheme.typography.titleSmall,
+                                )
+                                TextButton(onClick = { onEvent(CartScreenEvent.QuoteRequestClicked) }) {
+                                    Text(stringResource(R.string.cart_request_all_quotes))
+                                }
+                            }
+                        }
+                        items(quoteItems, key = { it.id }) { item ->
+                            Column(Modifier.padding(horizontal = EumSpacing.x20)) {
+                                CartProductRow(
+                                    item = item,
+                                    onSelectionChanged = {},
+                                    onQuantityChanged = { onEvent(CartScreenEvent.QuantityChanged(item.id, it)) },
+                                    onOptionChangeClicked = { onEvent(CartScreenEvent.OptionChangeClicked(item.id)) },
+                                    onRemoveClicked = { onEvent(CartScreenEvent.ItemRemoved(item.id)) },
+                                )
+                                HorizontalDivider(color = MaterialTheme.eumColors.line)
+                            }
                         }
                     }
-                }
-                item {
-                    CartOrderSummaryCard(
-                        uiModel = uiModel,
-                        modifier = Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
-                    )
+                    item {
+                        CartOrderSummaryCard(
+                            uiModel = uiModel,
+                            modifier = Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
+                        )
+                    }
                 }
             }
         }

@@ -1,6 +1,12 @@
 package com.nativelap.eumshoppingmall.ui.account.view
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountAddressFormUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountAddressListUiModel
@@ -12,6 +18,7 @@ import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountProfileUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountSettingUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountShortcutUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.MyPageUiModel
+import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 private val previewProfile = AccountProfileUiModel(
@@ -38,22 +45,41 @@ private val previewAddress = AccountAddressUiModel(
     isDefault = true,
 )
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "드로어 회원")
 @Composable
 private fun AccountDrawerMemberPreview() {
     EumShoppingMallTheme {
-        AccountDrawerScreen(previewProfile, isLoggedIn = true, onEvent = {})
+        Box(Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(com.nativelap.eumshoppingmall.R.drawable.figma_drawer_visual),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+            AccountDrawerScreen(previewProfile, isLoggedIn = true, onEvent = {})
+        }
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "드로어 게스트")
 @Composable
 private fun AccountDrawerGuestPreview() {
     EumShoppingMallTheme {
-        AccountDrawerScreen(previewProfile, isLoggedIn = false, onEvent = {})
+        Box(Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(com.nativelap.eumshoppingmall.R.drawable.figma_drawer_visual),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+            AccountDrawerScreen(previewProfile, isLoggedIn = false, onEvent = {})
+        }
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "마이페이지 회원")
 @Composable
 private fun MyPageMemberPreview() {
@@ -85,6 +111,7 @@ private fun MyPageMemberPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 800, fontScale = 1.2f, name = "마이페이지 게스트 · 좁은 화면")
 @Composable
 private fun MyPageGuestPreview() {
@@ -104,6 +131,7 @@ private fun MyPageGuestPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "프로필 비밀번호 오류")
 @Composable
 private fun AccountPasswordErrorPreview() {
@@ -112,6 +140,7 @@ private fun AccountPasswordErrorPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "프로필 수정")
 @Composable
 private fun AccountProfileEditPreview() {
@@ -120,6 +149,7 @@ private fun AccountProfileEditPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "배송지 목록")
 @Composable
 private fun AccountAddressListPreview() {
@@ -128,6 +158,7 @@ private fun AccountAddressListPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "배송지 빈 상태")
 @Composable
 private fun AccountAddressEmptyPreview() {
@@ -136,6 +167,7 @@ private fun AccountAddressEmptyPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 800, fontScale = 1.2f, name = "배송지 입력 오류 · 좁은 화면")
 @Composable
 private fun AccountAddressInvalidPreview() {
@@ -144,6 +176,7 @@ private fun AccountAddressInvalidPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "설정 알림 꺼짐 · 로그아웃 확인")
 @Composable
 private fun AccountSettingsWarningPreview() {
@@ -167,6 +200,7 @@ private fun AccountSettingsWarningPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "설정 게스트")
 @Composable
 private fun AccountSettingsGuestPreview() {
@@ -178,6 +212,7 @@ private fun AccountSettingsGuestPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "설정 수신 변경 토스트")
 @Composable
 private fun AccountSettingsToastPreview() {
@@ -189,6 +224,7 @@ private fun AccountSettingsToastPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 800, fontScale = 1.2f, name = "설정 좁은 화면 · 큰 글자")
 @Composable
 private fun AccountSettingsCompactPreview() {

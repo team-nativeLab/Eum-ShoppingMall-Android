@@ -19,6 +19,7 @@ import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryProductUiMo
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryUiModel
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderPaymentBreakdownUiModel
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderStatus
+import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 private val previewHistoryModel = OrderHistoryUiModel(
@@ -91,13 +92,15 @@ private val previewDeliveryModel = DeliveryTrackingUiModel(
     noticeLabel = "택배사 사정에 따라 정보가 늦게 반영될 수 있습니다.",
 )
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-16 주문 내역")
 @Composable
 private fun OrderHistoryPreview() {
     EumShoppingMallTheme { OrderHistoryScreen(previewHistoryModel, onEvent = {}) }
 }
 
-@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-16 주문 없음")
+@ResponsiveUiPreview
+@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-16e 주문 내역 빈 상태")
 @Composable
 private fun OrderHistoryEmptyPreview() {
     EumShoppingMallTheme {
@@ -108,6 +111,7 @@ private fun OrderHistoryEmptyPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-16 필터 결과 없음")
 @Composable
 private fun OrderHistoryNoMatchingPreview() {
@@ -123,18 +127,21 @@ private fun OrderHistoryNoMatchingPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-17 좁은 주문 상세")
 @Composable
 private fun OrderDetailNarrowPreview() {
     EumShoppingMallTheme { OrderDetailScreen(previewOrderDetailModel, onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-18 배송 조회")
 @Composable
 private fun DeliveryTrackingPreview() {
     EumShoppingMallTheme { DeliveryTrackingScreen(previewDeliveryModel, onEvent = {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-18 배송 이력 없음")
 @Composable
 private fun DeliveryTrackingEmptyPreview() {
@@ -143,6 +150,7 @@ private fun DeliveryTrackingEmptyPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-18 배송 정보 없음")
 @Composable
 private fun DeliveryTrackingMissingInfoPreview() {

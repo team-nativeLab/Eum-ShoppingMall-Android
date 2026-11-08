@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -47,7 +47,7 @@ fun CatalogOptionGroupSelector(
             OutlinedButton(
                 onClick = { expanded = true },
                 enabled = group.options.isNotEmpty(),
-                modifier = Modifier.fillMaxWidth().height(50.dp),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
                 contentPadding = PaddingValues(horizontal = EumSpacing.x12),
                 shape = RoundedCornerShape(EumRadius.x8),
             ) {

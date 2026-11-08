@@ -10,6 +10,7 @@ import com.nativelap.eumshoppingmall.ui.benefits.PointsScreen
 import com.nativelap.eumshoppingmall.ui.benefits.PointsScreenUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
+import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.recent.RecentProductGroupUiModel
 import com.nativelap.eumshoppingmall.ui.recent.RecentProductsScreen
 import com.nativelap.eumshoppingmall.ui.recent.RecentProductsUiModel
@@ -27,18 +28,21 @@ private val sampleCoupons = listOf(
     CouponUiModel("coupon-2", "₩00,000", "배송비 쿠폰", "₩00,000 이상 구매 시 · 최대 ₩00,000 할인", "0000.00.00까지", applicableLabel = "배송비"),
 )
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "A-20 찜한 상품")
 @Composable
 private fun FavoritesPreview() {
     EumShoppingMallTheme { FavoritesScreen(FavoritesUiModel(sampleProducts, "최근 찜한 순"), {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "A-20e 찜 빈 상태")
 @Composable
 private fun FavoritesEmptyPreview() {
     EumShoppingMallTheme { FavoritesScreen(FavoritesUiModel(), {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "A-21 최근 본 상품")
 @Composable
 private fun RecentProductsPreview() {
@@ -53,24 +57,28 @@ private fun RecentProductsPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "A-21e 최근 본 상품 빈 상태")
 @Composable
 private fun RecentProductsEmptyPreview() {
     EumShoppingMallTheme { RecentProductsScreen(RecentProductsUiModel(), {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "A-22 쿠폰함")
 @Composable
 private fun CouponsPreview() {
     EumShoppingMallTheme { CouponScreen(CouponScreenUiModel(pointsBalanceLabel = "0원", availableCoupons = sampleCoupons), {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "A-22e 쿠폰 없음")
 @Composable
 private fun CouponsEmptyPreview() {
     EumShoppingMallTheme { CouponScreen(CouponScreenUiModel(pointsBalanceLabel = "0원"), {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "A-22p 적립금")
 @Composable
 private fun PointsPreview() {
@@ -90,6 +98,7 @@ private fun PointsPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "A-22pe 적립 내역 없음")
 @Composable
 private fun PointsEmptyPreview() {
@@ -98,12 +107,14 @@ private fun PointsEmptyPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 800, fontScale = 1.3f, name = "찜 좁은 화면·큰 글자")
 @Composable
 private fun FavoritesAdaptivePreview() {
     EumShoppingMallTheme { FavoritesScreen(FavoritesUiModel(sampleProducts, "최근 찜한 순"), {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 800, fontScale = 1.3f, name = "최근 본 상품 좁은 화면·큰 글자")
 @Composable
 private fun RecentAdaptivePreview() {
@@ -118,12 +129,14 @@ private fun RecentAdaptivePreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 800, fontScale = 1.3f, name = "쿠폰 좁은 화면·큰 글자")
 @Composable
 private fun CouponsAdaptivePreview() {
     EumShoppingMallTheme { CouponScreen(CouponScreenUiModel(pointsBalanceLabel = "₩1,234원", availableCoupons = sampleCoupons), {}) }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 800, fontScale = 1.3f, name = "적립금 좁은 화면·큰 글자")
 @Composable
 private fun PointsAdaptivePreview() {

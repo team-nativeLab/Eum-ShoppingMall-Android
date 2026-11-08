@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.quote.view.components.QuoteBottomActions
@@ -83,7 +84,7 @@ fun QuoteCompleteScreen(
                     Modifier.fillMaxWidth().padding(top = EumSpacing.x8),
                     verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
                 ) {
-                    QuoteSummaryRow(stringResource(R.string.quote_inquiry_number), uiModel.inquiryNumber)
+                    QuoteSummaryRow(stringResource(R.string.quote_inquiry_number_label), uiModel.inquiryNumber)
                     QuoteSummaryRow(stringResource(R.string.quote_inquiry_type), uiModel.requestTypeLabel)
                     QuoteSummaryRow(stringResource(R.string.quote_company_name), uiModel.companyName)
                     QuoteSummaryRow(stringResource(R.string.quote_contact_name), uiModel.contactName)
@@ -105,8 +106,12 @@ fun QuoteCompleteScreen(
                     ).forEachIndexed { index, label ->
                         Text(
                             stringResource(label),
+                            modifier = Modifier.weight(1f),
                             color = if (index == 0) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textTertiary,
                             style = MaterialTheme.typography.labelSmall,
+                            textAlign = TextAlign.Center,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }

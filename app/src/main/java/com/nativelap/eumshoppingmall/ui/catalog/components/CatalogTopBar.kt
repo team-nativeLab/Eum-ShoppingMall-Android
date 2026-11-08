@@ -61,7 +61,7 @@ fun CatalogTopBar(
             modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.eumColors.textPrimary,
-            maxLines = 1,
+            maxLines = 2,
             textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
         )

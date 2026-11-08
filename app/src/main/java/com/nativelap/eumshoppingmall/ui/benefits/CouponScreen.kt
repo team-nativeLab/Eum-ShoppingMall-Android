@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -35,7 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
@@ -72,7 +71,7 @@ fun CouponScreen(
                     BasicTextField(
                         value = uiModel.registeredCode,
                         onValueChange = { onEvent(CouponScreenEvent.CodeChanged(it)) },
-                        modifier = Modifier.weight(1f).height(48.dp).clip(RoundedCornerShape(8.dp))
+                        modifier = Modifier.weight(1f).heightIn(min = 48.dp).clip(RoundedCornerShape(8.dp))
                             .background(MaterialTheme.eumColors.surface).border(1.dp, MaterialTheme.eumColors.lineControl, RoundedCornerShape(8.dp))
                             .padding(horizontal = EumSpacing.x12).semantics { contentDescription = couponCodeLabel },
                         singleLine = true,
@@ -88,7 +87,7 @@ fun CouponScreen(
                     Spacer(Modifier.width(EumSpacing.x8))
                     Button(
                         onClick = { onEvent(CouponScreenEvent.RegisterClicked) },
-                        modifier = Modifier.height(48.dp),
+                        modifier = Modifier.heightIn(min = 48.dp),
                         contentPadding = PaddingValues(horizontal = EumSpacing.x16),
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.eumColors.textPrimary),
@@ -115,7 +114,7 @@ fun CouponScreen(
                         val selected = uiModel.selectedTab == tab
                         Surface(
                             onClick = { onEvent(CouponScreenEvent.TabSelected(tab)) },
-                            modifier = Modifier.weight(1f).height(48.dp),
+                            modifier = Modifier.weight(1f).heightIn(min = 48.dp),
                             shape = RoundedCornerShape(6.dp),
                             color = if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.background,
                         ) {
@@ -124,8 +123,6 @@ fun CouponScreen(
                                     stringResource(if (tab == CouponTab.Available) R.string.coupon_available_tab else R.string.coupon_used_expired_tab, uiModel.countFor(tab)),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = if (selected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textSecondary,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
                                 )
                             }
                         }
@@ -174,14 +171,14 @@ private fun CouponCard(coupon: CouponUiModel, onClick: () -> Unit) {
         color = MaterialTheme.eumColors.surface,
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.eumColors.line),
     ) {
-        Row(Modifier.height(132.dp)) {
+        Row(Modifier.heightIn(min = 132.dp)) {
             Column(Modifier.weight(1f).padding(EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                     Text(coupon.discountLabel, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.eumColors.textPrimary)
                     coupon.badgeLabel?.let { Text(it, Modifier.clip(RoundedCornerShape(4.dp)).background(MaterialTheme.eumColors.textPrimary).padding(horizontal = 6.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.inverse) }
                 }
-                Text(coupon.name, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(coupon.conditionLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(coupon.name, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textPrimary)
+                Text(coupon.conditionLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
                 Text(coupon.expiryLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
             }
             Box(Modifier.width(1.dp).fillMaxSize().background(MaterialTheme.eumColors.lineStrong))
@@ -196,7 +193,7 @@ private fun CouponCard(coupon: CouponUiModel, onClick: () -> Unit) {
                     tint = MaterialTheme.eumColors.textPrimary,
                     modifier = Modifier.size(20.dp),
                 )
-                Text(coupon.applicableLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary, maxLines = 2)
+                Text(coupon.applicableLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
             }
         }
     }

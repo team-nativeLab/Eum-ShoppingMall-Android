@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -40,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryStatus
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -52,17 +54,37 @@ fun QuotePageScaffold(
     content: @Composable (Modifier) -> Unit,
 ) {
     Scaffold(
-        topBar = { QuoteTopBar(title, onBack) },
-        bottomBar = bottomBar,
+        topBar = {
+            Box(Modifier.fillMaxWidth()) {
+                Box(
+                    Modifier.widthIn(max = 600.dp).fillMaxWidth().align(Alignment.Center),
+                ) {
+                    QuoteTopBar(title, onBack)
+                }
+            }
+        },
+        bottomBar = {
+            Box(Modifier.fillMaxWidth()) {
+                Box(
+                    Modifier.widthIn(max = 600.dp).fillMaxWidth().align(Alignment.Center),
+                ) {
+                    bottomBar()
+                }
+            }
+        },
         containerColor = MaterialTheme.eumColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-    ) { padding -> content(Modifier.padding(padding)) }
+    ) { padding ->
+        ResponsiveContentContainer(Modifier.fillMaxSize().padding(padding)) {
+            content(Modifier.fillMaxSize())
+        }
+    }
 }
 
 @Composable
 fun QuoteTopBar(title: String, onBack: (() -> Unit)?) {
     Row(
-        Modifier.fillMaxWidth().statusBarsPadding().height(56.dp).padding(horizontal = EumSpacing.x8),
+        Modifier.fillMaxWidth().statusBarsPadding().heightIn(min = 56.dp).padding(horizontal = EumSpacing.x8),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (onBack != null) {
@@ -72,7 +94,7 @@ fun QuoteTopBar(title: String, onBack: (() -> Unit)?) {
         } else {
             Spacer(Modifier.size(48.dp))
         }
-        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
         Spacer(Modifier.size(48.dp))
     }
 }

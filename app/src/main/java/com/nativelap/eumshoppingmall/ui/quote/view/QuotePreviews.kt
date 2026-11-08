@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
+import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteAttachmentUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteCompleteUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteDetailItemUiModel
@@ -101,6 +102,7 @@ private val previewQuoteHistory = QuoteHistoryUiModel(
     ),
 )
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "견적 문의 입력")
 @Composable
 private fun QuoteRequestPreview() {
@@ -142,6 +144,7 @@ private fun QuoteRequestNarrowLargeTextPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "견적 문의 완료")
 @Composable
 private fun QuoteCompletePreview() {
@@ -161,6 +164,7 @@ private fun QuoteCompletePreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 720, fontScale = 1.3f, name = "견적 문의 완료 · 좁은 화면")
 @Composable
 private fun QuoteCompleteNarrowLargeTextPreview() {
@@ -180,6 +184,7 @@ private fun QuoteCompleteNarrowLargeTextPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "견적 문의 목록")
 @Composable
 private fun QuoteHistoryPreview() {
@@ -191,6 +196,7 @@ private fun QuoteHistoryPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 720, fontScale = 1.3f, name = "견적 문의 목록 · 좁은 화면")
 @Composable
 private fun QuoteHistoryNarrowLargeTextPreview() {
@@ -202,6 +208,7 @@ private fun QuoteHistoryNarrowLargeTextPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "견적 문의 빈 목록")
 @Composable
 private fun QuoteHistoryEmptyPreview() {
@@ -213,6 +220,7 @@ private fun QuoteHistoryEmptyPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "견적 문의 상세 · 견적 도착")
 @Composable
 private fun QuoteInquiryDetailPreview() {
@@ -246,6 +254,7 @@ private fun QuoteInquiryDetailPreview() {
     }
 }
 
+@ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 720, fontScale = 1.3f, name = "견적 문의 상세 · 좁은 화면")
 @Composable
 private fun QuoteInquiryDetailNarrowLargeTextPreview() {
