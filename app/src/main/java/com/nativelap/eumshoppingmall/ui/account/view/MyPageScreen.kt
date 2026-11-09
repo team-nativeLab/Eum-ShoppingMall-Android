@@ -41,13 +41,14 @@ import com.nativelap.eumshoppingmall.ui.account.viewmodel.MyPageUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogBottomNavigation
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBarAction
+import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
-fun MyPageScreen(uiModel: MyPageUiModel, onEvent: (MyPageScreenEvent) -> Unit) {
+fun MyPageScreen(uiModel: MyPageUiModel, onEvent: (MyPageScreenEvent) -> Unit, cartItemCount: Int = 0) {
     Scaffold(
         topBar = {
             CatalogTopBar(
@@ -59,8 +60,9 @@ fun MyPageScreen(uiModel: MyPageUiModel, onEvent: (MyPageScreenEvent) -> Unit) {
         },
         bottomBar = {
             CatalogBottomNavigation(
-                selectedItem = "my_page",
+                selectedItem = MainNavigationTab.MyPage,
                 onItemSelected = { onEvent(MyPageScreenEvent.BottomNavigationClicked(it)) },
+                cartItemCount = cartItemCount,
             )
         },
         containerColor = MaterialTheme.eumColors.background,

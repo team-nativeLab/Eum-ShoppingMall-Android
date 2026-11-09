@@ -8,13 +8,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
 fun CatalogScreenScaffold(
-    selectedBottomItem: String,
-    onBottomItemSelected: (String) -> Unit,
+    selectedBottomItem: MainNavigationTab,
+    onBottomItemSelected: (MainNavigationTab) -> Unit,
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit,
     cartItemCount: Int = 0,

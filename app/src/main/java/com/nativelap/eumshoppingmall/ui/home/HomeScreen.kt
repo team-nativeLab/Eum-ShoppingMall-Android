@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.home.components.HomeBottomNavigation
 import com.nativelap.eumshoppingmall.ui.home.components.HomeHeroCarousel
 import com.nativelap.eumshoppingmall.ui.home.components.HomeNavigationRail
@@ -51,6 +52,7 @@ fun HomeRoute(
     recommendedProducts: List<HomeProductUiModel> = emptyList(),
     bestSellerProducts: List<HomeProductUiModel> = emptyList(),
     cartItemCount: Int = 0,
+    selectedTab: MainNavigationTab = MainNavigationTab.Home,
     onSearch: (String) -> Unit = {},
     onCategoryClick: (HomeCategoryUiModel) -> Unit = {},
     onProductClick: (HomeProductUiModel) -> Unit = {},
@@ -61,17 +63,16 @@ fun HomeRoute(
     onSeeAllProductsClick: () -> Unit = {},
     onSeeRecommendedProductsClick: () -> Unit = {},
     onFavoriteClick: (HomeProductUiModel) -> Unit = {},
-    onNavigationSelected: (HomeNavigationItem) -> Unit = {},
+    onNavigationSelected: (MainNavigationTab) -> Unit = {},
 ) {
     var query by rememberSaveable { mutableStateOf("") }
-    var selectedNavigation by rememberSaveable { mutableStateOf(HomeNavigationItem.Home) }
     var favoriteProductIds by rememberSaveable { mutableStateOf(emptySet<String>()) }
     HomeScreen(
         query = query,
         recommendedProducts = recommendedProducts,
         bestSellerProducts = bestSellerProducts,
         cartItemCount = cartItemCount,
-        selectedNavigation = selectedNavigation,
+        selectedNavigation = selectedTab,
         favoriteProductIds = favoriteProductIds,
         onEvent = { event ->
             when (event) {
@@ -105,10 +106,7 @@ fun HomeRoute(
                     onFavoriteClick(product)
                 }
 
-                is HomeScreenEvent.NavigationSelected -> {
-                    selectedNavigation = event.item
-                    onNavigationSelected(event.item)
-                }
+                is HomeScreenEvent.NavigationSelected -> onNavigationSelected(event.item)
             }
         },
     )
@@ -120,7 +118,7 @@ private fun HomeScreen(
     recommendedProducts: List<HomeProductUiModel>,
     bestSellerProducts: List<HomeProductUiModel>,
     cartItemCount: Int,
-    selectedNavigation: HomeNavigationItem,
+    selectedNavigation: MainNavigationTab,
     favoriteProductIds: Set<String>,
     onEvent: (HomeScreenEvent) -> Unit,
 ) {

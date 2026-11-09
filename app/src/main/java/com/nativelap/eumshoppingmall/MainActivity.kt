@@ -7,11 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.nativelap.eumshoppingmall.data.local.CartCountStore
 import com.nativelap.eumshoppingmall.data.local.cartPreferencesDataStore
+import com.nativelap.eumshoppingmall.navigation.EumMainNavDisplay
 import com.nativelap.eumshoppingmall.ui.home.HomeRoute
+import com.nativelap.eumshoppingmall.ui.screendata.createShoppingScreenDataProvider
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 class MainActivity : ComponentActivity() {
@@ -25,7 +28,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             EumShoppingMallTheme {
                 val cartItemCount by cartCountStore.cartItemCount.collectAsState(initial = 0)
-                HomeRoute(cartItemCount = cartItemCount)
+                val screenDataProvider = remember { createShoppingScreenDataProvider() }
+                EumMainNavDisplay(
+                    cartItemCount = cartItemCount,
+                    screenDataProvider = screenDataProvider,
+                )
             }
         }
     }

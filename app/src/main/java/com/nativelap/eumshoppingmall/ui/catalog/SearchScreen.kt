@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogScreenScaffold
+import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -45,13 +46,15 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 fun CatalogSearchScreen(
     uiModel: CatalogSearchUiModel,
     onEvent: (CatalogSearchEvent) -> Unit,
-    selectedBottomItem: String = "search",
-    onBottomItemSelected: (String) -> Unit = {},
+    selectedBottomItem: MainNavigationTab = MainNavigationTab.Search,
+    onBottomItemSelected: (MainNavigationTab) -> Unit = {},
+    cartItemCount: Int = 0,
     modifier: Modifier = Modifier,
 ) {
     CatalogScreenScaffold(
         selectedBottomItem = selectedBottomItem,
         onBottomItemSelected = onBottomItemSelected,
+        cartItemCount = cartItemCount,
         modifier = modifier,
         topBar = {
             CatalogSearchHeader(

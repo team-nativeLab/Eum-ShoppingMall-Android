@@ -1,5 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.account.viewmodel
 
+import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
+
 data class AccountOrderStatusUiModel(val label: String, val count: String)
 data class AccountShortcutUiModel(val id: String, val label: String, val countLabel: String? = null)
 data class AccountMenuRowUiModel(val id: String, val label: String)
@@ -78,7 +80,7 @@ sealed interface MyPageScreenEvent {
     data object DrawerClicked : MyPageScreenEvent
     data class ShortcutClicked(val shortcutId: String) : MyPageScreenEvent
     data class MenuRowClicked(val rowId: String) : MyPageScreenEvent
-    data class BottomNavigationClicked(val itemId: String) : MyPageScreenEvent
+    data class BottomNavigationClicked(val tab: MainNavigationTab) : MyPageScreenEvent
 }
 
 sealed interface AccountDrawerScreenEvent {

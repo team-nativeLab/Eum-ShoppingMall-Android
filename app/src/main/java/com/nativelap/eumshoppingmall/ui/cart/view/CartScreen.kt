@@ -33,6 +33,7 @@ import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogBottomNavigation
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBarAction
+import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -45,6 +46,7 @@ fun CartScreen(
     onEvent: (CartScreenEvent) -> Unit,
     isLoggedIn: Boolean,
     modifier: Modifier = Modifier,
+    cartItemCount: Int = 0,
 ) {
     val orderableItems = uiModel.items.filter { it.type == CartItemType.Orderable }
     val selectableItems = orderableItems.filterNot { it.isSoldOut }
@@ -80,8 +82,9 @@ fun CartScreen(
                     )
                 }
                 CatalogBottomNavigation(
-                    selectedItem = "cart",
+                    selectedItem = MainNavigationTab.Cart,
                     onItemSelected = { onEvent(CartScreenEvent.BottomTabSelected(it)) },
+                    cartItemCount = cartItemCount,
                 )
             }
         },

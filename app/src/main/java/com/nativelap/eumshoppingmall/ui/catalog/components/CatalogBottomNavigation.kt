@@ -25,29 +25,30 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 private data class CatalogNavigationItem(
-    val id: String,
+    val tab: MainNavigationTab,
     val iconResId: Int,
     val labelResId: Int,
 )
 
 @Composable
 fun CatalogBottomNavigation(
-    selectedItem: String,
-    onItemSelected: (String) -> Unit,
+    selectedItem: MainNavigationTab,
+    onItemSelected: (MainNavigationTab) -> Unit,
     modifier: Modifier = Modifier,
     cartItemCount: Int = 0,
 ) {
     val dividerColor = MaterialTheme.eumColors.line
     val items = listOf(
-        CatalogNavigationItem("home", R.drawable.ic_house, R.string.common_home),
-        CatalogNavigationItem("categories", R.drawable.ic_layout_grid, R.string.common_categories),
-        CatalogNavigationItem("search", R.drawable.ic_search, R.string.common_search),
-        CatalogNavigationItem("cart", R.drawable.ic_shopping_cart, R.string.common_cart),
+        CatalogNavigationItem(MainNavigationTab.Home, R.drawable.ic_house, R.string.common_home),
+        CatalogNavigationItem(MainNavigationTab.Categories, R.drawable.ic_layout_grid, R.string.common_categories),
+        CatalogNavigationItem(MainNavigationTab.Search, R.drawable.ic_search, R.string.common_search),
+        CatalogNavigationItem(MainNavigationTab.Cart, R.drawable.ic_shopping_cart, R.string.common_cart),
         // Figma 하단 탭 라벨은 "마이"다(홈 탭과 같은 문자열).
-        CatalogNavigationItem("my_page", R.drawable.ic_user_round, R.string.home_tab_my_page),
+        CatalogNavigationItem(MainNavigationTab.MyPage, R.drawable.ic_user_round, R.string.home_tab_my_page),
     )
     Row(
         modifier = modifier
@@ -61,7 +62,7 @@ fun CatalogBottomNavigation(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         items.forEach { item ->
-            val isSelected = item.id == selectedItem
+            val isSelected = item.tab == selectedItem
             val color = if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textTertiary
             Column(
                 modifier = Modifier
@@ -70,13 +71,13 @@ fun CatalogBottomNavigation(
                     .selectable(
                         selected = isSelected,
                         role = Role.Tab,
-                        onClick = { onItemSelected(item.id) },
+                        onClick = { onItemSelected(item.tab) },
                     )
                     .padding(horizontal = 2.dp, vertical = 6.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-                if (item.id == "cart" && cartItemCount > 0) {
+                if (item.tab == MainNavigationTab.Cart && cartItemCount > 0) {
                     BadgedBox(
                         badge = {
                             Badge(containerColor = MaterialTheme.eumColors.textPrimary, contentColor = MaterialTheme.eumColors.inverse) {
