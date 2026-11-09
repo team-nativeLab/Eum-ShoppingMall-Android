@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.home
 
 import androidx.annotation.DrawableRes
+import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 
 data class HomeProductUiModel(
     val id: String,
@@ -15,14 +16,6 @@ data class HomeProductUiModel(
     val isSoldOut: Boolean = false,
     val isPurchaseUnavailable: Boolean = false,
 )
-
-enum class HomeNavigationItem {
-    Home,
-    Categories,
-    Search,
-    Cart,
-    MyPage,
-}
 
 data class HomeCategoryUiModel(
     val label: String,
@@ -41,5 +34,5 @@ sealed interface HomeScreenEvent {
     data object SeeAllProductsClicked : HomeScreenEvent
     data object SeeRecommendedProductsClicked : HomeScreenEvent
     data class FavoriteClicked(val product: HomeProductUiModel) : HomeScreenEvent
-    data class NavigationSelected(val item: HomeNavigationItem) : HomeScreenEvent
+    data class NavigationSelected(val item: MainNavigationTab) : HomeScreenEvent
 }

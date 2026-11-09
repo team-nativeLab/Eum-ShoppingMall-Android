@@ -34,13 +34,13 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
-import com.nativelap.eumshoppingmall.ui.home.HomeNavigationItem
+import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
 fun HomeBottomNavigation(
-    selectedItem: HomeNavigationItem,
-    onItemSelected: (HomeNavigationItem) -> Unit,
+    selectedItem: MainNavigationTab,
+    onItemSelected: (MainNavigationTab) -> Unit,
     cartItemCount: Int = 0,
     modifier: Modifier = Modifier,
 ) {
@@ -50,11 +50,11 @@ fun HomeBottomNavigation(
         cartItemCount,
     )
     val items = listOf(
-        Triple(HomeNavigationItem.Home, R.drawable.ic_house, R.string.home_tab_home),
-        Triple(HomeNavigationItem.Categories, R.drawable.ic_layout_grid, R.string.home_tab_categories),
-        Triple(HomeNavigationItem.Search, R.drawable.ic_search, R.string.home_tab_search),
-        Triple(HomeNavigationItem.Cart, R.drawable.ic_shopping_cart, R.string.home_tab_cart),
-        Triple(HomeNavigationItem.MyPage, R.drawable.ic_user_round, R.string.home_tab_my_page),
+        Triple(MainNavigationTab.Home, R.drawable.ic_house, R.string.home_tab_home),
+        Triple(MainNavigationTab.Categories, R.drawable.ic_layout_grid, R.string.home_tab_categories),
+        Triple(MainNavigationTab.Search, R.drawable.ic_search, R.string.home_tab_search),
+        Triple(MainNavigationTab.Cart, R.drawable.ic_shopping_cart, R.string.home_tab_cart),
+        Triple(MainNavigationTab.MyPage, R.drawable.ic_user_round, R.string.home_tab_my_page),
     )
     Row(
         modifier = modifier
@@ -87,7 +87,7 @@ fun HomeBottomNavigation(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-                if (item == HomeNavigationItem.Cart && cartItemCount > 0) {
+                if (item == MainNavigationTab.Cart && cartItemCount > 0) {
                     Box(
                         modifier = Modifier.size(width = 48.dp, height = 32.dp).semantics {
                             contentDescription = cartCountDescription
@@ -135,8 +135,8 @@ fun HomeBottomNavigation(
 
 @Composable
 fun HomeNavigationRail(
-    selectedItem: HomeNavigationItem,
-    onItemSelected: (HomeNavigationItem) -> Unit,
+    selectedItem: MainNavigationTab,
+    onItemSelected: (MainNavigationTab) -> Unit,
     cartItemCount: Int = 0,
     modifier: Modifier = Modifier,
 ) {
@@ -145,11 +145,11 @@ fun HomeNavigationRail(
         cartItemCount,
     )
     val items = listOf(
-        Triple(HomeNavigationItem.Home, R.drawable.ic_house, R.string.home_tab_home),
-        Triple(HomeNavigationItem.Categories, R.drawable.ic_layout_grid, R.string.home_tab_categories),
-        Triple(HomeNavigationItem.Search, R.drawable.ic_search, R.string.home_tab_search),
-        Triple(HomeNavigationItem.Cart, R.drawable.ic_shopping_cart, R.string.home_tab_cart),
-        Triple(HomeNavigationItem.MyPage, R.drawable.ic_user_round, R.string.home_tab_my_page),
+        Triple(MainNavigationTab.Home, R.drawable.ic_house, R.string.home_tab_home),
+        Triple(MainNavigationTab.Categories, R.drawable.ic_layout_grid, R.string.home_tab_categories),
+        Triple(MainNavigationTab.Search, R.drawable.ic_search, R.string.home_tab_search),
+        Triple(MainNavigationTab.Cart, R.drawable.ic_shopping_cart, R.string.home_tab_cart),
+        Triple(MainNavigationTab.MyPage, R.drawable.ic_user_round, R.string.home_tab_my_page),
     )
     NavigationRail(
         modifier = modifier.navigationBarsPadding(),
@@ -160,7 +160,7 @@ fun HomeNavigationRail(
                 selected = selectedItem == item,
                 onClick = { onItemSelected(item) },
                 icon = {
-                    if (item == HomeNavigationItem.Cart && cartItemCount > 0) {
+                    if (item == MainNavigationTab.Cart && cartItemCount > 0) {
                         Box(
                             modifier = Modifier.size(width = 48.dp, height = 32.dp).semantics {
                                 contentDescription = cartCountDescription
