@@ -1,0 +1,9 @@
+<resources>
+    <string name="account_login_or_signup">로그인 / 회원가입</string>
+    <string name="account_login_orders_title">로그인하면 주문 정보를\n한곳에서 관리할 수 있습니다</string>
+    <string name="account_login_benefits_description">주문·배송 조회와 찜한 상품을\n한 곳에서 확인할 수 있습니다.</string>
+    <string name="account_business_registration_notice">사업자등록번호 변경은 고객센터로 문의해 주세요.</string>
+    <string name="account_department_placeholder">부서명을 입력해 주세요</string>
+    <string name="account_order_notice_consent_delivery">주문·배송 알림은 수신 동의와 관계없이 발송됩니다.</string>
+    <string name="address_empty_guide">배송지를 등록하면 주문 시\n빠르게 선택할 수 있어요.</string>
+</resources>

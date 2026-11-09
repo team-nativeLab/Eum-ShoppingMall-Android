@@ -33,6 +33,9 @@ private val previewProfile = AccountProfileUiModel(
     isEmailConsentEnabled = false,
 )
 
+// Figma 357:3977 편집 상태: 사업자 등록번호와 담당 부서는 비어 있는 입력칸으로 표시한다.
+private val previewEditProfile = previewProfile.copy(businessRegistrationNumber = "", department = "")
+
 private val previewAddress = AccountAddressUiModel(
     id = "address-1",
     label = "배송지명",
@@ -124,7 +127,7 @@ private fun MyPageGuestPreview() {
                 orderStatuses = emptyList(),
                 orderRows = emptyList(),
                 supportRows = listOf(AccountMenuRowUiModel("customer", "고객센터"), AccountMenuRowUiModel("notices", "공지사항")),
-                recentProducts = listOf("최근 본 상품 예시", "긴 상품명은 화면 폭에 맞춰 줄바꿈됩니다"),
+                recentProducts = listOf("제품명", "제품명", "제품명"),
             ),
             {},
         )
@@ -136,7 +139,7 @@ private fun MyPageGuestPreview() {
 @Composable
 private fun AccountPasswordErrorPreview() {
     EumShoppingMallTheme {
-        AccountProfileScreen(AccountProfileEditUiModel(previewProfile, isPasswordInvalid = true), true, {})
+        AccountProfileScreen(AccountProfileEditUiModel(previewProfile, isPasswordInvalid = true, passwordValue = "12345678".toCharArray()), true, {})
     }
 }
 
@@ -145,7 +148,7 @@ private fun AccountPasswordErrorPreview() {
 @Composable
 private fun AccountProfileEditPreview() {
     EumShoppingMallTheme {
-        AccountProfileScreen(AccountProfileEditUiModel(previewProfile), false, {})
+        AccountProfileScreen(AccountProfileEditUiModel(previewEditProfile), false, {})
     }
 }
 
@@ -154,7 +157,17 @@ private fun AccountProfileEditPreview() {
 @Composable
 private fun AccountAddressListPreview() {
     EumShoppingMallTheme {
-        AccountAddressListScreen(AccountAddressListUiModel(listOf(previewAddress, previewAddress.copy(id = "address-2", isDefault = false)), 10), {})
+        AccountAddressListScreen(
+            AccountAddressListUiModel(
+                listOf(
+                    previewAddress,
+                    previewAddress.copy(id = "address-2", isDefault = false),
+                    previewAddress.copy(id = "address-3", isDefault = false),
+                ),
+                10,
+            ),
+            {},
+        )
     }
 }
 
@@ -218,7 +231,7 @@ private fun AccountSettingsGuestPreview() {
 private fun AccountSettingsToastPreview() {
     EumShoppingMallTheme {
         AccountSettingsScreen(
-            AccountSettingUiModel(true, true, false, false, false, false, false, true, false, "0.0.0", "0000.00.00"),
+            AccountSettingUiModel(true, true, false, false, true, false, false, true, false, "0.0.0", "0000.00.00"),
             {},
         )
     }
@@ -230,7 +243,7 @@ private fun AccountSettingsToastPreview() {
 private fun AccountSettingsCompactPreview() {
     EumShoppingMallTheme {
         AccountSettingsScreen(
-            AccountSettingUiModel(true, false, true, false, true, false, true, false, false, "0.0.0 · 최신 버전", "0000.00.00"),
+            AccountSettingUiModel(true, true, true, false, true, false, false, false, false, "0.0.0 · 최신 버전", "0000.00.00"),
             {},
         )
     }

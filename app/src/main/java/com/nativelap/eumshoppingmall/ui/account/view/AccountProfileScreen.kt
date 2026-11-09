@@ -1,12 +1,11 @@
 package com.nativelap.eumshoppingmall.ui.account.view
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,10 +17,12 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,13 +37,18 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountProfileEditUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountProfileScreenEvent
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
+import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.eumCheckboxColors
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -61,7 +67,6 @@ fun AccountProfileScreen(
                     onClick = { onEvent(if (isPasswordVerification) AccountProfileScreenEvent.PasswordSubmitted else AccountProfileScreenEvent.SaveClicked) },
                     enabled = uiModel.isSaveEnabled,
                     modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth().align(Alignment.Center),
-                    containerColor = if (isPasswordVerification) MaterialTheme.eumColors.textPrimary else null,
                 )
             }
         },
@@ -76,17 +81,24 @@ fun AccountProfileScreen(
                 ) {
                     Column(
                         Modifier.fillMaxWidth().padding(top = EumSpacing.x24),
-                        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
                     ) {
+                        // Figma 재인증 화면은 자물쇠 아이콘을 배경 원 없이 단독으로 둔다.
                         Icon(
                             painterResource(R.drawable.ic_lock),
                             contentDescription = null,
-                            modifier = Modifier.size(64.dp).background(MaterialTheme.eumColors.backgroundSubtle, androidx.compose.foundation.shape.CircleShape).padding(20.dp),
+                            modifier = Modifier.size(24.dp),
                             tint = MaterialTheme.eumColors.textPrimary,
                         )
                         Text(stringResource(R.string.account_password_reenter), style = MaterialTheme.typography.titleLarge)
-                        Text(stringResource(R.string.account_password_verify_description), color = MaterialTheme.eumColors.textSecondary, style = MaterialTheme.typography.bodySmall, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        Text(
+                            stringResource(R.string.account_password_verify_description),
+                            Modifier.widthIn(max = 280.dp),
+                            color = MaterialTheme.eumColors.textSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center,
+                        )
                     }
                     AccountTextField(stringResource(R.string.account_email), uiModel.profile.email, {}, enabled = false)
                     AccountTextField(
@@ -113,14 +125,16 @@ fun AccountProfileScreen(
                             AccountTextField(stringResource(R.string.account_name), uiModel.profile.name, { onEvent(AccountProfileScreenEvent.NameChanged(it)) })
                             Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                                 AccountTextField(stringResource(R.string.account_phone_number), uiModel.profile.phoneNumber, { onEvent(AccountProfileScreenEvent.PhoneChanged(it)) }, modifier = Modifier.weight(1f))
-                                androidx.compose.material3.OutlinedButton(onClick = { onEvent(AccountProfileScreenEvent.PhoneChangeClicked) }, modifier = Modifier.heightIn(min = 48.dp)) {
+                                OutlinedButton(onClick = { onEvent(AccountProfileScreenEvent.PhoneChangeClicked) }, modifier = Modifier.heightIn(min = 48.dp), shape = MaterialTheme.shapes.small) {
                                     Text(stringResource(R.string.account_change))
                                 }
                             }
                             Row(
-                                Modifier.fillMaxWidth().heightIn(min = 60.dp).clickable { onEvent(AccountProfileScreenEvent.PasswordChanged) }.padding(horizontal = EumSpacing.x12),
+                                Modifier.fillMaxWidth().heightIn(min = 56.dp).border(1.dp, MaterialTheme.eumColors.line, RoundedCornerShape(EumRadius.x8)).clickable { onEvent(AccountProfileScreenEvent.PasswordChanged) }.padding(horizontal = EumSpacing.x12),
+                                verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
                             ) {
+                                Icon(painterResource(R.drawable.ic_key_round), contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.eumColors.textPrimary)
                                 Text(stringResource(R.string.account_password_change), Modifier.weight(1f))
                                 Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = MaterialTheme.eumColors.textTertiary)
                             }
@@ -132,8 +146,22 @@ fun AccountProfileScreen(
                                 Text(stringResource(R.string.account_business_information), style = MaterialTheme.typography.titleMedium)
                                 Text(stringResource(R.string.account_business_information_notice), color = MaterialTheme.eumColors.textTertiary, style = MaterialTheme.typography.bodySmall)
                                 AccountTextField(stringResource(R.string.account_company_name), uiModel.profile.companyName, { onEvent(AccountProfileScreenEvent.CompanyChanged(it)) })
-                                AccountTextField(stringResource(R.string.business_registration_number), uiModel.profile.businessRegistrationNumber, {}, enabled = false)
-                                AccountTextField(stringResource(R.string.account_department), uiModel.profile.department, { onEvent(AccountProfileScreenEvent.DepartmentChanged(it)) })
+                                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x6)) {
+                                    AccountTextField(
+                                        stringResource(R.string.business_registration_number),
+                                        uiModel.profile.businessRegistrationNumber,
+                                        {},
+                                        enabled = false,
+                                        placeholder = stringResource(R.string.auth_business_registration_placeholder),
+                                    )
+                                    Text(stringResource(R.string.account_business_registration_notice), color = MaterialTheme.eumColors.textTertiary, style = MaterialTheme.typography.labelSmall)
+                                }
+                                AccountTextField(
+                                    stringResource(R.string.account_department),
+                                    uiModel.profile.department,
+                                    { onEvent(AccountProfileScreenEvent.DepartmentChanged(it)) },
+                                    placeholder = stringResource(R.string.account_department_placeholder),
+                                )
                             }
                         }
                     }
@@ -146,7 +174,13 @@ fun AccountProfileScreen(
                         }
                     }
                     item {
-                        Text(stringResource(R.string.account_withdrawal), Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(AccountProfileScreenEvent.WithdrawalClicked) }.padding(vertical = EumSpacing.x8), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                        Text(
+                            stringResource(R.string.account_withdrawal),
+                            Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(AccountProfileScreenEvent.WithdrawalClicked) }.padding(vertical = EumSpacing.x8),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.eumColors.textTertiary,
+                            textDecoration = TextDecoration.Underline,
+                        )
                     }
                 }
             }
@@ -180,9 +214,9 @@ private fun AccountTextField(
             singleLine = true,
             isError = isError,
             placeholder = placeholder?.let { { Text(it) } },
-            supportingText = errorMessage?.let { { Text(it) } },
+            supportingText = errorMessage?.let { { AccountErrorText(it) } },
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-            visualTransformation = if (password) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
+            visualTransformation = if (password) PasswordVisualTransformation() else VisualTransformation.None,
         )
     }
 }
@@ -200,7 +234,7 @@ private fun AccountConsentRow(label: String, isChecked: Boolean, onCheckedChange
             ),
         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
     ) {
-        Checkbox(checked = isChecked, onCheckedChange = null)
+        Checkbox(checked = isChecked, colors = eumCheckboxColors(), onCheckedChange = null)
         Text(label, Modifier.padding(top = EumSpacing.x12), style = MaterialTheme.typography.bodySmall)
     }
 }

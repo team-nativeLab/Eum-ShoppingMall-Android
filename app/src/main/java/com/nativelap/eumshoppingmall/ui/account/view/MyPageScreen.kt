@@ -4,17 +4,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
@@ -85,7 +89,7 @@ fun MyPageScreen(uiModel: MyPageUiModel, onEvent: (MyPageScreenEvent) -> Unit) {
                             )
                             Column(Modifier.weight(1f).padding(start = EumSpacing.x16)) {
                                 Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
-                                    Text(uiModel.profile.name, style = MaterialTheme.typography.titleLarge)
+                                    Text(stringResource(R.string.account_drawer_member_name, uiModel.profile.name), style = MaterialTheme.typography.titleLarge)
                                     if (uiModel.profile.isBusinessMember) {
                                         Text(stringResource(R.string.account_business_badge), modifier = Modifier.border(1.dp, MaterialTheme.eumColors.lineStrong, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x4)).padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x2), style = MaterialTheme.typography.labelSmall)
                                     }
@@ -99,7 +103,7 @@ fun MyPageScreen(uiModel: MyPageUiModel, onEvent: (MyPageScreenEvent) -> Unit) {
                     item {
                         Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                             Text(stringResource(R.string.account_order_status_section), style = MaterialTheme.typography.titleMedium)
-                            Row(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).background(MaterialTheme.eumColors.surfaceSecondary, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).padding(vertical = EumSpacing.x12), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            Row(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).background(MaterialTheme.eumColors.surface, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).padding(vertical = EumSpacing.x12), horizontalArrangement = Arrangement.SpaceEvenly) {
                                 uiModel.orderStatuses.forEach { status ->
                                     Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text(status.count, style = MaterialTheme.typography.titleMedium)
@@ -127,17 +131,42 @@ fun MyPageScreen(uiModel: MyPageUiModel, onEvent: (MyPageScreenEvent) -> Unit) {
                 } else {
                     item {
                         Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                            Text(stringResource(R.string.account_login_benefits_message), style = MaterialTheme.typography.bodyMedium)
-                            AccountPrimaryButton(stringResource(R.string.account_login), onClick = { onEvent(MyPageScreenEvent.LoginClicked) })
+                            Text(stringResource(R.string.account_login_orders_title), style = MaterialTheme.typography.titleMedium)
+                            Text(stringResource(R.string.account_login_benefits_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                            AccountPrimaryButton(
+                                stringResource(R.string.account_login_or_signup),
+                                onClick = { onEvent(MyPageScreenEvent.LoginClicked) },
+                                containerColor = MaterialTheme.eumColors.textPrimary,
+                            )
                         }
                     }
                     item { Text(stringResource(R.string.home_recent_products), style = MaterialTheme.typography.titleMedium) }
-                    items(uiModel.recentProducts) { product -> Text(product, modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp).border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x8)).padding(EumSpacing.x12), style = MaterialTheme.typography.bodySmall) }
-                    item { AccountMenuGroup(stringResource(R.string.account_drawer_support), uiModel.supportRows, onEvent) }
+                    item {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                            items(uiModel.recentProducts) { productName -> AccountRecentProductCard(productName) }
+                        }
+                    }
+                    item { AccountMenuGroup(null, uiModel.supportRows, onEvent) }
                     item { Text(stringResource(R.string.account_settings), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(MyPageScreenEvent.SettingsClicked) }.padding(vertical = EumSpacing.x12)) }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun AccountRecentProductCard(productName: String) {
+    Column(
+        modifier = Modifier.width(148.dp).border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x8),
+        verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+    ) {
+        Box(
+            Modifier.fillMaxWidth().aspectRatio(1f).background(MaterialTheme.eumColors.productImageBackground, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x8)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(painterResource(R.drawable.ic_image), contentDescription = null, modifier = Modifier.size(32.dp), tint = MaterialTheme.eumColors.placeholderGlyph)
+        }
+        Text(productName, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -166,9 +195,9 @@ private fun AccountShortcutRow(shortcuts: List<AccountShortcutUiModel>, onEvent:
 }
 
 @Composable
-private fun AccountMenuGroup(title: String, rows: List<AccountMenuRowUiModel>, onEvent: (MyPageScreenEvent) -> Unit) {
+private fun AccountMenuGroup(title: String?, rows: List<AccountMenuRowUiModel>, onEvent: (MyPageScreenEvent) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-        Text(title, style = MaterialTheme.typography.titleMedium)
+        if (title != null) Text(title, style = MaterialTheme.typography.titleMedium)
         Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).padding(horizontal = EumSpacing.x16)) {
             rows.forEachIndexed { index, row ->
                 Row(
