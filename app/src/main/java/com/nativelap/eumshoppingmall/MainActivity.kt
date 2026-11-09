@@ -5,18 +5,27 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.nativelap.eumshoppingmall.data.local.CartCountStore
+import com.nativelap.eumshoppingmall.data.local.cartPreferencesDataStore
 import com.nativelap.eumshoppingmall.ui.home.HomeRoute
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 class MainActivity : ComponentActivity() {
+    // Activity Context를 저장하지 않도록 applicationContext에서 저장소를 만든다.
+    // 초기화 시점에는 applicationContext가 없으므로 lazy로 지연한다.
+    private val cartCountStore by lazy { CartCountStore(applicationContext.cartPreferencesDataStore) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             EumShoppingMallTheme {
-                HomeRoute()
+                val cartItemCount by cartCountStore.cartItemCount.collectAsState(initial = 0)
+                HomeRoute(cartItemCount = cartItemCount)
             }
         }
     }
