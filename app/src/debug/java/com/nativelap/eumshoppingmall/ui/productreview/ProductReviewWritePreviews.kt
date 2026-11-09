@@ -13,9 +13,9 @@ private fun ProductReviewWritePreview() = EumShoppingMallTheme {
             product = "ABS 안전모 (내관 조절형)",
             option = "화이트 · 조절형",
             reviewer = "김*현",
-            rating = 4,
-            content = "가볍고 착용감이 편합니다. 현장에서 오래 쓰기 좋네요.",
-            canSubmit = true,
+            rating = 0,
+            content = "",
+            canSubmit = false,
         ),
         onEvent = {},
     )

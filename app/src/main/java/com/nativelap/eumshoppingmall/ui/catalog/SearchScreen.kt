@@ -1,5 +1,6 @@
 package com.nativelap.eumshoppingmall.ui.catalog
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -70,23 +72,27 @@ fun CatalogSearchScreen(
                     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(stringResource(R.string.search_recent_terms), Modifier.weight(1f), style = MaterialTheme.typography.labelLarge)
-                            Text(
-                                stringResource(R.string.search_clear_all),
+                            Box(
                                 modifier = Modifier.heightIn(min = 48.dp).clickable { onEvent(CatalogSearchEvent.ClearRecentTerms) },
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.eumColors.textTertiary,
-                            )
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(
+                                    stringResource(R.string.search_clear_all),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.eumColors.textTertiary,
+                                )
+                            }
                         }
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                            items(uiModel.recentTerms.size) { index ->
-                                val term = uiModel.recentTerms[index]
+                            items(uiModel.recentTerms) { term ->
                                 Surface(
                                     onClick = { onEvent(CatalogSearchEvent.RecentTermSelected(term)) },
                                     modifier = Modifier.heightIn(min = 48.dp),
                                     shape = RoundedCornerShape(EumRadius.capsule),
-                                    color = MaterialTheme.eumColors.backgroundSubtle,
+                                    color = MaterialTheme.eumColors.background,
+                                    border = BorderStroke(1.dp, MaterialTheme.eumColors.line),
                                 ) {
-                                    Text(term, Modifier.padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x8), style = MaterialTheme.typography.labelMedium)
+                                    Text(term, Modifier.padding(horizontal = EumSpacing.x16, vertical = EumSpacing.x12), style = MaterialTheme.typography.labelMedium)
                                 }
                             }
                         }
@@ -104,17 +110,22 @@ fun CatalogSearchScreen(
                                 )
                             }
                         }
-                        uiModel.popularTerms.withIndex().toList().chunked(2).forEach { pair ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                                pair.forEach { (index, term) ->
-                                    Row(
-                                        modifier = Modifier.weight(1f).heightIn(min = 48.dp)
-                                            .clickable { onEvent(CatalogSearchEvent.PopularTermSelected(term)) },
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
-                                    ) {
-                                        Text((index + 1).toString(), style = MaterialTheme.typography.labelMedium)
-                                        Text(term, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        // Figma는 인기 검색어를 왼쪽 열 1~5위, 오른쪽 열 6~10위로 세로 순서대로 배치한다.
+                        val indexedPopularTerms = uiModel.popularTerms.withIndex().toList()
+                        val leftColumnSize = (indexedPopularTerms.size + 1) / 2
+                        Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                            listOf(indexedPopularTerms.take(leftColumnSize), indexedPopularTerms.drop(leftColumnSize)).forEach { columnTerms ->
+                                Column(modifier = Modifier.weight(1f)) {
+                                    columnTerms.forEach { (index, term) ->
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                                                .clickable { onEvent(CatalogSearchEvent.PopularTermSelected(term)) },
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+                                        ) {
+                                            Text((index + 1).toString(), style = MaterialTheme.typography.labelMedium)
+                                            Text(term, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                        }
                                     }
                                 }
                             }
@@ -160,16 +171,19 @@ internal fun CatalogSearchHeader(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { onSubmit() }),
                 decorationBox = { innerTextField ->
-                    if (query.isEmpty()) {
-                        Text(
-                            stringResource(R.string.catalog_search_placeholder),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.eumColors.textTertiary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+                    // 플레이스홀더와 입력 텍스트를 같은 상자에서 세로 가운데로 맞춘다.
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+                        if (query.isEmpty()) {
+                            Text(
+                                stringResource(R.string.catalog_search_placeholder),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.eumColors.textTertiary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                        innerTextField()
                     }
-                    innerTextField()
                 },
             )
             if (query.isNotEmpty()) {

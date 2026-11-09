@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="catalog_search_empty_result_title">‘%1$s’에 대한 결과가 없습니다</string>
+    <string name="catalog_search_empty_result_guide">철자를 확인하거나 더 일반적인 단어로 검색해 보세요.</string>
+    <string name="catalog_search_result_header">\'%1$s\' 검색 결과 %2$d개</string>
+    <string name="catalog_search_quote_card_title">찾는 제품이 없나요?</string>
+    <string name="catalog_search_quote_card_description">원하시는 제품을 알려주시면 견적을 보내드립니다.</string>
+    <string name="catalog_brand_monthly_label">이달의 브랜드</string>
+    <string name="catalog_brand_list_search_hint">어떤 브랜드를 찾고 계신가요?</string>
+    <string name="catalog_brand_sort_ascending">A–Z 정렬</string>
+    <string name="catalog_brand_sort_descending">Z–A 정렬</string>
+    <string name="catalog_brand_products_count">제품 %1$d개</string>
+    <string name="catalog_brand_group_count">%1$d개</string>
+    <string name="catalog_brand_story_label">브랜드 스토리</string>
+    <string name="catalog_rating_with_review_count">%1$s · %2$s</string>
+</resources>

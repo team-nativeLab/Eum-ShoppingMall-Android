@@ -18,10 +18,6 @@ private val previewProductReviews = listOf(
         photos = listOf(
             ProductReviewPhotoUiModel("preview-photo-001", R.drawable.ic_image, isPlaceholder = true),
             ProductReviewPhotoUiModel("preview-photo-002", R.drawable.ic_image, isPlaceholder = true),
-            ProductReviewPhotoUiModel("preview-photo-003", R.drawable.ic_image, isPlaceholder = true),
-            ProductReviewPhotoUiModel("preview-photo-004", R.drawable.ic_image, isPlaceholder = true),
-            ProductReviewPhotoUiModel("preview-photo-005", R.drawable.ic_image, isPlaceholder = true),
-            ProductReviewPhotoUiModel("preview-photo-006", R.drawable.ic_image, isPlaceholder = true),
         ),
     ),
     ProductReviewItemUiModel(
@@ -47,7 +43,7 @@ private fun ProductReviewScreenPreview() {
                 productName = "ABS 안전모 (내관 조절형)",
                 brandName = "세이프가드",
                 variantLabel = "화이트 · 조절형",
-                rating = 4.8f,
+                rating = 4.7f,
                 reviewCountLabel = "3개",
                 reviews = previewProductReviews,
             ),

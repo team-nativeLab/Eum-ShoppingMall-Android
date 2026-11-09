@@ -23,13 +23,10 @@ private val homePreviewRecommendedProducts = listOf(
         ratingValue = 4.7f,
     ),
     HomeProductUiModel(
-        id = "recommended-extinguisher",
-        name = "분말 소화기 3.3kg",
-        priceLabel = "₩32,000",
-        ratingLabel = "5.0 (1)",
-        ratingValue = 5f,
-        originalPriceLabel = "₩35,000",
-        discountRateLabel = "8%",
+        id = "recommended-belt",
+        name = "전신 안전벨트",
+        priceLabel = "가격 문의",
+        ratingLabel = "평점 없음",
     ),
 )
 

@@ -30,7 +30,8 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 @Composable
 fun SplashScreen(modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier.fillMaxSize()) {
-        val topSpacing = maxHeight.coerceAtMost(852.dp) * (256f / 852f)
+        // Figma A-01(178:350)의 제목 위치에 맞춘 값이다. statusBarsPadding 인셋(약 24dp)을 더해 기준 높이 852dp에서 제목이 Figma와 같은 자리에 온다.
+        val topSpacing = maxHeight.coerceAtMost(852.dp) * (270f / 852f)
         Image(
             painter = painterResource(R.drawable.figma_splash_visual),
             contentDescription = null,

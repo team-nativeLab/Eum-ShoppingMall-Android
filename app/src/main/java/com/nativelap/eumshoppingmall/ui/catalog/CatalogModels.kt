@@ -39,6 +39,7 @@ data class CatalogBrandUiModel(
     @param:DrawableRes val imageResId: Int? = null,
     val imageDescription: String? = null,
     val letterGroup: String? = null,
+    val productCount: Int = 0,
 )
 
 data class CatalogOptionUiModel(
@@ -170,6 +171,8 @@ data class CatalogProductDetailUiModel(
     val selectedOptions: List<CatalogSelectedOptionUiModel> = emptyList(),
     val optionsSheetVisible: Boolean = false,
     val totalPriceLabel: String? = null,
+    // 상품 설명 본문. 데이터 원천이 없으면 null이며, 화면은 값이 있을 때만 그린다.
+    val description: String? = null,
 )
 
 enum class CatalogPurchaseAction {
@@ -200,6 +203,7 @@ sealed interface CatalogProductDetailEvent {
 data class CatalogBrandListUiModel(
     val brandModeSelected: Boolean = true,
     val featuredBrand: CatalogBrandUiModel? = null,
+    val featuredDescription: String = "",
     val query: String = "",
     val letters: List<String> = emptyList(),
     val brandsByLetter: Map<String, List<CatalogBrandUiModel>> = emptyMap(),
@@ -217,6 +221,8 @@ sealed interface CatalogBrandListEvent {
 data class CatalogBrandDetailUiModel(
     val brand: CatalogBrandUiModel,
     val description: String,
+    val storyTitle: String = "",
+    val storyBody: String = "",
     val informationRows: List<CatalogKeyValueUiModel> = emptyList(),
     val products: List<CatalogProductUiModel> = emptyList(),
     val otherBrands: List<CatalogBrandUiModel> = emptyList(),

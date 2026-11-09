@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -126,7 +127,15 @@ fun ProductFilterScreen(
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.eumColors.textPrimary,
                                 )
-                                RadioButton(selected = selected, onClick = null)
+                                // Figma 정렬 라디오는 파란 강조색 대신 검정 채움을 쓴다(화면 전용 색 지정).
+                                RadioButton(
+                                    selected = selected,
+                                    onClick = null,
+                                    colors = RadioButtonDefaults.colors(
+                                        selectedColor = MaterialTheme.eumColors.textPrimary,
+                                        unselectedColor = MaterialTheme.eumColors.lineStrong,
+                                    ),
+                                )
                             }
                             if (index != sortRows.lastIndex) HorizontalDivider(color = MaterialTheme.eumColors.line)
                         }
