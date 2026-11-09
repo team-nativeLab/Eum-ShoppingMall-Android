@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -55,11 +56,11 @@ fun UiAuditTextField(
             if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.eumColors.lineNeutral,
         ),
     ) {
-        Box(Modifier.padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x12)) {
+        Box(Modifier.padding(horizontal = UiAuditTextFieldHorizontalPadding, vertical = EumSpacing.x12)) {
             if (value.isEmpty()) {
                 Text(
                     text = placeholder,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.eumColors.textDisabled,
                     maxLines = maxLines,
                     overflow = TextOverflow.Ellipsis,
@@ -73,8 +74,8 @@ fun UiAuditTextField(
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = TextStyle(
                     color = MaterialTheme.eumColors.textPrimary,
-                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                    lineHeight = MaterialTheme.typography.bodyMedium.lineHeight,
+                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                    lineHeight = MaterialTheme.typography.bodySmall.lineHeight,
                 ),
                 cursorBrush = SolidColor(MaterialTheme.eumColors.textPrimary),
                 keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
@@ -83,3 +84,6 @@ fun UiAuditTextField(
         }
     }
 }
+
+// Figma 입력칸 좌우 여백 14dp. EumSpacing에 14dp 토큰이 없어 여기서만 쓴다.
+private val UiAuditTextFieldHorizontalPadding = 14.dp

@@ -2,14 +2,23 @@ package com.nativelap.eumshoppingmall.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import com.nativelap.eumshoppingmall.R
 
 /** Typography styles from the Figma app page. Figma letter spacing is stored as a percentage. */
 object EumTypographyTokens {
-    private val fontFamily = FontFamily.Default
+    // 앱이 쓰는 굵기(Normal·Medium·SemiBold·Bold)만 번들한다. 다른 굵기는 가장 가까운 파일로 대체된다.
+    private val fontFamily =
+        FontFamily(
+            Font(R.font.pretendard_regular, FontWeight.Normal),
+            Font(R.font.pretendard_medium, FontWeight.Medium),
+            Font(R.font.pretendard_semibold, FontWeight.SemiBold),
+            Font(R.font.pretendard_bold, FontWeight.Bold),
+        )
 
     val webDisplayL = style(44, 56, FontWeight.Bold, -0.015.em)
     val webBodyXl = style(18, 30, FontWeight.Normal, 0.em)

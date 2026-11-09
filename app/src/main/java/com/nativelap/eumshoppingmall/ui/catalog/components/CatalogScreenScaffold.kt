@@ -17,13 +17,14 @@ fun CatalogScreenScaffold(
     onBottomItemSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit,
+    cartItemCount: Int = 0,
     content: @Composable (Modifier) -> Unit,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = topBar,
         bottomBar = {
-            CatalogBottomNavigation(selectedBottomItem, onBottomItemSelected)
+            CatalogBottomNavigation(selectedBottomItem, onBottomItemSelected, cartItemCount = cartItemCount)
         },
         containerColor = MaterialTheme.eumColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),

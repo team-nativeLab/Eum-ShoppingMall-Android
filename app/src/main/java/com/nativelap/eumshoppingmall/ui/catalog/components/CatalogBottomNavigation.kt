@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,6 +38,7 @@ fun CatalogBottomNavigation(
     selectedItem: String,
     onItemSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
+    cartItemCount: Int = 0,
 ) {
     val dividerColor = MaterialTheme.eumColors.line
     val items = listOf(
@@ -43,7 +46,8 @@ fun CatalogBottomNavigation(
         CatalogNavigationItem("categories", R.drawable.ic_layout_grid, R.string.common_categories),
         CatalogNavigationItem("search", R.drawable.ic_search, R.string.common_search),
         CatalogNavigationItem("cart", R.drawable.ic_shopping_cart, R.string.common_cart),
-        CatalogNavigationItem("my_page", R.drawable.ic_user_round, R.string.common_my_page),
+        // Figma 하단 탭 라벨은 "마이"다(홈 탭과 같은 문자열).
+        CatalogNavigationItem("my_page", R.drawable.ic_user_round, R.string.home_tab_my_page),
     )
     Row(
         modifier = modifier
@@ -72,12 +76,24 @@ fun CatalogBottomNavigation(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-                Icon(
-                    painterResource(item.iconResId),
-                    contentDescription = null,
-                    tint = color,
-                    modifier = Modifier.size(24.dp),
-                )
+                if (item.id == "cart" && cartItemCount > 0) {
+                    BadgedBox(
+                        badge = {
+                            Badge(containerColor = MaterialTheme.eumColors.textPrimary, contentColor = MaterialTheme.eumColors.inverse) {
+                                Text(if (cartItemCount > 99) "99+" else cartItemCount.toString())
+                            }
+                        },
+                    ) {
+                        Icon(painterResource(item.iconResId), contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
+                    }
+                } else {
+                    Icon(
+                        painterResource(item.iconResId),
+                        contentDescription = null,
+                        tint = color,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
                 Text(
                     stringResource(item.labelResId),
                     style = MaterialTheme.typography.labelSmall,

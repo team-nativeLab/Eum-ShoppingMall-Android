@@ -56,6 +56,12 @@ data class EumColorTokens(
     val addressPlaceholder: Color,
     val addressRoad: Color,
     val addressDivider: Color,
+    // Figma 체크박스 체크 상태는 흑백 톤이라 Material 기본 primary(파란색) 대신 쓴다. 체크 상태 Figma 값은 미확인 상태에서 textPrimary와 같은 검정 계열로 둔다.
+    val checkboxChecked: Color,
+    // Figma 상품 카드(179:743) 이미지 박스 회색은 기존 placeholder 토큰과 달라 신규 토큰으로 둔다.
+    val productImageBackground: Color,
+    // Figma 상품 카드 견적 배지 테두리(#8C8C8C)는 기존 토큰과 달라 신규 토큰으로 둔다.
+    val productBadgeBorder: Color,
 )
 
 val LightEumColorTokens =
@@ -103,6 +109,9 @@ val LightEumColorTokens =
         addressPlaceholder = Color(0xFFA0A0A0),
         addressRoad = Color(0xFF1F2126),
         addressDivider = Color(0xFFEEEEEE),
+        checkboxChecked = Color(0xFF171B19),
+        productImageBackground = Color(0xFFEEEEEE),
+        productBadgeBorder = Color(0xFF8C8C8C),
     )
 
 val LocalEumColorTokens = staticCompositionLocalOf { LightEumColorTokens }
