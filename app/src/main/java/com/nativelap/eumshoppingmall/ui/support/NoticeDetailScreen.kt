@@ -32,11 +32,11 @@ fun NoticeDetailScreen(uiModel: NoticeDetailUiModel, onBack: () -> Unit, modifie
                         Text(stringResource(R.string.notice_pinned), Modifier.padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x4), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.inverse)
                     }
                 }
-                Text(uiModel.title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.eumColors.textPrimary)
+                Text(uiModel.title, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.eumColors.textPrimary)
                 Text(uiModel.dateLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
             }
             HorizontalDivider(color = MaterialTheme.eumColors.line)
-            Text(uiModel.content, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textPrimary)
+            Text(uiModel.content, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.eumColors.textPrimary)
         }
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
@@ -41,7 +42,7 @@ fun TermsDialogScreen(
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(contentPadding).padding(top = EumSpacing.x40, bottom = EumSpacing.x24),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
+            verticalArrangement = Arrangement.spacedBy(EumSpacing.x32),
         ) {
             Text(
                 text = stringResource(R.string.ui_audit_terms_effective_date),
@@ -50,7 +51,7 @@ fun TermsDialogScreen(
             )
             Text(
                 text = stringResource(R.string.ui_audit_terms_chapter_one),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.eumColors.textPrimary,
             )
             TermsArticle(
@@ -82,16 +83,16 @@ private fun TermsArticle(
     titleRes: Int,
     paragraphs: List<Int>,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
         Text(
             text = stringResource(titleRes),
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.eumColors.textPrimary,
         )
         paragraphs.forEach { paragraphRes ->
             Text(
                 text = stringResource(paragraphRes),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.eumColors.textSecondary,
             )
         }
