@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AccountRecoveryMode
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AccountRecoveryUiModel
+import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthMemberType
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -143,7 +144,7 @@ private fun AccountRecoveryResultScreen(uiModel: AccountRecoveryUiModel, onEvent
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Surface(shape = MaterialTheme.shapes.large, color = if (found) MaterialTheme.eumColors.success else MaterialTheme.eumColors.surfaceSecondary) {
+            Surface(shape = MaterialTheme.shapes.large, color = if (found) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surfaceSecondary) {
                 Icon(
                     painterResource(if (found) R.drawable.ic_check else R.drawable.ic_circle_x),
                     contentDescription = null,
@@ -170,9 +171,25 @@ private fun AccountRecoveryResultScreen(uiModel: AccountRecoveryUiModel, onEvent
                         color = MaterialTheme.eumColors.surfaceSecondary,
                         border = BorderStroke(1.dp, MaterialTheme.eumColors.line),
                     ) {
-                        Column(Modifier.fillMaxWidth().padding(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
-                            Text(uiModel.maskedEmail, style = MaterialTheme.typography.titleMedium)
-                            Text(stringResource(R.string.auth_member_joined_at, uiModel.joinedAt), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                        Row(
+                            Modifier.fillMaxWidth().padding(EumSpacing.x20),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+                                Text(uiModel.maskedEmail, style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.auth_member_joined_at, uiModel.joinedAt), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                            }
+                            uiModel.memberType?.let { memberType ->
+                                Surface(shape = RoundedCornerShape(4.dp), color = MaterialTheme.eumColors.background, border = BorderStroke(1.dp, MaterialTheme.eumColors.line)) {
+                                    Text(
+                                        stringResource(if (memberType == AuthMemberType.PERSONAL) R.string.auth_member_personal else R.string.auth_member_business),
+                                        Modifier.padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x2),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.eumColors.textSecondary,
+                                    )
+                                }
+                            }
                         }
                     }
                     Text(stringResource(R.string.auth_recovery_email_safety), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)

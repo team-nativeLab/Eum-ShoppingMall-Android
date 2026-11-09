@@ -39,42 +39,102 @@ private val sampleRequestProduct = OrderRequestProductUiModel(
     isSelected = true,
 )
 
+private val sampleFormProducts = listOf(
+    OrderRequestProductUiModel(
+        id = "form-helmet-01",
+        name = "제품명",
+        optionLabel = "옵션명 · 주문 0개",
+        priceAndQuantityLabel = "₩00,000 · 1개",
+        quantityLabel = "1개",
+        isSelected = true,
+    ),
+    OrderRequestProductUiModel(
+        id = "form-helmet-02",
+        name = "제품명",
+        optionLabel = "옵션명 · 주문 0개",
+        priceAndQuantityLabel = "₩00,000 · 1개",
+        quantityLabel = "1개",
+        isSelected = false,
+    ),
+)
+
 private val sampleOrderRequestForm = OrderRequestFormUiModel(
     type = OrderRequestType.Return,
-    products = listOf(sampleRequestProduct),
+    products = sampleFormProducts,
     reasons = OrderRequestReason.entries,
-    selectedReason = OrderRequestReason.ChangedMind,
-    reasonDetails = "사이즈가 맞지 않아 반품을 신청합니다.",
-    productAmountLabel = "₩00,000",
-    feeLabel = "₩0",
-    expectedAmountLabel = "₩00,000",
-    paymentMethodLabel = "신용카드",
-    collectionAddressLabel = "(00000) 주소 상세주소",
-    collectionContactLabel = "홍길동 · 010-0000-0000",
+    selectedReason = OrderRequestReason.ProductDefective,
+    reasonDetails = "",
+    productAmountLabel = "신청 후 안내",
+    feeLabel = "정책에 따라 안내",
+    expectedAmountLabel = "신청 후 안내",
+    paymentMethodLabel = "결제 수단과 동일",
+    collectionAddressLabel = "주문 시 입력한 배송지",
+    collectionContactLabel = "주문 시 입력한 연락처",
     canSubmit = true,
 )
 
-private val sampleRequestHistoryItem = OrderRequestHistoryItemUiModel(
-    id = "request-01",
-    requestDateLabel = "2026.10.20",
-    requestType = OrderRequestType.Return,
-    orderNumber = "0000000000",
-    productName = sampleRequestProduct.name,
-    priceAndQuantityLabel = sampleRequestProduct.priceAndQuantityLabel,
-    status = OrderRequestStatus.Processing,
-    expectedAmountLabel = "₩00,000",
-    canWithdraw = true,
+private val sampleSelectionProduct = OrderRequestProductUiModel(
+    id = "selection-helmet",
+    name = "제품명",
+    optionLabel = "",
+    priceAndQuantityLabel = "₩00,000 · 1개",
+    quantityLabel = "1개",
+    isSelected = false,
 )
 
+// Figma 신청 내역 목록(879:45202)의 네 가지 상태: 철회완료, 회수중, 교환완료, 반려.
+private val sampleRequestHistoryItems = listOf(
+    OrderRequestHistoryItemUiModel(
+        id = "request-01",
+        requestDateLabel = "0000.00.00",
+        requestType = OrderRequestType.Return,
+        orderNumber = "0000000000",
+        productName = "제품명",
+        priceAndQuantityLabel = "₩00,000 · 1개",
+        status = OrderRequestStatus.Withdrawn,
+        expectedAmountLabel = "₩00,000",
+    ),
+    OrderRequestHistoryItemUiModel(
+        id = "request-02",
+        requestDateLabel = "0000.00.00",
+        requestType = OrderRequestType.Return,
+        orderNumber = "0000000000",
+        productName = "제품명",
+        priceAndQuantityLabel = "₩00,000 · 1개",
+        status = OrderRequestStatus.Collecting,
+        expectedAmountLabel = "₩00,000",
+    ),
+    OrderRequestHistoryItemUiModel(
+        id = "request-03",
+        requestDateLabel = "0000.00.00",
+        requestType = OrderRequestType.Exchange,
+        orderNumber = "0000000000",
+        productName = "제품명",
+        priceAndQuantityLabel = "₩00,000 · 1개",
+        status = OrderRequestStatus.Completed,
+    ),
+    OrderRequestHistoryItemUiModel(
+        id = "request-04",
+        requestDateLabel = "0000.00.00",
+        requestType = OrderRequestType.Cancel,
+        orderNumber = "0000000000",
+        productName = "제품명",
+        priceAndQuantityLabel = "₩00,000 · 1개",
+        status = OrderRequestStatus.Rejected,
+        hasRejectionReason = true,
+    ),
+)
+
+// Figma 신청 상세(879:44641)와 철회 완료 상세(879:45279) 샘플. 값은 Figma 표기를 그대로 쓴다.
 private val sampleRequestDetail = OrderRequestDetailUiModel(
-    requestNumber = "RQ-00000001",
+    requestNumber = "A-2026-001",
     requestType = OrderRequestType.Return,
-    requestDateLabel = "2026.10.20",
-    status = OrderRequestStatus.Processing,
-    statusDescription = "상품 회수를 준비하고 있습니다.",
-    productSummaryLabel = "${sampleRequestProduct.name}\n${sampleRequestProduct.optionLabel} · ${sampleRequestProduct.priceAndQuantityLabel}",
-    reasonSummaryLabel = "단순 변심\n사이즈가 맞지 않아 반품을 신청합니다.",
-    collectionAddressLabel = "홍길동 · 010-0000-0000\n(00000) 주소 상세주소",
+    requestDateLabel = "2026.10.19",
+    status = OrderRequestStatus.Requested,
+    statusDescription = "담당자가 신청 내용을 확인한 뒤 처리합니다.",
+    productSummaryLabel = "경량 안전모 · 블랙 / 1개",
+    reasonSummaryLabel = "단순 변심",
+    collectionAddressLabel = "서울특별시 강남구 테헤란로 427",
     canWithdraw = true,
 )
 
@@ -89,8 +149,13 @@ private fun RequestHubPreview() {
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-19 주문 선택")
 @Composable
 private fun RequestOrderSelectionPreview() {
-    val order = RequestableOrderUiModel("order-01", "2026.10.20", "0000000000", OrderStatus.Delivered, listOf(sampleRequestProduct), true)
-    EumShoppingMallTheme { OrderRequestOrderSelectionScreen(OrderRequestOrderSelectionUiModel(periodLabel = "최근 3개월", periods = listOf("최근 3개월", "최근 6개월", "최근 1년"), orders = listOf(order)), onEvent = {}) }
+    val orders = listOf(
+        RequestableOrderUiModel("order-01", "0000.00.00", "0000000000", OrderStatus.WaitingPayment, listOf(sampleSelectionProduct), true),
+        RequestableOrderUiModel("order-02", "0000.00.00", "0000000000", OrderStatus.PaymentComplete, listOf(sampleSelectionProduct), true),
+        RequestableOrderUiModel("order-03", "0000.00.00", "0000000000", OrderStatus.Shipping, listOf(sampleSelectionProduct), true),
+        RequestableOrderUiModel("order-04", "0000.00.00", "0000000000", OrderStatus.Delivered, listOf(sampleSelectionProduct), true),
+    )
+    EumShoppingMallTheme { OrderRequestOrderSelectionScreen(OrderRequestOrderSelectionUiModel(periodLabel = "최근 3개월", periods = listOf("최근 3개월", "최근 6개월", "최근 1년"), orders = orders), onEvent = {}) }
 }
 
 @ResponsiveUiPreview
@@ -127,7 +192,7 @@ private fun ReturnRequestPreview() {
 @Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-19 교환 신청")
 @Composable
 private fun ExchangeRequestPreview() {
-    EumShoppingMallTheme { OrderRequestFormScreen(sampleOrderRequestForm.copy(type = OrderRequestType.Exchange, exchangeOptionLabel = "검정 · 사이즈 270"), onEvent = {}) }
+    EumShoppingMallTheme { OrderRequestFormScreen(sampleOrderRequestForm.copy(type = OrderRequestType.Exchange, paymentMethodLabel = "신용카드"), onEvent = {}) }
 }
 
 @ResponsiveUiPreview
@@ -141,7 +206,7 @@ private fun CancelRequestPreview() {
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-19 신청 내역")
 @Composable
 private fun RequestHistoryPreview() {
-    EumShoppingMallTheme { OrderRequestHistoryScreen(OrderRequestHistoryUiModel(items = listOf(sampleRequestHistoryItem)), onEvent = {}) }
+    EumShoppingMallTheme { OrderRequestHistoryScreen(OrderRequestHistoryUiModel(items = sampleRequestHistoryItems), onEvent = {}) }
 }
 
 @ResponsiveUiPreview
@@ -171,14 +236,14 @@ private fun RequestDetailPreview() {
 }
 
 @ResponsiveUiPreview
-@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-51 신청 상세 · 취소 완료")
+@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-51 신청 상세 · 철회 완료")
 @Composable
 private fun RequestDetailCancelledPreview() {
     EumShoppingMallTheme {
         OrderRequestDetailScreen(
             sampleRequestDetail.copy(
                 status = OrderRequestStatus.Withdrawn,
-                statusDescription = "신청이 취소되었습니다.",
+                statusDescription = "철회 완료 · 신청이 정상적으로 취소됐습니다.",
                 canWithdraw = false,
             ),
             onEvent = {},
@@ -190,26 +255,42 @@ private fun RequestDetailCancelledPreview() {
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-50 신청 접수")
 @Composable
 private fun RequestCompletePreview() {
-    EumShoppingMallTheme { OrderRequestResultScreen(OrderRequestResultUiModel("RQ-00000001", "신청이 접수됐어요", "신청 내용 확인 후 순차적으로 안내해 드릴게요."), onEvent = {}) }
+    EumShoppingMallTheme { OrderRequestResultScreen(OrderRequestResultUiModel("A-2026-001", "신청이 접수됐어요", "담당자가 확인 후 처리합니다."), onEvent = {}) }
 }
 
 @ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-53 신청 철회 완료")
 @Composable
 private fun WithdrawalCompletePreview() {
-    EumShoppingMallTheme { OrderRequestWithdrawalCompleteScreen(OrderRequestResultUiModel("RQ-00000001", "철회", "신청이 철회되었습니다."), onEvent = {}) }
+    EumShoppingMallTheme {
+        OrderRequestWithdrawalCompleteScreen(
+            OrderRequestResultUiModel("A-2026-001", "철회", "A-2026-001 반품 신청을 철회했습니다. 신청 내역에서 상태를 확인할 수 있습니다."),
+            onEvent = {},
+        )
+    }
 }
 
 @ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-54 반려 사유")
 @Composable
 private fun RejectionReasonPreview() {
-    EumShoppingMallTheme { OrderRequestRejectionScreen(OrderRequestRejectionUiModel("RQ-00000001", sampleRequestProduct.name, "단순 변심", "신청하신 내용을 확인했습니다.", "상품 포장 훼손으로 반품이 어렵습니다."), onEvent = {}) }
+    EumShoppingMallTheme {
+        OrderRequestRejectionScreen(
+            OrderRequestRejectionUiModel(
+                requestNumber = "A-2026-001",
+                productSummaryLabel = "경량 안전모 · 블랙 / 1개",
+                requestReasonLabel = "단순 변심",
+                statusDescription = "반려 · 신청이 처리되지 않았습니다.",
+                rejectionReasonLabel = "반려 사유는 신청 내역에서 확인해 주세요.",
+            ),
+            onEvent = {},
+        )
+    }
 }
 
 @ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-52 신청 철회 확인")
 @Composable
 private fun WithdrawalConfirmPreview() {
-    EumShoppingMallTheme { OrderRequestWithdrawalConfirmScreen("RQ-00000001", "처리 중", onEvent = {}) }
+    EumShoppingMallTheme { OrderRequestWithdrawalConfirmScreen("A-2026-001", onEvent = {}) }
 }

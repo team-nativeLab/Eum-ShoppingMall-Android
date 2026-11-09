@@ -3,8 +3,11 @@ package com.nativelap.eumshoppingmall.ui.orders.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -24,8 +27,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.orders.view.components.DeliveryProgressStrip
@@ -65,7 +70,7 @@ fun DeliveryTrackingScreen(
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.eumColors.surfaceSecondary,
+                        color = MaterialTheme.eumColors.surface,
                         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.eumColors.line),
                     ) {
                         Column(
@@ -74,7 +79,10 @@ fun DeliveryTrackingScreen(
                         ) {
                             OrderStatusBadge(uiModel.status)
                             if (uiModel.expectedArrivalLabel.isNotBlank()) {
-                                Text(stringResource(R.string.orders_expected_arrival, uiModel.expectedArrivalLabel), style = MaterialTheme.typography.titleMedium)
+                                Text(
+                                    stringResource(R.string.orders_expected_arrival, uiModel.expectedArrivalLabel),
+                                    style = MaterialTheme.typography.headlineSmall,
+                                )
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 val hasCarrier = uiModel.carrierName.isNotBlank()
@@ -97,6 +105,7 @@ fun DeliveryTrackingScreen(
                                     TextButton(
                                         onClick = { onEvent(DeliveryTrackingScreenEvent.TrackingNumberCopyClicked) },
                                         modifier = Modifier.heightIn(min = 48.dp),
+                                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
                                     ) {
                                         Text(stringResource(R.string.common_copy))
                                     }
@@ -107,7 +116,10 @@ fun DeliveryTrackingScreen(
                 }
                 item { DeliveryProgressStrip(uiModel.progressStage) }
                 item {
-                    Text(stringResource(R.string.orders_shipping_details), style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        stringResource(R.string.orders_shipping_details),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    )
                 }
                 if (uiModel.timeline.isEmpty()) {
                     item {
@@ -119,34 +131,42 @@ fun DeliveryTrackingScreen(
                         )
                     }
                 } else {
-                    itemsIndexed(uiModel.timeline) { index, timelineItem ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Surface(
-                                    modifier = Modifier.padding(top = EumSpacing.x4),
-                                    shape = androidx.compose.foundation.shape.CircleShape,
-                                    color = if (timelineItem.isCurrent) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textTertiary,
+                    // Figma: 단계 사이 간격을 세로 선이 이어지도록 한 항목 안에서 그린다(LazyColumn 간격 대신 행 안 패딩).
+                    item {
+                        Column {
+                            uiModel.timeline.forEachIndexed { index, timelineItem ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                                    horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
                                 ) {
-                                    androidx.compose.foundation.layout.Box(Modifier.padding(EumSpacing.x4))
-                                }
-                                if (index < uiModel.timeline.lastIndex) {
-                                    androidx.compose.foundation.layout.Spacer(
-                                        Modifier.padding(top = EumSpacing.x4).width(1.dp).height(28.dp)
-                                            .background(MaterialTheme.eumColors.line),
-                                    )
-                                }
-                            }
-                            Column(Modifier.weight(1f).padding(bottom = EumSpacing.x16)) {
-                                Text(
-                                    timelineItem.title,
-                                    style = if (timelineItem.isCurrent) MaterialTheme.typography.labelLarge else MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.eumColors.textPrimary,
-                                )
-                                if (timelineItem.locationAndTimeLabel.isNotBlank()) {
-                                    Text(timelineItem.locationAndTimeLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                                    Column(
+                                        modifier = Modifier.fillMaxHeight(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                    ) {
+                                        Surface(
+                                            modifier = Modifier.padding(top = EumSpacing.x4),
+                                            shape = androidx.compose.foundation.shape.CircleShape,
+                                            color = if (timelineItem.isCurrent) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.lineStrong,
+                                        ) {
+                                            androidx.compose.foundation.layout.Box(Modifier.padding(EumSpacing.x4))
+                                        }
+                                        if (index < uiModel.timeline.lastIndex) {
+                                            Spacer(
+                                                Modifier.weight(1f).padding(top = EumSpacing.x4).width(1.dp)
+                                                    .background(MaterialTheme.eumColors.line),
+                                            )
+                                        }
+                                    }
+                                    Column(Modifier.weight(1f).padding(bottom = EumSpacing.x16)) {
+                                        Text(
+                                            timelineItem.title,
+                                            style = if (timelineItem.isCurrent) MaterialTheme.typography.labelLarge else MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.eumColors.textPrimary,
+                                        )
+                                        if (timelineItem.locationAndTimeLabel.isNotBlank()) {
+                                            Text(timelineItem.locationAndTimeLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -173,7 +193,7 @@ fun DeliveryTrackingScreen(
                             contentDescription = null,
                             tint = MaterialTheme.eumColors.textSecondary,
                         )
-                        Text(uiModel.noticeLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                        Text(uiModel.noticeLabel, style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp, lineHeight = 18.sp), color = MaterialTheme.eumColors.textSecondary)
                     }
                 }
             }

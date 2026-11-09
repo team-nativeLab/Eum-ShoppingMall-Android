@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.orders.view.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,14 +57,19 @@ fun DeliveryProgressStrip(currentStage: DeliveryProgressStage, modifier: Modifie
                                 .background(if (isPast || isCurrent) MaterialTheme.eumColors.lineStrong else MaterialTheme.eumColors.line),
                         )
                     }
+                    // Figma: 지난 단계는 회색 채움, 현재 단계는 검정 채움, 남은 단계는 흰 바탕에 회색 테두리.
                     Box(
                         Modifier.size(20.dp)
                             .background(
-                                color = if (isPast || isCurrent) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface,
+                                color = when {
+                                    isCurrent -> MaterialTheme.eumColors.textPrimary
+                                    isPast -> MaterialTheme.eumColors.lineStrong
+                                    else -> MaterialTheme.eumColors.surface
+                                },
                                 shape = CircleShape,
                             )
                             .then(
-                                if (isPast || isCurrent) Modifier else Modifier.background(MaterialTheme.eumColors.lineStrong, CircleShape),
+                                if (isPast || isCurrent) Modifier else Modifier.border(1.dp, MaterialTheme.eumColors.lineStrong, CircleShape),
                             ),
                         contentAlignment = Alignment.Center,
                     ) {

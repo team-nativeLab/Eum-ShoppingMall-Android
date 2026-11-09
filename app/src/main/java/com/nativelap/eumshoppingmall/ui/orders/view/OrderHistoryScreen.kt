@@ -6,11 +6,12 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -152,18 +153,23 @@ private fun OrderHistoryFilterChip(filter: OrderHistoryFilter, selected: Boolean
         OrderHistoryFilter.Shipping -> R.string.orders_status_in_transit
         OrderHistoryFilter.Delivered -> R.string.orders_status_delivered
     }
-    Surface(
+    // 터치 타깃은 48dp를 유지하고, 보이는 칩만 Figma의 얇은 알약 모양으로 그린다.
+    Box(
         modifier = Modifier.heightIn(min = 48.dp).clickable(role = Role.RadioButton, onClick = onClick).semantics { this.selected = selected },
-        shape = RoundedCornerShape(50),
-        color = if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface,
-        border = if (selected) null else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.eumColors.lineStrong),
+        contentAlignment = Alignment.Center,
     ) {
-        Text(
-            stringResource(labelResId),
-            modifier = Modifier.padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x8),
-            style = MaterialTheme.typography.labelSmall,
-            color = if (selected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textPrimary,
-        )
+        Surface(
+            shape = RoundedCornerShape(50),
+            color = if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface,
+            border = if (selected) null else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.eumColors.lineStrong),
+        ) {
+            Text(
+                stringResource(labelResId),
+                modifier = Modifier.padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x8),
+                style = MaterialTheme.typography.labelSmall,
+                color = if (selected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textPrimary,
+            )
+        }
     }
 }
 
@@ -193,35 +199,39 @@ private fun EmptyOrderHistory(
     onBrowseProducts: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier) {
-        Column(
-            modifier = Modifier.align(Alignment.Center).padding(horizontal = EumSpacing.x32),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
-        ) {
-            Surface(shape = CircleShape, color = MaterialTheme.eumColors.surface, modifier = Modifier.size(64.dp)) {
-                Icon(
-                    painterResource(R.drawable.ic_message_square_text),
-                    contentDescription = null,
-                    tint = MaterialTheme.eumColors.textTertiary,
-                    modifier = Modifier.padding(EumSpacing.x20),
-                )
-            }
-            Text(
-                stringResource(if (emptyState == OrderHistoryEmptyState.NoOrders) R.string.orders_empty_title else R.string.orders_no_results_title),
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                stringResource(if (emptyState == OrderHistoryEmptyState.NoOrders) R.string.orders_empty_description else R.string.orders_no_results_description),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.eumColors.textSecondary,
-                textAlign = TextAlign.Center,
+    // Figma: 아이콘·제목·설명 묶음 바로 아래에 버튼을 두고 세로 가운데에 놓는다.
+    Column(
+        modifier = modifier.padding(horizontal = EumSpacing.x20),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Surface(shape = CircleShape, color = MaterialTheme.eumColors.surfaceSecondary, modifier = Modifier.size(64.dp)) {
+            Icon(
+                painterResource(R.drawable.ic_message_square_text),
+                contentDescription = null,
+                tint = MaterialTheme.eumColors.textTertiary,
+                modifier = Modifier.padding(EumSpacing.x20),
             )
         }
+        Spacer(Modifier.height(EumSpacing.x16))
+        Text(
+            stringResource(if (emptyState == OrderHistoryEmptyState.NoOrders) R.string.orders_empty_title else R.string.orders_no_results_title),
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(EumSpacing.x8))
+        Text(
+            stringResource(
+                if (emptyState == OrderHistoryEmptyState.NoOrders) R.string.orders_empty_description_two_lines else R.string.orders_no_results_description,
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.eumColors.textSecondary,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(72.dp))
         Button(
             onClick = onBrowseProducts,
-            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(horizontal = EumSpacing.x20).padding(bottom = 112.dp).navigationBarsPadding().heightIn(min = 52.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.eumColors.textPrimary, contentColor = MaterialTheme.eumColors.inverse),
             shape = RoundedCornerShape(EumRadius.x8),
         ) {

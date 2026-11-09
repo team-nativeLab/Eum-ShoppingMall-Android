@@ -1,9 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.support
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -15,18 +13,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
@@ -65,25 +64,59 @@ fun CustomerSupportScreen(uiModel: CustomerSupportUiModel, onEvent: (CustomerSup
             ) {
                 Column(
                     Modifier.fillMaxWidth().padding(EumSpacing.x20),
-                    verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+                    verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
                 ) {
-                    Text(stringResource(R.string.customer_support_phone_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textSecondary)
-                    Text(uiModel.phoneNumber, style = MaterialTheme.typography.headlineSmall)
-                    Text(uiModel.businessHours, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-                    Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                        Button(onClick = { onEvent(CustomerSupportEvent.CallClicked) }, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.customer_support_call)) }
-                        Button(onClick = { onEvent(CustomerSupportEvent.InquiryClicked) }, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.customer_support_inquiry)) }
+                    Text(stringResource(R.string.customer_support_phone_label), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
+                    Text(uiModel.phoneNumber, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.eumColors.textPrimary)
+                    Text(uiModel.businessHours, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
+                    Row(Modifier.padding(top = EumSpacing.x8), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                        OutlinedButton(
+                            onClick = { onEvent(CustomerSupportEvent.CallClicked) },
+                            modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                            shape = RoundedCornerShape(EumRadius.x8),
+                            border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.lineControl),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
+                        ) {
+                            Text(stringResource(R.string.customer_support_call), style = MaterialTheme.typography.labelMedium)
+                        }
+                        Button(
+                            onClick = { onEvent(CustomerSupportEvent.InquiryClicked) },
+                            modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                            shape = RoundedCornerShape(EumRadius.x8),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.eumColors.textPrimary,
+                                contentColor = MaterialTheme.eumColors.inverse,
+                            ),
+                        ) {
+                            Text(stringResource(R.string.customer_support_inquiry), style = MaterialTheme.typography.labelMedium)
+                        }
                     }
                 }
             }
-            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                Text(stringResource(R.string.customer_support_faq_title), style = MaterialTheme.typography.titleMedium)
+            Column(Modifier.padding(top = EumSpacing.x12), verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
+                Text(stringResource(R.string.customer_support_faq_title), style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.eumColors.textPrimary)
                 OutlinedTextField(
                     value = uiModel.query,
                     onValueChange = { onEvent(CustomerSupportEvent.QueryChanged(it)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(stringResource(R.string.customer_support_faq_search_hint)) },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                    placeholder = {
+                        Text(stringResource(R.string.customer_support_faq_search_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
+                    },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_search),
+                            contentDescription = null,
+                            tint = MaterialTheme.eumColors.textSecondary,
+                        )
+                    },
                     singleLine = true,
+                    shape = RoundedCornerShape(50),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.eumColors.surfaceSecondary,
+                        unfocusedContainerColor = MaterialTheme.eumColors.surfaceSecondary,
+                        focusedBorderColor = MaterialTheme.eumColors.lineStrong,
+                        unfocusedBorderColor = Color.Transparent,
+                    ),
                 )
                 if (uiModel.query.isBlank()) {
                     FlowRow(
@@ -99,40 +132,20 @@ fun CustomerSupportScreen(uiModel: CustomerSupportUiModel, onEvent: (CustomerSup
                     Text(stringResource(R.string.customer_support_result_count, uiModel.faqs.size), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
                 }
                 if (uiModel.query.isNotBlank() && uiModel.faqs.isEmpty()) {
-                    Text(stringResource(R.string.customer_support_no_search_results), Modifier.fillMaxWidth().padding(vertical = EumSpacing.x24), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary)
+                    SupportEmptyState(
+                        iconRes = R.drawable.ic_search_x,
+                        title = stringResource(R.string.customer_support_no_result_title, uiModel.query),
+                        body = stringResource(R.string.customer_support_no_result_body),
+                        topPadding = EumSpacing.x24,
+                    )
                 } else {
-                    uiModel.faqs.forEach { faq ->
-                        Column(Modifier.fillMaxWidth().clickable { onEvent(CustomerSupportEvent.FaqToggled(faq.id)) }.semantics(mergeDescendants = true) { selected = faq.id in uiModel.expandedFaqIds }.padding(vertical = EumSpacing.x12), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.Top) {
-                                Text(stringResource(R.string.customer_support_question_mark), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textPrimary)
-                                Text(faq.question, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textPrimary)
-                            }
-                            if (faq.id in uiModel.expandedFaqIds) {
-                                Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.Top) {
-                                    Text(stringResource(R.string.customer_support_answer_mark), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textSecondary)
-                                    Text(faq.answer, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-                                }
-                            }
+                    Column {
+                        uiModel.faqs.forEach { faq ->
+                            CustomerSupportFaqItem(faq, expanded = faq.id in uiModel.expandedFaqIds, onClick = { onEvent(CustomerSupportEvent.FaqToggled(faq.id)) })
                         }
-                        HorizontalDivider(color = MaterialTheme.eumColors.line)
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun SupportFilterChip(label: String, isSelected: Boolean, onClick: () -> Unit) {
-    Surface(
-        Modifier.heightIn(min = 48.dp).clickable(role = Role.RadioButton, onClick = onClick)
-            .semantics { selected = isSelected },
-        shape = RoundedCornerShape(50),
-        color = if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface,
-        border = if (isSelected) null else BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.lineStrong),
-    ) {
-        Box(Modifier.padding(horizontal = EumSpacing.x12), contentAlignment = Alignment.Center) {
-            Text(label, style = MaterialTheme.typography.labelSmall, color = if (isSelected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textPrimary)
         }
     }
 }

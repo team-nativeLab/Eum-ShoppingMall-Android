@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auth_withdrawal_home">홈으로</string>
+    <string name="auth_withdrawal_password_invalid">비밀번호가 일치하지 않습니다. 다시 입력해 주세요.</string>
+    <string name="auth_contact_name_label">담당자명</string>
+    <string name="auth_coupon_count">%1$d장</string>
+</resources>

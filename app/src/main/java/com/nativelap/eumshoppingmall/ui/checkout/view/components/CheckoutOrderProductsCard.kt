@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -38,11 +39,14 @@ fun CheckoutOrderProductsCard(
     Column(modifier = modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                stringResource(R.string.checkout_product_count, products.size),
+                productSummaryLabel(products),
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.labelMedium,
             )
-            TextButton(onClick = { onExpandedChanged(!isExpanded) }) {
+            TextButton(
+                onClick = { onExpandedChanged(!isExpanded) },
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
+            ) {
                 Text(stringResource(if (isExpanded) R.string.common_fold else R.string.common_view_details))
                 Icon(
                     painterResource(if (isExpanded) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down),
@@ -58,6 +62,14 @@ fun CheckoutOrderProductsCard(
             }
         }
     }
+}
+
+// Figma A-08: 상품이 여럿이면 "대표 상품명 외 N건"으로 요약한다.
+@Composable
+private fun productSummaryLabel(products: List<CheckoutProductUiModel>): String = when (products.size) {
+    0 -> stringResource(R.string.checkout_order_products)
+    1 -> products.first().name
+    else -> stringResource(R.string.checkout_product_summary_more, products.first().name, products.size - 1)
 }
 
 @Composable

@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
-import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditSectionCard
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -44,10 +43,10 @@ fun PrivacyConsentDetailScreen(uiModel: PrivacyConsentUiModel, onEvent: (Privacy
     ) { padding ->
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(top = EumSpacing.x24, bottom = EumSpacing.x32), verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
             Text(stringResource(R.string.policy_effective_date, uiModel.effectiveDate), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
-            Text(uiModel.description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary)
-            UiAuditSectionCard(stringResource(R.string.privacy_consent_purpose), uiModel.purpose, descriptionMaxLines = Int.MAX_VALUE, contentVerticalPadding = EumSpacing.x16)
-            UiAuditSectionCard(stringResource(R.string.privacy_consent_items), uiModel.collectedItems, descriptionMaxLines = Int.MAX_VALUE, contentVerticalPadding = EumSpacing.x16)
-            UiAuditSectionCard(stringResource(R.string.privacy_consent_retention), uiModel.retentionPeriod, descriptionMaxLines = Int.MAX_VALUE, contentVerticalPadding = EumSpacing.x16)
+            Text(uiModel.description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textPrimary)
+            ConsentItemCard(stringResource(R.string.privacy_consent_purpose), uiModel.purpose)
+            ConsentItemCard(stringResource(R.string.privacy_consent_items), uiModel.collectedItems)
+            ConsentItemCard(stringResource(R.string.privacy_consent_retention), uiModel.retentionPeriod)
             Text(stringResource(R.string.privacy_consent_decline), Modifier.fillMaxWidth(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
         }
     }

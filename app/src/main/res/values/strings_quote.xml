@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quote_page_title">견적 문의</string>
+    <string name="quote_safety_solution_lines">현장을 위한\n맞춤 안전 솔루션</string>
+    <string name="quote_delivery_area_label">납품 지역</string>
+    <string name="quote_details_label">상세 내용</string>
+    <string name="quote_submit_label">견적 문의 접수</string>
+    <string name="quote_detail_content_label">내용</string>
+</resources>

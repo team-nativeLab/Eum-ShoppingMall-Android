@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -111,7 +112,14 @@ fun DeliveryRequestScreen(
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.eumColors.textPrimary,
                             )
-                            RadioButton(selected = isSelected, onClick = null)
+                            RadioButton(
+                                selected = isSelected,
+                                onClick = null,
+                                colors = RadioButtonDefaults.colors(
+                                    selectedColor = MaterialTheme.eumColors.textPrimary,
+                                    unselectedColor = MaterialTheme.eumColors.textSecondary,
+                                ),
+                            )
                         }
                         if (index != requestOptions.lastIndex) {
                             HorizontalDivider(color = MaterialTheme.eumColors.line)

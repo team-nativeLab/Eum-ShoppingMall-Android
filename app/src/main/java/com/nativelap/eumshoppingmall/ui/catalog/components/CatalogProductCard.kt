@@ -47,18 +47,19 @@ fun CatalogProductCard(
     Column(
         modifier = modifier
             .clip(shape)
-            .background(MaterialTheme.eumColors.backgroundSubtle)
-            .border(1.dp, MaterialTheme.eumColors.lineStrong, shape)
+            .background(MaterialTheme.eumColors.surface)
+            .border(1.dp, MaterialTheme.eumColors.lineNeutral, shape)
             .clickable(onClick = onClick)
-            .padding(EumSpacing.x8),
-        verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+            // Figma 179:743 카드 높이 269dp에 맞추려고 하단 여백만 13dp로 둔다(나머지 여백은 8dp).
+            .padding(start = EumSpacing.x8, top = EumSpacing.x8, end = EumSpacing.x8, bottom = 13.dp),
+        verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(EumRadius.x4))
-                .background(MaterialTheme.eumColors.surface),
+                .background(MaterialTheme.eumColors.productImageBackground),
             contentAlignment = Alignment.Center,
         ) {
             val imageResId = product.imageResId
@@ -90,13 +91,15 @@ fun CatalogProductCard(
                 )
             }
             product.badgeLabel?.let { badge ->
+                // Figma 179:743 견적 상품 배지는 흰 알약에 1dp 테두리, 이미지 좌상단에서 8dp 안쪽이다.
                 Text(
                     badge,
                     modifier = Modifier.align(Alignment.TopStart)
-                        .padding(EumSpacing.x4)
-                        .clip(RoundedCornerShape(EumRadius.x4))
-                        .background(MaterialTheme.eumColors.background)
-                        .padding(horizontal = EumSpacing.x4, vertical = EumSpacing.x2),
+                        .padding(EumSpacing.x8)
+                        .clip(RoundedCornerShape(EumRadius.capsule))
+                        .background(MaterialTheme.eumColors.surface)
+                        .border(1.dp, MaterialTheme.eumColors.productBadgeBorder, RoundedCornerShape(EumRadius.capsule))
+                        .padding(horizontal = EumSpacing.x6, vertical = EumSpacing.x2),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.eumColors.textSecondary,
                 )
@@ -118,12 +121,13 @@ fun CatalogProductCard(
         }
         Column(
             modifier = Modifier.padding(horizontal = EumSpacing.x4),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x4),
+            verticalArrangement = Arrangement.spacedBy(EumSpacing.x6),
         ) {
             Text(
                 product.name,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.eumColors.textPrimary,
+                // Figma 품절 상품명은 회색 톤이라 품절일 때만 textTertiary로 낮춘다.
+                color = if (product.isSoldOut) MaterialTheme.eumColors.textTertiary else MaterialTheme.eumColors.textPrimary,
                 maxLines = 2,
             )
             product.subtitle?.let { subtitle ->

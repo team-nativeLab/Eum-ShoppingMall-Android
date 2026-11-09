@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.account.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -46,24 +48,31 @@ fun AccountDrawerScreen(profile: AccountProfileUiModel, isLoggedIn: Boolean, onE
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
         ) { padding ->
             Column(Modifier.fillMaxSize().padding(padding).statusBarsPadding()) {
-                Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = EumSpacing.x20), verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.company_name), Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall)
+                // Figma 드로어는 닫기(X)를 왼쪽 위에 두고, 회사명은 그 아래에 크게 표시한다.
+                Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = { onEvent(AccountDrawerScreenEvent.CloseClicked) }) {
                         Icon(painterResource(R.drawable.ic_x), contentDescription = stringResource(R.string.common_close))
                     }
+                    Spacer(Modifier.weight(1f))
                     IconButton(onClick = { onEvent(AccountDrawerScreenEvent.NotificationClicked) }) {
                         Icon(painterResource(R.drawable.ic_bell), contentDescription = stringResource(R.string.notifications_title))
                     }
                 }
+                Text(stringResource(R.string.company_name), Modifier.padding(horizontal = EumSpacing.x20), style = MaterialTheme.typography.headlineSmall)
                 Text(stringResource(R.string.company_tagline), Modifier.padding(horizontal = EumSpacing.x20), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
                 Column(
                     Modifier.weight(1f).padding(horizontal = EumSpacing.x20).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
                 ) {
                     Spacer(Modifier.padding(top = EumSpacing.x8))
-                    Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).background(MaterialTheme.eumColors.surface, MaterialTheme.shapes.large).clickable { onEvent(if (isLoggedIn) AccountDrawerScreenEvent.ProfileClicked else AccountDrawerScreenEvent.MenuClicked("login")) }.padding(horizontal = EumSpacing.x16), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.fillMaxWidth().heightIn(min = 60.dp).background(MaterialTheme.eumColors.surface, MaterialTheme.shapes.large).border(1.dp, MaterialTheme.eumColors.line, MaterialTheme.shapes.large).clickable { onEvent(if (isLoggedIn) AccountDrawerScreenEvent.ProfileClicked else AccountDrawerScreenEvent.MenuClicked("login")) }.padding(horizontal = EumSpacing.x16), verticalAlignment = Alignment.CenterVertically) {
                         Text(if (isLoggedIn) stringResource(R.string.account_drawer_member_name, profile.name) else stringResource(R.string.account_login), Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-                        if (isLoggedIn) Text(stringResource(R.string.account_profile), Modifier.clickable { onEvent(AccountDrawerScreenEvent.ProfileClicked) }.padding(EumSpacing.x8), style = MaterialTheme.typography.labelSmall)
+                        if (isLoggedIn) {
+                            Row(Modifier.clickable { onEvent(AccountDrawerScreenEvent.ProfileClicked) }.padding(EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
+                                Text(stringResource(R.string.account_profile), style = MaterialTheme.typography.labelSmall)
+                                Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, modifier = Modifier.size(16.dp))
+                            }
+                        }
                     }
                     listOf(
                         "events" to R.string.account_drawer_events,

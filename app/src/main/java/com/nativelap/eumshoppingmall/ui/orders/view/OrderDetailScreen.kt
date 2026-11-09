@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
@@ -97,15 +98,22 @@ fun OrderDetailScreen(
             ) {
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
-                        Text(stringResource(R.string.orders_order_date_title, uiModel.orderDateLabel), style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.orders_order_date_title, uiModel.orderDateLabel), style = MaterialTheme.typography.headlineSmall)
                         Text(stringResource(R.string.orders_order_number_short, uiModel.orderNumber), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
                     }
                 }
                 item {
                     OrderInfoCard {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(stringResource(R.string.orders_products_title), modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
-                            TextButton(onClick = { onEvent(OrderDetailScreenEvent.ProductsExpandedChanged(!uiModel.isProductsExpanded)) }) {
+                            Text(
+                                stringResource(R.string.orders_products_title),
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            )
+                            TextButton(
+                                onClick = { onEvent(OrderDetailScreenEvent.ProductsExpandedChanged(!uiModel.isProductsExpanded)) },
+                                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
+                            ) {
                                 Text(stringResource(if (uiModel.isProductsExpanded) R.string.common_fold else R.string.common_expand))
                                 Icon(
                                     painterResource(if (uiModel.isProductsExpanded) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down),
@@ -124,11 +132,14 @@ fun OrderDetailScreen(
                 }
                 item {
                     OrderInfoCard {
-                        Text(stringResource(R.string.checkout_delivery_address), style = MaterialTheme.typography.labelMedium)
-                        OrderInfoRow(stringResource(R.string.checkout_recipient), uiModel.address.recipientName, Modifier.padding(top = EumSpacing.x12))
-                        OrderInfoRow(stringResource(R.string.checkout_contact), uiModel.address.contactLabel, Modifier.padding(top = EumSpacing.x8))
-                        OrderInfoRow(stringResource(R.string.orders_address), uiModel.address.addressLabel, Modifier.padding(top = EumSpacing.x8))
-                        OrderInfoRow(stringResource(R.string.orders_delivery_request), uiModel.address.requestLabel, Modifier.padding(top = EumSpacing.x8))
+                        Text(
+                            stringResource(R.string.checkout_delivery_address),
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        )
+                        OrderInfoRow(stringResource(R.string.checkout_recipient), uiModel.address.recipientName, Modifier.padding(top = EumSpacing.x16))
+                        OrderInfoRow(stringResource(R.string.checkout_contact), uiModel.address.contactLabel, Modifier.padding(top = EumSpacing.x16))
+                        OrderInfoRow(stringResource(R.string.orders_address), uiModel.address.addressLabel, Modifier.padding(top = EumSpacing.x16))
+                        OrderInfoRow(stringResource(R.string.orders_delivery_request), uiModel.address.requestLabel, Modifier.padding(top = EumSpacing.x16))
                     }
                 }
                 item { OrderPaymentBreakdownCard(uiModel.payment) }

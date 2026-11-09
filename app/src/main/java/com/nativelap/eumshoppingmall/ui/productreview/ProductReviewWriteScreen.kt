@@ -112,16 +112,23 @@ fun ProductReviewWriteScreen(
                     placeholder = { Text(stringResource(R.string.review_write_content_hint)) },
                     minLines = 4,
                 )
-                Text(stringResource(R.string.review_write_photo_title), style = MaterialTheme.typography.labelLarge)
-                Text(stringResource(R.string.review_write_photo_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+                    Text(stringResource(R.string.review_write_photo_title), style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.review_write_photo_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                }
                 Surface(
                     Modifier.size(82.dp).clickable { onEvent(ProductReviewWriteEvent.PhotoClicked) },
                     shape = RoundedCornerShape(EumRadius.x8),
                     color = MaterialTheme.eumColors.surface,
                     border = BorderStroke(1.dp, MaterialTheme.eumColors.line),
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                        Icon(painterResource(R.drawable.ic_image_plus), null, Modifier.size(28.dp))
+                    // Figma 사진 추가 박스: 아이콘은 위쪽 여백 16dp, 문구는 아래쪽에 붙는다.
+                    Column(
+                        Modifier.fillMaxSize().padding(vertical = EumSpacing.x16),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Icon(painterResource(R.drawable.ic_image_plus), null, Modifier.size(24.dp))
                         Text(stringResource(R.string.review_write_add_photo), style = MaterialTheme.typography.labelSmall)
                     }
                 }

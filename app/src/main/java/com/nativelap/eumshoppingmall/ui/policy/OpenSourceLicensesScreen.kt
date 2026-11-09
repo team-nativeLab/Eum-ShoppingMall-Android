@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.nativelap.eumshoppingmall.R
-import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditLicenseCard
+import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditIconInfoCard
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
 import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
@@ -47,11 +47,13 @@ fun OpenSourceLicensesScreen(
         ) {
             Text(
                 text = stringResource(R.string.ui_audit_licenses_helper),
+                modifier = Modifier.padding(bottom = EumSpacing.x16),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.eumColors.textDisabled,
             )
             licenses.forEach { license ->
-                UiAuditLicenseCard(
+                UiAuditIconInfoCard(
+                    iconRes = R.drawable.ic_package,
                     title = license.libraryName,
                     description = license.licenseName,
                 )

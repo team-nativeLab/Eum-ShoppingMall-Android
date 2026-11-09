@@ -1,35 +1,36 @@
 package com.nativelap.eumshoppingmall.ui.addresssearch
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.nativelap.eumshoppingmall.R
-import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
-import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditTextField
 import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
-import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
+
+// 본문과 상단바 폭 상한. 800dp 이상 화면에서 콘텐츠가 가로로 늘어나지 않게 한다.
+internal val AddressSearchMaxContentWidth = 600.dp
 
 data class AddressSearchResultUiModel(
     val id: String,
@@ -58,96 +59,71 @@ fun AddressSearchScreen(
     modifier: Modifier = Modifier,
 ) {
     val selectedAddressId = uiModel.selectedAddressId
-    UiAuditScreenScaffold(
-        title = stringResource(R.string.ui_audit_address_title),
-        onBackClick = { onEvent(AddressSearchScreenEvent.BackClicked) },
-        modifier = modifier,
-        bottomActionLabel = null,
-    ) { contentPadding ->
-        Column(
-            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                .padding(contentPadding)
-                .padding(top = EumSpacing.x16, bottom = EumSpacing.x20),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0.dp),
+        containerColor = MaterialTheme.eumColors.background,
+        topBar = {
+            AddressSearchTopBar(
+                title = stringResource(R.string.ui_audit_address_title),
+                onBackClick = { onEvent(AddressSearchScreenEvent.BackClicked) },
+            )
+        },
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier.fillMaxSize()
+                .padding(innerPadding)
+                // 키보드가 올라와도 결과 목록이 키보드 뒤로 가려지지 않게 본문 영역을 줄인다(공용 바닥 바와 같은 순서).
+                .navigationBarsPadding()
+                .imePadding(),
         ) {
-            UiAuditTextField(
-                label = stringResource(R.string.ui_audit_address_search_label),
-                value = uiModel.query,
-                placeholder = stringResource(R.string.ui_audit_address_placeholder),
-                onValueChange = { onEvent(AddressSearchScreenEvent.QueryChanged(it)) },
-            )
-            Text(
-                text = stringResource(R.string.ui_audit_address_helper),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.eumColors.textTertiary,
-            )
-            when {
-                uiModel.results.isNotEmpty() -> AddressSearchResults(
-                    results = uiModel.results,
-                    selectedAddressId = selectedAddressId,
-                    onAddressSelected = { addressId ->
-                        onEvent(AddressSearchScreenEvent.ResultSelected(addressId))
-                    },
+            Column(
+                modifier = Modifier.widthIn(max = AddressSearchMaxContentWidth)
+                    .fillMaxSize()
+                    .align(Alignment.TopCenter)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = EumSpacing.x20)
+                    .padding(top = EumSpacing.x16, bottom = EumSpacing.x32),
+                verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+            ) {
+                AddressSearchField(
+                    value = uiModel.query,
+                    placeholder = stringResource(R.string.ui_audit_address_placeholder),
+                    onValueChange = { onEvent(AddressSearchScreenEvent.QueryChanged(it)) },
                 )
+                Text(
+                    text = stringResource(R.string.ui_audit_address_helper),
+                    style = addressSearchCaptionStyle(),
+                    color = MaterialTheme.eumColors.addressMuted,
+                )
+                when {
+                    uiModel.results.isNotEmpty() -> AddressSearchResults(
+                        results = uiModel.results,
+                        selectedAddressId = selectedAddressId,
+                        onAddressSelected = { addressId ->
+                            onEvent(AddressSearchScreenEvent.ResultSelected(addressId))
+                        },
+                    )
 
-                uiModel.hasSearched -> Text(
-                    text = stringResource(R.string.ui_audit_address_empty),
-                    modifier = Modifier.fillMaxWidth().padding(vertical = EumSpacing.x32),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.eumColors.textSecondary,
-                )
+                    uiModel.hasSearched -> Text(
+                        text = stringResource(R.string.ui_audit_address_empty),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = EumSpacing.x32),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.eumColors.textSecondary,
+                    )
+                }
             }
         }
     }
 }
 
+// Figma caption(12sp/16) 기준. bodySmall의 자간을 상속하지 않도록 letterSpacing을 0으로 명시한다.
 @Composable
-private fun AddressSearchResults(
-    results: List<AddressSearchResultUiModel>,
-    selectedAddressId: String?,
-    onAddressSelected: (String) -> Unit,
-) {
-    Surface(
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x8),
-        color = MaterialTheme.eumColors.surface,
-        border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.lineNeutral),
-    ) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x16)) {
-            results.forEachIndexed { index, address ->
-                val isSelected = address.id == selectedAddressId
-                Row(
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp)
-                        .selectable(
-                            selected = isSelected,
-                            role = Role.RadioButton,
-                            onClick = { onAddressSelected(address.id) },
-                        ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = EumSpacing.x12),
-                        verticalArrangement = Arrangement.spacedBy(EumSpacing.x4),
-                    ) {
-                        Text(
-                            text = address.roadAddress,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.eumColors.textPrimary,
-                        )
-                        Text(
-                            text = stringResource(R.string.ui_audit_address_lot_format, address.lotAddress),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.eumColors.textSecondary,
-                        )
-                    }
-                }
-                if (index != results.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.eumColors.line)
-                }
-            }
-        }
-    }
-}
+internal fun addressSearchCaptionStyle(): TextStyle = MaterialTheme.typography.bodySmall.copy(
+    fontSize = 12.sp,
+    lineHeight = 16.sp,
+    letterSpacing = 0.sp,
+)
 
 @ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)

@@ -3,11 +3,16 @@ package com.nativelap.eumshoppingmall.ui.account
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsToggleable
+import androidx.compose.ui.test.hasAnyDescendant
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.nativelap.eumshoppingmall.ui.account.view.AccountAddressFormScreen
 import com.nativelap.eumshoppingmall.ui.account.view.AccountProfileScreen
@@ -54,7 +59,9 @@ class AccountUiSemanticsTest {
         }
 
         composeRule.onNodeWithContentDescription("배송지명").assertIsDisplayed()
-        composeRule.onAllNodesWithText("배송지명", useUnmergedTree = true).assertCountEquals(1)
+        // 라벨 Text는 clearAndSetSemantics로 텍스트 시맨틱을 비우고, 필드 contentDescription이 유일한 읽기 대상이다.
+        composeRule.onAllNodesWithText("배송지명", useUnmergedTree = true).assertCountEquals(0)
+        composeRule.onAllNodesWithContentDescription("배송지명", useUnmergedTree = true).assertCountEquals(1)
     }
 
     @Test
@@ -76,6 +83,11 @@ class AccountUiSemanticsTest {
             }
         }
 
+        // 수신 동의 행은 LazyColumn 하단에 있어 노드를 구성하려면 스크롤이 필요하다.
+        // 화면에 스크롤 노드가 둘 이상일 수 있어, 첫 항목 텍스트를 가진 스크롤 노드로 대상을 특정한다.
+        composeRule
+            .onNode(hasScrollAction() and hasAnyDescendant(hasText("기본 정보")))
+            .performScrollToNode(hasText("SMS 수신 동의"))
         composeRule.onNodeWithText("SMS 수신 동의")
             .assertIsToggleable()
             .performClick()

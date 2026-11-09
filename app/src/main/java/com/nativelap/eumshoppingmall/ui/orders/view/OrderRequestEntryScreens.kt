@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.Button
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -32,24 +34,24 @@ import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryFilter
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestHubScreenEvent
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestOrderSelectionScreenEvent
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestOrderSelectionUiModel
+import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
 fun OrderRequestHubScreen(onEvent: (OrderRequestHubScreenEvent) -> Unit, modifier: Modifier = Modifier) {
     RequestScaffold(stringResource(R.string.request_hub_title), { onEvent(OrderRequestHubScreenEvent.BackClicked) }, modifier) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).padding(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-            Text(stringResource(R.string.request_hub_description), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary)
-            HubActionCard(stringResource(R.string.request_orders_title), stringResource(R.string.request_orders_description)) { onEvent(OrderRequestHubScreenEvent.OrdersClicked) }
-            HubActionCard(stringResource(R.string.request_history_title), stringResource(R.string.request_history_description)) { onEvent(OrderRequestHubScreenEvent.RequestHistoryClicked) }
-            HubActionCard(stringResource(R.string.request_start_title), stringResource(R.string.request_start_description)) { onEvent(OrderRequestHubScreenEvent.StartRequestClicked) }
+        Column(Modifier.fillMaxSize().padding(padding).padding(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
+            HubActionCard(stringResource(R.string.request_orders_title), stringResource(R.string.request_hub_orders_description)) { onEvent(OrderRequestHubScreenEvent.OrdersClicked) }
+            HubActionCard(stringResource(R.string.request_history_title), stringResource(R.string.request_hub_history_description)) { onEvent(OrderRequestHubScreenEvent.RequestHistoryClicked) }
+            HubActionCard(stringResource(R.string.request_start_title), stringResource(R.string.request_hub_start_description)) { onEvent(OrderRequestHubScreenEvent.StartRequestClicked) }
         }
     }
 }
 
 @Composable
 fun OrderRequestOrderSelectionScreen(uiModel: OrderRequestOrderSelectionUiModel, onEvent: (OrderRequestOrderSelectionScreenEvent) -> Unit, modifier: Modifier = Modifier) {
-    RequestScaffold(stringResource(R.string.request_order_selection_title), { onEvent(OrderRequestOrderSelectionScreenEvent.BackClicked) }, modifier) { padding ->
+    RequestScaffold(stringResource(R.string.request_order_selection_screen_title), { onEvent(OrderRequestOrderSelectionScreenEvent.BackClicked) }, modifier) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(vertical = EumSpacing.x12), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
             item {
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
@@ -57,14 +59,21 @@ fun OrderRequestOrderSelectionScreen(uiModel: OrderRequestOrderSelectionUiModel,
                 }
             }
             item {
+                Surface(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20), shape = RoundedCornerShape(EumRadius.x12), color = MaterialTheme.eumColors.backgroundSubtle) {
+                    Text(stringResource(R.string.request_selection_notice), Modifier.padding(EumSpacing.x16), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                }
+            }
+            item {
                 Box(Modifier.padding(horizontal = EumSpacing.x20)) {
-                    TextButton(onClick = { onEvent(OrderRequestOrderSelectionScreenEvent.PeriodPickerToggled) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(uiModel.periodLabel) }
+                    TextButton(onClick = { onEvent(OrderRequestOrderSelectionScreenEvent.PeriodPickerToggled) }, modifier = Modifier.heightIn(min = 48.dp), colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.eumColors.textPrimary)) {
+                        Text(uiModel.periodLabel, style = MaterialTheme.typography.bodyMedium)
+                        Text(" ⌄", style = MaterialTheme.typography.bodyMedium)
+                    }
                     DropdownMenu(expanded = uiModel.isPeriodPickerVisible, onDismissRequest = { onEvent(OrderRequestOrderSelectionScreenEvent.PeriodPickerToggled) }) {
                         uiModel.periods.forEach { period -> DropdownMenuItem(text = { Text(period) }, onClick = { onEvent(OrderRequestOrderSelectionScreenEvent.PeriodSelected(period)) }) }
                     }
                 }
             }
-            item { Text(stringResource(R.string.request_selectable_orders_notice), Modifier.padding(horizontal = EumSpacing.x20), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary) }
             if (uiModel.orders.isEmpty()) {
                 item {
                     val hasNoMatchingOrders = uiModel.emptyState == OrderHistoryEmptyState.NoMatchingOrders
@@ -79,17 +88,18 @@ fun OrderRequestOrderSelectionScreen(uiModel: OrderRequestOrderSelectionUiModel,
             }
             items(uiModel.orders, key = { it.id }) { order ->
                 OrderInfoCard(Modifier.padding(horizontal = EumSpacing.x20)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text(stringResource(R.string.request_order_date_format, order.orderDateLabel), style = MaterialTheme.typography.titleSmall)
-                            Text(stringResource(R.string.request_order_number_format, order.orderNumber), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                        Text(order.orderDateLabel, style = MaterialTheme.typography.titleSmall)
+                        Text(stringResource(R.string.request_order_number_format, order.orderNumber), Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
+                        TextButton(onClick = { onEvent(OrderRequestOrderSelectionScreenEvent.OrderDetailsClicked(order.id)) }, modifier = Modifier.heightIn(min = 48.dp), colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.eumColors.textPrimary)) {
+                            Text(stringResource(R.string.orders_detail), style = MaterialTheme.typography.labelMedium)
+                            Text(" ›", style = MaterialTheme.typography.labelMedium)
                         }
-                        TextButton(onClick = { onEvent(OrderRequestOrderSelectionScreenEvent.OrderDetailsClicked(order.id)) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.request_detail_action)) }
                     }
-                    order.products.forEach { RequestProductRow(it) }
+                    order.products.forEach { RequestProductRow(it, order.status) }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                         OutlinedButton(onClick = { onEvent(OrderRequestOrderSelectionScreenEvent.OrderDeliveryClicked(order.id)) }, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text(stringResource(R.string.request_delivery_action)) }
-                        Button(onClick = { onEvent(OrderRequestOrderSelectionScreenEvent.OrderRequestSelected(order.id)) }, enabled = order.canSelectForRequest, modifier = Modifier.weight(1f).heightIn(min = 48.dp), colors = darkButtonColors()) { Text(stringResource(R.string.request_order_action)) }
+                        OutlinedButton(onClick = { onEvent(OrderRequestOrderSelectionScreenEvent.OrderRequestSelected(order.id)) }, enabled = order.canSelectForRequest, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text(stringResource(R.string.request_order_select_action)) }
                     }
                 }
             }

@@ -253,7 +253,11 @@ private fun ReviewCard(review: ProductReviewItemUiModel) {
                         tint = MaterialTheme.eumColors.ratingStar,
                     )
                 }
-                Text(review.rating.coerceIn(0, 5).toString(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textPrimary)
+                Text(
+                    stringResource(R.string.ui_audit_rating_value, review.rating.coerceIn(0, 5).toFloat()),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.eumColors.textPrimary,
+                )
             }
             Text(review.optionLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
             Text(review.body, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textPrimary)

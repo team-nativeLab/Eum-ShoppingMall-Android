@@ -96,7 +96,10 @@ fun CheckoutAddressScreen(
                             }
                             Text(uiModel.address.addressLabel, style = MaterialTheme.typography.bodySmall)
                         }
-                        TextButton(onClick = { onEvent(CheckoutScreenEvent.AddressChangeClicked) }) {
+                        TextButton(
+                            onClick = { onEvent(CheckoutScreenEvent.AddressChangeClicked) },
+                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
+                        ) {
                             Text(stringResource(R.string.checkout_address_change))
                         }
                     }

@@ -89,7 +89,7 @@ fun AuthSignupScreen(uiModel: AuthSignupUiModel, onEvent: (AuthScreenEvent) -> U
                 errorText = if (uiModel.passwordConfirmation.isNotEmpty() && !uiModel.password.contentEquals(uiModel.passwordConfirmation)) stringResource(R.string.auth_password_mismatch) else null,
             )
             AuthTextField(
-                stringResource(R.string.auth_full_name_label),
+                stringResource(if (uiModel.memberType == AuthMemberType.BUSINESS) R.string.auth_contact_name_label else R.string.auth_full_name_label),
                 uiModel.name,
                 { onEvent(AuthScreenEvent.SignupFieldChanged("name", it)) },
                 placeholder = stringResource(R.string.auth_name_placeholder),

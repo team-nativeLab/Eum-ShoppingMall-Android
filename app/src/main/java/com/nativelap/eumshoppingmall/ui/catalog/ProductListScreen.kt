@@ -7,11 +7,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,6 +36,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductRow
@@ -85,7 +89,7 @@ fun CatalogProductListScreen(
                     }
                     CatalogProductListControls(
                         countLabel = uiModel.resultCountLabel,
-                        sortLabel = uiModel.sortLabel,
+                        sortLabel = stringResource(R.string.common_sort_label, uiModel.sortLabel),
                         isListLayout = uiModel.isListLayout,
                         onSortClick = { onEvent(CatalogProductListEvent.SortClicked) },
                         onFilterClick = { onEvent(CatalogProductListEvent.FilterClicked) },
@@ -99,7 +103,8 @@ fun CatalogProductListScreen(
                             end = EumSpacing.x20,
                             bottom = EumSpacing.x20,
                         ),
-                        verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
+                        // Figma(179:743) 격자 행 간격은 26dp다(이전 24dp에서 조정). 리스트 행 간격은 기존 16dp를 유지한다.
+                        verticalArrangement = Arrangement.spacedBy(if (uiModel.isListLayout) EumSpacing.x16 else 26.dp),
                     ) {
                         if (uiModel.products.isEmpty()) {
                             item {
@@ -121,13 +126,17 @@ fun CatalogProductListScreen(
                             }
                         } else {
                             items(uiModel.products.chunked(columns)) { rowProducts ->
-                                Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                                // 같은 행의 카드는 가장 높은 카드에 맞춘다(Figma 179:743의 행 카드 높이가 같다).
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+                                    modifier = Modifier.height(IntrinsicSize.Max),
+                                ) {
                                     rowProducts.forEach { product ->
                                         CatalogProductCard(
                                             product = product,
                                             onClick = { onEvent(CatalogProductListEvent.ProductSelected(product.id)) },
                                             onFavoriteClick = { onEvent(CatalogProductListEvent.FavoriteToggled(product.id)) },
-                                            modifier = Modifier.weight(1f),
+                                            modifier = Modifier.weight(1f).fillMaxHeight(),
                                         )
                                     }
                                     repeat(columns - rowProducts.size) { Spacer(Modifier.weight(1f)) }
@@ -183,11 +192,21 @@ internal fun CatalogProductListControls(
             border = BorderStroke(1.dp, MaterialTheme.eumColors.textPrimary),
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x6),
+                modifier = Modifier.padding(
+                    start = EumSpacing.x16,
+                    top = EumSpacing.x6,
+                    end = EumSpacing.x12,
+                    bottom = EumSpacing.x6,
+                ),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
+                horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
             ) {
-                Text(sortLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textPrimary)
+                // Figma 정렬 pill 글자는 labelSmall(11sp)보다 약 14% 커서 12.5sp로 맞춘다.
+                Text(
+                    sortLabel,
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.5.sp, lineHeight = 16.sp),
+                    color = MaterialTheme.eumColors.textPrimary,
+                )
                 Icon(painterResource(R.drawable.ic_chevron_down), null, modifier = Modifier.size(16.dp))
             }
         }

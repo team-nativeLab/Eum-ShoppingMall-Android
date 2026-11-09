@@ -2,9 +2,11 @@ package com.nativelap.eumshoppingmall.ui.checkout.view.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutPaymentMethod
@@ -49,18 +52,23 @@ fun CheckoutPaymentMethodSelector(
                             .selectable(selected = isSelected, role = Role.RadioButton) { onMethodSelected(method) }
                             .semantics { selected = isSelected },
                         shape = RoundedCornerShape(EumRadius.x8),
-                        color = if (isSelected) MaterialTheme.eumColors.surface else MaterialTheme.eumColors.surfaceSecondary,
+                        color = MaterialTheme.eumColors.surface,
                         border = BorderStroke(
                             width = if (isSelected) 1.5.dp else 1.dp,
                             color = if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.lineControl,
                         ),
                     ) {
-                        Text(
-                            stringResource(labelResId),
-                            modifier = Modifier.padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x12),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.eumColors.textPrimary,
-                        )
+                        Box(
+                            Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = EumSpacing.x8),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                stringResource(labelResId),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                color = MaterialTheme.eumColors.textPrimary,
+                            )
+                        }
                     }
                 }
             }

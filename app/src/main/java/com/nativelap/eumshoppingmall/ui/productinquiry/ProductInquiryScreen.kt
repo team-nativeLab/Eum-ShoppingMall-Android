@@ -11,7 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditTextField
@@ -50,6 +53,7 @@ fun ProductInquiryScreen(
         ) {
             Text(
                 text = stringResource(R.string.ui_audit_inquiry_helper),
+                modifier = Modifier.padding(bottom = EumSpacing.x24),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.eumColors.textDisabled,
             )
@@ -85,18 +89,25 @@ fun ProductInquiryScreen(
     }
 }
 
+// Figma 입력칸 높이 50dp. 최소 48dp 기준을 충족하며 EumSpacing 토큰에 맞춘 값이 아니다.
+private val InquiryFieldMinHeight = 50.dp
+
 @Composable
 private fun AuditInquiryField(
     label: String,
     value: String,
     modifier: Modifier = Modifier,
     placeholder: String? = null,
-    minHeight: androidx.compose.ui.unit.Dp = EumSpacing.x52,
+    minHeight: Dp = InquiryFieldMinHeight,
     onValueChange: ((String) -> Unit)? = null,
     onClick: (() -> Unit)? = null,
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-        Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.eumColors.textPrimary)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.eumColors.textPrimary,
+        )
         if (onValueChange != null) {
             UiAuditTextField(
                 label = label,
@@ -104,7 +115,7 @@ private fun AuditInquiryField(
                 placeholder = placeholder.orEmpty(),
                 onValueChange = onValueChange,
                 minHeight = minHeight,
-                maxLines = if (minHeight > EumSpacing.x52) 5 else 1,
+                maxLines = if (minHeight > InquiryFieldMinHeight) 5 else 1,
             )
         } else {
             UiAuditTextField(
@@ -125,6 +136,12 @@ private fun AuditInquiryField(
 @Composable
 private fun ProductInquiryScreenPreview() {
     EumShoppingMallTheme {
-        ProductInquiryScreen(title = "", content = "", isPrivate = true, onEvent = {})
+        // Figma 상태: 제목·내용에 입력 값이 보이고 공개 설정은 비밀글.
+        ProductInquiryScreen(
+            title = stringResource(R.string.ui_audit_title_placeholder),
+            content = stringResource(R.string.ui_audit_content_placeholder),
+            isPrivate = true,
+            onEvent = {},
+        )
     }
 }

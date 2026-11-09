@@ -35,11 +35,11 @@ fun UiAuditTopBar(
     Box(modifier.fillMaxWidth().heightIn(min = EumSpacing.x56)) {
         Text(
             text = title,
-            modifier = Modifier.fillMaxWidth().align(Alignment.CenterStart)
-                .padding(start = EumSpacing.x64, end = EumSpacing.x16),
+            modifier = Modifier.fillMaxWidth().align(Alignment.Center)
+                .padding(horizontal = EumSpacing.x64),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.eumColors.textPrimary,
-            textAlign = TextAlign.Start,
+            textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )

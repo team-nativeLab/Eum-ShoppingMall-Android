@@ -38,6 +38,7 @@ fun CatalogTopBar(
     actions: List<CatalogTopBarAction> = emptyList(),
     onActionClick: (String) -> Unit = {},
     modifier: Modifier = Modifier,
+    isCloseAction: Boolean = false,
 ) {
     Row(
         modifier = modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = EumSpacing.x8),
@@ -47,8 +48,12 @@ fun CatalogTopBar(
         if (onBackClick != null) {
             IconButton(onClick = onBackClick, modifier = Modifier.size(48.dp)) {
                 Icon(
-                    painterResource(R.drawable.ic_arrow_left),
-                    contentDescription = stringResource(R.string.common_back),
+                    painterResource(
+                        if (isCloseAction) R.drawable.ic_close else R.drawable.ic_arrow_left,
+                    ),
+                    contentDescription = stringResource(
+                        if (isCloseAction) R.string.common_close else R.string.common_back,
+                    ),
                     tint = MaterialTheme.eumColors.textPrimary,
                     modifier = Modifier.size(24.dp),
                 )

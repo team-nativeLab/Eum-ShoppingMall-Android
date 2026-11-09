@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cart_price_inquiry">가격 문의</string>
+    <string name="cart_login_notice">로그인하면 장바구니가 저장됩니다.</string>
+</resources>

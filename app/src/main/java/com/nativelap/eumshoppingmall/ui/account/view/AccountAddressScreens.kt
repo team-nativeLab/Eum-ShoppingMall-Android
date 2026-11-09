@@ -1,5 +1,6 @@
 package com.nativelap.eumshoppingmall.ui.account.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,27 +12,32 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountAddressFormScreenEvent
@@ -44,6 +50,7 @@ import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.eumCheckboxColors
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -52,13 +59,12 @@ fun AccountAddressListScreen(uiModel: AccountAddressListUiModel, onEvent: (Accou
     Scaffold(
         topBar = { CatalogTopBar(stringResource(R.string.address_title), onBackClick = { onEvent(AccountAddressListScreenEvent.BackClicked) }, modifier = Modifier.statusBarsPadding()) },
         bottomBar = {
-            if (uiModel.addresses.isNotEmpty()) {
-                ResponsiveWidthContainer {
-                    Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8)) {
-                        Text(stringResource(R.string.address_limit_notice, uiModel.maximumAddressCount), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
-                        AccountPrimaryButton(stringResource(R.string.address_add), { onEvent(AccountAddressListScreenEvent.AddClicked) }, enabled = hasCapacity)
-                    }
-                }
+            ResponsiveWidthContainer {
+                AccountStickyPrimaryAction(
+                    stringResource(R.string.address_add),
+                    { onEvent(AccountAddressListScreenEvent.AddClicked) },
+                    enabled = hasCapacity,
+                )
             }
         },
         containerColor = MaterialTheme.eumColors.background,
@@ -66,14 +72,32 @@ fun AccountAddressListScreen(uiModel: AccountAddressListUiModel, onEvent: (Accou
     ) { padding ->
         ResponsiveContentContainer(Modifier.fillMaxSize()) {
             if (uiModel.addresses.isEmpty()) {
-                Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = EumSpacing.x24), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(stringResource(R.string.address_empty_title), style = MaterialTheme.typography.titleMedium)
-                    Text(stringResource(R.string.address_empty_description), Modifier.padding(top = EumSpacing.x8), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-                    AccountPrimaryButton(stringResource(R.string.address_add), { onEvent(AccountAddressListScreenEvent.AddClicked) }, enabled = hasCapacity)
+                Column(
+                    Modifier.fillMaxSize().padding(padding).padding(horizontal = EumSpacing.x24),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Icon(
+                        painterResource(R.drawable.ic_message_square_text),
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp).background(MaterialTheme.eumColors.surface, CircleShape).padding(18.dp),
+                        tint = MaterialTheme.eumColors.textSecondary,
+                    )
+                    Text(stringResource(R.string.address_empty_title), Modifier.padding(top = EumSpacing.x20), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        stringResource(R.string.address_empty_guide),
+                        Modifier.padding(top = EumSpacing.x8),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.eumColors.textSecondary,
+                        textAlign = TextAlign.Center,
+                    )
                 }
             } else {
                 LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = androidx.compose.foundation.layout.PaddingValues(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
                     items(uiModel.addresses, key = { it.id }) { address -> AddressCard(address, onEvent) }
+                    item {
+                        Text(stringResource(R.string.address_limit_notice, uiModel.maximumAddressCount), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                    }
                 }
             }
         }
@@ -82,21 +106,33 @@ fun AccountAddressListScreen(uiModel: AccountAddressListUiModel, onEvent: (Accou
 
 @Composable
 private fun AddressCard(address: AccountAddressUiModel, onEvent: (AccountAddressListScreenEvent) -> Unit) {
-    Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+    // 기본 배송지 카드는 Figma처럼 진한 테두리로 구분한다.
+    val borderColor = if (address.isDefault) MaterialTheme.eumColors.lineStrong else MaterialTheme.eumColors.line
+    val postalPrefix = if (address.postalCode.isBlank()) "" else "(" + address.postalCode + ") "
+    Column(Modifier.fillMaxWidth().border(1.dp, borderColor, RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-            Text(address.label, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-            if (address.isDefault) Text(stringResource(R.string.address_default), color = MaterialTheme.eumColors.inverse, modifier = Modifier.padding(EumSpacing.x4), style = MaterialTheme.typography.labelSmall)
+            Text(address.label, style = MaterialTheme.typography.titleMedium)
+            if (address.isDefault) {
+                Text(
+                    stringResource(R.string.address_default),
+                    modifier = Modifier.background(MaterialTheme.eumColors.textPrimary, RoundedCornerShape(EumRadius.x4)).padding(horizontal = EumSpacing.x6, vertical = EumSpacing.x2),
+                    color = MaterialTheme.eumColors.inverse,
+                    style = MaterialTheme.typography.labelSmall,
+                )
+            }
         }
         Text(address.recipient + " · " + address.phoneNumber, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-        Text(address.postalCode + " " + address.address + " " + address.addressDetail, style = MaterialTheme.typography.bodySmall)
+        Text(postalPrefix + address.address + " " + address.addressDetail, style = MaterialTheme.typography.bodySmall)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
             if (!address.isDefault) {
                 Text(stringResource(R.string.address_set_default), Modifier.weight(1f).heightIn(min = 48.dp).clickable { onEvent(AccountAddressListScreenEvent.DefaultSelected(address.id)) }.padding(vertical = EumSpacing.x12), style = MaterialTheme.typography.labelMedium)
             } else {
                 Spacer(Modifier.weight(1f))
             }
-            androidx.compose.material3.OutlinedButton(onClick = { onEvent(AccountAddressListScreenEvent.EditClicked(address.id)) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.address_edit)) }
-            if (!address.isDefault) androidx.compose.material3.OutlinedButton(onClick = { onEvent(AccountAddressListScreenEvent.DeleteClicked(address.id)) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.address_delete)) }
+            OutlinedButton(onClick = { onEvent(AccountAddressListScreenEvent.EditClicked(address.id)) }, modifier = Modifier.heightIn(min = 48.dp), shape = MaterialTheme.shapes.small) { Text(stringResource(R.string.address_edit)) }
+            if (!address.isDefault) {
+                OutlinedButton(onClick = { onEvent(AccountAddressListScreenEvent.DeleteClicked(address.id)) }, modifier = Modifier.heightIn(min = 48.dp), shape = MaterialTheme.shapes.small) { Text(stringResource(R.string.address_delete)) }
+            }
         }
     }
 }
@@ -129,8 +165,9 @@ fun AccountAddressFormScreen(uiModel: AccountAddressFormUiModel, onEvent: (Accou
                     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                         Text(stringResource(R.string.address_placeholder), style = MaterialTheme.typography.labelMedium)
                         Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
-                            AddressInput(stringResource(R.string.address_postal_code), uiModel.address.postalCode, stringResource(R.string.address_postal_placeholder), { onEvent(AccountAddressFormScreenEvent.PostalCodeChanged(it)) }, modifier = Modifier.weight(1f))
-                            androidx.compose.material3.OutlinedButton(onClick = { onEvent(AccountAddressFormScreenEvent.AddressSearchClicked) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.address_search)) }
+                            // 우편번호 라벨은 Figma에 없으므로 화면에 그리지 않고 접근성 설명만 유지한다.
+                            AddressInput(stringResource(R.string.address_postal_code), uiModel.address.postalCode, stringResource(R.string.address_postal_placeholder), { onEvent(AccountAddressFormScreenEvent.PostalCodeChanged(it)) }, modifier = Modifier.weight(1f), showLabel = false)
+                            OutlinedButton(onClick = { onEvent(AccountAddressFormScreenEvent.AddressSearchClicked) }, modifier = Modifier.heightIn(min = 48.dp), shape = MaterialTheme.shapes.small) { Text(stringResource(R.string.address_search)) }
                         }
                         AddressInput(stringResource(R.string.address_placeholder), uiModel.address.address, stringResource(R.string.address_placeholder), { onEvent(AccountAddressFormScreenEvent.AddressChanged(it)) }, enabled = false)
                         AddressInput(stringResource(R.string.address_detail), uiModel.address.addressDetail, stringResource(R.string.address_detail_placeholder), { onEvent(AccountAddressFormScreenEvent.AddressDetailChanged(it)) })
@@ -139,13 +176,19 @@ fun AccountAddressFormScreen(uiModel: AccountAddressFormUiModel, onEvent: (Accou
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                         Text(stringResource(R.string.address_delivery_request), style = MaterialTheme.typography.labelMedium)
-                        Text(
-                            uiModel.address.deliveryRequest.ifBlank { stringResource(R.string.address_delivery_request_placeholder) },
+                        Row(
                             Modifier.fillMaxWidth().heightIn(min = 48.dp).border(1.dp, MaterialTheme.eumColors.lineControl, RoundedCornerShape(EumRadius.x8)).clickable {
                                 onEvent(AccountAddressFormScreenEvent.DeliveryRequestChanged(if (uiModel.address.deliveryRequest.isBlank()) doorDeliveryRequest else noDeliveryRequest))
                             }.padding(EumSpacing.x12),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                uiModel.address.deliveryRequest.ifBlank { stringResource(R.string.address_delivery_request_placeholder) },
+                                Modifier.weight(1f),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            Icon(painterResource(R.drawable.ic_chevron_down), contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.eumColors.textSecondary)
+                        }
                     }
                 }
                 item {
@@ -161,6 +204,7 @@ fun AccountAddressFormScreen(uiModel: AccountAddressFormUiModel, onEvent: (Accou
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         androidx.compose.material3.Checkbox(
+                            colors = eumCheckboxColors(),
                             checked = uiModel.address.isDefault,
                             onCheckedChange = null,
                         )
@@ -173,9 +217,30 @@ fun AccountAddressFormScreen(uiModel: AccountAddressFormUiModel, onEvent: (Accou
 }
 
 @Composable
-private fun AddressInput(label: String, value: String, placeholder: String, onValueChange: (String) -> Unit, keyboardType: KeyboardType = KeyboardType.Text, isError: Boolean = false, errorMessage: String? = null, modifier: Modifier = Modifier, enabled: Boolean = true) {
+private fun AddressInput(
+    label: String,
+    value: String,
+    placeholder: String,
+    onValueChange: (String) -> Unit,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    isError: Boolean = false,
+    errorMessage: String? = null,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    showLabel: Boolean = true,
+) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(EumSpacing.x6)) {
-        Text(label, Modifier.clearAndSetSemantics {}, style = MaterialTheme.typography.labelMedium)
-        OutlinedTextField(value, onValueChange, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).semantics { contentDescription = label }, placeholder = { Text(placeholder) }, keyboardOptions = KeyboardOptions(keyboardType = keyboardType), isError = isError, supportingText = errorMessage?.let { { Text(it) } }, enabled = enabled, singleLine = true)
+        if (showLabel) Text(label, Modifier.clearAndSetSemantics {}, style = MaterialTheme.typography.labelMedium)
+        OutlinedTextField(
+            value,
+            onValueChange,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).semantics { contentDescription = label },
+            placeholder = { Text(placeholder) },
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            isError = isError,
+            supportingText = errorMessage?.let { { AccountErrorText(it) } },
+            enabled = enabled,
+            singleLine = true,
+        )
     }
 }

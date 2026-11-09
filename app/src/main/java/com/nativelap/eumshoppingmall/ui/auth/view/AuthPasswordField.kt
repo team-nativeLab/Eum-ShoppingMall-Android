@@ -49,12 +49,14 @@ internal fun AuthPasswordField(
                 visualTransformation = if (isVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
                 trailingIcon = {
-                    IconButton(onClick = onVisibilityChange, modifier = Modifier.size(48.dp)) {
-                        Icon(
-                            painterResource(if (isVisible) R.drawable.ic_eye else R.drawable.ic_eye_off),
-                            contentDescription = if (isVisible) androidx.compose.ui.res.stringResource(R.string.auth_password_hide) else androidx.compose.ui.res.stringResource(R.string.auth_password_show),
-                            tint = MaterialTheme.eumColors.textSecondary,
-                        )
+                    if (value.isNotEmpty()) {
+                        IconButton(onClick = onVisibilityChange, modifier = Modifier.size(48.dp)) {
+                            Icon(
+                                painterResource(if (isVisible) R.drawable.ic_eye else R.drawable.ic_eye_off),
+                                contentDescription = if (isVisible) androidx.compose.ui.res.stringResource(R.string.auth_password_hide) else androidx.compose.ui.res.stringResource(R.string.auth_password_show),
+                                tint = MaterialTheme.eumColors.textSecondary,
+                            )
+                        }
                     }
                 },
                 shape = MaterialTheme.shapes.medium,

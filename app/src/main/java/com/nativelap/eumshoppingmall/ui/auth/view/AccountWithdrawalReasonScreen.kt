@@ -61,6 +61,7 @@ fun AccountWithdrawalReasonScreen(uiModel: AccountWithdrawalReasonUiModel, onEve
                                 androidx.compose.material3.OutlinedButton(
                                     onClick = { onEvent(AuthScreenEvent.WithdrawalReasonSelected(index)) },
                                     modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                                    shape = RoundedCornerShape(8.dp),
                                     border = BorderStroke(if (selected) 1.5.dp else 1.dp, if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.lineStrong),
                                 ) {
                                     Text(if (index == 5) stringResource(R.string.auth_other) else stringResource(R.string.account_leave_reason_label))
@@ -90,7 +91,7 @@ fun AccountWithdrawalReasonScreen(uiModel: AccountWithdrawalReasonUiModel, onEve
                     { onEvent(AuthScreenEvent.WithdrawalPasswordChanged(it)) },
                     { onEvent(AuthScreenEvent.WithdrawalPasswordVisibilityChanged) },
                     helperText = stringResource(R.string.auth_withdrawal_password_help),
-                    errorText = if (uiModel.isPasswordInvalid) stringResource(R.string.auth_current_password_invalid) else null,
+                    errorText = if (uiModel.isPasswordInvalid) stringResource(R.string.auth_withdrawal_password_invalid) else null,
                 )
             }
         }

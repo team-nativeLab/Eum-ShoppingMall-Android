@@ -13,14 +13,17 @@ import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountSettingUiModel
 import com.nativelap.eumshoppingmall.ui.auth.view.AccountWithdrawalReasonScreen
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AccountWithdrawalReasonUiModel
 import com.nativelap.eumshoppingmall.ui.cart.view.CartScreen
+import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemType
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemUiModel
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogKeyValueUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogOptionGroupUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogOptionUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductDetailScreen
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductDetailUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogSelectedOptionUiModel
 import com.nativelap.eumshoppingmall.ui.orders.view.OrderRequestHistoryScreen
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestHistoryFilter
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestHistoryItemUiModel
@@ -32,9 +35,10 @@ import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 private val noPriceProduct = CatalogProductUiModel(
     id = "preview-quote-required",
-    name = "현장 맞춤형 자재",
-    subtitle = "규격 확인 후 견적 제공",
+    name = "제품명",
+    subtitle = "브랜드명",
     price = CatalogPriceUiModel.QuoteRequired,
+    badgeLabel = "견적 상품",
 )
 
 private val profileGatePreview = AccountProfileUiModel(
@@ -68,7 +72,32 @@ private fun AccountProfilePasswordVerificationPreview() {
 private fun ProductDetailNoPricePreview() {
     EumShoppingMallTheme {
         CatalogProductDetailScreen(
-            CatalogProductDetailUiModel(product = noPriceProduct),
+            CatalogProductDetailUiModel(
+                product = noPriceProduct,
+                galleryImageResIds = List(5) { null },
+                shippingRows = listOf(
+                    CatalogKeyValueUiModel("배송", "일반 배송 (2~3일) · 무료"),
+                    CatalogKeyValueUiModel("인증", "KC 인증 0000-0000"),
+                    CatalogKeyValueUiModel("제조사", "제조사명"),
+                ),
+                specifications = listOf(
+                    CatalogKeyValueUiModel("모델명", "모델명"),
+                    CatalogKeyValueUiModel("소재", "소재 정보"),
+                    CatalogKeyValueUiModel("사이즈", "S / M / L / XL"),
+                    CatalogKeyValueUiModel("안전인증", "KC 인증 0000-0000"),
+                    CatalogKeyValueUiModel("원산지", "원산지"),
+                    CatalogKeyValueUiModel("제조사", "제조사명"),
+                ),
+                returnRows = listOf(
+                    CatalogKeyValueUiModel("교환·반품", "수령 후 0일 이내 신청"),
+                    CatalogKeyValueUiModel("반품 배송비", "편도 ₩0"),
+                ),
+                relatedProducts = listOf(
+                    CatalogProductUiModel(id = "quote-related-1", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000")),
+                    CatalogProductUiModel(id = "quote-related-2", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000")),
+                    CatalogProductUiModel(id = "quote-related-3", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000")),
+                ),
+            ),
             onEvent = {},
         )
     }
@@ -86,12 +115,16 @@ private fun ProductOptionsNoPricePreview() {
                 optionGroups = listOf(
                     CatalogOptionGroupUiModel(
                         id = "size",
-                        label = "규격 선택",
+                        label = "사이즈",
                         options = listOf(
-                            CatalogOptionUiModel("standard", "기본 규격", 1, null),
-                            CatalogOptionUiModel("custom", "현장 맞춤 규격", 1, null),
+                            CatalogOptionUiModel("size-l", "사이즈 L", 1, null),
+                            CatalogOptionUiModel("size-xl", "사이즈 XL", 1, null),
                         ),
                     ),
+                ),
+                selectedOptions = listOf(
+                    CatalogSelectedOptionUiModel("size", CatalogOptionUiModel("size-l", "사이즈 L", 1, null)),
+                    CatalogSelectedOptionUiModel("size", CatalogOptionUiModel("size-xl", "사이즈 XL", 1, null)),
                 ),
             ),
             onEvent = {},
@@ -107,9 +140,11 @@ private fun AccountWithdrawalReasonPreview() {
         AccountWithdrawalReasonScreen(
             AccountWithdrawalReasonUiModel(
                 selectedReasonIndex = 5,
-                otherReason = "서비스 이용 종료",
+                otherReason = "입력한 내용",
                 couponCount = 2,
                 points = "1,000원",
+                password = "12345678".toCharArray(),
+                isSubmitEnabled = true,
             ),
             onEvent = {},
         )
@@ -125,14 +160,22 @@ private fun CartNoOrderableItemsPreview() {
             CartUiModel(
                 items = listOf(
                     CartItemUiModel(
-                        id = "preview-unavailable",
-                        name = "현재 주문할 수 없는 상품",
-                        optionLabel = "옵션: 기본",
+                        id = "preview-quote-1",
+                        name = "코팅 장갑 10켤레",
+                        optionLabel = "옵션: 사이즈 L",
                         quantity = 1,
-                        unitPriceLabel = "₩10,000",
-                        totalPriceLabel = "₩10,000",
-                        isSelected = false,
-                        isSoldOut = true,
+                        unitPriceLabel = "",
+                        totalPriceLabel = "",
+                        type = CartItemType.QuoteRequired,
+                    ),
+                    CartItemUiModel(
+                        id = "preview-quote-2",
+                        name = "방진 마스크 필터 세트",
+                        optionLabel = "옵션: 사이즈 L",
+                        quantity = 1,
+                        unitPriceLabel = "",
+                        totalPriceLabel = "",
+                        type = CartItemType.QuoteRequired,
                     ),
                 ),
                 productAmountLabel = "₩0",
@@ -140,6 +183,7 @@ private fun CartNoOrderableItemsPreview() {
                 expectedPaymentLabel = "₩0",
             ),
             onEvent = {},
+            isLoggedIn = false,
         )
     }
 }
@@ -154,15 +198,16 @@ private fun AccountAddressAddPreview() {
                 address = AccountAddressUiModel(
                     id = "preview-new-address",
                     label = "",
-                    recipient = "",
-                    phoneNumber = "",
+                    recipient = "홍길동",
+                    phoneNumber = "010-0000",
                     postalCode = "",
-                    address = "",
+                    address = "주소",
                     addressDetail = "",
                     deliveryRequest = "",
-                    isDefault = true,
+                    isDefault = false,
                 ),
                 isEditMode = false,
+                isPhoneInvalid = true,
             ),
             onEvent = {},
         )
@@ -217,51 +262,61 @@ private fun AccountSettingsLogoutDialogPreview() {
     }
 }
 
-private val requestHistoryByType = listOf(
+// Figma 필터 프레임(927:45466, 927:45597, 927:45728)의 목록. 필터마다 Figma에 보이는 카드만 둔다.
+private val requestHistoryCancelItems = listOf(
     OrderRequestHistoryItemUiModel(
-        id = "preview-cancel-request",
-        requestDateLabel = "2026.11.08",
+        id = "preview-cancel-rejected",
+        requestDateLabel = "0000.00.00",
         requestType = OrderRequestType.Cancel,
-        orderNumber = "ORDER-0001",
-        productName = "안전모 제품명",
-        priceAndQuantityLabel = "₩18,000 · 1개",
-        status = OrderRequestStatus.Processing,
+        orderNumber = "0000000000",
+        productName = "제품명",
+        priceAndQuantityLabel = "₩00,000 · 1개",
+        status = OrderRequestStatus.Rejected,
+        hasRejectionReason = true,
     ),
+)
+
+private val requestHistoryReturnItems = listOf(
     OrderRequestHistoryItemUiModel(
-        id = "preview-return-request",
-        requestDateLabel = "2026.11.07",
+        id = "preview-return-requested",
+        requestDateLabel = "0000.00.00",
         requestType = OrderRequestType.Return,
-        orderNumber = "ORDER-0002",
-        productName = "작업용 보호 장갑",
-        priceAndQuantityLabel = "₩24,000 · 2개",
+        orderNumber = "0000000000",
+        productName = "제품명",
+        priceAndQuantityLabel = "₩00,000 · 1개",
         status = OrderRequestStatus.Requested,
+        expectedAmountLabel = "₩00,000",
+        canWithdraw = true,
     ),
     OrderRequestHistoryItemUiModel(
-        id = "preview-exchange-request",
-        requestDateLabel = "2026.11.06",
-        requestType = OrderRequestType.Exchange,
-        orderNumber = "ORDER-0003",
-        productName = "경량 안전화",
-        priceAndQuantityLabel = "₩54,000 · 1개",
+        id = "preview-return-collecting",
+        requestDateLabel = "0000.00.00",
+        requestType = OrderRequestType.Return,
+        orderNumber = "0000000000",
+        productName = "제품명",
+        priceAndQuantityLabel = "₩00,000 · 1개",
         status = OrderRequestStatus.Collecting,
+        expectedAmountLabel = "₩00,000",
+    ),
+)
+
+private val requestHistoryExchangeItems = listOf(
+    OrderRequestHistoryItemUiModel(
+        id = "preview-exchange-completed",
+        requestDateLabel = "0000.00.00",
+        requestType = OrderRequestType.Exchange,
+        orderNumber = "0000000000",
+        productName = "제품명",
+        priceAndQuantityLabel = "₩00,000 · 1개",
+        status = OrderRequestStatus.Completed,
     ),
 )
 
 @Composable
-private fun RequestHistoryFilteredPreview(filter: OrderRequestHistoryFilter) {
+private fun RequestHistoryFilteredPreview(filter: OrderRequestHistoryFilter, items: List<OrderRequestHistoryItemUiModel>) {
     EumShoppingMallTheme {
         OrderRequestHistoryScreen(
-            uiModel = OrderRequestHistoryUiModel(
-                filter = filter,
-                items = requestHistoryByType.filter { item ->
-                    when (filter) {
-                        OrderRequestHistoryFilter.All -> true
-                        OrderRequestHistoryFilter.Cancel -> item.requestType == OrderRequestType.Cancel
-                        OrderRequestHistoryFilter.Return -> item.requestType == OrderRequestType.Return
-                        OrderRequestHistoryFilter.Exchange -> item.requestType == OrderRequestType.Exchange
-                    }
-                },
-            ),
+            uiModel = OrderRequestHistoryUiModel(filter = filter, items = items),
             onEvent = {},
         )
     }
@@ -271,19 +326,19 @@ private fun RequestHistoryFilteredPreview(filter: OrderRequestHistoryFilter) {
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-19l 취소 필터")
 @Composable
 private fun RequestHistoryCancelFilterPreview() {
-    RequestHistoryFilteredPreview(OrderRequestHistoryFilter.Cancel)
+    RequestHistoryFilteredPreview(OrderRequestHistoryFilter.Cancel, requestHistoryCancelItems)
 }
 
 @ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-19l 반품 필터")
 @Composable
 private fun RequestHistoryReturnFilterPreview() {
-    RequestHistoryFilteredPreview(OrderRequestHistoryFilter.Return)
+    RequestHistoryFilteredPreview(OrderRequestHistoryFilter.Return, requestHistoryReturnItems)
 }
 
 @ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "A-19l 교환 필터")
 @Composable
 private fun RequestHistoryExchangeFilterPreview() {
-    RequestHistoryFilteredPreview(OrderRequestHistoryFilter.Exchange)
+    RequestHistoryFilteredPreview(OrderRequestHistoryFilter.Exchange, requestHistoryExchangeItems)
 }
