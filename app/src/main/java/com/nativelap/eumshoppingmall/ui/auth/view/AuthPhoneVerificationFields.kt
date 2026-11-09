@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,7 +55,7 @@ internal fun AuthPhoneVerificationFields(
     ) {
         mutableStateOf(false)
     }
-    val canToggleVerificationCodeVisibility = state.isCodeRequested && !state.isVerified
+    val canToggleVerificationCodeVisibility = state.isCodeRequested && !state.isVerified && state.verificationCode.isNotEmpty()
 
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
         Text(label, style = MaterialTheme.typography.labelMedium)
@@ -78,6 +79,7 @@ internal fun AuthPhoneVerificationFields(
                     onResend()
                 },
                 modifier = Modifier.heightIn(min = 48.dp),
+                shape = RoundedCornerShape(8.dp),
             ) {
                 Text(stringResource(R.string.auth_phone_resend))
             }
@@ -132,7 +134,12 @@ internal fun AuthPhoneVerificationFields(
                 },
                 shape = MaterialTheme.shapes.medium,
             )
-            OutlinedButton(onClick = onConfirm, enabled = state.isCodeRequested && !state.isVerified, modifier = Modifier.heightIn(min = 48.dp)) {
+            OutlinedButton(
+                onClick = onConfirm,
+                enabled = state.isCodeRequested && !state.isVerified && state.verificationCode.isNotEmpty(),
+                modifier = Modifier.heightIn(min = 48.dp),
+                shape = RoundedCornerShape(8.dp),
+            ) {
                 Text(stringResource(R.string.auth_verify))
             }
         }

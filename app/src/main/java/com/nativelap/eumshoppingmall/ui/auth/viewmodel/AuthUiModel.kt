@@ -55,6 +55,7 @@ data class AccountRecoveryUiModel(
     val email: String = "",
     val maskedEmail: String = "",
     val joinedAt: String = "0000.00.00",
+    val memberType: AuthMemberType? = null,
     val phone: AuthPhoneVerificationUiModel = AuthPhoneVerificationUiModel(),
     val isSubmitEnabled: Boolean = false,
 )

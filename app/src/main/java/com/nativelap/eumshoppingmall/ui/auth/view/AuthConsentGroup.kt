@@ -19,6 +19,7 @@ import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthSignupUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.eumCheckboxColors
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -67,7 +68,7 @@ private fun AuthConsentRow(
         Modifier.fillMaxWidth().clickable { onChecked(!checked) }.heightIn(min = 48.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Checkbox(checked = checked, onCheckedChange = onChecked)
+        Checkbox(checked = checked, colors = eumCheckboxColors(), onCheckedChange = onChecked)
         Text(label, Modifier.weight(1f), style = if (emphasized) MaterialTheme.typography.titleSmall else MaterialTheme.typography.bodySmall)
         if (onDetails != null) {
             Text(

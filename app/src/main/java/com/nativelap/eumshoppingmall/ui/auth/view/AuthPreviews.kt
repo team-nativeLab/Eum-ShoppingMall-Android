@@ -27,7 +27,7 @@ private val previewVerifiedPhone = AuthPhoneVerificationUiModel(
 @Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "로그인 기본")
 @Composable
 private fun AuthLoginPreview() {
-    EumShoppingMallTheme { AuthLoginScreen(AuthLoginUiModel(email = "example@email.com"), {}) }
+    EumShoppingMallTheme { AuthLoginScreen(AuthLoginUiModel(), {}) }
 }
 
 @ResponsiveUiPreview
@@ -35,7 +35,7 @@ private fun AuthLoginPreview() {
 @Composable
 private fun AuthLoginErrorPreview() {
     EumShoppingMallTheme {
-        AuthLoginScreen(AuthLoginUiModel(email = "example@email.com", password = "invalid".toCharArray(), isCredentialsInvalid = true, failedAttemptCount = 1), {})
+        AuthLoginScreen(AuthLoginUiModel(email = "example@email.com", password = "12345678".toCharArray(), isCredentialsInvalid = true, failedAttemptCount = 0, isSubmitEnabled = true), {})
     }
 }
 
@@ -45,7 +45,7 @@ private fun AuthLoginErrorPreview() {
 private fun AuthSignupPersonalPreview() {
     EumShoppingMallTheme {
         AuthSignupScreen(
-            AuthSignupUiModel(email = "example@email.com", name = "홍길동", phone = previewVerifiedPhone),
+            AuthSignupUiModel(phone = AuthPhoneVerificationUiModel(phoneNumber = "010-0000-0000", isCodeRequested = true)),
             {},
         )
     }
@@ -59,15 +59,8 @@ private fun AuthSignupBusinessPreview() {
         AuthSignupScreen(
             AuthSignupUiModel(
                 memberType = AuthMemberType.BUSINESS,
-                email = "example@email.com",
-                isEmailAvailable = true,
-                name = "홍길동",
-                phone = previewVerifiedPhone,
+                phone = AuthPhoneVerificationUiModel(phoneNumber = "010-0000-0000", isCodeRequested = true),
                 businessRegistrationNumber = "000-00-00000",
-                companyName = "회사명",
-                representativeName = "홍길동",
-                industry = "건설업 / 안전용품",
-                taxEmail = "example@email.com",
             ),
             {},
         )
@@ -79,7 +72,7 @@ private fun AuthSignupBusinessPreview() {
 @Composable
 private fun AccountRecoveryEmailPreview() {
     EumShoppingMallTheme {
-        AccountRecoveryScreen(AccountRecoveryUiModel(name = "홍길동", phone = previewVerifiedPhone), {})
+        AccountRecoveryScreen(AccountRecoveryUiModel(name = "홍길동", phone = AuthPhoneVerificationUiModel(phoneNumber = "010-0000-0000", isCodeRequested = true), isSubmitEnabled = true), {})
     }
 }
 
@@ -89,7 +82,7 @@ private fun AccountRecoveryEmailPreview() {
 private fun AccountRecoveryFoundPreview() {
     EumShoppingMallTheme {
         AccountRecoveryScreen(
-            AccountRecoveryUiModel(isResultVisible = true, name = "홍길동", maskedEmail = "ex***@email.com", joinedAt = "0000.00.00"),
+            AccountRecoveryUiModel(isResultVisible = true, name = "홍길동", maskedEmail = "ex***@email.com", joinedAt = "0000.00.00", memberType = AuthMemberType.PERSONAL),
             {},
         )
     }
@@ -110,7 +103,7 @@ private fun AccountRecoveryNotFoundPreview() {
 private fun AccountRecoveryPasswordPreview() {
     EumShoppingMallTheme {
         AccountRecoveryScreen(
-            AccountRecoveryUiModel(mode = AccountRecoveryMode.FIND_PASSWORD, email = "example@email.com", phone = previewVerifiedPhone),
+            AccountRecoveryUiModel(mode = AccountRecoveryMode.FIND_PASSWORD, email = "example@email.com", phone = previewVerifiedPhone, isSubmitEnabled = true),
             {},
         )
     }
@@ -134,7 +127,7 @@ private fun AuthPasswordResetErrorPreview() {
 private fun AuthPasswordResetReadyPreview() {
     EumShoppingMallTheme {
         AuthPasswordResetScreen(
-            AuthPasswordResetUiModel(isSubmitEnabled = true),
+            AuthPasswordResetUiModel(password = "12345678".toCharArray(), passwordConfirmation = "12345679".toCharArray(), isPasswordInvalid = true),
             {},
         )
     }
@@ -154,11 +147,12 @@ private fun AuthPasswordChangeErrorPreview() {
     EumShoppingMallTheme {
         AuthPasswordChangeScreen(
             AuthPasswordChangeUiModel(
-                currentPassword = "current-pass".toCharArray(),
-                newPassword = "new-pass-123".toCharArray(),
-                confirmation = "new-pass-123".toCharArray(),
+                currentPassword = "12345678".toCharArray(),
+                newPassword = "12345678".toCharArray(),
+                confirmation = "12345678".toCharArray(),
                 isCurrentPasswordInvalid = true,
                 isConfirmationValid = true,
+                isSubmitEnabled = true,
             ),
             {},
         )
@@ -170,7 +164,7 @@ private fun AuthPasswordChangeErrorPreview() {
 @Composable
 private fun AuthPhoneNumberChangePreview() {
     EumShoppingMallTheme {
-        AuthPhoneNumberChangeScreen("010-0000-0000", AuthPhoneVerificationUiModel(phoneNumber = "010-0000-0000", isCodeRequested = true), false, {})
+        AuthPhoneNumberChangeScreen("", AuthPhoneVerificationUiModel(phoneNumber = "010-0000-0000", isCodeRequested = true), false, {})
     }
 }
 
@@ -179,7 +173,7 @@ private fun AuthPhoneNumberChangePreview() {
 @Composable
 private fun AccountWithdrawalGuidePreview() {
     EumShoppingMallTheme {
-        AccountWithdrawalGuideScreen(AccountWithdrawalGuideUiModel(memberName = "홍길동", couponCount = 0, points = "0원", isAgreementChecked = true), {})
+        AccountWithdrawalGuideScreen(AccountWithdrawalGuideUiModel(memberName = "홍길동", couponCount = 0, points = "0원", isAgreementChecked = false), {})
     }
 }
 
@@ -197,7 +191,7 @@ private fun AccountWithdrawalUnavailablePreview() {
 @Composable
 private fun AccountWithdrawalConfirmationPreview() {
     EumShoppingMallTheme {
-        AccountWithdrawalReasonScreen(AccountWithdrawalReasonUiModel(selectedReasonIndex = 5, otherReason = "서비스 개선을 위해", password = "safe-pass".toCharArray(), isConfirmationDialogVisible = true), {})
+        AccountWithdrawalReasonScreen(AccountWithdrawalReasonUiModel(selectedReasonIndex = 5, otherReason = "입력한 내용", password = "12345678".toCharArray(), isConfirmationDialogVisible = true, isSubmitEnabled = true), {})
     }
 }
 
@@ -206,7 +200,7 @@ private fun AccountWithdrawalConfirmationPreview() {
 @Composable
 private fun AccountWithdrawalPasswordErrorPreview() {
     EumShoppingMallTheme {
-        AccountWithdrawalReasonScreen(AccountWithdrawalReasonUiModel(selectedReasonIndex = 5, password = "safe-pass".toCharArray(), isPasswordInvalid = true), {})
+        AccountWithdrawalReasonScreen(AccountWithdrawalReasonUiModel(selectedReasonIndex = 5, otherReason = "입력한 내용", password = "12345678".toCharArray(), isPasswordInvalid = true, isSubmitEnabled = true), {})
     }
 }
 

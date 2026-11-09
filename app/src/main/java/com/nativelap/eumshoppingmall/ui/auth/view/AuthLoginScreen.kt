@@ -31,6 +31,7 @@ import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthLoginUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.eumCheckboxColors
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -65,7 +66,7 @@ fun AuthLoginScreen(uiModel: AuthLoginUiModel, onEvent: (AuthScreenEvent) -> Uni
                 Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(AuthScreenEvent.RememberLoginChanged(!uiModel.isRemembered)) },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Checkbox(checked = uiModel.isRemembered, onCheckedChange = { onEvent(AuthScreenEvent.RememberLoginChanged(it)) })
+                Checkbox(checked = uiModel.isRemembered, colors = eumCheckboxColors(), onCheckedChange = { onEvent(AuthScreenEvent.RememberLoginChanged(it)) })
                 Text(stringResource(R.string.account_keep_signed_in), style = MaterialTheme.typography.bodySmall)
             }
             AuthPrimaryAction(stringResource(R.string.account_login), uiModel.isSubmitEnabled) { onEvent(AuthScreenEvent.LoginSubmitted) }
