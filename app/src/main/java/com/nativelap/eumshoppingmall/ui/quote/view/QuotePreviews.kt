@@ -1,7 +1,9 @@
 package com.nativelap.eumshoppingmall.ui.quote.view
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
@@ -14,7 +16,6 @@ import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryDetailUiMode
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryListItemUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryStatus
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestField
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
@@ -40,31 +41,32 @@ private val previewQuoteAttachment = QuoteAttachmentUiModel(
     sizeLabel = "1.2MB",
 )
 
+// 입력 화면 기본 상태: 문의 유형은 모델 기본값(맞춤 제작), 선택 입력은 비움, 개인정보 동의 전이라 접수 버튼은 비활성.
 private val previewQuoteRequest = QuoteRequestUiModel(
     products = previewQuoteProducts,
-    requestType = QuoteRequestType.BulkPurchase,
     companyName = "예시산업 주식회사",
     contactName = "홍길동 (예시)",
     phoneNumber = "010-0000-0000",
     email = "preview@example.com",
-    preferredDeliveryDate = "2026.11.15",
-    deliveryAddress = "서울시 예시구 테스트로 100 (프리뷰 주소)",
-    requestDetails = "현장 작업자 30명에게 지급할 예정입니다. 납기와 대량 구매 단가를 안내해 주세요.",
-    attachments = listOf(previewQuoteAttachment),
-    isPrivacyConsentChecked = true,
-    isSubmitEnabled = true,
+    preferredDeliveryDate = "",
+    deliveryAddress = "",
+    requestDetails = "",
+    attachments = emptyList(),
+    isPrivacyConsentChecked = false,
+    isSubmitEnabled = false,
 )
 
 private val previewQuoteHistory = QuoteHistoryUiModel(
     selectedFilter = QuoteHistoryFilter.All,
     inquiries = listOf(
         QuoteInquiryListItemUiModel(
-            id = "preview-inquiry-received",
-            dateLabel = "2026.10.20",
-            inquiryNumber = "Q-20261020-001",
-            title = "현장 안전용품 대량 구매 문의",
-            productsSummary = "산업용 안전모 외 2개 상품",
-            status = QuoteInquiryStatus.Received,
+            id = "preview-inquiry-estimate",
+            dateLabel = "2026.10.15",
+            inquiryNumber = "Q-20261015-002",
+            title = "안전모 100개 견적 요청",
+            productsSummary = "산업용 안전모 기본형 · 100개",
+            status = QuoteInquiryStatus.EstimateSent,
+            estimateAvailable = true,
         ),
         QuoteInquiryListItemUiModel(
             id = "preview-inquiry-consulting",
@@ -75,13 +77,12 @@ private val previewQuoteHistory = QuoteHistoryUiModel(
             status = QuoteInquiryStatus.Consulting,
         ),
         QuoteInquiryListItemUiModel(
-            id = "preview-inquiry-estimate",
-            dateLabel = "2026.10.15",
-            inquiryNumber = "Q-20261015-002",
-            title = "안전모 100개 견적 요청",
-            productsSummary = "산업용 안전모 기본형 · 100개",
-            status = QuoteInquiryStatus.EstimateSent,
-            estimateAvailable = true,
+            id = "preview-inquiry-received",
+            dateLabel = "2026.10.20",
+            inquiryNumber = "Q-20261020-001",
+            title = "현장 안전용품 대량 구매 문의",
+            productsSummary = "산업용 안전모 외 2개 상품",
+            status = QuoteInquiryStatus.Received,
         ),
         QuoteInquiryListItemUiModel(
             id = "preview-inquiry-complete",
@@ -108,7 +109,7 @@ private val previewQuoteHistory = QuoteHistoryUiModel(
 private fun QuoteRequestPreview() {
     EumShoppingMallTheme {
         QuoteRequestScreen(
-            uiModel = previewQuoteRequest,
+            uiModel = previewQuoteRequest.copy(products = previewQuoteProducts.take(1)),
             onEvent = {},
         )
     }
@@ -152,7 +153,7 @@ private fun QuoteCompletePreview() {
         QuoteCompleteScreen(
             uiModel = QuoteCompleteUiModel(
                 inquiryNumber = "Q-20261021-001",
-                responseTimeLabel = "영업일 기준 1~2일 이내",
+                responseTimeLabel = stringResource(R.string.quote_response_time),
                 requestTypeLabel = "대량 구매",
                 companyName = "예시산업 주식회사",
                 contactName = "홍길동 (예시)",
@@ -248,6 +249,7 @@ private fun QuoteInquiryDetailPreview() {
                 preferredDeliveryDate = "2026.11.15",
                 deliveryAddress = "서울시 예시구 테스트로 100 (프리뷰 주소)",
                 requestDetails = "현장 작업자 지급용 제품입니다. 납기 일정을 함께 확인해 주세요.",
+                requestAttachments = listOf(previewQuoteAttachment),
             ),
             onEvent = {},
         )

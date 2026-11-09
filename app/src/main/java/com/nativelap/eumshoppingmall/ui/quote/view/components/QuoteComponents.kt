@@ -2,6 +2,7 @@ package com.nativelap.eumshoppingmall.ui.quote.view.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,12 +34,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
@@ -50,6 +51,7 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 fun QuotePageScaffold(
     title: String,
     onBack: (() -> Unit)? = null,
+    isCloseAction: Boolean = false,
     bottomBar: @Composable () -> Unit = {},
     content: @Composable (Modifier) -> Unit,
 ) {
@@ -59,7 +61,7 @@ fun QuotePageScaffold(
                 Box(
                     Modifier.widthIn(max = 600.dp).fillMaxWidth().align(Alignment.Center),
                 ) {
-                    QuoteTopBar(title, onBack)
+                    QuoteTopBar(title, onBack, isCloseAction)
                 }
             }
         },
@@ -82,19 +84,24 @@ fun QuotePageScaffold(
 }
 
 @Composable
-fun QuoteTopBar(title: String, onBack: (() -> Unit)?) {
+fun QuoteTopBar(title: String, onBack: (() -> Unit)?, isCloseAction: Boolean = false) {
     Row(
         Modifier.fillMaxWidth().statusBarsPadding().heightIn(min = 56.dp).padding(horizontal = EumSpacing.x8),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (onBack != null) {
             IconButton(onClick = onBack, modifier = Modifier.size(48.dp)) {
-                Icon(painterResource(R.drawable.ic_arrow_left), stringResource(R.string.common_back), tint = MaterialTheme.eumColors.textPrimary)
+                if (isCloseAction) {
+                    Icon(painterResource(R.drawable.ic_x), stringResource(R.string.common_close), tint = MaterialTheme.eumColors.textPrimary)
+                } else {
+                    Icon(painterResource(R.drawable.ic_arrow_left), stringResource(R.string.common_back), tint = MaterialTheme.eumColors.textPrimary)
+                }
             }
         } else {
             Spacer(Modifier.size(48.dp))
         }
         Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
+
         Spacer(Modifier.size(48.dp))
     }
 }
@@ -161,16 +168,27 @@ fun QuoteSummaryRow(label: String, value: String, modifier: Modifier = Modifier)
     }
 }
 
+private class QuoteChipStyle(val labelRes: Int, val foreground: Color, val background: Color, val hasBorder: Boolean)
+
 @Composable
 fun QuoteStatusChip(status: QuoteInquiryStatus) {
-    val (label, foreground, background) = when (status) {
-        QuoteInquiryStatus.Received -> Triple(R.string.quote_status_received, MaterialTheme.eumColors.warning, MaterialTheme.eumColors.warningTint)
-        QuoteInquiryStatus.Consulting -> Triple(R.string.quote_status_consulting, MaterialTheme.eumColors.textSecondary, MaterialTheme.eumColors.surfaceSecondary)
-        QuoteInquiryStatus.EstimateSent -> Triple(R.string.quote_status_sent, MaterialTheme.eumColors.warning, MaterialTheme.eumColors.warningTint)
-        QuoteInquiryStatus.Complete -> Triple(R.string.quote_status_complete, MaterialTheme.eumColors.success, MaterialTheme.eumColors.successTint)
-        QuoteInquiryStatus.Cancelled -> Triple(R.string.quote_status_cancelled, MaterialTheme.eumColors.textSecondary, MaterialTheme.eumColors.surfaceSecondary)
+    val style = when (status) {
+        QuoteInquiryStatus.Received -> QuoteChipStyle(R.string.quote_status_received, MaterialTheme.eumColors.warning, MaterialTheme.eumColors.warningTint, hasBorder = false)
+        QuoteInquiryStatus.Consulting -> QuoteChipStyle(R.string.quote_status_consulting, MaterialTheme.eumColors.textSecondary, Color.Transparent, hasBorder = true)
+        QuoteInquiryStatus.EstimateSent -> QuoteChipStyle(R.string.quote_status_sent, MaterialTheme.eumColors.warning, MaterialTheme.eumColors.warningTint, hasBorder = false)
+        QuoteInquiryStatus.Complete -> QuoteChipStyle(R.string.quote_status_complete, MaterialTheme.eumColors.success, MaterialTheme.eumColors.successTint, hasBorder = false)
+        QuoteInquiryStatus.Cancelled -> QuoteChipStyle(R.string.quote_status_cancelled, MaterialTheme.eumColors.textTertiary, Color.Transparent, hasBorder = false)
     }
-    Text(stringResource(label), Modifier.background(background, RoundedCornerShape(4.dp)).padding(horizontal = EumSpacing.x6, vertical = EumSpacing.x4), style = MaterialTheme.typography.labelSmall, color = foreground)
+    val chipShape = RoundedCornerShape(4.dp)
+    Text(
+        stringResource(style.labelRes),
+        Modifier
+            .background(style.background, chipShape)
+            .then(if (style.hasBorder) Modifier.border(1.dp, MaterialTheme.eumColors.lineControl, chipShape) else Modifier)
+            .padding(horizontal = EumSpacing.x6, vertical = EumSpacing.x4),
+        style = MaterialTheme.typography.labelSmall,
+        color = style.foreground,
+    )
 }
 
 @Composable
@@ -206,15 +224,6 @@ fun QuoteBottomActions(content: @Composable () -> Unit) {
         Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface).navigationBarsPadding().imePadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
         verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
     ) { content() }
-}
-
-@Composable
-fun QuoteAttachmentLabel(fileName: String, sizeLabel: String) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-        Icon(painterResource(R.drawable.ic_paperclip), null, modifier = Modifier.size(18.dp), tint = MaterialTheme.eumColors.textSecondary)
-        Text(fileName, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Text(sizeLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
-    }
 }
 
 @Composable
