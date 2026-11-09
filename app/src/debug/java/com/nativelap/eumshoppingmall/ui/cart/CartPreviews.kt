@@ -16,14 +16,44 @@ private val previewCartItems = listOf(
     CartItemUiModel("quote", "코팅 장갑 10켤레", "옵션: 옵션명", 1, "", "", type = CartItemType.QuoteRequired),
 )
 
+// A-07 Figma 샘플: 주문 가능 3개(선택 2, 품절 1), 견적 상품 없음.
 @ResponsiveUiPreview
-@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "장바구니 선택·품절·견적 혼합")
+@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "장바구니 선택·품절")
 @Composable
 private fun CartMixedPreview() {
     EumShoppingMallTheme {
         CartScreen(
-            uiModel = CartUiModel(previewCartItems, "₩72,000", "₩0", "₩72,000"),
+            uiModel = CartUiModel(previewCartItems.take(3), "₩72,000", "₩0", "₩72,000"),
             onEvent = {},
+            isLoggedIn = false,
+        )
+    }
+}
+
+// A-07h Figma 샘플: 주문 가능 2개(선택) + 주문할 수 없는 견적 상품 1개, 품절 상품 없음.
+@ResponsiveUiPreview
+@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "장바구니 선택·견적 혼합")
+@Composable
+private fun CartQuoteMixedPreview() {
+    EumShoppingMallTheme {
+        CartScreen(
+            uiModel = CartUiModel(previewCartItems.filterNot { it.isSoldOut }, "₩72,000", "₩0", "₩72,000"),
+            onEvent = {},
+            isLoggedIn = false,
+        )
+    }
+}
+
+// 로그인 상태에서는 로그인 안내 배너가 보이지 않는다. 비로그인 배너는 위 샘플들(isLoggedIn = false)에서 확인한다.
+@ResponsiveUiPreview
+@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "장바구니 로그인 상태")
+@Composable
+private fun CartLoggedInPreview() {
+    EumShoppingMallTheme {
+        CartScreen(
+            uiModel = CartUiModel(previewCartItems.take(3), "₩72,000", "₩0", "₩72,000"),
+            onEvent = {},
+            isLoggedIn = true,
         )
     }
 }
@@ -33,7 +63,7 @@ private fun CartMixedPreview() {
 @Composable
 private fun CartEmptyPreview() {
     EumShoppingMallTheme {
-        CartScreen(uiModel = CartUiModel(), onEvent = {})
+        CartScreen(uiModel = CartUiModel(), onEvent = {}, isLoggedIn = false)
     }
 }
 
@@ -45,6 +75,7 @@ private fun CartNarrowPreview() {
         CartScreen(
             uiModel = CartUiModel(previewCartItems.take(2), "₩72,000", "₩0", "₩72,000"),
             onEvent = {},
+            isLoggedIn = false,
         )
     }
 }

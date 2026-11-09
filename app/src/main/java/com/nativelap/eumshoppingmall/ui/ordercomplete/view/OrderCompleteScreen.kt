@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.ordercomplete.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -55,8 +56,9 @@ fun OrderCompleteScreen(
                 CatalogTopBar(
                     title = stringResource(R.string.checkout_order_complete_title),
                     onBackClick = { onEvent(OrderCompleteScreenEvent.CloseClicked) },
+                    isCloseAction = true,
                 )
-                CheckoutStepIndicator(currentStep = 3, modifier = Modifier.padding(horizontal = EumSpacing.x40, vertical = EumSpacing.x12))
+                CheckoutStepIndicator(currentStep = 4, modifier = Modifier.padding(horizontal = EumSpacing.x40, vertical = EumSpacing.x12))
             }
         },
         bottomBar = {
@@ -76,7 +78,7 @@ fun OrderCompleteScreen(
                             contentColor = MaterialTheme.eumColors.inverse,
                         ),
                     ) {
-                        Text(stringResource(R.string.orders_detail))
+                        Text(stringResource(R.string.checkout_order_detail_button))
                     }
                 }
             }
@@ -93,7 +95,7 @@ fun OrderCompleteScreen(
                 Surface(
                     modifier = Modifier.padding(top = EumSpacing.x24).size(64.dp),
                     shape = CircleShape,
-                    color = if (uiModel.isVirtualAccount) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.success,
+                    color = MaterialTheme.eumColors.textPrimary,
                 ) {
                     Icon(
                         painterResource(R.drawable.ic_check),
@@ -134,8 +136,8 @@ fun OrderCompleteScreen(
                 }
                 OrderInformationCard(
                     rows = listOf(
-                        stringResource(R.string.checkout_payment_amount) to uiModel.paymentAmountLabel,
-                        stringResource(R.string.checkout_payment_method_label) to uiModel.paymentMethodLabel,
+                        stringResource(R.string.checkout_payment_total_label) to uiModel.paymentAmountLabel,
+                        stringResource(R.string.checkout_payment_method) to uiModel.paymentMethodLabel,
                         stringResource(R.string.checkout_delivery_address) to uiModel.addressLabel,
                     ),
                     onCopyAccount = {},
@@ -153,7 +155,10 @@ private fun OrderInformationCard(
     isAccountCard: Boolean,
 ) {
     Column(
-        Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surfaceSecondary, MaterialTheme.shapes.medium).padding(EumSpacing.x20),
+        Modifier.fillMaxWidth()
+            .background(MaterialTheme.eumColors.surface, MaterialTheme.shapes.medium)
+            .border(1.dp, MaterialTheme.eumColors.line, MaterialTheme.shapes.medium)
+            .padding(EumSpacing.x20),
         verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
     ) {
         rows.forEachIndexed { index, (label, value) ->
@@ -169,7 +174,10 @@ private fun OrderInformationCard(
                     textAlign = TextAlign.End,
                 )
                 if (isAccountCard && label == stringResource(R.string.checkout_account_number)) {
-                    TextButton(onClick = onCopyAccount) { Text(stringResource(R.string.common_copy)) }
+                    TextButton(
+                        onClick = onCopyAccount,
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
+                    ) { Text(stringResource(R.string.common_copy)) }
                 }
             }
         }

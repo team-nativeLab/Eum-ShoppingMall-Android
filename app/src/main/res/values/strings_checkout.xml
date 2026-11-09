@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="checkout_order_detail_button">주문 상세 보기</string>
+    <string name="checkout_business_info_label">사업자 정보</string>
+    <string name="checkout_receipt_change">변경</string>
+    <string name="checkout_business_saved_notice">회원 정보에 등록된 사업자 정보로 발행합니다.</string>
+    <string name="checkout_product_summary_more">%1$s 외 %2$d건</string>
+</resources>

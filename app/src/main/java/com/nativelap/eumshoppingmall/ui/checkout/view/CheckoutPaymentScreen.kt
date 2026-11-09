@@ -3,6 +3,7 @@ package com.nativelap.eumshoppingmall.ui.checkout.view
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,39 +12,39 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutPaymentMethodSelector
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutPriceSummaryCard
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutReceiptDetailsCard
+import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutReceiptTypeSelector
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutSectionHeader
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutStepIndicator
-import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutPaymentMethod
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptDetailsType
-import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptMode
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutScreenEvent
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.eumCheckboxColors
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -52,11 +53,6 @@ fun CheckoutPaymentScreen(
     onEvent: (CheckoutScreenEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val receiptTypes = listOf(
-        CheckoutReceiptType.CashReceipt to R.string.checkout_cash_receipt,
-        CheckoutReceiptType.TaxInvoice to R.string.checkout_tax_invoice,
-        CheckoutReceiptType.None to R.string.checkout_not_requested,
-    )
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -98,6 +94,7 @@ fun CheckoutPaymentScreen(
                             title = stringResource(R.string.checkout_coupon),
                             value = stringResource(R.string.checkout_available_coupons, uiModel.couponCount),
                             onClick = { onEvent(CheckoutScreenEvent.CouponClicked) },
+                            actionLabel = stringResource(R.string.common_view_details),
                         )
                         InfoActionRow(
                             title = stringResource(R.string.checkout_points),
@@ -117,42 +114,15 @@ fun CheckoutPaymentScreen(
                 }
                 item { CheckoutSectionHeader(R.string.checkout_receipt_document) }
                 item {
-                    Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x4)) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4), verticalAlignment = Alignment.CenterVertically) {
-                            receiptTypes.forEach { (type, labelResId) ->
-                                val isSelected = uiModel.receiptType == type
-                                Row(
-                                    modifier = Modifier.weight(1f)
-                                        .clickable(role = Role.RadioButton) { onEvent(CheckoutScreenEvent.ReceiptTypeSelected(type)) }
-                                        .semantics { selected = isSelected },
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    RadioButton(selected = isSelected, onClick = { onEvent(CheckoutScreenEvent.ReceiptTypeSelected(type)) })
-                                    Text(stringResource(labelResId), style = MaterialTheme.typography.labelSmall)
-                                }
-                            }
-                        }
-                    }
+                    CheckoutReceiptTypeSelector(
+                        selectedType = uiModel.receiptType,
+                        onTypeSelected = { onEvent(CheckoutScreenEvent.ReceiptTypeSelected(it)) },
+                        modifier = Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x4),
+                    )
                 }
-                if (uiModel.receiptType == CheckoutReceiptType.CashReceipt && uiModel.receiptDetails.type == CheckoutReceiptDetailsType.CashReceiptPhone) {
-                    item {
-                        Row(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20)) {
-                            ReceiptModeButton(
-                                label = stringResource(R.string.checkout_cash_receipt_income),
-                                isSelected = uiModel.receiptDetails.receiptMode == CheckoutReceiptMode.IncomeDeduction,
-                                onClick = { onEvent(CheckoutScreenEvent.ReceiptModeSelected(CheckoutReceiptMode.IncomeDeduction)) },
-                                modifier = Modifier.weight(1f),
-                            )
-                            ReceiptModeButton(
-                                label = stringResource(R.string.checkout_cash_receipt_expense),
-                                isSelected = uiModel.receiptDetails.receiptMode == CheckoutReceiptMode.ExpenseProof,
-                                onClick = { onEvent(CheckoutScreenEvent.ReceiptModeSelected(CheckoutReceiptMode.ExpenseProof)) },
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
-                    }
-                }
-                if (uiModel.receiptType != CheckoutReceiptType.None) {
+                // 현금영수증 소득공제·지출증빙 전환은 증빙 상세 카드 안에 둔다(Figma A-09c).
+                // 상세 유형이 없으면 빈 카드를 그리지 않는다.
+                if (uiModel.receiptType != CheckoutReceiptType.None && uiModel.receiptDetails.type != CheckoutReceiptDetailsType.None) {
                     item {
                         CheckoutReceiptDetailsCard(
                             details = uiModel.receiptDetails,
@@ -176,12 +146,18 @@ fun CheckoutPaymentScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Checkbox(
+                            colors = eumCheckboxColors(),
                             checked = uiModel.isOrderAgreementAccepted,
                             onCheckedChange = { onEvent(CheckoutScreenEvent.OrderAgreementChanged(it)) },
                         )
                         Text(stringResource(R.string.checkout_order_agreement), modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
-                        TextButton(onClick = { onEvent(CheckoutScreenEvent.AgreementDetailsClicked) }) {
-                            Text(stringResource(R.string.common_view_details))
+                        IconButton(onClick = { onEvent(CheckoutScreenEvent.AgreementDetailsClicked) }) {
+                            Icon(
+                                painterResource(R.drawable.ic_chevron_right),
+                                contentDescription = stringResource(R.string.common_view_details),
+                                tint = MaterialTheme.eumColors.textSecondary,
+                                modifier = Modifier.size(20.dp),
+                            )
                         }
                     }
                     Text(
@@ -232,31 +208,17 @@ private fun InfoActionRow(
     title: String,
     value: String,
     onClick: () -> Unit,
-    actionLabel: String? = null,
+    actionLabel: String,
 ) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(title, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-        Text(value, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-        if (actionLabel != null) {
-            TextButton(onClick = onClick) { Text(actionLabel) }
-        } else {
-            TextButton(onClick = onClick) { Text(stringResource(R.string.common_view_details)) }
+        Text(value, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textPrimary)
+        OutlinedButton(
+            onClick = onClick,
+            modifier = Modifier.padding(start = EumSpacing.x8),
+            contentPadding = PaddingValues(horizontal = EumSpacing.x12, vertical = EumSpacing.x4),
+        ) {
+            Text(actionLabel, style = MaterialTheme.typography.labelMedium)
         }
-    }
-}
-
-@Composable
-private fun ReceiptModeButton(
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier.clickable(role = Role.RadioButton, onClick = onClick).semantics { selected = isSelected },
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        RadioButton(selected = isSelected, onClick = onClick)
-        Text(label, style = MaterialTheme.typography.labelSmall)
     }
 }

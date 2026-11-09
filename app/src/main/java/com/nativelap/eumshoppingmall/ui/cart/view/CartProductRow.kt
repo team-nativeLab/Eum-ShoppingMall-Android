@@ -2,6 +2,7 @@ package com.nativelap.eumshoppingmall.ui.cart.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -33,6 +34,7 @@ import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemType
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.eumCheckboxColors
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -53,6 +55,7 @@ fun CartProductRow(
         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
     ) {
         Checkbox(
+            colors = eumCheckboxColors(),
             checked = item.isSelected,
             onCheckedChange = onSelectionChanged,
             enabled = isOrderable,
@@ -76,7 +79,10 @@ fun CartProductRow(
                 if (item.type == CartItemType.QuoteRequired) {
                     Text(
                         stringResource(R.string.cart_quote_product_badge),
-                        modifier = Modifier.padding(end = EumSpacing.x4),
+                        modifier = Modifier
+                            .padding(end = EumSpacing.x4)
+                            .border(1.dp, MaterialTheme.eumColors.lineControl, RoundedCornerShape(4.dp))
+                            .padding(horizontal = EumSpacing.x4, vertical = 2.dp),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.eumColors.textSecondary,
                     )
@@ -124,7 +130,7 @@ fun CartProductRow(
             BoxWithConstraints(Modifier.fillMaxWidth()) {
                 val fontScale = LocalDensity.current.fontScale
                 val priceLabel = if (item.type == CartItemType.QuoteRequired) {
-                    stringResource(R.string.catalog_quote_request)
+                    stringResource(R.string.cart_price_inquiry)
                 } else {
                     item.totalPriceLabel
                 }
