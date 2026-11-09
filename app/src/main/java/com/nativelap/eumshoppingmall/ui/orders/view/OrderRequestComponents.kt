@@ -33,12 +33,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderInfoCard
+import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderProductThumbnail
+import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderStatusBadge
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrdersTopBar
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryFilter
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestHistoryFilter
@@ -46,6 +49,7 @@ import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestProductUiMo
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestReason
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestStatus
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestType
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderStatus
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -61,10 +65,16 @@ internal fun RequestScaffold(title: String, onBack: () -> Unit, modifier: Modifi
 
 @Composable
 internal fun HubActionCard(title: String, description: String, onClick: () -> Unit) {
-    OrderInfoCard(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
-        Text(title, style = MaterialTheme.typography.titleSmall)
-        Text(description, Modifier.padding(top = EumSpacing.x4), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-        Text("›", Modifier.align(Alignment.End), style = MaterialTheme.typography.titleLarge)
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().heightIn(min = 92.dp),
+        shape = RoundedCornerShape(EumRadius.x12),
+        color = MaterialTheme.eumColors.backgroundSubtle,
+    ) {
+        Column(Modifier.padding(EumSpacing.x20)) {
+            Text(title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+            Text(description, Modifier.padding(top = EumSpacing.x4), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+        }
     }
 }
 
@@ -97,11 +107,15 @@ internal fun SelectableRequestProduct(product: OrderRequestProductUiModel, onTog
 }
 
 @Composable
-internal fun RequestProductRow(product: OrderRequestProductUiModel) {
-    Column(Modifier.fillMaxWidth().padding(vertical = EumSpacing.x4), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
-        Text(product.name, style = MaterialTheme.typography.bodyMedium)
-        Text(product.optionLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-        Text(product.priceAndQuantityLabel, style = MaterialTheme.typography.labelSmall)
+internal fun RequestProductRow(product: OrderRequestProductUiModel, status: OrderStatus) {
+    Row(Modifier.fillMaxWidth().padding(vertical = EumSpacing.x4), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+        OrderProductThumbnail(imageResId = product.imageResId, contentDescription = product.name, size = 56.dp)
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+            OrderStatusBadge(status)
+            Text(product.name, style = MaterialTheme.typography.bodyMedium)
+            if (product.optionLabel.isNotBlank()) Text(product.optionLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+            Text(product.priceAndQuantityLabel, style = MaterialTheme.typography.labelSmall)
+        }
     }
 }
 

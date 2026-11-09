@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderPaymentBreakdownUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -20,7 +21,10 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 fun OrderPaymentBreakdownCard(payment: OrderPaymentBreakdownUiModel, modifier: Modifier = Modifier) {
     OrderInfoCard(modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-            Text(stringResource(R.string.checkout_payment_information), style = MaterialTheme.typography.labelMedium)
+            Text(
+                stringResource(R.string.checkout_payment_information),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            )
             PaymentRow(stringResource(R.string.cart_product_amount), payment.productAmountLabel)
             PaymentRow(stringResource(R.string.cart_shipping_fee), payment.shippingFeeLabel)
             PaymentRow(stringResource(R.string.checkout_coupon_discount), payment.couponDiscountLabel)
@@ -38,12 +42,12 @@ private fun PaymentRow(label: String, value: String, emphasize: Boolean = false)
         Text(
             label,
             modifier = Modifier.weight(1f).padding(end = EumSpacing.x8),
-            style = if (emphasize) MaterialTheme.typography.titleSmall else MaterialTheme.typography.bodySmall,
+            style = if (emphasize) MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold) else MaterialTheme.typography.bodySmall,
             color = if (emphasize) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textSecondary,
         )
         Text(
             value,
-            style = if (emphasize) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodySmall,
+            style = if (emphasize) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.bodySmall,
             color = MaterialTheme.eumColors.textPrimary,
         )
     }

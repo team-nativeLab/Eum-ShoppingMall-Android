@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -18,7 +21,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
@@ -48,7 +53,11 @@ fun OrderHistoryCard(
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(order.orderDateLabel, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textPrimary)
+                Text(
+                    order.orderDateLabel,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.eumColors.textPrimary,
+                )
                 Text(
                     text = stringResource(R.string.orders_order_number_short, order.orderNumber),
                     modifier = Modifier.weight(1f).padding(start = EumSpacing.x8),
@@ -57,8 +66,13 @@ fun OrderHistoryCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                TextButton(onClick = onDetailsClicked, modifier = Modifier.heightIn(min = 48.dp)) {
+                TextButton(
+                    onClick = onDetailsClicked,
+                    modifier = Modifier.heightIn(min = 48.dp),
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
+                ) {
                     Text(stringResource(R.string.orders_detail), maxLines = 1)
+                    Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, modifier = Modifier.size(16.dp))
                 }
             }
             Row(
@@ -68,21 +82,18 @@ fun OrderHistoryCard(
             ) {
                 OrderProductThumbnail(order.product.imageResId, order.product.name)
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        OrderStatusBadge(order.status)
-                        order.paymentDeadlineLabel?.let { deadline ->
-                            Text(
-                                deadline,
-                                modifier = Modifier.padding(start = EumSpacing.x6),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.eumColors.warning,
-                            )
-                        }
-                    }
+                    OrderStatusBadge(order.status)
                     Text(order.product.name, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(order.product.priceAndQuantityLabel, style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        order.product.priceAndQuantityLabel,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.eumColors.textPrimary,
+                    )
                     order.product.productCountLabel?.let { countLabel ->
                         Text(countLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
+                    }
+                    order.paymentDeadlineLabel?.let { deadline ->
+                        Text(deadline, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
                     }
                 }
             }
@@ -92,6 +103,9 @@ fun OrderHistoryCard(
                         OutlinedButton(
                             onClick = { onActionClicked(action) },
                             modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                            shape = RoundedCornerShape(EumRadius.x8),
+                            border = BorderStroke(1.dp, MaterialTheme.eumColors.lineStrong),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
                         ) {
                             Text(stringResource(action.labelResource()), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
