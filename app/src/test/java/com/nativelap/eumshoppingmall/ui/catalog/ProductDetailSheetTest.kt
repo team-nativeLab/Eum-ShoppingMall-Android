@@ -37,7 +37,10 @@ class ProductDetailSheetTest {
         val events = mutableListOf<String>()
 
         closeSheetThen(
-            hide = { events.add("hide"); throw CancellationException("rotation") },
+            hide = {
+                events.add("hide")
+                throw CancellationException("rotation")
+            },
             markClosed = { events.add("closed") },
             afterClosed = { events.add("after") },
         )
@@ -52,7 +55,10 @@ class ProductDetailSheetTest {
         runBlocking {
             try {
                 closeSheetThen(
-                    hide = { events.add("hide"); throw IllegalStateException("broken") },
+                    hide = {
+                        events.add("hide")
+                        throw IllegalStateException("broken")
+                    },
                     markClosed = { events.add("closed") },
                     afterClosed = { events.add("after") },
                 )

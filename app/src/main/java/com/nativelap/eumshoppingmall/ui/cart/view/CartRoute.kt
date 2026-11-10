@@ -22,8 +22,8 @@ import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartUiModel
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartAmountLabel
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartAmountSummary
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartExpectedPaymentText
-import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartProductAmountWon
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartItemId
+import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartProductAmountWon
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartUiModelOf
 import com.nativelap.eumshoppingmall.ui.catalog.formatWonLabel
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab

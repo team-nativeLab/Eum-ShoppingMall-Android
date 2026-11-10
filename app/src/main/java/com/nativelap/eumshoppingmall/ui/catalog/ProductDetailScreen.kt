@@ -1,7 +1,5 @@
 package com.nativelap.eumshoppingmall.ui.catalog
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,17 +33,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -612,7 +612,6 @@ private fun ProductQuoteBottomActions(
     }
 }
 
-
 @Composable
 private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (CatalogProductDetailEvent) -> Unit) {
     // 필수 옵션을 고르지 않은 상태에서 담기·구매를 누르면 안내를 보여 준다. 버튼은 비활성처럼 보이되 누를 수 있다.
@@ -622,10 +621,10 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
     // 옵션 그룹이 있으면 선택된 옵션이 최소 1개여야 담기·구매를 할 수 있다(0개 담기 방지).
     val hasRequiredSelections = (uiModel.optionGroups.isEmpty() || uiModel.selectedOptions.isNotEmpty()) &&
         uiModel.optionGroups.all { group ->
-        uiModel.selectedOptions.any { selectedOption ->
-            selectedOption.groupId == group.id && group.options.any { it.id == selectedOption.option.id }
+            uiModel.selectedOptions.any { selectedOption ->
+                selectedOption.groupId == group.id && group.options.any { it.id == selectedOption.option.id }
+            }
         }
-    }
     // 강조는 "방금 탭함" 상태에서만 쓴다. 선택 충족 여부가 바뀌면(채우거나 지우면) 강조를 끈다(L-b).
     LaunchedEffect(hasRequiredSelections) {
         showSelectPrompt = false

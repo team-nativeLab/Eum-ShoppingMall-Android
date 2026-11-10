@@ -25,9 +25,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
-import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.common.MainBottomNavigationBar
 import com.nativelap.eumshoppingmall.ui.common.MainBottomNavigationItem
+import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable

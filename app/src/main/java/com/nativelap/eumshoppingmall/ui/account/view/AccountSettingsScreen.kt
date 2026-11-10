@@ -49,11 +49,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nativelap.eumshoppingmall.ui.common.EumAlertDialog
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountSettingUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountSettingsScreenEvent
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
+import com.nativelap.eumshoppingmall.ui.common.EumAlertDialog
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing

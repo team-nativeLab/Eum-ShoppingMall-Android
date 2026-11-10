@@ -1,19 +1,19 @@
 package com.nativelap.eumshoppingmall.ui.quote.view
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import java.time.LocalDate
+import androidx.compose.runtime.setValue
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestEvent
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.fieldErrors
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.isSubmittable
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestField
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.fieldErrors
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.isSubmittable
+import java.time.LocalDate
 
 /**
  * 견적 문의(A-15). 서버 전송 없이 완료 화면으로 넘어간다.
@@ -117,4 +117,3 @@ internal fun List<String>.withAddedQuoteProduct(productId: String): List<String>
 } else {
     this + productId
 }
-

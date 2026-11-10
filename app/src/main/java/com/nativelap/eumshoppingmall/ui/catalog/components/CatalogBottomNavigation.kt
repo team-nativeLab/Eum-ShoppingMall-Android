@@ -10,7 +10,6 @@ import com.nativelap.eumshoppingmall.ui.common.MainBottomNavigationItem
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
-
 @Composable
 fun CatalogBottomNavigation(
     selectedItem: MainNavigationTab,
