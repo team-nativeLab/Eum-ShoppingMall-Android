@@ -1,17 +1,18 @@
 package com.nativelap.eumshoppingmall
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.nativelap.eumshoppingmall.data.local.CartCountStore
 import com.nativelap.eumshoppingmall.data.local.cartPreferencesDataStore
+import com.nativelap.eumshoppingmall.data.local.totalQuantity
 import com.nativelap.eumshoppingmall.navigation.EumMainNavDisplay
 import com.nativelap.eumshoppingmall.ui.home.HomeRoute
 import com.nativelap.eumshoppingmall.ui.screendata.createShoppingScreenDataProvider
@@ -27,11 +28,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             EumShoppingMallTheme {
-                val cartItemCount by cartCountStore.cartItemCount.collectAsState(initial = 0)
+                val cartLines by cartCountStore.cartLines.collectAsState(initial = emptyList())
                 val screenDataProvider = remember { createShoppingScreenDataProvider() }
                 EumMainNavDisplay(
-                    cartItemCount = cartItemCount,
+                    cartItemCount = cartLines.totalQuantity(),
+                    savedCartLines = cartLines,
                     screenDataProvider = screenDataProvider,
+                    onAddToCart = cartCountStore::addCartLines,
+                    onCartQuantityChanged = cartCountStore::updateCartLineQuantity,
+                    onCartItemsRemoved = cartCountStore::removeCartLines,
+                    onCartLinesRestored = cartCountStore::addCartLines,
                 )
             }
         }

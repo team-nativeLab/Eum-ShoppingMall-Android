@@ -19,6 +19,8 @@ fun eumCheckboxColors(): CheckboxColors {
         checkedBoxColor = checkedColor,
         checkedBorderColor = checkedColor,
         checkedCheckmarkColor = checkmarkColor,
+        // 비활성 미체크 박스는 기본 회색 대신 연한 라인 토큰을 쓴다(m3). 값은 기존 토큰이라 미확인 항목이 아니다.
+        disabledUncheckedBoxColor = LocalEumColorTokens.current.line,
     )
 }
 

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -16,11 +15,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,6 +30,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.nativelap.eumshoppingmall.ui.common.EumOutlinedButton
+import com.nativelap.eumshoppingmall.ui.common.EumPrimaryButton
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutStepIndicator
@@ -64,19 +63,15 @@ fun OrderCompleteScreen(
         bottomBar = {
             ResponsiveWidthContainer {
                 Column(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface).navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                    OutlinedButton(
+                    EumOutlinedButton(
                         onClick = { onEvent(OrderCompleteScreenEvent.ContinueShoppingClicked) },
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(stringResource(R.string.checkout_continue_shopping))
                     }
-                    Button(
+                    EumPrimaryButton(
                         onClick = { onEvent(OrderCompleteScreenEvent.ViewOrderDetailsClicked) },
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.eumColors.textPrimary,
-                            contentColor = MaterialTheme.eumColors.inverse,
-                        ),
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(stringResource(R.string.checkout_order_detail_button))
                     }

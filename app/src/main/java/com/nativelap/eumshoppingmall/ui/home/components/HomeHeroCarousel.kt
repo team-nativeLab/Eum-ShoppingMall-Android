@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.home.components
 
-import android.animation.ValueAnimator
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -25,14 +25,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import android.animation.ValueAnimator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +53,7 @@ import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
+import com.nativelap.eumshoppingmall.ui.theme.isReducedMotion
 import kotlinx.coroutines.delay
 
 private data class HomeHeroSlide(
@@ -114,8 +114,9 @@ fun HomeHeroCarousel(
         onDispose { lifecycle?.removeObserver(observer) }
     }
 
+    // 치환 전후 차이 없음: 기존처럼 자동 넘김을 재개할 때마다 줄이기 설정을 다시 읽는다.
     LaunchedEffect(isResumed, isDragged, autoAdvanceResetKey) {
-        if (!isResumed || isDragged || !ValueAnimator.areAnimatorsEnabled()) return@LaunchedEffect
+        if (!isResumed || isDragged || isReducedMotion(ValueAnimator.areAnimatorsEnabled())) return@LaunchedEffect
         while (true) {
             delay(HOME_HERO_AUTO_ADVANCE_MILLIS)
             pagerState.animateScrollToPage((pagerState.currentPage + 1) % homeHeroSlides.size)

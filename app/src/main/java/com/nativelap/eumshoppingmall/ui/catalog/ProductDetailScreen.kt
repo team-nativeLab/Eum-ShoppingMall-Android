@@ -1,5 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.catalog
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,22 +30,22 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +63,10 @@ import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogSelectedOptionCard
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBarAction
+import com.nativelap.eumshoppingmall.ui.common.EumOutlinedButton
+import com.nativelap.eumshoppingmall.ui.common.EumPrimaryButton
+import com.nativelap.eumshoppingmall.ui.common.EumSnackbarHost
+import com.nativelap.eumshoppingmall.ui.common.FavoriteToggleButton
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
@@ -75,15 +81,39 @@ private const val SHIPPING_EXCHANGE_ITEM_INDEX = 3
 private const val REVIEWS_ITEM_INDEX = 4
 private const val QUESTIONS_ITEM_INDEX = 5
 
+/**
+ * 상품 상세 화면. 옵션 시트 상태는 Route가 넘기며, 미리보기처럼 넘기지 않으면 화면이 자체 상태를 만든다.
+ */
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun CatalogProductDetailScreen(
     uiModel: CatalogProductDetailUiModel,
     onEvent: (CatalogProductDetailEvent) -> Unit,
     modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+) {
+    CatalogProductDetailContent(
+        uiModel = uiModel,
+        onEvent = onEvent,
+        optionsSheetState = rememberModalBottomSheetState(),
+        snackbarHostState = snackbarHostState,
+        modifier = modifier,
+    )
+}
+
+// 시트 상태 타입이 실험 API라서 공개 시그니처에 노출하지 않고 같은 모듈 안에서만 받는다.
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+internal fun CatalogProductDetailContent(
+    uiModel: CatalogProductDetailUiModel,
+    onEvent: (CatalogProductDetailEvent) -> Unit,
+    optionsSheetState: SheetState,
+    snackbarHostState: SnackbarHostState,
+    modifier: Modifier = Modifier,
 ) {
     androidx.compose.material3.Scaffold(
         modifier = modifier,
+        snackbarHost = { EumSnackbarHost(hostState = snackbarHostState) },
         topBar = {
             CatalogTopBar(
                 title = "",
@@ -266,7 +296,10 @@ fun CatalogProductDetailScreen(
         }
     }
     if (uiModel.optionsSheetVisible) {
-        ModalBottomSheet(onDismissRequest = { onEvent(CatalogProductDetailEvent.CloseOptionsSheet) }) {
+        ModalBottomSheet(
+            onDismissRequest = { onEvent(CatalogProductDetailEvent.CloseOptionsSheet) },
+            sheetState = optionsSheetState,
+        ) {
             ProductOptionsSheet(uiModel, onEvent)
         }
     }
@@ -482,57 +515,48 @@ private fun ProductDetailBottomActions(
     Row(
         modifier.fillMaxWidth().background(MaterialTheme.eumColors.background).padding(horizontal = EumSpacing.x16, vertical = EumSpacing.x8),
         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         if (isSoldOut) {
-            androidx.compose.material3.IconButton(
-                onClick = { onEvent(CatalogProductDetailEvent.ProductFavoriteToggled) },
-                modifier = Modifier.size(48.dp),
-            ) {
-                Icon(
-                    painterResource(if (uiModel.product.isFavorite) R.drawable.ic_heart_filled else R.drawable.ic_heart),
-                    stringResource(
-                        if (uiModel.product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
-                        uiModel.product.name,
-                    ),
-                    tint = if (uiModel.product.isFavorite) MaterialTheme.eumColors.danger else MaterialTheme.eumColors.textSecondary,
-                    modifier = Modifier.size(20.dp),
-                )
-            }
-            Button(
+            FavoriteToggleButton(
+                isFavorite = uiModel.product.isFavorite,
+                onToggle = { onEvent(CatalogProductDetailEvent.ProductFavoriteToggled) },
+                contentDescription = stringResource(
+                    if (uiModel.product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
+                    uiModel.product.name,
+                ),
+                bordered = true,
+            )
+            EumPrimaryButton(
                 onClick = {},
                 enabled = false,
-                modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                modifier = Modifier.weight(1f),
             ) {
                 Text(stringResource(R.string.product_sold_out))
             }
         } else {
-            androidx.compose.material3.IconButton(
-                onClick = { onEvent(CatalogProductDetailEvent.ProductFavoriteToggled) },
-                modifier = Modifier.size(48.dp),
-            ) {
-                Icon(
-                    painterResource(if (uiModel.product.isFavorite) R.drawable.ic_heart_filled else R.drawable.ic_heart),
-                    stringResource(
-                        if (uiModel.product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
-                        uiModel.product.name,
-                    ),
-                    tint = if (uiModel.product.isFavorite) MaterialTheme.eumColors.danger else MaterialTheme.eumColors.textSecondary,
-                    modifier = Modifier.size(20.dp),
-                )
-            }
-            OutlinedButton(
+            FavoriteToggleButton(
+                isFavorite = uiModel.product.isFavorite,
+                onToggle = { onEvent(CatalogProductDetailEvent.ProductFavoriteToggled) },
+                contentDescription = stringResource(
+                    if (uiModel.product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
+                    uiModel.product.name,
+                ),
+                bordered = true,
+            )
+            EumOutlinedButton(
                 onClick = {
                     onEvent(CatalogProductDetailEvent.SelectOptionClicked(CatalogPurchaseAction.AddToCart))
                 },
-                modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                modifier = Modifier.weight(1f),
             ) {
                 Text(stringResource(R.string.catalog_add_to_cart))
             }
-            Button(
+            EumPrimaryButton(
                 onClick = {
                     onEvent(CatalogProductDetailEvent.SelectOptionClicked(CatalogPurchaseAction.BuyNow))
                 },
-                modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                modifier = Modifier.weight(1f),
             ) {
                 Text(stringResource(R.string.catalog_buy_now))
             }
@@ -549,15 +573,17 @@ private fun ProductQuoteBottomActions(
 ) {
     Column(modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface)) {
         Row(
-            Modifier.fillMaxWidth().heightIn(min = 40.dp).background(QuoteNoticeBackground).padding(horizontal = EumSpacing.x20),
+            // 가격 문의 안내는 오류가 아니라 정보이므로 중립 표면 토큰을 쓴다(L-c).
+            Modifier.fillMaxWidth().heightIn(min = 40.dp).background(MaterialTheme.eumColors.surfaceSecondary).padding(horizontal = EumSpacing.x20),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(painterResource(R.drawable.ic_circle_alert), null, Modifier.size(16.dp), tint = MaterialTheme.eumColors.danger)
+            // 이 안내는 오류가 아니라 정보다. 오류 색 대신 보조 텍스트 색을 쓴다(N5).
+            Icon(painterResource(R.drawable.ic_circle_alert), null, Modifier.size(16.dp), tint = MaterialTheme.eumColors.textSecondary)
             Spacer(Modifier.width(EumSpacing.x12))
             Text(
                 stringResource(R.string.product_price_inquiry_description),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.eumColors.danger,
+                color = MaterialTheme.eumColors.textSecondary,
             )
         }
         Box(Modifier.fillMaxWidth().height(EumSpacing.x1).background(MaterialTheme.eumColors.lineNeutral))
@@ -586,17 +612,23 @@ private fun ProductQuoteBottomActions(
     }
 }
 
-// Figma 안내 바 배경(#FFE9E9)은 토큰 dangerTint(#FDECEA)와 달라 화면 전용 값으로 둔다.
-private val QuoteNoticeBackground = Color(0xFFFFE9E9)
 
 @Composable
 private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (CatalogProductDetailEvent) -> Unit) {
+    // 필수 옵션을 고르지 않은 상태에서 담기·구매를 누르면 안내를 보여 준다. 버튼은 비활성처럼 보이되 누를 수 있다.
+    var showSelectPrompt by remember { mutableStateOf(false) }
     val isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired
     val isSoldOut = uiModel.product.isSoldOut
-    val hasRequiredSelections = uiModel.optionGroups.all { group ->
+    // 옵션 그룹이 있으면 선택된 옵션이 최소 1개여야 담기·구매를 할 수 있다(0개 담기 방지).
+    val hasRequiredSelections = (uiModel.optionGroups.isEmpty() || uiModel.selectedOptions.isNotEmpty()) &&
+        uiModel.optionGroups.all { group ->
         uiModel.selectedOptions.any { selectedOption ->
             selectedOption.groupId == group.id && group.options.any { it.id == selectedOption.option.id }
         }
+    }
+    // 강조는 "방금 탭함" 상태에서만 쓴다. 선택 충족 여부가 바뀌면(채우거나 지우면) 강조를 끈다(L-b).
+    LaunchedEffect(hasRequiredSelections) {
+        showSelectPrompt = false
     }
 
     Column(
@@ -638,13 +670,6 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
                     },
                 )
             }
-            if (uiModel.selectedOptions.isEmpty() && uiModel.optionGroups.isNotEmpty()) {
-                Text(
-                    stringResource(R.string.catalog_option_select_prompt),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.eumColors.textTertiary,
-                )
-            }
 
             uiModel.selectedOptions.forEach { selectedOption ->
                 val option = selectedOption.option
@@ -677,12 +702,16 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
                         )
                     }
                 } else {
+                    // 수량 행은 항상 보이고, 추가금 합계(라벨과 금액)만 합계를 알 수 있을 때 보인다.
+                    val extraTotalLabel = uiModel.totalPriceLabel?.takeIf(String::isNotBlank)
                     Row(
                         Modifier.fillMaxWidth().padding(vertical = EumSpacing.x8),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
-                            Text(stringResource(R.string.catalog_options_total_amount), style = MaterialTheme.typography.bodySmall)
+                            if (extraTotalLabel != null) {
+                                Text(stringResource(R.string.catalog_options_extra_total), style = MaterialTheme.typography.bodySmall)
+                            }
                             Text(
                                 stringResource(
                                     R.string.catalog_options_total_count,
@@ -692,9 +721,9 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
                                 color = MaterialTheme.eumColors.textTertiary,
                             )
                         }
-                        uiModel.totalPriceLabel?.takeIf(String::isNotBlank)?.let { totalPriceLabel ->
+                        if (extraTotalLabel != null) {
                             Text(
-                                totalPriceLabel,
+                                extraTotalLabel,
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.eumColors.textPrimary,
                             )
@@ -704,19 +733,29 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
             }
         }
 
+        // 필수 옵션을 다 고르기 전에는 항상 안내를 보인다(L7). 버튼을 누르면 같은 안내를 강조한다.
+        if (!hasRequiredSelections && !isSoldOut) {
+            Text(
+                stringResource(R.string.catalog_option_select_prompt),
+                style = MaterialTheme.typography.labelMedium,
+                color = if (showSelectPrompt) MaterialTheme.eumColors.danger else MaterialTheme.eumColors.textTertiary,
+            )
+        }
         if (isSoldOut) {
-            Button(
+            EumPrimaryButton(
                 onClick = {},
                 enabled = false,
-                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(stringResource(R.string.product_sold_out))
             }
         } else if (isQuoteRequired) {
-            Button(
-                onClick = { onEvent(CatalogProductDetailEvent.QuoteRequestClicked) },
-                enabled = hasRequiredSelections,
-                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+            EumPrimaryButton(
+                onClick = {
+                    if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.QuoteRequestClicked) else showSelectPrompt = true
+                },
+                inactiveLook = !hasRequiredSelections,
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(stringResource(R.string.catalog_quote_request))
             }
@@ -725,17 +764,21 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
             ) {
-                OutlinedButton(
-                    onClick = { onEvent(CatalogProductDetailEvent.AddToCartClicked) },
-                    enabled = hasRequiredSelections,
-                    modifier = Modifier.weight(1f).heightIn(min = 52.dp),
+                EumOutlinedButton(
+                    onClick = {
+                        if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.AddToCartClicked) else showSelectPrompt = true
+                    },
+                    inactiveLook = !hasRequiredSelections,
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(R.string.catalog_add_to_cart_options))
                 }
-                Button(
-                    onClick = { onEvent(CatalogProductDetailEvent.BuyNowClicked) },
-                    enabled = hasRequiredSelections,
-                    modifier = Modifier.weight(1f).heightIn(min = 52.dp),
+                EumPrimaryButton(
+                    onClick = {
+                        if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.BuyNowClicked) else showSelectPrompt = true
+                    },
+                    inactiveLook = !hasRequiredSelections,
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(R.string.catalog_buy_now))
                 }

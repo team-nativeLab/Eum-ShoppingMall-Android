@@ -1,14 +1,17 @@
 package com.nativelap.eumshoppingmall.ui.quote.view
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import java.time.LocalDate
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestEvent
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.fieldErrors
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.isSubmittable
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestField
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
 
@@ -49,6 +52,7 @@ fun QuoteRequestRoute(
     }
 
     val products = remember(productIds, productById) { productIds.map(productById) }
+    val today = LocalDate.now()
     val quoteUiModel = uiModel.copy(
         products = products,
         requestType = requestType,
@@ -63,7 +67,10 @@ fun QuoteRequestRoute(
         isPrivacyConsentChecked = isPrivacyConsentChecked,
     )
     QuoteRequestScreen(
-        uiModel = quoteUiModel.copy(isSubmitEnabled = quoteUiModel.hasRequiredInput()),
+        uiModel = quoteUiModel.copy(
+            errors = quoteUiModel.fieldErrors(today),
+            isSubmitEnabled = quoteUiModel.isSubmittable(today),
+        ),
         onEvent = { event ->
             when (event) {
                 QuoteRequestEvent.BackClicked -> onBackClick()
@@ -111,9 +118,3 @@ internal fun List<String>.withAddedQuoteProduct(productId: String): List<String>
     this + productId
 }
 
-// 서버 검증이 생기기 전까지 연락처 4개 항목과 개인정보 동의가 있으면 제출할 수 있게 둔다.
-private fun QuoteRequestUiModel.hasRequiredInput(): Boolean = companyName.isNotBlank() &&
-    contactName.isNotBlank() &&
-    phoneNumber.isNotBlank() &&
-    email.isNotBlank() &&
-    isPrivacyConsentChecked

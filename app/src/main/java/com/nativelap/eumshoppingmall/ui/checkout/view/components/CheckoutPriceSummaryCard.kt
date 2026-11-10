@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.shippingFeeText
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutPaymentSummaryUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -35,7 +36,10 @@ fun CheckoutPriceSummaryCard(
         verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
     ) {
         SummaryRow(stringResource(R.string.checkout_product_amount_label), summary.productAmountLabel)
-        SummaryRow(stringResource(R.string.cart_shipping_fee), summary.shippingFeeLabel)
+        SummaryRow(stringResource(R.string.cart_shipping_fee), summary.shippingFeeText(
+                stringResource(R.string.checkout_delivery_free),
+                stringResource(R.string.checkout_shipping_fee_unknown),
+            ))
         if (showDiscount) SummaryRow(stringResource(R.string.checkout_discount), summary.discountLabel)
         HorizontalDivider(color = MaterialTheme.eumColors.line)
         SummaryRow(

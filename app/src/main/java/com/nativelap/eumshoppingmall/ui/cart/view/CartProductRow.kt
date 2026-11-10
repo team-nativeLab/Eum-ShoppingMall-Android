@@ -45,9 +45,11 @@ fun CartProductRow(
     onOptionChangeClicked: () -> Unit,
     onRemoveClicked: () -> Unit,
     modifier: Modifier = Modifier,
+    /** 수량 저장이 끝날 때까지 true. 연타로 여러 변경이 겹치지 않게 +/−를 막는다(L1). */
+    isQuantityLocked: Boolean = false,
 ) {
     val isOrderable = item.type == CartItemType.Orderable && !item.isSoldOut
-    val canEditQuantity = item.type == CartItemType.QuoteRequired || isOrderable
+    val canEditQuantity = (item.type == CartItemType.QuoteRequired || isOrderable) && !isQuantityLocked
     val textColor = if (item.isSoldOut) MaterialTheme.eumColors.textTertiary else MaterialTheme.eumColors.textPrimary
     Row(
         modifier = modifier.fillMaxWidth().heightIn(min = 120.dp).padding(vertical = EumSpacing.x12),
@@ -105,7 +107,16 @@ fun CartProductRow(
                 }
             }
             if (item.isSoldOut) {
-                Text(stringResource(R.string.product_sold_out), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.danger)
+                // 품절은 빨간 글자 대신 위험 배경 배지로 표시한다(m2). 글자 크기가 같아 본문 줄 높이는 바뀌지 않는다.
+                Text(
+                    stringResource(R.string.product_sold_out),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(EumRadius.x4))
+                        .background(MaterialTheme.eumColors.dangerTint)
+                        .padding(horizontal = EumSpacing.x6),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.eumColors.danger,
+                )
             }
             Text(item.optionLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
             TextButton(
@@ -119,12 +130,12 @@ fun CartProductRow(
                     textDecoration = TextDecoration.Underline,
                 )
             }
-            if (item.type == CartItemType.Orderable && item.unitPriceLabel != item.totalPriceLabel) {
+            // 단가(수량 포함)는 작은 글씨로 두고, 줄 합계는 아래 가격 칸에 보인다. 원가 정보가 없으므로 취소선은 긋지 않는다(M2).
+            if (item.type == CartItemType.Orderable) {
                 Text(
                     item.unitPriceLabel,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.eumColors.textTertiary,
-                    textDecoration = TextDecoration.LineThrough,
                 )
             }
             BoxWithConstraints(Modifier.fillMaxWidth()) {

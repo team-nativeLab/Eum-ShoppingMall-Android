@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
+import com.nativelap.eumshoppingmall.ui.common.FavoriteToggleButton
+import com.nativelap.eumshoppingmall.ui.common.pressScale
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -46,6 +47,7 @@ fun CatalogProductCard(
     val shape = RoundedCornerShape(EumRadius.x8)
     Column(
         modifier = modifier
+            .pressScale()
             .clip(shape)
             .background(MaterialTheme.eumColors.surface)
             .border(1.dp, MaterialTheme.eumColors.lineNeutral, shape)
@@ -104,20 +106,15 @@ fun CatalogProductCard(
                     color = MaterialTheme.eumColors.textSecondary,
                 )
             }
-            IconButton(
-                onClick = onFavoriteClick,
-                modifier = Modifier.align(Alignment.TopEnd).size(48.dp),
-            ) {
-                Icon(
-                    painterResource(if (product.isFavorite) R.drawable.ic_heart_filled else R.drawable.ic_heart),
-                    contentDescription = stringResource(
-                        if (product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
-                        product.name,
-                    ),
-                    tint = if (product.isFavorite) MaterialTheme.eumColors.danger else MaterialTheme.eumColors.textSecondary,
-                    modifier = Modifier.size(20.dp),
-                )
-            }
+            FavoriteToggleButton(
+                isFavorite = product.isFavorite,
+                onToggle = onFavoriteClick,
+                contentDescription = stringResource(
+                    if (product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
+                    product.name,
+                ),
+                modifier = Modifier.align(Alignment.TopEnd),
+            )
         }
         Column(
             modifier = Modifier.padding(horizontal = EumSpacing.x4),
@@ -200,7 +197,7 @@ fun CatalogProductRow(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(EumRadius.x8))
+        modifier = modifier.pressScale().fillMaxWidth().clip(RoundedCornerShape(EumRadius.x8))
             .background(MaterialTheme.eumColors.backgroundSubtle)
             .border(1.dp, MaterialTheme.eumColors.lineStrong, RoundedCornerShape(EumRadius.x8))
             .clickable(onClick = onClick).padding(EumSpacing.x8),
@@ -244,13 +241,13 @@ fun CatalogProductRow(
                 CatalogPriceUiModel.QuoteRequired -> Text(stringResource(R.string.product_price_inquiry), style = MaterialTheme.typography.titleSmall)
             }
         }
-        IconButton(onClick = onFavoriteClick, modifier = Modifier.size(48.dp)) {
-            Icon(
-                painterResource(if (product.isFavorite) R.drawable.ic_heart_filled else R.drawable.ic_heart),
-                stringResource(if (product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite, product.name),
-                tint = if (product.isFavorite) MaterialTheme.eumColors.danger else MaterialTheme.eumColors.textSecondary,
-                modifier = Modifier.size(20.dp),
-            )
-        }
+        FavoriteToggleButton(
+            isFavorite = product.isFavorite,
+            onToggle = onFavoriteClick,
+            contentDescription = stringResource(
+                if (product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
+                product.name,
+            ),
+        )
     }
 }

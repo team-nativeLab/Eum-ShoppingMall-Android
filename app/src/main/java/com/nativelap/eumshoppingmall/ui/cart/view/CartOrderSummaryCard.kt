@@ -33,8 +33,8 @@ fun CartOrderSummaryCard(
             .padding(EumSpacing.x20),
         verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
     ) {
-        SummaryRow(stringResource(R.string.cart_product_amount), uiModel.productAmountLabel.ifBlank { stringResource(R.string.common_zero_currency) })
-        SummaryRow(stringResource(R.string.cart_shipping_fee), uiModel.shippingFeeLabel.ifBlank { stringResource(R.string.common_zero_currency) })
+        SummaryRow(stringResource(R.string.cart_product_amount), uiModel.productAmountLabel.ifBlank { stringResource(R.string.cart_price_check_needed) })
+        SummaryRow(stringResource(R.string.cart_shipping_fee), uiModel.shippingFeeLabel.ifBlank { stringResource(R.string.cart_price_check_needed) })
         HorizontalDivider(color = MaterialTheme.eumColors.line)
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(
@@ -43,7 +43,7 @@ fun CartOrderSummaryCard(
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.eumColors.textPrimary,
             )
-            Text(uiModel.expectedPaymentLabel.ifBlank { stringResource(R.string.common_zero_currency) }, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.eumColors.textPrimary)
+            Text(uiModel.expectedPaymentLabel.ifBlank { stringResource(R.string.cart_price_check_needed) }, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.eumColors.textPrimary)
         }
     }
 }

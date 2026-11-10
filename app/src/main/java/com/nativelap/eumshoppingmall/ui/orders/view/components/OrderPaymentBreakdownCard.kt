@@ -30,7 +30,7 @@ fun OrderPaymentBreakdownCard(payment: OrderPaymentBreakdownUiModel, modifier: M
             PaymentRow(stringResource(R.string.checkout_coupon_discount), payment.couponDiscountLabel)
             PaymentRow(stringResource(R.string.checkout_points_used), payment.pointsUsedLabel)
             HorizontalDivider(color = MaterialTheme.eumColors.line)
-            PaymentRow(stringResource(R.string.checkout_final_payment_amount), payment.totalAmountLabel, emphasize = true)
+            PaymentRow(stringResource(R.string.order_paid_amount_label), payment.totalAmountLabel, emphasize = true)
             PaymentRow(stringResource(R.string.checkout_payment_method_label), payment.paymentMethodLabel)
         }
     }

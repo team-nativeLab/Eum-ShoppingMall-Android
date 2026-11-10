@@ -14,19 +14,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.nativelap.eumshoppingmall.ui.common.EumAlertDialog
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AccountWithdrawalReasonUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
@@ -96,9 +93,9 @@ fun AccountWithdrawalReasonScreen(uiModel: AccountWithdrawalReasonUiModel, onEve
             }
         }
         if (uiModel.isConfirmationDialogVisible) {
-            AlertDialog(
+            EumAlertDialog(
                 onDismissRequest = { onEvent(AuthScreenEvent.WithdrawalConfirmDismissed) },
-                title = { Text(stringResource(R.string.account_leave_confirmation), color = MaterialTheme.eumColors.danger) },
+                title = stringResource(R.string.account_leave_confirmation),
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                         Text(stringResource(R.string.auth_withdrawal_dialog_description))
@@ -106,9 +103,11 @@ fun AccountWithdrawalReasonScreen(uiModel: AccountWithdrawalReasonUiModel, onEve
                         Text(stringResource(R.string.account_leave_points_expire, uiModel.points), style = MaterialTheme.typography.bodySmall)
                     }
                 },
-                confirmButton = { TextButton(onClick = { onEvent(AuthScreenEvent.WithdrawalConfirmed) }) { Text(stringResource(R.string.auth_withdrawal_submit), color = MaterialTheme.eumColors.danger) } },
-                dismissButton = { TextButton(onClick = { onEvent(AuthScreenEvent.WithdrawalConfirmDismissed) }) { Text(stringResource(R.string.common_cancel)) } },
-                shape = RoundedCornerShape(12.dp),
+                confirmLabel = stringResource(R.string.auth_withdrawal_submit),
+                onConfirm = { onEvent(AuthScreenEvent.WithdrawalConfirmed) },
+                dismissLabel = stringResource(R.string.common_cancel),
+                onDismiss = { onEvent(AuthScreenEvent.WithdrawalConfirmDismissed) },
+                isDestructive = true,
             )
         }
     }

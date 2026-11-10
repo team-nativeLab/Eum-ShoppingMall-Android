@@ -26,6 +26,8 @@ data class EumColorTokens(
     val lineControl: Color,
     val inverse: Color,
     val inverseSecondary: Color,
+    // 기본 강조색(Figma primary #111). 기존 info(파랑)를 대체했고, info 토큰은 사용처가 없어 제거했다.
+    val primary: Color,
     val dim: Color,
     val heroScrimStart: Color,
     val heroScrimEnd: Color,
@@ -44,8 +46,6 @@ data class EumColorTokens(
     val successTint: Color,
     val warning: Color,
     val warningTint: Color,
-    val info: Color,
-    val infoTint: Color,
     val heartIdle: Color,
     val heartActive: Color,
     val ratingStarOutline: Color,
@@ -80,6 +80,7 @@ val LightEumColorTokens =
         lineControl = Color(0xFF75817A),
         inverse = Color(0xFFFFFFFF),
         inverseSecondary = Color(0xFFF1F4F2),
+        primary = Color(0xFF111111),
         dim = Color(0x7A111111),
         heroScrimStart = Color(0x99121212),
         heroScrimEnd = Color(0x0D121212),
@@ -98,8 +99,6 @@ val LightEumColorTokens =
         successTint = Color(0xFFE8F3EC),
         warning = Color(0xFF8A5A00),
         warningTint = Color(0xFFFFF4E0),
-        info = Color(0xFF1A5DC8),
-        infoTint = Color(0xFFEAF1FB),
         heartIdle = Color(0xFF65716A),
         heartActive = Color(0xFFE5484D),
         ratingStarOutline = Color(0xFFA96F16),
@@ -123,10 +122,11 @@ val MaterialTheme.eumColors: EumColorTokens
 
 val EumLightColorScheme: ColorScheme =
     lightColorScheme(
-        primary = LightEumColorTokens.info,
+        primary = LightEumColorTokens.primary,
         onPrimary = LightEumColorTokens.inverse,
-        primaryContainer = LightEumColorTokens.infoTint,
-        onPrimaryContainer = LightEumColorTokens.info,
+        // 파랑 계열 컨테이너를 중립 표면으로 바꿔 강조 색이 파랑으로 남지 않게 한다.
+        primaryContainer = LightEumColorTokens.surfaceSecondary,
+        onPrimaryContainer = LightEumColorTokens.textPrimary,
         secondary = LightEumColorTokens.textSecondary,
         onSecondary = LightEumColorTokens.inverse,
         secondaryContainer = LightEumColorTokens.surfaceSecondary,
@@ -150,5 +150,14 @@ val EumLightColorScheme: ColorScheme =
         scrim = LightEumColorTokens.dim,
         inverseSurface = LightEumColorTokens.toast,
         inverseOnSurface = LightEumColorTokens.inverse,
-        surfaceTint = LightEumColorTokens.info,
+        // 상단 tonal elevation 틴트는 중립 흰색으로 둔다. 파랑 틴트가 시트·다이얼로그에 번지지 않게 한다.
+        surfaceTint = LightEumColorTokens.surface,
+        // 기본 M3 surfaceContainer 값(보라 계열)이 ModalBottomSheet·AlertDialog에 새지 않도록 명시한다.
+        surfaceContainerLowest = LightEumColorTokens.surface,
+        surfaceContainerLow = LightEumColorTokens.surface,
+        surfaceContainer = LightEumColorTokens.surface,
+        surfaceContainerHigh = LightEumColorTokens.surface,
+        surfaceContainerHighest = LightEumColorTokens.surfaceSecondary,
+        surfaceBright = LightEumColorTokens.surface,
+        surfaceDim = LightEumColorTokens.backgroundSubtle,
     )
