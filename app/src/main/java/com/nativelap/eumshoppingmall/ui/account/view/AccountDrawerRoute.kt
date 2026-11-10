@@ -3,6 +3,7 @@ package com.nativelap.eumshoppingmall.ui.account.view
 import androidx.compose.runtime.Composable
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountDrawerScreenEvent
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountProfileUiModel
+import com.nativelap.eumshoppingmall.ui.common.DialogLightStatusBarIcons
 import com.nativelap.eumshoppingmall.ui.common.DisableDialogWindowDim
 
 @Composable
@@ -14,6 +15,8 @@ fun AccountDrawerRoute(
 ) {
     // 드로어는 Dialog 창에 뜬다. Screen이 디자인 토큰 dim을 직접 그리므로 창 기본 dim은 끈다.
     DisableDialogWindowDim()
+    // 드로어 상단은 밝은 표면이므로 상태 바 아이콘을 어둡게 고정한다(D10). 시스템 다크 모드 설정에 기대지 않는다.
+    DialogLightStatusBarIcons()
     AccountDrawerScreen(
         profile = profile,
         isLoggedIn = isLoggedIn,

@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +31,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.FavoriteToggleButton
+import com.nativelap.eumshoppingmall.ui.common.pressScale
 import com.nativelap.eumshoppingmall.ui.home.HomeProductUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -48,7 +49,7 @@ fun HomeProductCard(
 ) {
     val cardShape = RoundedCornerShape(EumRadius.x8)
     Column(
-        modifier.clip(cardShape)
+        modifier.pressScale().clip(cardShape)
             .background(MaterialTheme.eumColors.background)
             .border(1.dp, MaterialTheme.eumColors.line, cardShape)
             .clickable { onClick(product) }
@@ -95,22 +96,16 @@ fun HomeProductCard(
                     color = MaterialTheme.eumColors.danger,
                 )
             }
-            IconButton(
-                onClick = { onFavoriteClick(product) },
-                modifier = Modifier.align(Alignment.TopEnd).size(44.dp),
-            ) {
-                Icon(
-                    painter = painterResource(
-                        if (isFavorite) R.drawable.ic_heart_filled else R.drawable.ic_heart,
-                    ),
-                    contentDescription = stringResource(
-                        if (isFavorite) R.string.home_product_favorite_remove else R.string.home_product_favorite_add,
-                        product.name,
-                    ),
-                    tint = if (isFavorite) MaterialTheme.eumColors.danger else MaterialTheme.eumColors.textSecondary,
-                    modifier = Modifier.size(20.dp),
-                )
-            }
+            FavoriteToggleButton(
+                isFavorite = isFavorite,
+                onToggle = { onFavoriteClick(product) },
+                contentDescription = stringResource(
+                    if (isFavorite) R.string.home_product_favorite_remove else R.string.home_product_favorite_add,
+                    product.name,
+                ),
+                modifier = Modifier.align(Alignment.TopEnd),
+                buttonSize = 44.dp,
+            )
         }
         Column(
             Modifier.padding(horizontal = EumSpacing.x4),
@@ -156,15 +151,11 @@ fun HomeProductCard(
                 }
             }
             if (product.isPurchaseUnavailable || product.priceLabel == null) {
+                // 가격 문의 상품은 상세와 같은 문구로 보여 준다(F6).
                 Text(
                     stringResource(R.string.home_product_purchase_unavailable),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.eumColors.textSecondary,
-                )
-                Text(
-                    stringResource(R.string.home_product_unavailable_badge),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.eumColors.textTertiary,
                 )
             } else {
                 val originalPrice = product.originalPriceLabel

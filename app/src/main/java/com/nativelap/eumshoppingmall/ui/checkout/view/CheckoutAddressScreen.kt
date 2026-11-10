@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -34,6 +33,8 @@ import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutSection
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutStepIndicator
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutScreenEvent
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.shippingFeeText
+import com.nativelap.eumshoppingmall.ui.common.EumPrimaryButton
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -55,13 +56,9 @@ fun CheckoutAddressScreen(
         },
         bottomBar = {
             ResponsiveWidthContainer {
-                Button(
+                EumPrimaryButton(
                     onClick = { onEvent(CheckoutScreenEvent.NextClicked) },
-                    modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12).heightIn(min = 56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.eumColors.textPrimary,
-                        contentColor = MaterialTheme.eumColors.inverse,
-                    ),
+                    modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
                 ) {
                     Text(stringResource(R.string.checkout_next))
                 }
@@ -137,7 +134,13 @@ fun CheckoutAddressScreen(
                 item {
                     Row(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
                         Text(uiModel.deliveryMethodLabel, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                        Text(stringResource(R.string.checkout_delivery_free), style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            uiModel.paymentSummary.shippingFeeText(
+                                stringResource(R.string.checkout_delivery_free),
+                                stringResource(R.string.checkout_shipping_fee_unknown),
+                            ),
+                            style = MaterialTheme.typography.labelMedium,
+                        )
                     }
                 }
                 item { CheckoutSectionHeader(R.string.checkout_order_products) }

@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.checkout.viewmodel
 
 import androidx.annotation.DrawableRes
+import com.nativelap.eumshoppingmall.ui.catalog.formatWonLabel
 
 data class CheckoutProductUiModel(
     val id: String,
@@ -22,7 +23,24 @@ data class CheckoutPaymentSummaryUiModel(
     val shippingFeeLabel: String,
     val discountLabel: String,
     val finalAmountLabel: String,
+    // 배송비 금액(원). 있으면 표시 문구를 금액에서 만든다(0원이면 무료). 없으면 shippingFeeLabel을 그대로 쓴다.
+    val shippingFeeWon: Long? = null,
 )
+
+/**
+ * 배송비 표시 문구. 금액이 있으면 금액에서 라벨을 만든다(0원이면 [freeLabel], 아니면 원화 표기).
+ * 금액이 없으면 공급된 라벨을 쓰고, 라벨도 비면 [unknownLabel]을 쓴다.
+ * finalAmountLabel 등 나머지 금액 문구는 provider 공급값이라 이 함수와 무관하다.
+ */
+internal fun CheckoutPaymentSummaryUiModel.shippingFeeText(freeLabel: String, unknownLabel: String): String {
+    val amountWon = shippingFeeWon
+    return when {
+        amountWon == 0L -> freeLabel
+        amountWon != null -> formatWonLabel(amountWon)
+        shippingFeeLabel.isBlank() -> unknownLabel
+        else -> shippingFeeLabel
+    }
+}
 
 enum class CheckoutPaymentMethod {
     CreditCard,

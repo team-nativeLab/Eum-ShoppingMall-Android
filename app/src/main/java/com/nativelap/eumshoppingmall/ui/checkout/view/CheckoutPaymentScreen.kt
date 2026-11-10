@@ -1,5 +1,6 @@
 package com.nativelap.eumshoppingmall.ui.checkout.view
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,14 +9,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,6 +40,7 @@ import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptDetail
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutScreenEvent
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
+import com.nativelap.eumshoppingmall.ui.common.EumPrimaryButton
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -63,19 +63,28 @@ fun CheckoutPaymentScreen(
         },
         bottomBar = {
             ResponsiveWidthContainer {
-                androidx.compose.material3.Button(
-                    onClick = { onEvent(CheckoutScreenEvent.PaymentClicked) },
-                    enabled = uiModel.paymentMethod != null && uiModel.isOrderAgreementAccepted && isReceiptDetailsValid(uiModel),
-                    modifier = Modifier.fillMaxWidth().imePadding().navigationBarsPadding()
-                        .padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12).heightIn(min = 52.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.eumColors.textPrimary,
-                        contentColor = MaterialTheme.eumColors.inverse,
-                        disabledContainerColor = MaterialTheme.eumColors.surfaceSecondary,
-                        disabledContentColor = MaterialTheme.eumColors.textTertiary,
-                    ),
+                val blockReason = checkoutPaymentBlockReason(uiModel)
+                Column(
+                    Modifier.fillMaxWidth().imePadding().navigationBarsPadding()
+                        .padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
+                    verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
                 ) {
-                    Text(stringResource(R.string.checkout_payment_button, uiModel.paymentSummary.finalAmountLabel))
+                    // 버튼이 비활성인 이유를 버튼 위에 보여 준다(U-03). 활성이면 문구를 숨긴다.
+                    if (blockReason != null) {
+                        Text(
+                            stringResource(blockReason.messageResId),
+                            modifier = Modifier.fillMaxWidth(),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.eumColors.danger,
+                        )
+                    }
+                    EumPrimaryButton(
+                        onClick = { onEvent(CheckoutScreenEvent.PaymentClicked) },
+                        enabled = blockReason == null,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.checkout_payment_button, uiModel.paymentSummary.finalAmountLabel))
+                    }
                 }
             }
         },
@@ -170,6 +179,21 @@ fun CheckoutPaymentScreen(
             }
         }
     }
+}
+
+/** 결제 버튼을 막는 이유. 여러 개 해당하면 위에서부터 하나만 보여 준다. */
+internal enum class CheckoutPaymentBlockReason(@param:StringRes val messageResId: Int) {
+    NoPaymentMethod(R.string.checkout_payment_block_method),
+    AgreementNotAccepted(R.string.checkout_payment_block_agreement),
+    InvalidReceiptDetails(R.string.checkout_payment_block_receipt),
+}
+
+/** 결제 버튼이 비활성인 이유. null이면 결제할 수 있다. */
+internal fun checkoutPaymentBlockReason(uiModel: CheckoutUiModel): CheckoutPaymentBlockReason? = when {
+    uiModel.paymentMethod == null -> CheckoutPaymentBlockReason.NoPaymentMethod
+    !uiModel.isOrderAgreementAccepted -> CheckoutPaymentBlockReason.AgreementNotAccepted
+    !isReceiptDetailsValid(uiModel) -> CheckoutPaymentBlockReason.InvalidReceiptDetails
+    else -> null
 }
 
 private fun isReceiptDetailsValid(uiModel: CheckoutUiModel): Boolean {

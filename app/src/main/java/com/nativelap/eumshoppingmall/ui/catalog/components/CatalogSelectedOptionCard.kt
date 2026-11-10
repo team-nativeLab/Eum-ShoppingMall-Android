@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogOptionUiModel
+import com.nativelap.eumshoppingmall.ui.common.AnimatedCountText
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -82,8 +82,8 @@ fun CatalogSelectedOptionCard(
                             modifier = Modifier.size(18.dp),
                         )
                     }
-                    Text(
-                        quantity.toString(),
+                    AnimatedCountText(
+                        count = quantity,
                         modifier = Modifier.width(28.dp),
                         style = MaterialTheme.typography.labelMedium,
                         textAlign = TextAlign.Center,
@@ -100,9 +100,11 @@ fun CatalogSelectedOptionCard(
                         )
                     }
                 }
-                if (!isQuoteRequired) {
+                // 0원 옵션은 "₩0" 행을 만들지 않는다(U-04). 가격 문구가 없어도 같은 규칙으로 숨긴다.
+                val priceLabel = option.priceLabel?.takeIf { it.isNotBlank() && option.unitPriceWon != 0L }
+                if (!isQuoteRequired && priceLabel != null) {
                     Text(
-                        option.priceLabel.orEmpty(),
+                        priceLabel,
                         Modifier.weight(1f),
                         style = MaterialTheme.typography.titleSmall,
                         textAlign = TextAlign.End,

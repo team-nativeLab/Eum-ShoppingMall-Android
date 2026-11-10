@@ -52,7 +52,7 @@ fun CatalogOptionGroupSelector(
                 shape = RoundedCornerShape(EumRadius.x8),
             ) {
                 Text(
-                    stringResource(R.string.catalog_option_select_prompt),
+                    stringResource(R.string.catalog_option_placeholder),
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.eumColors.textTertiary,
@@ -77,7 +77,7 @@ fun CatalogOptionGroupSelector(
                                 horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
                             ) {
                                 Text(option.label, Modifier.weight(1f))
-                                option.priceLabel?.let { Text(it, style = MaterialTheme.typography.labelSmall) }
+                                (if (option.unitPriceWon == 0L) stringResource(R.string.catalog_option_no_extra) else option.priceLabel)?.let { Text(it, style = MaterialTheme.typography.labelSmall) }
                             }
                         },
                         onClick = {

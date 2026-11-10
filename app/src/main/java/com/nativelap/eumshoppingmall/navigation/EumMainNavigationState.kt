@@ -18,6 +18,12 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 
 /**
+ * NavEntry metadata에 넣는 소속 탭 키. 전환 애니메이션이 탭 전환과 push·pop을 구분할 때 읽는다.
+ * Scene의 contentKey 문자열 형식에 기대지 않으려고 metadata로 전달한다.
+ */
+internal const val OWNER_TAB_METADATA_KEY = "eum.ownerTab"
+
+/**
  * 지금 그리는 NavEntry가 속한 탭.
  *
  * 하단 바 선택 표시는 [EumMainNavigationState.currentTab]이 아니라 이 값을 써야 한다. currentTab은 탭 전환·predictive back
@@ -94,7 +100,7 @@ fun EumMainNavigationState.rememberNavEntries(
                     NavEntry(
                         key = navKey,
                         contentKey = "${tab.name}/${baseEntry.contentKey}",
-                        metadata = baseEntry.metadata,
+                        metadata = baseEntry.metadata + (OWNER_TAB_METADATA_KEY to tab),
                     ) {
                         CompositionLocalProvider(LocalEumOwnerTab provides tab) {
                             baseEntry.Content()

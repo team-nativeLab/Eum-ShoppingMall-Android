@@ -7,6 +7,8 @@ sealed interface CatalogPriceUiModel {
         val currentLabel: String,
         val originalLabel: String? = null,
         val discountLabel: String? = null,
+        // 판매가 숫자(원). 장바구니 합계에 쓰며, 모르면 null이고 그 경우 합계는 "가격 확인 필요"가 된다.
+        val unitPriceWon: Long? = null,
     ) : CatalogPriceUiModel
 
     data object QuoteRequired : CatalogPriceUiModel
@@ -47,6 +49,8 @@ data class CatalogOptionUiModel(
     val label: String,
     val quantity: Int,
     val priceLabel: String?,
+    // 옵션 1개당 금액(원). 총액 계산에 쓰며, 모르면 null이고 그 경우 총액 블록을 숨긴다. 0이면 가격 행을 숨긴다.
+    val unitPriceWon: Long? = null,
 )
 
 data class CatalogSelectedOptionUiModel(

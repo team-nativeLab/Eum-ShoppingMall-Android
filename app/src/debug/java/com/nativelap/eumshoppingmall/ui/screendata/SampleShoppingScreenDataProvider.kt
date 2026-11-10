@@ -71,6 +71,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
                 currentLabel = "₩18,000",
                 originalLabel = "₩22,000",
                 discountLabel = "18%",
+                unitPriceWon = 18_000L,
             ),
             ratingLabel = "4.7",
             reviewCountLabel = "(3)",
@@ -78,7 +79,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
         CatalogProductUiModel(
             id = "sample-boots",
             name = "경량 안전화 4인치",
-            price = CatalogPriceUiModel.Available(currentLabel = "₩54,000"),
+            price = CatalogPriceUiModel.Available(currentLabel = "₩54,000", unitPriceWon = 54_000L),
             ratingLabel = "4.7",
             reviewCountLabel = "(6)",
         ),
@@ -94,6 +95,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
                 currentLabel = "₩32,000",
                 originalLabel = "₩35,000",
                 discountLabel = "8%",
+                unitPriceWon = 32_000L,
             ),
         ),
     )
@@ -157,7 +159,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
         return CatalogProductDetailUiModel(
             product = product,
             galleryImageResIds = listOf(null, null, null),
-            shippingRows = listOf(CatalogKeyValueUiModel("배송비", "3,000원")),
+            shippingRows = listOf(CatalogKeyValueUiModel("배송비", "₩3,000")),
             specifications = listOf(CatalogKeyValueUiModel("소재", "샘플")),
             relatedProducts = sampleProducts.filterNot { it.id == product.id },
             optionGroups = listOf(
@@ -165,8 +167,8 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
                     id = "size",
                     label = "사이즈",
                     options = listOf(
-                        CatalogOptionUiModel("size-l", "사이즈 L", 1, if (isQuoteOnly) null else "₩0"),
-                        CatalogOptionUiModel("size-xl", "사이즈 XL", 1, if (isQuoteOnly) null else "₩0"),
+                        CatalogOptionUiModel("size-l", "사이즈 L", 1, if (isQuoteOnly) null else "₩0", unitPriceWon = if (isQuoteOnly) null else 0L),
+                        CatalogOptionUiModel("size-xl", "사이즈 XL", 1, if (isQuoteOnly) null else "₩0", unitPriceWon = if (isQuoteOnly) null else 0L),
                     ),
                 ),
             ),
@@ -183,6 +185,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
                 unitPriceLabel = "₩18,000",
                 totalPriceLabel = "₩18,000",
                 isSelected = true,
+                lineTotalWon = 18_000L,
             ),
             CartItemUiModel(
                 id = "cart-belt",
@@ -196,6 +199,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
         ),
         productAmountLabel = "₩18,000",
         shippingFeeLabel = "₩3,000",
+        shippingFeeWon = 3_000L,
         expectedPaymentLabel = "₩21,000",
     )
 
@@ -222,6 +226,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             shippingFeeLabel = "₩3,000",
             discountLabel = "₩0",
             finalAmountLabel = "₩21,000",
+            shippingFeeWon = 3_000L,
         ),
     )
 

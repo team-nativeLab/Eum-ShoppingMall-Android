@@ -20,10 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -55,6 +53,7 @@ import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountSettingUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountSettingsScreenEvent
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
+import com.nativelap.eumshoppingmall.ui.common.EumAlertDialog
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -188,28 +187,14 @@ fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSetti
             }
         }
         if (uiModel.isLogoutDialogVisible) {
-            AlertDialog(
+            EumAlertDialog(
                 onDismissRequest = { onEvent(AccountSettingsScreenEvent.LogoutDismissed) },
-                shape = RoundedCornerShape(16.dp),
-                title = { Text(stringResource(R.string.settings_logout_confirm)) },
+                title = stringResource(R.string.settings_logout_confirm),
                 text = { Text(stringResource(R.string.settings_logout_body), style = MaterialTheme.typography.bodySmall) },
-                confirmButton = {
-                    Button(
-                        onClick = { onEvent(AccountSettingsScreenEvent.LogoutConfirmed) },
-                        shape = RoundedCornerShape(EumRadius.x8),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.eumColors.textPrimary),
-                        modifier = Modifier.heightIn(min = 48.dp).widthIn(min = 120.dp),
-                    ) { Text(stringResource(R.string.settings_confirm_logout)) }
-                },
-                dismissButton = {
-                    OutlinedButton(
-                        onClick = { onEvent(AccountSettingsScreenEvent.LogoutDismissed) },
-                        shape = RoundedCornerShape(EumRadius.x8),
-                        border = BorderStroke(1.dp, MaterialTheme.eumColors.textPrimary),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
-                        modifier = Modifier.heightIn(min = 48.dp).widthIn(min = 120.dp),
-                    ) { Text(stringResource(R.string.settings_cancel)) }
-                },
+                confirmLabel = stringResource(R.string.settings_confirm_logout),
+                onConfirm = { onEvent(AccountSettingsScreenEvent.LogoutConfirmed) },
+                dismissLabel = stringResource(R.string.settings_cancel),
+                onDismiss = { onEvent(AccountSettingsScreenEvent.LogoutDismissed) },
             )
         }
     }

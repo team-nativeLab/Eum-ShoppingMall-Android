@@ -219,6 +219,11 @@ fun QuoteRequestScreen(
                         onValueChange = { onEvent(QuoteRequestEvent.FieldChanged(QuoteRequestField.DeliveryDate, it)) },
                         placeholder = stringResource(R.string.quote_due_date_placeholder),
                         isError = QuoteRequestField.DeliveryDate in uiModel.errors,
+                        helperText = if (QuoteRequestField.DeliveryDate in uiModel.errors) {
+                            stringResource(R.string.quote_delivery_date_invalid)
+                        } else {
+                            null
+                        },
                         modifier = Modifier.weight(1f),
                         showLabel = false,
                     )

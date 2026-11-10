@@ -2,8 +2,11 @@ package com.nativelap.eumshoppingmall.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation3.runtime.NavKey
@@ -11,12 +14,15 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
+import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.data.local.CartLine
 import com.nativelap.eumshoppingmall.ui.account.view.AccountDrawerRoute
 import com.nativelap.eumshoppingmall.ui.account.view.MyPageRoute
 import com.nativelap.eumshoppingmall.ui.auth.view.AuthLoginRoute
 import com.nativelap.eumshoppingmall.ui.benefits.CouponRoute
 import com.nativelap.eumshoppingmall.ui.benefits.PointsRoute
 import com.nativelap.eumshoppingmall.ui.cart.view.CartRoute
+import com.nativelap.eumshoppingmall.ui.catalog.CartAddOutcome
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryRoute
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductDetailRoute
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductListRoute
@@ -53,14 +59,23 @@ import com.nativelap.eumshoppingmall.ui.support.NoticeListRoute
 @Composable
 fun EumMainNavDisplay(
     cartItemCount: Int,
+    savedCartLines: List<CartLine>,
     screenDataProvider: ShoppingScreenDataProvider,
+    onAddToCart: suspend (addedLines: List<CartLine>) -> Unit,
+    onCartQuantityChanged: suspend (lineId: String, quantity: Int) -> Unit,
+    onCartItemsRemoved: suspend (lineIds: Set<String>) -> Unit,
+    onCartLinesRestored: suspend (lines: List<CartLine>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val navigationState = rememberEumMainNavigationState()
     val navigator = remember(navigationState) { EumMainNavigator(navigationState) }
     val quoteProductSelection = rememberEumQuoteProductSelection()
     val currentCartItemCount by rememberUpdatedState(cartItemCount)
-    val entryProvider = remember(navigationState, navigator, screenDataProvider, quoteProductSelection) {
+    val currentSavedCartLines by rememberUpdatedState(savedCartLines)
+    // 담기 결과는 Route가 아니라 여기서 보관한다. Route가 사라져도 결과가 남아 다음 화면 구성에서 안내된다.
+    var cartAddOutcome by rememberSaveable(stateSaver = CartAddOutcome.Saver) { mutableStateOf<CartAddOutcome?>(null) }
+    val currentCartAddOutcome by rememberUpdatedState(cartAddOutcome)
+    val entryProvider = remember(navigationState, navigator, screenDataProvider, quoteProductSelection, onAddToCart) {
         entryProvider<NavKey> {
             entry<EumDestination.Home> {
                 HomeRoute(
@@ -105,7 +120,12 @@ fun EumMainNavDisplay(
             }
             entry<EumDestination.Cart> {
                 CartRoute(
-                    uiModel = remember { screenDataProvider.cart() },
+                    // 저장된 장바구니 줄이 있으면 그것을 먼저 보여 주고, 없을 때만 provider의 기본 목록을 쓴다.
+                    savedLines = currentSavedCartLines,
+                    fallback = remember { screenDataProvider.cart() },
+                    onQuantityChanged = onCartQuantityChanged,
+                    onItemsRemoved = onCartItemsRemoved,
+                    onCartLinesRestored = onCartLinesRestored,
                     isLoggedIn = screenDataProvider.isLoggedIn,
                     cartItemCount = currentCartItemCount,
                     onTabSelected = navigator::navigateToTab,
@@ -178,6 +198,9 @@ fun EumMainNavDisplay(
                     onBuyNowClick = { navigator.push(EumDestination.CheckoutAddress) },
                     onQuoteRequestClick = { productId -> navigator.push(EumDestination.QuoteRequest(productId)) },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
+                    onAddToCart = onAddToCart,
+                    cartAddOutcome = currentCartAddOutcome,
+                    onCartAddOutcomeChange = { outcome -> cartAddOutcome = outcome },
                 )
             }
             entry<EumDestination.CheckoutAddress> {

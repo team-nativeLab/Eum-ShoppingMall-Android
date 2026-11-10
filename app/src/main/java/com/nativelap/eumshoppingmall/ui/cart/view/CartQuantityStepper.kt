@@ -10,7 +10,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.AnimatedCountText
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -33,7 +33,8 @@ fun CartQuantityStepper(
         modifier = modifier.heightIn(min = 48.dp),
         shape = RoundedCornerShape(EumRadius.x8),
         color = if (enabled) MaterialTheme.eumColors.surface else MaterialTheme.eumColors.surfaceSecondary,
-        border = BorderStroke(1.dp, MaterialTheme.eumColors.lineControl),
+        // 비활성일 때는 진한 테두리 대신 연한 라인으로 바꿔 눌리지 않는 상태를 드러낸다(m1).
+        border = BorderStroke(1.dp, if (enabled) MaterialTheme.eumColors.lineControl else MaterialTheme.eumColors.line),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(
@@ -47,7 +48,7 @@ fun CartQuantityStepper(
                     modifier = Modifier.size(16.dp),
                 )
             }
-            Text(safeQuantity.toString(), style = MaterialTheme.typography.labelMedium)
+            AnimatedCountText(count = safeQuantity, style = MaterialTheme.typography.labelMedium)
             IconButton(
                 onClick = { onQuantityChanged(if (safeQuantity < Int.MAX_VALUE) safeQuantity + 1 else Int.MAX_VALUE) },
                 enabled = enabled && safeQuantity < Int.MAX_VALUE,
