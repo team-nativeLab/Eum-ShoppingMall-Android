@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,9 +24,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
@@ -34,7 +38,9 @@ import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.common.FavoriteToggleButton
 import com.nativelap.eumshoppingmall.ui.common.pressScale
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
+import com.nativelap.eumshoppingmall.ui.theme.EumShadows
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -44,24 +50,37 @@ fun CatalogProductCard(
     onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = RoundedCornerShape(EumRadius.x8)
+    val shape = RoundedCornerShape(EumRadius.x12)
     Column(
         modifier = modifier
             .pressScale()
+            // Figma 그림자(0,1,3 #1111110F)는 Modifier.shadow로 근사한다(blur·offset 정확 재현 불가).
+            .shadow(
+                elevation = 1.dp,
+                shape = shape,
+                ambientColor = EumShadows.level1.color,
+                spotColor = EumShadows.level1.color,
+            )
             .clip(shape)
             .background(MaterialTheme.eumColors.surface)
             .border(1.dp, MaterialTheme.eumColors.lineNeutral, shape)
             .clickable(onClick = onClick)
-            // Figma 179:743 카드 높이 269dp에 맞추려고 하단 여백만 13dp로 둔다(나머지 여백은 8dp).
-            .padding(start = EumSpacing.x8, top = EumSpacing.x8, end = EumSpacing.x8, bottom = 13.dp),
-        verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+            .padding(start = EumSpacing.x8, top = EumSpacing.x8, end = EumSpacing.x8, bottom = EumSpacing.x10),
+        verticalArrangement = Arrangement.spacedBy(EumSpacing.x10),
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .clip(RoundedCornerShape(EumRadius.x4))
-                .background(MaterialTheme.eumColors.productImageBackground),
+                .clip(RoundedCornerShape(EumRadius.x6))
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            MaterialTheme.eumColors.imagePlaceholderStart,
+                            MaterialTheme.eumColors.imagePlaceholderEnd,
+                        ),
+                    ),
+                ),
             contentAlignment = Alignment.Center,
         ) {
             val imageResId = product.imageResId
@@ -93,18 +112,24 @@ fun CatalogProductCard(
                 )
             }
             product.badgeLabel?.let { badge ->
-                // Figma 179:743 견적 상품 배지는 흰 알약에 1dp 테두리, 이미지 좌상단에서 8dp 안쪽이다.
-                Text(
-                    badge,
+                // Figma 견적 상품 배지는 모서리 4 사각형, 높이 20, 좌우 6, 흰 배경에 lineStrong 테두리다.
+                val badgeShape = RoundedCornerShape(EumRadius.x4)
+                Box(
                     modifier = Modifier.align(Alignment.TopStart)
                         .padding(EumSpacing.x8)
-                        .clip(RoundedCornerShape(EumRadius.capsule))
+                        .heightIn(min = 20.dp)
+                        .clip(badgeShape)
                         .background(MaterialTheme.eumColors.surface)
-                        .border(1.dp, MaterialTheme.eumColors.productBadgeBorder, RoundedCornerShape(EumRadius.capsule))
-                        .padding(horizontal = EumSpacing.x6, vertical = EumSpacing.x2),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.eumColors.textSecondary,
-                )
+                        .border(1.dp, MaterialTheme.eumColors.lineStrong, badgeShape)
+                        .padding(horizontal = EumSpacing.x6),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        badge,
+                        style = EumTypographyTokens.labelXs,
+                        color = MaterialTheme.eumColors.textSecondary,
+                    )
+                }
             }
             FavoriteToggleButton(
                 isFavorite = product.isFavorite,
@@ -117,8 +142,7 @@ fun CatalogProductCard(
             )
         }
         Column(
-            modifier = Modifier.padding(horizontal = EumSpacing.x4),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x6),
+            verticalArrangement = Arrangement.spacedBy(EumSpacing.x4),
         ) {
             Text(
                 product.name,
@@ -172,17 +196,29 @@ fun CatalogProductCard(
                             }
                             price.discountLabel?.let { discount ->
                                 Spacer(Modifier.width(EumSpacing.x4))
-                                Text(discount, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.danger)
+                                Text(
+                                    discount,
+                                    style = EumTypographyTokens.labelS.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.eumColors.danger,
+                                )
                             }
                         }
                     }
-                    Text(price.currentLabel, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.eumColors.textPrimary)
+                    Text(
+                        price.currentLabel,
+                        style = EumTypographyTokens.priceM,
+                        color = if (price.discountLabel != null) {
+                            MaterialTheme.eumColors.danger
+                        } else {
+                            MaterialTheme.eumColors.textPrimary
+                        },
+                    )
                 }
 
                 CatalogPriceUiModel.QuoteRequired -> Text(
                     stringResource(R.string.product_price_inquiry),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.eumColors.textSecondary,
+                    style = EumTypographyTokens.priceM,
+                    color = MaterialTheme.eumColors.textPrimary,
                 )
             }
         }
@@ -198,7 +234,8 @@ fun CatalogProductRow(
 ) {
     Row(
         modifier = modifier.pressScale().fillMaxWidth().clip(RoundedCornerShape(EumRadius.x8))
-            .background(MaterialTheme.eumColors.backgroundSubtle)
+            // backgroundSubtle이 background와 같아져 구분이 사라져 surfaceSecondary로 보정한다(Figma 노드 값 없음).
+            .background(MaterialTheme.eumColors.surfaceSecondary)
             .border(1.dp, MaterialTheme.eumColors.lineStrong, RoundedCornerShape(EumRadius.x8))
             .clickable(onClick = onClick).padding(EumSpacing.x8),
         verticalAlignment = Alignment.CenterVertically,

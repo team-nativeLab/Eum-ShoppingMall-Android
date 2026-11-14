@@ -50,7 +50,7 @@ fun HomeProductCard(
     val cardShape = RoundedCornerShape(EumRadius.x8)
     Column(
         modifier.pressScale().clip(cardShape)
-            .background(MaterialTheme.eumColors.background)
+            .background(MaterialTheme.eumColors.surface)
             .border(1.dp, MaterialTheme.eumColors.line, cardShape)
             .clickable { onClick(product) }
             .padding(EumSpacing.x8),
@@ -114,7 +114,7 @@ fun HomeProductCard(
             Text(
                 product.name,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.eumColors.textSecondary,
+                color = MaterialTheme.eumColors.textPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -154,8 +154,8 @@ fun HomeProductCard(
                 // 가격 문의 상품은 상세와 같은 문구로 보여 준다(F6).
                 Text(
                     stringResource(R.string.home_product_purchase_unavailable),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.eumColors.textSecondary,
+                    style = EumTypographyTokens.priceM,
+                    color = MaterialTheme.eumColors.textPrimary,
                 )
             } else {
                 val originalPrice = product.originalPriceLabel
