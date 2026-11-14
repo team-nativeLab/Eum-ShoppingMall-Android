@@ -135,3 +135,19 @@
 - 별 색: 카탈로그 카드의 채운 별을 warning에서 ratingStar로 바꿨다.
 - 주의: `backgroundSubtle`(#FAFAFA)이 `background`와 같아져 채움만으로 구분하던 컨테이너가 사라질 수 있다. `AuthPrimaryAction` 비활성 배경은 #38에서 `surfaceSecondary`로 보정했고, 나머지 6곳(BrandScreens, OrderRequestComponents, OrderRequestFormScreen, OrderRequestEntryScreens, SearchResultScreens, MyPageScreen)은 #39/#40에서 후속 확인한다.
 - 범위 밖(후속): 카드 그림자, 라디오·체크 커스텀, 필수 * 공용 컴포넌트, caption·가격·헤드라인 호출부 교체.
+
+## #40 주문·마이 화면 Figma 세부 일치 (A-07~A-12)
+
+- 기준: `feature/#40-figma-order-my-screens`(#38 위). 값은 구현 명세(Figma 노드 180:1780~182:2416)만 사용했다.
+- A-07: 합계 라벨 labelL·금액 priceL(금액 미상이면 기존 16sp), 로그인 안내를 흰 카드(line 1dp, r12, 좌우 20, 내부 14/12)로, 상품 행 서식(labelM 이름·caption 옵션·priceM 가격, 썸네일 r6, 제거 버튼 44dp).
+- A-08: 스텝퍼를 본문 첫 항목(72dp)으로 이동, 섹션 카드(`CheckoutSectionCard`, r16, 헤더 32), 주소 행·기본 배송지 배지·'변경' 아웃라인 버튼(`CheckoutOutlineActionButton`, 터치 48dp), 배송 요청사항은 메뉴 유지 + 48dp 필드 모양, 결제 예정 금액 56dp 한 줄 카드.
+- A-09: 결제수단 타일 56dp, 섹션 헤더 48dp + 전폭 구분선(흰 카드 제거), 쿠폰·적립금 행, 요약 카드 패딩 20·행 간격, 약관 동의 56dp + 16dp 커스텀 체크, 결제 버튼 영역 상단 구분선 + 비활성 표시.
+- A-10: 스텝퍼 본문 첫 항목, 상단 40, 아이콘→텍스트 24, 타이틀 h2, 요약 카드 라벨 폭 최소 72·값 start 정렬·결제금액 priceM.
+- A-11: 프로필 행 112·아바타 72(surfaceSecondary로 보정)·이름 h2·사업자 배지, 바로가기 82, 주문 현황 76, 메뉴 박스 흰 배경·행 56·구분선 inset 20.
+- A-12: 패널 surface·그림자 근사·폭 min(0.82, 320dp), 패딩 상 52·하 34(시스템 바가 크면 그 값), 유저 패널·메뉴 행 52·푸터 56.
+- 판단: 마이 우측 메뉴 아이콘과 드로어 알림 벨은 앱 흐름상 유지. 카트 단가 줄·마이 count 라벨은 Figma에 없어 유지(디자인 확인 필요).
+- 남은 미확인: 증빙 서류 라디오 14×14·간격(Material 유지), cta-hint 서식(노드 263:15606, 보류), 약관 체크 선택 상태 모양(checkboxChecked 가정), 결제 예정 금액 한 줄 카드 글자 서식(labelL·priceL 가정), '설정 바로가기'(879:44841)·비로그인 카드, 로그인 버튼 상태, A-08 하단 CTA 바 구분선, 드로어 푸터 좌우 여백·메뉴 간격.
+- A-07 보정: 상품 행은 이름 labelMedium(14/20 Medium)·옵션 caption+textTertiary·가격 priceM·썸네일 r6·제거 버튼 44dp. 단가 줄은 Figma에 없지만 유지(결정). 마이 count 라벨, 결제 하단의 danger 안내 문구(U-03)도 유지(결정). 드로어 그림자는 `Modifier.shadow` 근사를 허용(결정).
+- 결제 하단 바(A-09)는 배경·상단 구분선을 전폭으로, 버튼 내용만 `ResponsiveWidthContainer` 안에 둔다. A-08 '다음' 바는 surface 배경만 적용하고 구분선은 Figma 미확인이라 넣지 않았다(결정).
+- 후속: private Composable(DrawerFooterButton, OrderAgreementRow, CouponRow·PointsRow, AddressSectionCard·DeliveryRequestSectionCard)을 `view/` 하위 별도 파일로 분리하는 작업은 대규모 이동이라 이번에는 하지 않았다.
+- 병합 메모: `CartLoginNoticeBanner`는 #41이 onClick·clickable·Role.Button·48dp를 추가한다. 충돌 시 양쪽을 병합하고, `CartPreviews`의 호출에는 `onClick = {}`이 필요하다.

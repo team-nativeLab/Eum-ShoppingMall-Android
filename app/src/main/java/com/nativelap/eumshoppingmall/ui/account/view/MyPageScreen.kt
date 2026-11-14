@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,9 +29,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
@@ -45,6 +48,7 @@ import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -80,36 +84,57 @@ fun MyPageScreen(uiModel: MyPageUiModel, onEvent: (MyPageScreenEvent) -> Unit, c
                 if (uiModel.isLoggedIn) {
                     item {
                         Row(
-                            modifier = Modifier.fillMaxWidth().clickable { onEvent(MyPageScreenEvent.ProfileClicked) },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 112.dp).clickable(role = Role.Button) { onEvent(MyPageScreenEvent.ProfileClicked) },
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Icon(
-                                painterResource(R.drawable.ic_user_round),
-                                contentDescription = null,
-                                modifier = Modifier.size(64.dp).background(MaterialTheme.eumColors.backgroundSubtle, CircleShape).padding(18.dp),
-                                tint = MaterialTheme.eumColors.textTertiary,
-                            )
-                            Column(Modifier.weight(1f).padding(start = EumSpacing.x16)) {
+                            // 아바타는 background와 같은 색(backgroundSubtle)이면 묻히므로 surfaceSecondary를 쓴다.
+                            Box(
+                                modifier = Modifier.size(72.dp).background(MaterialTheme.eumColors.surfaceSecondary, CircleShape),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.ic_user_round),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(36.dp),
+                                    tint = MaterialTheme.eumColors.textTertiary,
+                                )
+                            }
+                            Column(Modifier.weight(1f).padding(start = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x2)) {
                                 Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
-                                    Text(stringResource(R.string.account_drawer_member_name, uiModel.profile.name), style = MaterialTheme.typography.titleLarge)
+                                    Text(
+                                        stringResource(R.string.account_drawer_member_name, uiModel.profile.name),
+                                        modifier = Modifier.weight(1f, fill = false),
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        color = MaterialTheme.eumColors.textPrimary,
+                                    )
                                     if (uiModel.profile.isBusinessMember) {
-                                        Text(stringResource(R.string.account_business_badge), modifier = Modifier.border(1.dp, MaterialTheme.eumColors.lineStrong, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x4)).padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x2), style = MaterialTheme.typography.labelSmall)
+                                        Box(
+                                            modifier = Modifier.heightIn(min = 20.dp)
+                                                .border(1.dp, MaterialTheme.eumColors.lineStrong, RoundedCornerShape(EumRadius.x4))
+                                                .padding(horizontal = EumSpacing.x6),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            Text(stringResource(R.string.account_business_badge), style = EumTypographyTokens.labelXs, color = MaterialTheme.eumColors.textSecondary)
+                                        }
                                     }
                                 }
                                 Text(stringResource(R.string.account_greeting), color = MaterialTheme.eumColors.textSecondary, style = MaterialTheme.typography.bodySmall)
                             }
-                            Icon(painterResource(R.drawable.ic_chevron_right), null, tint = MaterialTheme.eumColors.textTertiary)
+                            Icon(painterResource(R.drawable.ic_chevron_right), null, modifier = Modifier.size(20.dp), tint = MaterialTheme.eumColors.textTertiary)
                         }
                     }
                     item { AccountShortcutRow(uiModel.shortcuts, onEvent) }
                     item {
-                        Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                            Text(stringResource(R.string.account_order_status_section), style = MaterialTheme.typography.titleMedium)
-                            Row(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).background(MaterialTheme.eumColors.surface, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).padding(vertical = EumSpacing.x12), horizontalArrangement = Arrangement.SpaceEvenly) {
+                        Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                            Text(stringResource(R.string.account_order_status_section), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.eumColors.textPrimary)
+                            Row(
+                                Modifier.fillMaxWidth().heightIn(min = 76.dp).border(1.dp, MaterialTheme.eumColors.line, RoundedCornerShape(EumRadius.x12)).background(MaterialTheme.eumColors.surface, RoundedCornerShape(EumRadius.x12)).padding(vertical = EumSpacing.x8),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
                                 uiModel.orderStatuses.forEach { status ->
-                                    Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Text(status.count, style = MaterialTheme.typography.titleMedium)
-                                        Text(status.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+                                        Text(status.count, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.eumColors.textTertiary)
+                                        Text(status.label, style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textSecondary, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
                                     }
                                 }
                             }
@@ -177,9 +202,9 @@ private fun AccountShortcutRow(shortcuts: List<AccountShortcutUiModel>, onEvent:
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         shortcuts.forEach { shortcut ->
             Column(
-                modifier = Modifier.weight(1f).heightIn(min = 64.dp).clickable(role = Role.Button) { onEvent(MyPageScreenEvent.ShortcutClicked(shortcut.id)) }.padding(vertical = EumSpacing.x8),
+                modifier = Modifier.weight(1f).heightIn(min = 82.dp).clickable(role = Role.Button) { onEvent(MyPageScreenEvent.ShortcutClicked(shortcut.id)) }.padding(vertical = EumSpacing.x8),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(EumSpacing.x4),
+                verticalArrangement = Arrangement.spacedBy(EumSpacing.x8, Alignment.CenterVertically),
             ) {
                 val iconResource = when (shortcut.id) {
                     "orders" -> R.drawable.ic_clipboard_list
@@ -189,7 +214,7 @@ private fun AccountShortcutRow(shortcuts: List<AccountShortcutUiModel>, onEvent:
                     else -> R.drawable.ic_coins
                 }
                 Icon(painterResource(iconResource), contentDescription = null, modifier = Modifier.size(24.dp), tint = MaterialTheme.eumColors.textPrimary)
-                Text(shortcut.label, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(shortcut.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textPrimary, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 if (!shortcut.countLabel.isNullOrBlank()) Text(shortcut.countLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
             }
         }
@@ -199,11 +224,12 @@ private fun AccountShortcutRow(shortcuts: List<AccountShortcutUiModel>, onEvent:
 @Composable
 private fun AccountMenuGroup(title: String?, rows: List<AccountMenuRowUiModel>, onEvent: (MyPageScreenEvent) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-        if (title != null) Text(title, style = MaterialTheme.typography.titleMedium)
-        Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).padding(horizontal = EumSpacing.x16)) {
+        if (title != null) Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.eumColors.textPrimary)
+        val boxShape = RoundedCornerShape(EumRadius.x12)
+        Column(Modifier.fillMaxWidth().clip(boxShape).background(MaterialTheme.eumColors.surface).border(1.dp, MaterialTheme.eumColors.line, boxShape)) {
             rows.forEachIndexed { index, row ->
                 Row(
-                    Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable(role = Role.Button) { onEvent(MyPageScreenEvent.MenuRowClicked(row.id)) },
+                    Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(role = Role.Button) { onEvent(MyPageScreenEvent.MenuRowClicked(row.id)) }.padding(horizontal = EumSpacing.x20),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     val iconResource = when (row.id) {
@@ -216,10 +242,10 @@ private fun AccountMenuGroup(title: String?, rows: List<AccountMenuRowUiModel>, 
                         else -> R.drawable.ic_megaphone
                     }
                     Icon(painterResource(iconResource), contentDescription = null, tint = MaterialTheme.eumColors.textPrimary, modifier = Modifier.size(20.dp))
-                    Text(row.label, Modifier.weight(1f).padding(start = EumSpacing.x12), style = MaterialTheme.typography.bodyMedium)
+                    Text(row.label, Modifier.weight(1f).padding(start = EumSpacing.x12), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.eumColors.textPrimary)
                     Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = MaterialTheme.eumColors.textTertiary, modifier = Modifier.size(20.dp))
                 }
-                if (index != rows.lastIndex) androidx.compose.material3.HorizontalDivider(color = MaterialTheme.eumColors.line)
+                if (index != rows.lastIndex) androidx.compose.material3.HorizontalDivider(modifier = Modifier.padding(horizontal = EumSpacing.x20), color = MaterialTheme.eumColors.line)
             }
         }
     }

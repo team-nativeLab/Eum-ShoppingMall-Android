@@ -34,6 +34,7 @@ import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemType
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumCheckboxColors
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -64,7 +65,7 @@ fun CartProductRow(
             modifier = Modifier.size(48.dp),
         )
         Box(
-            Modifier.size(80.dp).clip(RoundedCornerShape(EumRadius.x8)).background(MaterialTheme.eumColors.surfaceSecondary),
+            Modifier.size(80.dp).clip(RoundedCornerShape(EumRadius.x6)).background(MaterialTheme.eumColors.surfaceSecondary),
             contentAlignment = Alignment.Center,
         ) {
             item.imageResId?.let { imageResId ->
@@ -92,12 +93,12 @@ fun CartProductRow(
                 Text(
                     text = item.name,
                     modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = textColor,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
-                IconButton(onClick = onRemoveClicked, modifier = Modifier.size(40.dp)) {
+                IconButton(onClick = onRemoveClicked, modifier = Modifier.size(44.dp)) {
                     Icon(
                         painterResource(R.drawable.ic_x),
                         contentDescription = stringResource(R.string.cart_remove_product, item.name),
@@ -118,7 +119,7 @@ fun CartProductRow(
                     color = MaterialTheme.eumColors.danger,
                 )
             }
-            Text(item.optionLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+            Text(item.optionLabel, style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
             TextButton(
                 onClick = onOptionChangeClicked,
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
@@ -149,7 +150,7 @@ fun CartProductRow(
                     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
                         Text(
                             text = priceLabel,
-                            style = MaterialTheme.typography.titleSmall,
+                            style = EumTypographyTokens.priceM,
                             color = textColor,
                             maxLines = 1,
                             softWrap = false,
@@ -166,7 +167,7 @@ fun CartProductRow(
                         Text(
                             text = priceLabel,
                             modifier = Modifier.weight(1f),
-                            style = MaterialTheme.typography.titleSmall,
+                            style = EumTypographyTokens.priceM,
                             color = textColor,
                             maxLines = 1,
                             softWrap = false,
