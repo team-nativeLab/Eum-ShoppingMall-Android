@@ -54,6 +54,39 @@ class EumMainNavigator(
     }
 
     /**
+     * 현재 탭 맨 위가 [topDestination]일 때만 [popWhileAndPush]를 수행하고 성공 여부를 돌려준다.
+     *
+     * 결제 성공처럼 한 번만 처리해야 하는 전환에서, 연타된 두 번째 입력이 부작용(장바구니 제거 등)을 다시 일으키지 않게 한다.
+     */
+    fun popWhileAndPushIfTop(
+        topDestination: EumDestination,
+        destination: EumDestination,
+        shouldRemove: (NavKey) -> Boolean,
+    ): Boolean {
+        if (state.currentBackStack.lastOrNull() != topDestination) {
+            return false
+        }
+        popWhileAndPush(destination, shouldRemove)
+        return true
+    }
+
+    /**
+     * 현재 탭 맨 위가 [topDestination]일 때만 [closeTopAndOpenTabRoot]를 수행하고 성공 여부를 돌려준다.
+     *
+     * 퇴장 애니메이션 중 들어온 두 번째 뒤로가기·닫기가 다른 화면을 닫지 않게 한다.
+     */
+    fun closeTopAndOpenTabRootIfTop(
+        topDestination: EumDestination,
+        tab: MainNavigationTab,
+    ): Boolean {
+        if (state.currentBackStack.lastOrNull() != topDestination) {
+            return false
+        }
+        closeTopAndOpenTabRoot(tab)
+        return true
+    }
+
+    /**
      * 현재 탭 맨 위가 [destination]일 때만 pop하고 성공 여부를 돌려준다. 탭 루트는 pop하지 않는다.
      *
      * 퇴장 애니메이션 중 같은 화면에서 두 번째 입력이 들어와도 그 아래 화면까지 닫지 않게 할 때 쓴다.
@@ -104,15 +137,21 @@ class EumMainNavigator(
     }
 
     /**
-     * 로그인 성공 후 호출한다(F4). 맨 위 [EumDestination.Login]을 pop하고, 보류된 목적지가 있으면 push한다.
+     * 로그인 성공 후 호출한다(F4). 맨 위부터 이어진 인증 계열 화면을 모두 pop하고, 그중 가장 아래 Login의 보류 목적지를 push한다.
      *
-     * 로그인 성공 처리는 아직 없으므로 현재는 호출하는 화면이 없다.
+     * 맨 위가 인증 계열이 아니면 아무것도 하지 않으므로 연타해도 보류 목적지는 한 번만 열린다.
      */
     fun completeLogin() {
         val backStack = state.currentBackStack
-        val loginDestination = backStack.lastOrNull() as? EumDestination.Login ?: return
-        backStack.removeLastOrNull()
-        loginDestination.pendingDestination?.let(::push)
+        if (backStack.size <= 1 || !isAuthDestination(backStack.last())) return
+        var pendingDestination: EumDestination? = null
+        while (backStack.size > 1 && isAuthDestination(backStack.last())) {
+            val removedKey = backStack.removeLastOrNull()
+            if (removedKey is EumDestination.Login) {
+                pendingDestination = removedKey.pendingDestination
+            }
+        }
+        pendingDestination?.let(::push)
     }
 
     private fun popToRoot(tab: MainNavigationTab) {

@@ -13,4 +13,5 @@ sealed interface CartScreenEvent {
     data class OptionChangeClicked(val itemId: String) : CartScreenEvent
     data object QuoteRequestClicked : CartScreenEvent
     data object CheckoutClicked : CartScreenEvent
+    data object LoginClicked : CartScreenEvent
 }
