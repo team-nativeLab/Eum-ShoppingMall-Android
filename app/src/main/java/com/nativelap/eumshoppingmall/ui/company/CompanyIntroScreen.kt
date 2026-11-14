@@ -39,7 +39,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import androidx.compose.ui.unit.sp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
@@ -234,4 +233,4 @@ private fun CompanyInfoRow(label: String, value: String) {
 }
 
 @Composable
-private fun companyEyebrowStyle(): TextStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.08.em)
+private fun companyEyebrowStyle(): TextStyle = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.08.em)

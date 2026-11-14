@@ -34,7 +34,6 @@ fun TermsDialogScreen(
         title = stringResource(R.string.ui_audit_terms_title),
         onBackClick = { onEvent(TermsDialogScreenEvent.CloseClicked) },
         isCloseAction = true,
-        showBottomDivider = true,
         modifier = modifier,
         bottomActionLabel = stringResource(R.string.ui_audit_terms_agree),
         onBottomActionClick = { onEvent(TermsDialogScreenEvent.AgreeClicked) },

@@ -12,8 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.nativelap.eumshoppingmall.ui.common.EumCtaButtonHeight
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
-import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -24,7 +24,7 @@ fun UiAuditPrimaryButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().heightIn(min = EumSpacing.x52),
+        modifier = modifier.fillMaxWidth().heightIn(min = EumCtaButtonHeight),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.eumColors.textPrimary,
             contentColor = MaterialTheme.eumColors.inverse,

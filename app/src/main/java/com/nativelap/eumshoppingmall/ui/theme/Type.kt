@@ -62,6 +62,8 @@ val Typography =
         displayLarge = EumTypographyTokens.webDisplayL,
         displayMedium = EumTypographyTokens.display,
         displaySmall = EumTypographyTokens.h1,
+        // 호출부는 Figma 한 단계 아래 토큰을 쓴다: headlineSmall=H3(18/26), headlineMedium=H2(22/30), headlineLarge=H1(26/34).
+        // 가격은 priceM·priceL을 쓴다. 호출부 교체는 화면별 이슈에서 한다.
         headlineLarge = EumTypographyTokens.h1,
         headlineMedium = EumTypographyTokens.h2,
         headlineSmall = EumTypographyTokens.h3,
@@ -73,5 +75,6 @@ val Typography =
         bodySmall = EumTypographyTokens.bodyS,
         labelLarge = EumTypographyTokens.labelL,
         labelMedium = EumTypographyTokens.labelM,
-        labelSmall = EumTypographyTokens.labelXs,
+        // Figma Label S 12/16 Medium. 기존 11/14 매핑은 caption 자리 호출부에서 작게 보였다.
+        labelSmall = EumTypographyTokens.labelS,
     )

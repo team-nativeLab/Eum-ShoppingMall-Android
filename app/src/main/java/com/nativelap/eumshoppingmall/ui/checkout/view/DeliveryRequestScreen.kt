@@ -71,7 +71,6 @@ fun DeliveryRequestScreen(
         title = stringResource(R.string.ui_audit_shipping_request_title),
         onBackClick = { onEvent(DeliveryRequestScreenEvent.BackClicked) },
         modifier = modifier,
-        showBottomDivider = true,
         bottomActionLabel = stringResource(R.string.ui_audit_request_complete),
         onBottomActionClick = {
             onEvent(DeliveryRequestScreenEvent.SelectionConfirmed(uiModel.selectedRequest, uiModel.customRequest))

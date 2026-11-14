@@ -9,7 +9,12 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-/** Semantic colors from the Figma HF Color collection (Light mode). */
+/**
+ * Semantic colors from the Figma HF Color collection (Light mode).
+ *
+ * 중립색은 Figma 변수 값으로 맞췄다. line·lineNeutral, surfaceSecondary·inverseSecondary, background·backgroundSubtle처럼
+ * 값이 같아진 토큰은 역할이 달라 병합하지 않고 유지한다. backgroundSubtle은 Figma hf/bg-subtle 변수(#FAFAFA)로 확정했다.
+ */
 @Immutable
 data class EumColorTokens(
     val textPrimary: Color,
@@ -62,24 +67,26 @@ data class EumColorTokens(
     val productImageBackground: Color,
     // Figma 상품 카드 견적 배지 테두리(#8C8C8C)는 기존 토큰과 달라 신규 토큰으로 둔다.
     val productBadgeBorder: Color,
+    // Figma accent-tint. 아이콘 정보 카드의 아이콘 타일 배경에 쓴다.
+    val accentTint: Color,
 )
 
 val LightEumColorTokens =
     EumColorTokens(
-        textPrimary = Color(0xFF171B19),
-        textSecondary = Color(0xFF48534D),
-        textTertiary = Color(0xFF65716A),
-        textDisabled = Color(0xFF7D8982),
-        background = Color(0xFFFAFBFA),
-        backgroundSubtle = Color(0xFFF6F8F6),
+        textPrimary = Color(0xFF171717),
+        textSecondary = Color(0xFF4A4A4A),
+        textTertiary = Color(0xFF666666),
+        textDisabled = Color(0xFF707070),
+        background = Color(0xFFFAFAFA),
+        backgroundSubtle = Color(0xFFFAFAFA),
         surface = Color(0xFFFFFFFF),
-        surfaceSecondary = Color(0xFFF1F4F2),
-        line = Color(0xFFD7DED9),
+        surfaceSecondary = Color(0xFFF2F2F2),
+        line = Color(0xFFE5E5E5),
         lineNeutral = Color(0xFFE5E5E5),
-        lineStrong = Color(0xFF89938D),
-        lineControl = Color(0xFF75817A),
+        lineStrong = Color(0xFF8C8C8C),
+        lineControl = Color(0xFF777777),
         inverse = Color(0xFFFFFFFF),
-        inverseSecondary = Color(0xFFF1F4F2),
+        inverseSecondary = Color(0xFFF2F2F2),
         primary = Color(0xFF111111),
         dim = Color(0x7A111111),
         heroScrimStart = Color(0x99121212),
@@ -92,14 +99,14 @@ val LightEumColorTokens =
         ratingStar = Color(0xFFF5B301),
         pressedDark = Color(0xFF333333),
         toast = Color(0xFF222222),
-        placeholderGlyph = Color(0xFFA6B0AA),
+        placeholderGlyph = Color(0xFFA6A6A6),
         danger = Color(0xFFC5221F),
         dangerTint = Color(0xFFFDECEA),
         success = Color(0xFF1E7A3C),
         successTint = Color(0xFFE8F3EC),
         warning = Color(0xFF8A5A00),
         warningTint = Color(0xFFFFF4E0),
-        heartIdle = Color(0xFF65716A),
+        heartIdle = Color(0xFF666666),
         heartActive = Color(0xFFE5484D),
         ratingStarOutline = Color(0xFFA96F16),
         chartBase = Color(0xFF8F8F8F),
@@ -108,9 +115,10 @@ val LightEumColorTokens =
         addressPlaceholder = Color(0xFFA0A0A0),
         addressRoad = Color(0xFF1F2126),
         addressDivider = Color(0xFFEEEEEE),
-        checkboxChecked = Color(0xFF171B19),
+        checkboxChecked = Color(0xFF171717),
         productImageBackground = Color(0xFFEEEEEE),
         productBadgeBorder = Color(0xFF8C8C8C),
+        accentTint = Color(0xFFE7F5F1),
     )
 
 val LocalEumColorTokens = staticCompositionLocalOf { LightEumColorTokens }

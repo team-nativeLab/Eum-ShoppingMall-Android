@@ -33,6 +33,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
@@ -143,7 +145,7 @@ private fun ReviewWriteTopBar(onEvent: (ProductReviewWriteEvent) -> Unit) {
         IconButton(onClick = { onEvent(ProductReviewWriteEvent.BackClicked) }, modifier = Modifier.size(48.dp)) {
             Icon(painterResource(R.drawable.ic_arrow_left), stringResource(R.string.common_back))
         }
-        Text(stringResource(R.string.review_write_title), Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.eumColors.textPrimary)
+        Text(stringResource(R.string.review_write_title), Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.eumColors.textPrimary, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
         IconButton(onClick = { onEvent(ProductReviewWriteEvent.SearchClicked) }, modifier = Modifier.size(48.dp)) {
             Icon(painterResource(R.drawable.ic_search), stringResource(R.string.common_search))
         }

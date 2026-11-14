@@ -145,7 +145,7 @@ fun CatalogProductCard(
                                     if (index < filledStarCount) R.drawable.ic_star_catalog_filled else R.drawable.ic_star,
                                 ),
                                 contentDescription = null,
-                                tint = if (index < filledStarCount) MaterialTheme.eumColors.warning else MaterialTheme.eumColors.lineStrong,
+                                tint = if (index < filledStarCount) MaterialTheme.eumColors.ratingStar else MaterialTheme.eumColors.lineStrong,
                                 modifier = Modifier.size(16.dp),
                             )
                         }

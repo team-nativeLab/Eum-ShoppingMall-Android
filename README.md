@@ -51,7 +51,7 @@ Android Studio와 Android SDK 37을 설치한 뒤 프로젝트를 엽니다. Gra
 
 ## 디자인 시스템과 공통 리소스
 
-- Compose 토큰: `ui/theme/Color.kt`, `Type.kt`, `EumSpacing.kt`, `Shapes.kt`, `Elevation.kt`
+- Compose 토큰: `ui/theme/Color.kt`, `Type.kt`, `EumSpacing.kt`, `Shapes.kt`, `Elevation.kt` (중립색은 Figma 변수 값, CTA 버튼 최소 높이 56dp, `labelSmall`은 12/16 Medium)
 - Figma Light 팔레트와 타이포그래피를 기본 테마로 사용하며 Android 동적 색상은 사용하지 않습니다.
 - Figma 화면은 390px 폭의 모바일 프레임이며 spacing 값은 해당 dp 기준과 1:1로 옮겼습니다.
 - Figma의 타이포그래피 변수는 Noto Sans KR로 정의되어 있지만, 프로젝트에는 별도 글꼴 파일이나 라이선스 정보가 없어 시스템 기본 글꼴로 대체합니다.

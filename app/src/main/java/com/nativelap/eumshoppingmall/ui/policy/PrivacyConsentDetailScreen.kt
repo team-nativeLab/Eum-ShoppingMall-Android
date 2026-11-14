@@ -39,7 +39,6 @@ fun PrivacyConsentDetailScreen(uiModel: PrivacyConsentUiModel, onEvent: (Privacy
         modifier = modifier,
         bottomActionLabel = stringResource(R.string.privacy_consent_agree),
         onBottomActionClick = { onEvent(PrivacyConsentEvent.AgreeClicked) },
-        showBottomDivider = true,
     ) { padding ->
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(top = EumSpacing.x24, bottom = EumSpacing.x32), verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
             Text(stringResource(R.string.policy_effective_date, uiModel.effectiveDate), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
