@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -41,6 +43,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -156,14 +159,17 @@ private fun ProductCheckbox(isChecked: Boolean, isEnabled: Boolean, onToggle: ()
         Modifier.size(48.dp).toggleable(value = isChecked, enabled = isEnabled, role = Role.Checkbox, onValueChange = { onToggle() }),
         contentAlignment = Alignment.Center,
     ) {
+        // Figma 체크박스 16dp. 터치 영역은 바깥 48dp Box가 유지한다.
         Surface(
-            Modifier.size(20.dp),
+            Modifier.size(16.dp),
             shape = RoundedCornerShape(EumRadius.x4),
             color = if (isChecked) MaterialTheme.eumColors.checkboxChecked else MaterialTheme.eumColors.surface,
             border = if (isChecked) null else BorderStroke(1.dp, MaterialTheme.eumColors.lineStrong),
         ) {
             Box(contentAlignment = Alignment.Center) {
-                if (isChecked) Text("✓", color = MaterialTheme.eumColors.inverse, style = MaterialTheme.typography.labelSmall)
+                if (isChecked) {
+                    Icon(painterResource(R.drawable.ic_check), contentDescription = null, tint = MaterialTheme.eumColors.inverse, modifier = Modifier.size(12.dp))
+                }
             }
         }
     }
@@ -171,29 +177,51 @@ private fun ProductCheckbox(isChecked: Boolean, isEnabled: Boolean, onToggle: ()
 
 @Composable
 private fun QuantityStepper(quantityLabel: String, isEnabled: Boolean, onQuantityChange: (Int) -> Unit, modifier: Modifier = Modifier) {
+    val borderColor = MaterialTheme.eumColors.lineStrong
+    val density = LocalDensity.current
+    val decreaseLabel = stringResource(R.string.catalog_quantity_decrease)
+    val increaseLabel = stringResource(R.string.catalog_quantity_increase)
+    // 보이는 테두리는 Figma 36dp, 버튼 터치 영역은 48dp를 유지한다.
     Row(
-        modifier.border(1.dp, MaterialTheme.eumColors.lineStrong, RoundedCornerShape(EumRadius.x8)),
+        modifier.height(STEPPER_TOUCH_SIZE).drawBehind {
+            val strokeWidth = with(density) { 1.dp.toPx() }
+            val visualHeight = with(density) { STEPPER_VISUAL_HEIGHT.toPx() }
+            drawRoundRect(
+                color = borderColor,
+                topLeft = Offset(strokeWidth / 2, (size.height - visualHeight) / 2 + strokeWidth / 2),
+                size = Size(size.width - strokeWidth, visualHeight - strokeWidth),
+                cornerRadius = CornerRadius(with(density) { EumRadius.x8.toPx() }),
+                style = Stroke(width = strokeWidth),
+            )
+        },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val decreaseLabel = stringResource(R.string.catalog_quantity_decrease)
-        val increaseLabel = stringResource(R.string.catalog_quantity_increase)
-        TextButton(
-            onClick = { onQuantityChange(-1) },
-            enabled = isEnabled,
-            modifier = Modifier.size(48.dp).semantics { contentDescription = decreaseLabel },
-            contentPadding = PaddingValues(0.dp),
-            colors = monochromeTextButtonColors(),
-        ) { Text("−") }
+        StepperButton("−", decreaseLabel, isEnabled) { onQuantityChange(-1) }
         Text(quantityLabel, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = EumSpacing.x4))
-        TextButton(
-            onClick = { onQuantityChange(1) },
-            enabled = isEnabled,
-            modifier = Modifier.size(48.dp).semantics { contentDescription = increaseLabel },
-            contentPadding = PaddingValues(0.dp),
-            colors = monochromeTextButtonColors(),
-        ) { Text("+") }
+        StepperButton("+", increaseLabel, isEnabled) { onQuantityChange(1) }
     }
 }
+
+@Composable
+private fun StepperButton(symbol: String, label: String, isEnabled: Boolean, onClick: () -> Unit) {
+    Box(
+        Modifier.size(STEPPER_TOUCH_SIZE)
+            .clickable(enabled = isEnabled, role = Role.Button, onClick = onClick)
+            .semantics { contentDescription = label },
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            symbol,
+            style = MaterialTheme.typography.labelLarge,
+            color = if (isEnabled) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textDisabled,
+        )
+    }
+}
+
+private val STEPPER_VISUAL_HEIGHT = 36.dp
+private val STEPPER_TOUCH_SIZE = 48.dp
+private val PHOTO_SLOT_SIZE = 72.dp
+private val RADIO_CARD_MIN_HEIGHT = 56.dp
 
 @Composable
 private fun ReasonSection(uiModel: OrderRequestFormUiModel, onEvent: (OrderRequestFormScreenEvent) -> Unit) {
@@ -251,7 +279,7 @@ private fun ReasonChoiceChip(label: String, isSelected: Boolean, modifier: Modif
     val chipShape = RoundedCornerShape(EumRadius.x8)
     Box(
         modifier
-            .heightIn(min = 48.dp)
+            .heightIn(min = RADIO_CARD_MIN_HEIGHT)
             .clip(chipShape)
             .background(MaterialTheme.eumColors.surface)
             .border(
@@ -282,7 +310,7 @@ private fun PhotoSection(uiModel: OrderRequestFormUiModel, onEvent: (OrderReques
         FormSectionTitle(stringResource(R.string.return_attach_photo_optional))
         Box(
             Modifier
-                .size(56.dp)
+                .size(PHOTO_SLOT_SIZE)
                 .drawBehind {
                     val strokeWidth = with(density) { 1.dp.toPx() }
                     drawRoundRect(
@@ -311,7 +339,8 @@ private fun PhotoSection(uiModel: OrderRequestFormUiModel, onEvent: (OrderReques
 
 @Composable
 private fun ExchangeOptionCard(optionLabel: String, onClick: () -> Unit) {
-    Surface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(EumRadius.x12), color = MaterialTheme.eumColors.backgroundSubtle) {
+    // backgroundSubtle이 배경과 같은 #FAFAFA가 되어 구분이 사라지므로 surfaceSecondary로 보정한다.
+    Surface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(EumRadius.x12), color = MaterialTheme.eumColors.surfaceSecondary) {
         Column(Modifier.padding(EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
             Text(stringResource(R.string.request_exchange_option_title), style = MaterialTheme.typography.titleSmall)
             TextButton(onClick = onClick, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), contentPadding = PaddingValues(0.dp), colors = monochromeTextButtonColors()) {

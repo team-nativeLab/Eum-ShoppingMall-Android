@@ -163,15 +163,23 @@ private fun OrderHistoryFilterChip(filter: OrderHistoryFilter, selected: Boolean
             color = if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface,
             border = if (selected) null else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.eumColors.lineStrong),
         ) {
-            Text(
-                stringResource(labelResId),
-                modifier = Modifier.padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x8),
-                style = MaterialTheme.typography.labelSmall,
-                color = if (selected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textPrimary,
-            )
+            // 칩 높이 36, 14/20 Medium, 가로 14(근사: 메타데이터 치수 기준).
+            Box(
+                modifier = Modifier.heightIn(min = FILTER_CHIP_HEIGHT).padding(horizontal = FILTER_CHIP_HORIZONTAL_PADDING),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    stringResource(labelResId),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (selected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textPrimary,
+                )
+            }
         }
     }
 }
+
+private val FILTER_CHIP_HEIGHT = 36.dp
+private val FILTER_CHIP_HORIZONTAL_PADDING = 14.dp
 
 @Composable
 private fun NoMatchingOrderResults(modifier: Modifier = Modifier, onResetFilter: () -> Unit) {

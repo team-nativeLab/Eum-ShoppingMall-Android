@@ -135,3 +135,15 @@
 - 별 색: 카탈로그 카드의 채운 별을 warning에서 ratingStar로 바꿨다.
 - 주의: `backgroundSubtle`(#FAFAFA)이 `background`와 같아져 채움만으로 구분하던 컨테이너가 사라질 수 있다. `AuthPrimaryAction` 비활성 배경은 #38에서 `surfaceSecondary`로 보정했고, 나머지 6곳(BrandScreens, OrderRequestComponents, OrderRequestFormScreen, OrderRequestEntryScreens, SearchResultScreens, MyPageScreen)은 #39/#40에서 후속 확인한다.
 - 범위 밖(후속): 카드 그림자, 라디오·체크 커스텀, 필수 * 공용 컴포넌트, caption·가격·헤드라인 호출부 교체.
+
+## #43 주문 내역·혜택 화면 Figma 세부 일치 (A-16~A-22)
+
+- 기준: `feature/#43-figma-orders-benefits-screens`(#38 커밋 27f135f 위). Figma 도구 없이 명세 값만 사용했고, 시각 확인은 Preview(`OrdersFigmaPreviews.kt`, `BenefitPreviews.kt`)로만 했다. Preview 렌더 결과는 눈으로 확인하지 못했다(컴파일만 통과).
+- 반영: A-16 칩 36dp·14/20·가로 14(근사)와 카드 이름 16/24·가격 priceM·버튼 S 36(M3 Button 내부 최소 높이 40dp 때문에 Surface로 직접 구성, 터치 48 유지, 근사). A-17 상단·카드 간 16, 상품명 16/24·가격 priceM, 총 결제 금액 priceL, 문서 메뉴 박스 안 56dp MenuRow(근사). A-18 상품 박스 테두리·r12·썸네일 48·이름 16/24, 공용 `NoticeInline`, 진행 스트립 트랙 2dp·라벨 11/14(근사). A-19 사진 칸 72, 스테퍼 시각 36(터치 48), 체크 16, 라디오 카드 56(근사). A-20 정렬 텍스트 링크+chevron-down, 행 간격 20. A-21 카드 패딩·gap·r6·아이콘 32, 제품명 1줄, 평점 줄 상시 표시, 견적 배지, 품절 오버레이, priceM, 목록 리듬, 노티스 가로 14. A-22 티켓 노치·절취선·본문/스텁 치수·타이포, 등록 행·포인트 링크(coins+chevron)·세그먼트 46.
+- Figma에 없어 유지하고 결정을 넘긴 요소: A-17 상품 섹션 접기 TextButton, A-21 우상단 삭제 X 버튼(Figma는 찜 44), 단가·수량 줄.
+- 값 미확정으로 추정한 항목: 절취선 파선 간격 4/4dp(imgPerforation 자산 없음), 견적 배지 배경(surface), 품절 배지 색(기존 dangerTint 유지), A-19 "라디오 카드 56"의 대상(사유 선택 칩에 적용), 쿠폰 카드 최소 높이 132 유지.
+- 미확정·보류: A-16 빈 상태 제목, A-17 주문일 제목, A-18 도착 예정 제목은 H2(22/30) 자리인지 명세에 없어 headlineSmall 유지(T2 미적용). 세그먼트 탭 클릭 영역은 컨테이너 높이 46dp 전체를 쓰며 48dp보다 2dp 작다(Figma 값 우선, 시각 박스 36dp는 안쪽).
+- backgroundSubtle 보정: `OrderRequestFormScreen`의 교환 옵션 카드 채움을 `surfaceSecondary`로 바꿨다. 이 화면의 다른 backgroundSubtle 사용은 없다. OrderRequestComponents·OrderRequestEntryScreens는 #46 범위라 건드리지 않았다.
+- 공용 컴포넌트: `ui/common/NoticeInline.kt` 신설(A-18·A-21). `CatalogProductCard`·`CatalogSelectionChip`·`EumSpacing`은 변경하지 않아 10/14dp 등은 화면 안 상수로 뒀다(#39 병합 시 토큰으로 교체 가능).
+- 사후 검토 반영: 쿠폰 노치는 지름 12(반경 6) 유지(Figma '상하 12px 원'), CouponTicketShape는 remember로 재생성 방지, 할인 수치 줄은 FlowRow로 좁은 폭·큰 글자에서 배지가 아래 줄로 넘어감, 스텁 텍스트 정렬은 Figma 미확인이라 현행 유지. 최근 본 상품 평점 줄은 평점(+리뷰 수) → subtitle → "평점 없음" 순서이며(CatalogProductCard는 subtitle과 평점을 별도 줄로 표시해 규칙이 완전히 같지는 않다), 견적 배지는 가격이 견적 문의일 때만 표시한다.
+- 세그먼트 Row는 `heightIn(min=46).height(IntrinsicSize.Min)`(Row IntrinsicSize.Min)이라 탭 fillMaxHeight가 남은 높이를 다 먹지 않고, 큰 글꼴에서는 높이가 늘어난다.
