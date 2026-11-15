@@ -45,7 +45,8 @@ fun CartRoute(
     cartItemCount: Int,
     onTabSelected: (MainNavigationTab) -> Unit,
     onSearchClick: () -> Unit,
-    onCheckoutClick: () -> Unit,
+    onCheckoutClick: (orderedLineIds: List<String>) -> Unit,
+    onLoginClick: () -> Unit,
     onQuoteRequestClick: () -> Unit,
     onQuantityChanged: suspend (itemId: String, quantity: Int) -> Unit,
     onItemsRemoved: suspend (itemIds: Set<String>) -> Unit,
@@ -210,7 +211,13 @@ fun CartRoute(
 
                 CartScreenEvent.QuoteRequestClicked -> onQuoteRequestClick()
 
-                CartScreenEvent.CheckoutClicked -> onCheckoutClick()
+                CartScreenEvent.CheckoutClicked -> {
+                    // 주문 대상은 화면에서 선택된 주문 가능한 줄이다. 선택이 없으면 이동하지 않는다.
+                    val orderedLineIds = orderedCartLineIds(items)
+                    if (orderedLineIds.isNotEmpty()) onCheckoutClick(orderedLineIds)
+                }
+
+                CartScreenEvent.LoginClicked -> onLoginClick()
 
                 // 옵션 변경 시트는 이번 범위가 아니다.
                 is CartScreenEvent.OptionChangeClicked -> Unit
@@ -220,3 +227,6 @@ fun CartRoute(
 }
 
 private fun isSelectable(item: CartItemUiModel): Boolean = item.type == CartItemType.Orderable && !item.isSoldOut
+
+// 주문 대상은 선택된 주문 가능한 줄이다. 품절·견적 상품은 선택돼 있어도 제외한다.
+internal fun orderedCartLineIds(items: List<CartItemUiModel>): List<String> = items.filter { item -> isSelectable(item) && item.isSelected }.map { item -> item.id }

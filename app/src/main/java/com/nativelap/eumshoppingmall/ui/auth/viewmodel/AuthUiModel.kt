@@ -7,6 +7,7 @@ data class AuthLoginUiModel(
     val isPasswordVisible: Boolean = false,
     val isCredentialsInvalid: Boolean = false,
     val failedAttemptCount: Int = 0,
+    val isServiceUnavailable: Boolean = false,
     val isSubmitEnabled: Boolean = false,
 )
 
