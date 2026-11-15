@@ -16,7 +16,7 @@ import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 private fun CartSectionsPreview() {
     EumShoppingMallTheme {
         Column(Modifier.padding(vertical = EumSpacing.x12), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-            CartLoginNoticeBanner()
+            CartLoginNoticeBanner(onClick = {})
             CartProductRow(
                 item = CartItemUiModel(
                     id = "p1",

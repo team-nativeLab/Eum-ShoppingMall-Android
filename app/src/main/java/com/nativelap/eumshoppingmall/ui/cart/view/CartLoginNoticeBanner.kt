@@ -2,8 +2,10 @@ package com.nativelap.eumshoppingmall.ui.cart.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -14,8 +16,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
@@ -23,12 +27,19 @@ import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
-fun CartLoginNoticeBanner(modifier: Modifier = Modifier) {
+fun CartLoginNoticeBanner(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val bannerShape = RoundedCornerShape(EumRadius.x12)
     Row(
         modifier = modifier
             .padding(horizontal = EumSpacing.x20)
-            .background(MaterialTheme.eumColors.surface, RoundedCornerShape(EumRadius.x12))
-            .border(1.dp, MaterialTheme.eumColors.line, RoundedCornerShape(EumRadius.x12))
+            .clip(bannerShape)
+            .background(MaterialTheme.eumColors.surface)
+            .border(1.dp, MaterialTheme.eumColors.line, bannerShape)
+            .heightIn(min = 48.dp)
+            .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = EumSpacing.x12),
         verticalAlignment = Alignment.Top,
     ) {
