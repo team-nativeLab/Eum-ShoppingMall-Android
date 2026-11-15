@@ -9,13 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +35,7 @@ fun AccountWithdrawalReasonScreen(uiModel: AccountWithdrawalReasonUiModel, onEve
         Scaffold(
             topBar = { AuthTopBar(stringResource(R.string.account_leave_title), onBack = { onEvent(AuthScreenEvent.BackClicked) }) },
             bottomBar = {
-                Column(Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8)) {
+                AuthBottomBar {
                     AuthPrimaryAction(stringResource(R.string.auth_withdrawal_submit), uiModel.isSubmitEnabled) { onEvent(AuthScreenEvent.WithdrawalSubmitted) }
                 }
             },
@@ -47,38 +46,50 @@ fun AccountWithdrawalReasonScreen(uiModel: AccountWithdrawalReasonUiModel, onEve
                 Modifier.fillMaxSize().padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
                 verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
             ) {
-                Text(stringResource(R.string.account_leave_reason_prompt), style = MaterialTheme.typography.headlineSmall)
-                Text(stringResource(R.string.account_leave_reason_label), style = MaterialTheme.typography.titleMedium)
                 Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                    (0..5).chunked(2).forEachIndexed { rowIndex, rowOptions ->
-                        Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                            rowOptions.forEachIndexed { columnIndex, _ ->
-                                val index = rowIndex * 2 + columnIndex
-                                val selected = uiModel.selectedReasonIndex == index
-                                androidx.compose.material3.OutlinedButton(
-                                    onClick = { onEvent(AuthScreenEvent.WithdrawalReasonSelected(index)) },
-                                    modifier = Modifier.weight(1f).heightIn(min = 56.dp),
-                                    shape = RoundedCornerShape(8.dp),
-                                    border = BorderStroke(if (selected) 1.5.dp else 1.dp, if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.lineStrong),
-                                ) {
-                                    Text(if (index == 5) stringResource(R.string.auth_other) else stringResource(R.string.account_leave_reason_label))
+                    Text(stringResource(R.string.account_leave_reason_prompt), style = MaterialTheme.typography.headlineSmall)
+                    Text(stringResource(R.string.auth_withdrawal_reason_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                    Text(stringResource(R.string.account_leave_reason_label), style = MaterialTheme.typography.titleMedium)
+                    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                        (0..5).chunked(2).forEachIndexed { rowIndex, rowOptions ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                                rowOptions.forEachIndexed { columnIndex, _ ->
+                                    val index = rowIndex * 2 + columnIndex
+                                    val selected = uiModel.selectedReasonIndex == index
+                                    androidx.compose.material3.OutlinedButton(
+                                        onClick = { onEvent(AuthScreenEvent.WithdrawalReasonSelected(index)) },
+                                        modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                                        shape = RoundedCornerShape(8.dp),
+                                        border = BorderStroke(if (selected) 1.5.dp else 1.dp, if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.lineStrong),
+                                    ) {
+                                        Text(
+                                            if (index == 5) stringResource(R.string.auth_other) else stringResource(R.string.account_leave_reason_label),
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textSecondary,
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                if (uiModel.selectedReasonIndex == 5) {
-                    OutlinedTextField(
-                        value = uiModel.otherReason,
-                        onValueChange = { onEvent(AuthScreenEvent.WithdrawalReasonChanged(it.take(200))) },
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 96.dp),
-                        placeholder = { Text(stringResource(R.string.auth_withdrawal_reason_detail)) },
-                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Text),
-                        shape = MaterialTheme.shapes.medium,
-                    )
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(stringResource(R.string.auth_withdrawal_reason_detail), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
-                        Text(stringResource(R.string.auth_withdrawal_reason_count, uiModel.otherReason.length), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                    if (uiModel.selectedReasonIndex == 5) {
+                        Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                            AuthOutlinedTextField(
+                                value = uiModel.otherReason,
+                                onValueChange = { onEvent(AuthScreenEvent.WithdrawalReasonChanged(it.take(200))) },
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 96.dp),
+                                placeholder = stringResource(R.string.auth_withdrawal_reason_detail),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                                singleLine = false,
+                                minLines = 3,
+                            )
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text(stringResource(R.string.auth_withdrawal_reason_detail), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                                Text(stringResource(R.string.auth_withdrawal_reason_count, uiModel.otherReason.length), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                            }
+                        }
                     }
                 }
                 AuthPasswordField(
@@ -89,6 +100,8 @@ fun AccountWithdrawalReasonScreen(uiModel: AccountWithdrawalReasonUiModel, onEve
                     { onEvent(AuthScreenEvent.WithdrawalPasswordVisibilityChanged) },
                     helperText = stringResource(R.string.auth_withdrawal_password_help),
                     errorText = if (uiModel.isPasswordInvalid) stringResource(R.string.auth_withdrawal_password_invalid) else null,
+                    labelStyle = MaterialTheme.typography.titleMedium,
+                    labelSpacing = EumSpacing.x12,
                 )
             }
         }

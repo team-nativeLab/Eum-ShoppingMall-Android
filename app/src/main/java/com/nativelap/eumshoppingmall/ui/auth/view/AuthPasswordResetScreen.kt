@@ -4,9 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -27,7 +25,7 @@ fun AuthPasswordResetScreen(uiModel: AuthPasswordResetUiModel, onEvent: (AuthScr
     Scaffold(
         topBar = { AuthTopBar(stringResource(R.string.auth_password_reset_title), onBack = { onEvent(AuthScreenEvent.BackClicked) }) },
         bottomBar = {
-            Column(Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8)) {
+            AuthBottomBar {
                 AuthPrimaryAction(stringResource(R.string.auth_change), uiModel.isSubmitEnabled) { onEvent(AuthScreenEvent.ResetSubmitted) }
             }
         },

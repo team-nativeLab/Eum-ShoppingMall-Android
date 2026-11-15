@@ -1,8 +1,13 @@
 package com.nativelap.eumshoppingmall.ui.auth.view
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -13,8 +18,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +38,9 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthLoginUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
+import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumCheckboxColors
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -43,66 +53,102 @@ fun AuthLoginScreen(uiModel: AuthLoginUiModel, onEvent: (AuthScreenEvent) -> Uni
     ) { padding ->
         Column(
             Modifier.fillMaxSize().padding(padding).imePadding().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
         ) {
-            Spacer(Modifier.height(EumSpacing.x8))
-            Text(stringResource(R.string.auth_brand_title), style = MaterialTheme.typography.headlineMedium)
-            AuthTextField(
-                label = stringResource(R.string.auth_email_label),
-                value = uiModel.email,
-                onValueChange = { onEvent(AuthScreenEvent.LoginEmailChanged(it)) },
-                placeholder = stringResource(R.string.auth_email_placeholder),
-                keyboardType = KeyboardType.Email,
-            )
-            AuthPasswordField(
-                label = stringResource(R.string.auth_password_label),
-                value = uiModel.password,
-                isVisible = uiModel.isPasswordVisible,
-                onValueChange = { onEvent(AuthScreenEvent.LoginPasswordChanged(it)) },
-                onVisibilityChange = { onEvent(AuthScreenEvent.LoginPasswordVisibilityChanged) },
-                errorText = if (uiModel.isCredentialsInvalid) stringResource(R.string.auth_login_mismatch, uiModel.failedAttemptCount) else null,
-            )
-            Row(
-                Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(AuthScreenEvent.RememberLoginChanged(!uiModel.isRemembered)) },
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Checkbox(checked = uiModel.isRemembered, colors = eumCheckboxColors(), onCheckedChange = { onEvent(AuthScreenEvent.RememberLoginChanged(it)) })
-                Text(stringResource(R.string.account_keep_signed_in), style = MaterialTheme.typography.bodySmall)
+            Spacer(Modifier.height(EumSpacing.x24))
+
+            Text(stringResource(R.string.auth_brand_title), style = MaterialTheme.typography.headlineLarge)
+
+            Spacer(Modifier.height(EumSpacing.x32))
+
+            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
+                AuthTextField(
+                    label = stringResource(R.string.auth_email_label),
+                    value = uiModel.email,
+                    onValueChange = { onEvent(AuthScreenEvent.LoginEmailChanged(it)) },
+                    placeholder = stringResource(R.string.auth_email_placeholder),
+                    keyboardType = KeyboardType.Email,
+                )
+                AuthPasswordField(
+                    label = stringResource(R.string.auth_password_label),
+                    value = uiModel.password,
+                    isVisible = uiModel.isPasswordVisible,
+                    onValueChange = { onEvent(AuthScreenEvent.LoginPasswordChanged(it)) },
+                    onVisibilityChange = { onEvent(AuthScreenEvent.LoginPasswordVisibilityChanged) },
+                    errorText = if (uiModel.isCredentialsInvalid) stringResource(R.string.auth_login_mismatch, uiModel.failedAttemptCount) else null,
+                )
+                Row(
+                    Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(AuthScreenEvent.RememberLoginChanged(!uiModel.isRemembered)) },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(checked = uiModel.isRemembered, colors = eumCheckboxColors(), onCheckedChange = { onEvent(AuthScreenEvent.RememberLoginChanged(it)) })
+                    Text(stringResource(R.string.account_keep_signed_in), style = MaterialTheme.typography.bodySmall)
+                }
             }
+
+            Spacer(Modifier.height(EumSpacing.x24))
+
             AuthPrimaryAction(stringResource(R.string.account_login), uiModel.isSubmitEnabled) { onEvent(AuthScreenEvent.LoginSubmitted) }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                AuthHelpLink(stringResource(R.string.account_find_email), "find_email", onEvent)
-                AuthHelpDivider()
-                AuthHelpLink(stringResource(R.string.account_find_password), "find_password", onEvent)
-                AuthHelpDivider()
-                AuthHelpLink(stringResource(R.string.account_sign_up), "signup", onEvent)
+            Column(Modifier.padding(top = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
+                AuthHelpLinks(onEvent)
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                    HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.eumColors.line)
+                    Text(stringResource(R.string.common_or), style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
+                    HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.eumColors.line)
+                }
+                AuthSocialButton(stringResource(R.string.auth_social_login_a)) { onEvent(AuthScreenEvent.SocialLoginClicked("provider_a")) }
+                AuthSocialButton(stringResource(R.string.auth_social_login_b)) { onEvent(AuthScreenEvent.SocialLoginClicked("provider_b")) }
             }
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.eumColors.line)
-                Text(stringResource(R.string.common_or), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
-                HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.eumColors.line)
-            }
-            OutlinedButton(onClick = { onEvent(AuthScreenEvent.SocialLoginClicked("provider_a")) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                Text(stringResource(R.string.auth_social_login_a))
-            }
-            OutlinedButton(onClick = { onEvent(AuthScreenEvent.SocialLoginClicked("provider_b")) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                Text(stringResource(R.string.auth_social_login_b))
-            }
+
             Spacer(Modifier.height(EumSpacing.x24))
         }
     }
 }
 
+// 링크와 구분선 사이 간격은 12dp다. 글꼴이 커져 한 줄에 들어가지 않으면 줄바꿈한다.
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun AuthHelpLink(label: String, id: String, onEvent: (AuthScreenEvent) -> Unit) {
-    Text(
-        label,
-        Modifier.clickable { onEvent(AuthScreenEvent.LoginHelpClicked(id)) }.heightIn(min = 48.dp).padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x12),
-        style = MaterialTheme.typography.labelSmall,
-    )
+private fun AuthHelpLinks(onEvent: (AuthScreenEvent) -> Unit) {
+    FlowRow(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12, Alignment.CenterHorizontally),
+        itemVerticalAlignment = Alignment.CenterVertically,
+    ) {
+        AuthHelpLink(stringResource(R.string.account_find_email), "find_email", onEvent)
+        AuthHelpDivider()
+        AuthHelpLink(stringResource(R.string.account_find_password), "find_password", onEvent)
+        AuthHelpDivider()
+        AuthHelpLink(stringResource(R.string.account_sign_up), "signup", onEvent, isEmphasized = true)
+    }
+}
+
+@Composable
+private fun AuthHelpLink(label: String, id: String, onEvent: (AuthScreenEvent) -> Unit, isEmphasized: Boolean = false) {
+    Box(
+        Modifier.clickable { onEvent(AuthScreenEvent.LoginHelpClicked(id)) }.heightIn(min = 48.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            label,
+            style = if (isEmphasized) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodySmall,
+            color = if (isEmphasized) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textSecondary,
+        )
+    }
 }
 
 @Composable
 private fun AuthHelpDivider() {
-    Text("|", color = MaterialTheme.eumColors.textTertiary, style = MaterialTheme.typography.labelSmall)
+    Box(Modifier.width(1.dp).height(12.dp).background(MaterialTheme.eumColors.lineStrong))
+}
+
+@Composable
+private fun AuthSocialButton(label: String, onClick: () -> Unit) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+        shape = RoundedCornerShape(EumRadius.x8),
+        border = BorderStroke(1.dp, MaterialTheme.eumColors.lineStrong),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
+    ) {
+        Text(label, style = MaterialTheme.typography.labelMedium)
+    }
 }
