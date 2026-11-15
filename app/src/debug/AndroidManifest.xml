@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- debug 전용. launcher 카테고리가 없어 adb로만 실행한다. adb(shell uid) 실행에 exported=true가 필요하다. -->
+        <activity
+            android:name=".debuggallery.ScreenGalleryActivity"
+            android:exported="true"
+            android:label="@string/debug_gallery_title"
+            android:theme="@style/Theme.EumShoppingMall" />
+    </application>
+
+</manifest>
