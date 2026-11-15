@@ -40,6 +40,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderInfoCard
+import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderInfoCardFigmaContentGap
+import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderInfoCardFigmaVerticalPadding
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderProductThumbnail
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestDetailScreenEvent
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestDetailUiModel
@@ -264,33 +266,46 @@ private fun ActiveRequestDetailContent(uiModel: OrderRequestDetailUiModel, modif
         item {
             Text(
                 stringResource(R.string.request_request_type_format, requestTypeLabel(uiModel.requestType)),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.padding(horizontal = ActiveRequestTitleHorizontalPadding),
+                style = MaterialTheme.typography.headlineSmall,
             )
         }
         item {
-            OrderInfoCard(Modifier.fillMaxWidth()) {
+            OrderInfoCard(
+                Modifier.fillMaxWidth(),
+                contentVerticalPadding = OrderInfoCardFigmaVerticalPadding,
+                contentSpacing = OrderInfoCardFigmaContentGap,
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(painterResource(R.drawable.ic_circle_check), contentDescription = null, tint = statusTint, modifier = Modifier.size(20.dp))
-                    Text(stringResource(requestStatusTitleRes(uiModel.status)), Modifier.padding(start = EumSpacing.x8), style = MaterialTheme.typography.titleSmall, color = statusTint)
+                    Text(stringResource(requestStatusTitleRes(uiModel.status)), Modifier.padding(start = EumSpacing.x8), style = MaterialTheme.typography.titleLarge, color = statusTint)
                 }
-                Text(uiModel.statusDescription, Modifier.padding(top = EumSpacing.x8), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                Text(uiModel.statusDescription, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
             }
         }
         item {
-            OrderInfoCard(Modifier.fillMaxWidth()) {
+            OrderInfoCard(
+                Modifier.fillMaxWidth(),
+                contentVerticalPadding = OrderInfoCardFigmaVerticalPadding,
+                contentSpacing = OrderInfoCardFigmaContentGap,
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(painterResource(R.drawable.ic_package), contentDescription = null, tint = MaterialTheme.eumColors.textPrimary, modifier = Modifier.size(20.dp))
-                    Column(Modifier.padding(start = EumSpacing.x12)) {
-                        Text(stringResource(R.string.request_product_title), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-                        Text(uiModel.productSummaryLabel, style = MaterialTheme.typography.bodyLarge)
+                    Icon(painterResource(R.drawable.ic_package), contentDescription = null, tint = MaterialTheme.eumColors.textPrimary, modifier = Modifier.size(24.dp))
+                    Column(Modifier.padding(start = EumSpacing.x12), verticalArrangement = Arrangement.spacedBy(EumSpacing.x2)) {
+                        Text(stringResource(R.string.request_product_title), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textSecondary)
+                        Text(uiModel.productSummaryLabel, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textPrimary)
                     }
                 }
             }
         }
         item {
-            OrderInfoCard(Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.request_info_section_title), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-                Column(Modifier.padding(top = EumSpacing.x8)) {
+            OrderInfoCard(
+                Modifier.fillMaxWidth(),
+                contentVerticalPadding = OrderInfoCardFigmaVerticalPadding,
+                contentSpacing = OrderInfoCardFigmaContentGap,
+            ) {
+                Text(stringResource(R.string.request_info_section_title), style = MaterialTheme.typography.titleMedium)
+                Column(verticalArrangement = Arrangement.spacedBy(OrderInfoCardFigmaContentGap)) {
                     RequestInfoRow(R.drawable.ic_calendar, stringResource(R.string.request_date_label), uiModel.requestDateLabel)
                     RequestInfoRow(R.drawable.ic_file_text, stringResource(R.string.request_reason_title), uiModel.reasonSummaryLabel)
                     RequestInfoRow(R.drawable.ic_map_pin, stringResource(R.string.request_collection_address_label), uiModel.collectionAddressLabel)
@@ -335,3 +350,6 @@ internal fun requestStatusTitleRes(status: OrderRequestStatus): Int = when (stat
     OrderRequestStatus.Rejected -> R.string.request_status_rejected
     OrderRequestStatus.Withdrawn -> R.string.request_status_withdrawn_done
 }
+
+// Figma A-51 제목 좌우 3dp는 EumSpacing 토큰에 없어 이 파일에서만 쓴다.
+private val ActiveRequestTitleHorizontalPadding = 3.dp

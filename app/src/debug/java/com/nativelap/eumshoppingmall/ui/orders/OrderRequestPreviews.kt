@@ -266,6 +266,9 @@ private fun WithdrawalCompletePreview() {
         OrderRequestWithdrawalCompleteScreen(
             OrderRequestResultUiModel("A-2026-001", "철회", "A-2026-001 반품 신청을 철회했습니다. 신청 내역에서 상태를 확인할 수 있습니다."),
             onEvent = {},
+            requestKindLabel = "반품 신청",
+            productLabel = "경량 안전모 · 블랙 / 1개",
+            requestDateLabel = "2026.11.15",
         )
     }
 }
@@ -292,5 +295,13 @@ private fun RejectionReasonPreview() {
 @Preview(showBackground = true, widthDp = 320, heightDp = 760, fontScale = 1.2f, name = "A-52 신청 철회 확인")
 @Composable
 private fun WithdrawalConfirmPreview() {
-    EumShoppingMallTheme { OrderRequestWithdrawalConfirmScreen("A-2026-001", onEvent = {}) }
+    EumShoppingMallTheme {
+        OrderRequestWithdrawalConfirmScreen(
+            "A-2026-001",
+            onEvent = {},
+            requestKindLabel = "반품 신청",
+            productLabel = "경량 안전모 · 블랙 / 1개",
+            requestDateLabel = "2026.11.15",
+        )
+    }
 }

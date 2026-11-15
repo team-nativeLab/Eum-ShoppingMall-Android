@@ -48,7 +48,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountSettingUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountSettingsScreenEvent
@@ -64,9 +63,6 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 private val settingSwitchOffColor = Color(0xFF777777)
 private val settingWarningContainerColor = Color(0xFFFFE9E9)
 
-// Figma 설정 설명 문구는 기존 caption(12sp)보다 크게 측정되어 이 화면에서만 13sp로 둔다.
-private val settingDescriptionStyle = EumTypographyTokens.caption.copy(fontSize = 13.sp, lineHeight = 16.sp)
-
 @Composable
 fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSettingsScreenEvent) -> Unit) {
     Box(Modifier.fillMaxSize()) {
@@ -78,7 +74,7 @@ fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSetti
             ResponsiveContentContainer(Modifier.fillMaxSize().padding(padding)) {
                 LazyColumn(
                     Modifier.fillMaxSize().navigationBarsPadding(),
-                    contentPadding = PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x24),
+                    contentPadding = PaddingValues(start = EumSpacing.x20, top = EumSpacing.x24, end = EumSpacing.x20, bottom = EumSpacing.x40),
                     verticalArrangement = Arrangement.spacedBy(EumSpacing.x32),
                 ) {
                     item {
@@ -109,7 +105,7 @@ fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSetti
                                     SettingDivider()
                                     SettingSwitchRow(stringResource(R.string.settings_marketing_night), stringResource(R.string.settings_marketing_night_description), uiModel.isNightMarketingEnabled, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("night", !uiModel.isNightMarketingEnabled)) })
                                 }
-                                Text(stringResource(R.string.settings_consent_changed, uiModel.lastConsentChangedLabel), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                                Text(stringResource(R.string.settings_consent_changed, uiModel.lastConsentChangedLabel), style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
                             }
                         }
                     } else {
@@ -151,7 +147,7 @@ fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSetti
                         SettingSection(stringResource(R.string.settings_app_info)) {
                             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Text(stringResource(R.string.settings_app_version), Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-                                Text(uiModel.appVersionLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                                Text(uiModel.appVersionLabel, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
                             }
                         }
                     }
@@ -164,7 +160,7 @@ fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSetti
                                 Text(
                                     stringResource(R.string.account_withdrawal),
                                     Modifier.clickable { onEvent(AccountSettingsScreenEvent.WithdrawalClicked) }.heightIn(min = 48.dp),
-                                    style = MaterialTheme.typography.labelSmall,
+                                    style = EumTypographyTokens.caption,
                                     color = MaterialTheme.eumColors.textTertiary,
                                     textDecoration = TextDecoration.Underline,
                                 )
@@ -203,8 +199,8 @@ fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSetti
 @Composable
 private fun MarketingIntro() {
     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
-        Text(stringResource(R.string.settings_marketing_consent), style = MaterialTheme.typography.labelMedium)
-        Text(stringResource(R.string.settings_marketing_description), style = settingDescriptionStyle, color = MaterialTheme.eumColors.textTertiary)
+        Text(stringResource(R.string.settings_marketing_consent), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textSecondary)
+        Text(stringResource(R.string.settings_marketing_description), style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
     }
 }
 
@@ -237,7 +233,7 @@ private fun DeviceNotificationWarning(onClick: () -> Unit) {
 @Composable
 private fun SettingSection(title: String?, content: @Composable ColumnScope.() -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-        if (title != null) Text(title, style = MaterialTheme.typography.labelMedium)
+        if (title != null) Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textSecondary)
         Column(
             Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.lineNeutral, RoundedCornerShape(EumRadius.x12)).padding(horizontal = EumSpacing.x20),
             content = content,
@@ -267,12 +263,12 @@ private fun settingSwitchColors(): SwitchColors {
 private fun SettingSwitchRow(label: String, description: String? = null, enabled: Boolean, onClick: () -> Unit) {
     // 스위치 자체 높이(48dp 터치 영역)가 행 높이를 키우지 않도록 세로 여백은 텍스트 열에만 준다.
     Row(
-        Modifier.fillMaxWidth().heightIn(min = 60.dp).clickable { onClick() },
+        Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f).padding(vertical = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
             Text(label, style = MaterialTheme.typography.bodyLarge)
-            if (description != null) Text(description, style = settingDescriptionStyle, color = MaterialTheme.eumColors.textTertiary)
+            if (description != null) Text(description, style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
         }
         // Figma 토글(약 36x20dp)에 맞추려고 오른쪽 끝 기준으로 축소한다. 행 전체가 클릭을 받으므로 터치 영역은 행이 담당한다.
         Switch(

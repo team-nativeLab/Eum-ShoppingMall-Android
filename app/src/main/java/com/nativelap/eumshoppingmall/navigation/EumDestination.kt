@@ -47,13 +47,18 @@ sealed interface EumDestination : NavKey {
     @Serializable
     data class ProductDetail(val productId: String) : EumDestination
 
-    /** A-08 주문하기 1 배송지. */
+    /**
+     * A-08 주문하기 1 배송지.
+     *
+     * orderedCartLineIds는 주문 대상 장바구니 줄 id다. 장바구니에서 온 경우 선택한 줄, 바로구매는 빈 목록이며
+     * 결제 성공 시 이 줄들만 장바구니에서 제거한다.
+     */
     @Serializable
-    data object CheckoutAddress : EumDestination
+    data class CheckoutAddress(val orderedCartLineIds: List<String> = emptyList()) : EumDestination
 
-    /** A-09 주문하기 2 결제. */
+    /** A-09 주문하기 2 결제. orderedCartLineIds는 [CheckoutAddress]에서 이어받는다. */
     @Serializable
-    data object CheckoutPayment : EumDestination
+    data class CheckoutPayment(val orderedCartLineIds: List<String> = emptyList()) : EumDestination
 
     /** A-10 주문 완료. */
     @Serializable

@@ -104,8 +104,8 @@ fun CatalogProductListScreen(
                             end = EumSpacing.x20,
                             bottom = EumSpacing.x20,
                         ),
-                        // Figma(179:743) 격자 행 간격은 26dp다(이전 24dp에서 조정). 리스트 행 간격은 기존 16dp를 유지한다.
-                        verticalArrangement = Arrangement.spacedBy(if (uiModel.isListLayout) EumSpacing.x16 else 26.dp),
+                        // Figma 격자 행 간격은 24dp다. 리스트 행 간격은 기존 16dp를 유지한다.
+                        verticalArrangement = Arrangement.spacedBy(if (uiModel.isListLayout) EumSpacing.x16 else EumSpacing.x24),
                     ) {
                         if (uiModel.products.isEmpty()) {
                             item {
@@ -160,12 +160,12 @@ fun CatalogSelectionChip(
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(EumRadius.capsule),
-        color = if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.background,
-        border = if (selected) null else BorderStroke(1.dp, MaterialTheme.eumColors.lineControl),
+        color = if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface,
+        border = if (selected) null else BorderStroke(1.dp, MaterialTheme.eumColors.lineStrong),
     ) {
         Text(
             label,
-            modifier = Modifier.padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x8),
+            modifier = Modifier.padding(horizontal = EumSpacing.x14, vertical = EumSpacing.x8),
             style = MaterialTheme.typography.labelMedium,
             color = if (selected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textSecondary,
         )
@@ -189,25 +189,25 @@ internal fun CatalogProductListControls(
         Surface(
             onClick = onSortClick,
             shape = RoundedCornerShape(EumRadius.capsule),
-            color = MaterialTheme.eumColors.background,
+            color = MaterialTheme.eumColors.surface,
             border = BorderStroke(1.dp, MaterialTheme.eumColors.textPrimary),
         ) {
             Row(
                 modifier = Modifier.padding(
-                    start = EumSpacing.x16,
+                    start = EumSpacing.x14,
                     top = EumSpacing.x6,
-                    end = EumSpacing.x12,
+                    end = EumSpacing.x10,
                     bottom = EumSpacing.x6,
                 ),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+                horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
             ) {
                 Text(
                     sortLabel,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.eumColors.textPrimary,
                 )
-                Icon(painterResource(R.drawable.ic_chevron_down), null, modifier = Modifier.size(16.dp))
+                Icon(painterResource(R.drawable.ic_chevron_down), null, modifier = Modifier.size(14.dp))
             }
         }
         countLabel?.let {

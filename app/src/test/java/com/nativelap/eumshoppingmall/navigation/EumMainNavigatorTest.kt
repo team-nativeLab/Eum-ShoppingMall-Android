@@ -39,13 +39,13 @@ class EumMainNavigatorTest {
     fun switchingTabsKeepsEachTabBackStack() {
         navigator.push(EumDestination.ProductDetail("p1"))
         navigator.navigateToTab(MainNavigationTab.Cart)
-        navigator.push(EumDestination.CheckoutAddress)
+        navigator.push(EumDestination.CheckoutAddress())
 
         navigator.navigateToTab(MainNavigationTab.Home)
 
         assertEquals(MainNavigationTab.Home, navigationState.currentTab)
         assertEquals(listOf(EumDestination.Home, EumDestination.ProductDetail("p1")), stackOf(MainNavigationTab.Home))
-        assertEquals(listOf(EumDestination.Cart, EumDestination.CheckoutAddress), stackOf(MainNavigationTab.Cart))
+        assertEquals(listOf(EumDestination.Cart, EumDestination.CheckoutAddress()), stackOf(MainNavigationTab.Cart))
     }
 
     @Test
@@ -124,8 +124,8 @@ class EumMainNavigatorTest {
     @Test
     fun orderCompleteRemovesCheckoutStepsFromBackStack() {
         navigator.navigateToTab(MainNavigationTab.Cart)
-        navigator.push(EumDestination.CheckoutAddress)
-        navigator.push(EumDestination.CheckoutPayment)
+        navigator.push(EumDestination.CheckoutAddress())
+        navigator.push(EumDestination.CheckoutPayment())
 
         navigator.popWhileAndPush(EumDestination.OrderComplete) { navKey ->
             navKey is EumDestination.CheckoutAddress || navKey is EumDestination.CheckoutPayment
@@ -160,8 +160,8 @@ class EumMainNavigatorTest {
     fun continueShoppingFromCartOpensHomeRootEvenWhenHomeHadProductDetail() {
         navigator.push(EumDestination.ProductDetail("p1"))
         navigator.navigateToTab(MainNavigationTab.Cart)
-        navigator.push(EumDestination.CheckoutAddress)
-        navigator.push(EumDestination.CheckoutPayment)
+        navigator.push(EumDestination.CheckoutAddress())
+        navigator.push(EumDestination.CheckoutPayment())
         navigator.popWhileAndPush(EumDestination.OrderComplete) { navKey ->
             navKey is EumDestination.CheckoutAddress || navKey is EumDestination.CheckoutPayment
         }
@@ -292,6 +292,109 @@ class EumMainNavigatorTest {
         navigator.completeLogin()
 
         assertEquals(listOf(EumDestination.Home, EumDestination.ProductDetail("p1")), stackOf(MainNavigationTab.Home))
+    }
+
+    @Test
+    fun completeLoginWithCheckoutPendingKeepsCartBelow() {
+        navigator.navigateToTab(MainNavigationTab.Cart)
+        navigator.push(EumDestination.Login(pendingDestination = EumDestination.CheckoutAddress(listOf("line-1"))))
+
+        navigator.completeLogin()
+
+        assertEquals(
+            listOf(EumDestination.Cart, EumDestination.CheckoutAddress(listOf("line-1"))),
+            stackOf(MainNavigationTab.Cart),
+        )
+    }
+
+    @Test
+    fun completeLoginPopsEveryAuthScreenOnTopAndOpensBottomLoginPending() {
+        navigator.navigateToTab(MainNavigationTab.Cart)
+        navigator.push(EumDestination.Login(pendingDestination = EumDestination.QuoteHistory))
+        navigator.push(EumDestination.Login(pendingDestination = EumDestination.Coupons))
+
+        navigator.completeLogin()
+
+        assertEquals(listOf(EumDestination.Cart, EumDestination.QuoteHistory), stackOf(MainNavigationTab.Cart))
+    }
+
+    @Test
+    fun completeLoginTwiceOpensPendingDestinationOnlyOnce() {
+        navigator.navigateToTab(MainNavigationTab.Cart)
+        navigator.push(EumDestination.Login(pendingDestination = EumDestination.QuoteHistory))
+
+        navigator.completeLogin()
+        navigator.completeLogin()
+
+        assertEquals(listOf(EumDestination.Cart, EumDestination.QuoteHistory), stackOf(MainNavigationTab.Cart))
+    }
+
+    @Test
+    fun paymentCompletionRunsOnlyOnceWhenTappedTwice() {
+        val paymentDestination = EumDestination.CheckoutPayment(listOf("line-1"))
+        navigator.navigateToTab(MainNavigationTab.Cart)
+        navigator.push(EumDestination.CheckoutAddress(listOf("line-1")))
+        navigator.push(paymentDestination)
+        val shouldRemoveCheckout = { navKey: NavKey ->
+            navKey is EumDestination.CheckoutAddress || navKey is EumDestination.CheckoutPayment
+        }
+
+        val firstCompleted = navigator.popWhileAndPushIfTop(paymentDestination, EumDestination.OrderComplete, shouldRemoveCheckout)
+        val secondCompleted = navigator.popWhileAndPushIfTop(paymentDestination, EumDestination.OrderComplete, shouldRemoveCheckout)
+
+        assertTrue(firstCompleted)
+        assertFalse(secondCompleted)
+        assertEquals(listOf(EumDestination.Cart, EumDestination.OrderComplete), stackOf(MainNavigationTab.Cart))
+    }
+
+    @Test
+    fun orderCompleteBackFromCartGoesToHomeRoot() {
+        navigator.navigateToTab(MainNavigationTab.Cart)
+        navigator.push(EumDestination.OrderComplete)
+
+        val closed = navigator.closeTopAndOpenTabRootIfTop(EumDestination.OrderComplete, MainNavigationTab.Home)
+
+        assertTrue(closed)
+        assertEquals(MainNavigationTab.Home, navigationState.currentTab)
+        assertEquals(listOf(EumDestination.Home), stackOf(MainNavigationTab.Home))
+        assertEquals(listOf(EumDestination.Cart), stackOf(MainNavigationTab.Cart))
+    }
+
+    @Test
+    fun orderCompleteBackFromBuyNowClearsProductDetailBelow() {
+        navigator.push(EumDestination.ProductDetail("p1"))
+        navigator.push(EumDestination.OrderComplete)
+
+        navigator.closeTopAndOpenTabRootIfTop(EumDestination.OrderComplete, MainNavigationTab.Home)
+
+        assertEquals(MainNavigationTab.Home, navigationState.currentTab)
+        assertEquals(listOf(EumDestination.Home), stackOf(MainNavigationTab.Home))
+    }
+
+    @Test
+    fun orderCompleteBackFromSearchTabGoesToHomeRoot() {
+        navigator.navigateToTab(MainNavigationTab.Search)
+        navigator.push(EumDestination.ProductDetail("p1"))
+        navigator.push(EumDestination.OrderComplete)
+
+        navigator.closeTopAndOpenTabRootIfTop(EumDestination.OrderComplete, MainNavigationTab.Home)
+
+        assertEquals(MainNavigationTab.Home, navigationState.currentTab)
+        assertEquals(listOf(EumDestination.Home), stackOf(MainNavigationTab.Home))
+        assertEquals(listOf(EumDestination.Search, EumDestination.ProductDetail("p1")), stackOf(MainNavigationTab.Search))
+    }
+
+    @Test
+    fun orderCompleteBackTwiceDoesNotCloseAnythingElse() {
+        navigator.push(EumDestination.ProductDetail("p1"))
+        navigator.push(EumDestination.OrderComplete)
+
+        val firstClosed = navigator.closeTopAndOpenTabRootIfTop(EumDestination.OrderComplete, MainNavigationTab.Home)
+        val secondClosed = navigator.closeTopAndOpenTabRootIfTop(EumDestination.OrderComplete, MainNavigationTab.Home)
+
+        assertTrue(firstClosed)
+        assertFalse(secondClosed)
+        assertEquals(listOf(EumDestination.Home), stackOf(MainNavigationTab.Home))
     }
 
     private fun stackOf(tab: MainNavigationTab): List<NavKey> = navigationState.backStacks.getValue(tab).toList()

@@ -7,10 +7,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +28,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,12 +53,16 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogOptionGroupSelector
@@ -71,9 +78,14 @@ import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+
+// Figma 직접 지정 값(노드 179:938)이라 디자인 토큰이 아니다. 빈 별 색은 #38 합의대로 토큰을 쓴다(상품 상세 전용).
+private val DETAIL_DISCOUNT_COLOR = Color(0xFFDB2129)
+private val DETAIL_STAR_FILL_COLOR = Color(0xFFE6A93D)
 
 // LazyColumn item 순서: 0 상품 정보, 1 탭, 2 상품 설명(상품 정보 표), 3 배송·교환, 4 리뷰, 5 문의. 탭 선택 시 스크롤 대상이다.
 private const val PRODUCT_INFORMATION_ITEM_INDEX = 2
@@ -130,7 +142,7 @@ internal fun CatalogProductDetailContent(
         },
         bottomBar = {
             ResponsiveWidthContainer {
-                ProductDetailBottomActions(uiModel, onEvent, Modifier.navigationBarsPadding())
+                ProductDetailBottomActions(uiModel, onEvent)
             }
         },
         contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0),
@@ -159,7 +171,7 @@ internal fun CatalogProductDetailContent(
             ) {
                 item {
                     ProductGallery(uiModel, onEvent)
-                    Column(Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x20)) {
+                    Column(Modifier.padding(start = EumSpacing.x20, top = EumSpacing.x24, end = EumSpacing.x20, bottom = EumSpacing.x32)) {
                         // Figma 상단 순서: 브랜드(견적 상품 배지) → 상품명 → 평점 → 가격 → 배송 정보 박스
                         val brandName = uiModel.product.subtitle
                         val badgeLabel = uiModel.product.badgeLabel
@@ -167,7 +179,7 @@ internal fun CatalogProductDetailContent(
                         if (brandName != null || badgeLabel != null) {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                                 brandName?.let { name ->
-                                    Text(name, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                                    Text(name, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
                                 }
                                 badgeLabel?.let { badge ->
                                     Surface(shape = RoundedCornerShape(EumRadius.x4), border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.line)) {
@@ -176,42 +188,43 @@ internal fun CatalogProductDetailContent(
                                 }
                             }
                         }
-                        Text(uiModel.product.name, Modifier.padding(top = EumSpacing.x8), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.eumColors.textPrimary)
+                        Text(uiModel.product.name, Modifier.padding(top = EumSpacing.x6), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.eumColors.textPrimary)
                         uiModel.product.ratingLabel?.let { ratingLabel ->
                             ProductRatingRow(
                                 ratingLabel = ratingLabel,
                                 reviewCountLabel = uiModel.product.reviewCountLabel,
-                                modifier = Modifier.padding(top = EumSpacing.x12),
+                                modifier = Modifier.padding(top = EumSpacing.x6),
                             )
                         }
                         when (val price = uiModel.product.price) {
                             is CatalogPriceUiModel.Available -> Row(
-                                modifier = Modifier.padding(top = EumSpacing.x16),
+                                modifier = Modifier.padding(top = EumSpacing.x8),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
                             ) {
                                 price.discountLabel?.let {
-                                    Text(it, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.eumColors.danger)
+                                    Text(it, style = MaterialTheme.typography.labelSmall, color = DETAIL_DISCOUNT_COLOR)
                                 }
                                 price.originalLabel?.let {
                                     Text(
                                         it,
                                         style = MaterialTheme.typography.bodySmall,
+                                        // Figma 정가 #7A7A7A는 흰 배경 대비 4.5:1에 못 미칠 수 있어 textTertiary를 유지한다.
                                         color = MaterialTheme.eumColors.textTertiary,
                                         textDecoration = TextDecoration.LineThrough,
                                     )
                                 }
                                 Text(
                                     price.currentLabel,
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    color = if (price.discountLabel != null) MaterialTheme.eumColors.danger else MaterialTheme.eumColors.textPrimary,
+                                    style = EumTypographyTokens.priceL,
+                                    color = if (price.discountLabel != null) DETAIL_DISCOUNT_COLOR else MaterialTheme.eumColors.textPrimary,
                                 )
                             }
 
                             CatalogPriceUiModel.QuoteRequired -> Text(
                                 stringResource(R.string.product_price_inquiry),
-                                Modifier.padding(top = EumSpacing.x16),
-                                style = MaterialTheme.typography.headlineSmall,
+                                Modifier.padding(top = EumSpacing.x8),
+                                style = EumTypographyTokens.priceL,
                                 color = MaterialTheme.eumColors.textPrimary,
                             )
                         }
@@ -226,51 +239,71 @@ internal fun CatalogProductDetailContent(
                         if (uiModel.shippingRows.isNotEmpty()) {
                             Column(
                                 Modifier.fillMaxWidth().padding(top = EumSpacing.x20)
+                                    .background(MaterialTheme.eumColors.surface, RoundedCornerShape(EumRadius.x12))
                                     .border(EumSpacing.x1, MaterialTheme.eumColors.line, RoundedCornerShape(EumRadius.x12))
-                                    .padding(horizontal = EumSpacing.x16, vertical = EumSpacing.x8),
+                                    .padding(EumSpacing.x16),
+                                verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
                             ) {
-                                uiModel.shippingRows.forEach { row -> ProductKeyValueRow(row) }
+                                uiModel.shippingRows.forEach { row -> ProductKeyValueRow(row, labelWidth = 72.dp) }
                             }
                         }
                     }
                 }
                 item { ProductDetailTabs(uiModel, onEvent) }
                 item {
-                    Column(Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x24)) {
-                        Text(stringResource(R.string.product_information), style = MaterialTheme.typography.titleMedium)
-                        uiModel.specifications.forEach { ProductKeyValueRow(it) }
+                    Column(Modifier.fillMaxWidth()) {
+                        Column(
+                            Modifier.padding(start = EumSpacing.x20, top = EumSpacing.x24, end = EumSpacing.x20, bottom = EumSpacing.x24),
+                            verticalArrangement = Arrangement.spacedBy(EumSpacing.x10),
+                        ) {
+                            Text(stringResource(R.string.product_information), style = MaterialTheme.typography.titleLarge)
+                            uiModel.specifications.forEach { ProductKeyValueRow(it, labelWidth = 96.dp) }
+                        }
+                        ProductSectionDivider()
                     }
                 }
                 item {
-                    Column(Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
-                        Text(stringResource(R.string.product_shipping_exchange_tab), style = MaterialTheme.typography.titleMedium)
-                        uiModel.returnRows.forEach { ProductKeyValueRow(it) }
+                    Column(Modifier.fillMaxWidth()) {
+                        Column(
+                            Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
+                            verticalArrangement = Arrangement.spacedBy(EumSpacing.x10),
+                        ) {
+                            Text(stringResource(R.string.product_shipping_exchange_tab), style = MaterialTheme.typography.titleLarge)
+                            uiModel.returnRows.forEach { ProductKeyValueRow(it, labelWidth = 96.dp) }
+                        }
+                        ProductSectionDivider()
                     }
                 }
                 item {
-                    Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
-                        ProductSectionTitle(stringResource(R.string.catalog_product_reviews), uiModel.reviewCount)
-                        if (uiModel.reviews.isEmpty()) {
-                            Text(stringResource(R.string.catalog_no_reviews), Modifier.padding(vertical = EumSpacing.x20), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
-                        } else {
-                            uiModel.reviews.forEach { review -> ProductReviewCard(review) }
+                    Column(Modifier.fillMaxWidth()) {
+                        Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
+                            ProductSectionTitle(stringResource(R.string.catalog_product_reviews), uiModel.reviewCount)
+                            if (uiModel.reviews.isEmpty()) {
+                                Text(stringResource(R.string.catalog_no_reviews), Modifier.padding(vertical = EumSpacing.x20), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
+                            } else {
+                                uiModel.reviews.forEach { review -> ProductReviewCard(review) }
+                            }
+                            OutlinedButton(onClick = { onEvent(CatalogProductDetailEvent.TabSelected(2)) }, modifier = Modifier.fillMaxWidth()) {
+                                Text(stringResource(R.string.catalog_review_write))
+                            }
                         }
-                        OutlinedButton(onClick = { onEvent(CatalogProductDetailEvent.TabSelected(2)) }, modifier = Modifier.fillMaxWidth()) {
-                            Text(stringResource(R.string.catalog_review_write))
-                        }
+                        ProductSectionDivider()
                     }
                 }
                 item {
-                    Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
-                        ProductSectionTitle(stringResource(R.string.catalog_product_questions), uiModel.questionCount)
-                        if (uiModel.questions.isEmpty()) {
-                            Text(stringResource(R.string.catalog_no_questions), Modifier.padding(vertical = EumSpacing.x20), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
-                        } else {
-                            uiModel.questions.forEach { question -> ProductQuestionCard(question) }
+                    Column(Modifier.fillMaxWidth()) {
+                        Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16)) {
+                            ProductSectionTitle(stringResource(R.string.catalog_product_questions), uiModel.questionCount)
+                            if (uiModel.questions.isEmpty()) {
+                                Text(stringResource(R.string.catalog_no_questions), Modifier.padding(vertical = EumSpacing.x20), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
+                            } else {
+                                uiModel.questions.forEach { question -> ProductQuestionCard(question) }
+                            }
+                            OutlinedButton(onClick = { onEvent(CatalogProductDetailEvent.TabSelected(3)) }, modifier = Modifier.fillMaxWidth()) {
+                                Text(stringResource(R.string.catalog_question_write))
+                            }
                         }
-                        OutlinedButton(onClick = { onEvent(CatalogProductDetailEvent.TabSelected(3)) }, modifier = Modifier.fillMaxWidth()) {
-                            Text(stringResource(R.string.catalog_question_write))
-                        }
+                        ProductSectionDivider()
                     }
                 }
                 item {
@@ -360,7 +393,7 @@ private fun ProductGallery(uiModel: CatalogProductDetailUiModel, onEvent: (Catal
         // Figma 갤러리는 화살표 없이 페이지 카운터만 둔다. 이미지 전환은 가로 스와이프로 한다.
         Text(
             "${pagerState.currentPage + 1} / ${galleryImages.size}",
-            Modifier.align(Alignment.BottomEnd).padding(EumSpacing.x12)
+            Modifier.align(Alignment.BottomEnd).padding(EumSpacing.x16)
                 .clip(RoundedCornerShape(EumRadius.capsule)).background(MaterialTheme.eumColors.textPrimary.copy(alpha = 0.72f))
                 .padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x4),
             color = MaterialTheme.eumColors.inverse,
@@ -370,36 +403,80 @@ private fun ProductGallery(uiModel: CatalogProductDetailUiModel, onEvent: (Catal
 }
 
 @Composable
-private fun ProductDetailTabs(uiModel: CatalogProductDetailUiModel, onEvent: (CatalogProductDetailEvent) -> Unit) {
-    Row(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.background)) {
-        listOf(
-            stringResource(R.string.catalog_product_description),
-            stringResource(R.string.catalog_product_shipping),
-            stringResource(R.string.catalog_product_reviews),
-            stringResource(R.string.catalog_product_questions),
-        ).forEachIndexed { index, label ->
-            Surface(
-                onClick = { onEvent(CatalogProductDetailEvent.TabSelected(index)) },
-                modifier = Modifier.weight(1f).heightIn(min = 52.dp),
-                color = MaterialTheme.eumColors.background,
-                border = BorderStroke(1.dp, if (uiModel.selectedTabIndex.coerceIn(0, 3) == index) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.line),
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(label, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center)
+internal fun ProductDetailTabs(uiModel: CatalogProductDetailUiModel, onEvent: (CatalogProductDetailEvent) -> Unit) {
+    val selectedTabIndex = uiModel.selectedTabIndex.coerceIn(0, 3)
+    Column(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface)) {
+        Box(Modifier.fillMaxWidth().height(EumSpacing.x1).background(MaterialTheme.eumColors.line))
+        // 큰 글꼴에서 한 탭만 줄바꿈돼도 밑줄 y가 모든 탭에서 같도록 가장 높은 탭에 높이를 맞춘다.
+        Row(Modifier.fillMaxWidth().height(IntrinsicSize.Max)) {
+            listOf(
+                stringResource(R.string.catalog_product_description),
+                stringResource(R.string.catalog_product_shipping),
+                stringResource(R.string.catalog_product_reviews),
+                stringResource(R.string.catalog_product_questions),
+            ).forEachIndexed { index, label ->
+                val isSelected = selectedTabIndex == index
+                Column(
+                    Modifier.weight(1f).fillMaxHeight()
+                        .selectable(
+                            selected = isSelected,
+                            role = Role.Tab,
+                            onClick = { onEvent(CatalogProductDetailEvent.TabSelected(index)) },
+                        ),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    // 탭 높이 48 = 위 14 + 글자 20 + 아래 12 + 밑줄 2.
+                    Text(
+                        label,
+                        Modifier.fillMaxWidth().padding(top = EumSpacing.x14, bottom = EumSpacing.x12),
+                        style = if (isSelected) EumTypographyTokens.labelM else MaterialTheme.typography.bodySmall,
+                        color = if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textTertiary,
+                        textAlign = TextAlign.Center,
+                    )
+                    Box(
+                        Modifier.fillMaxWidth().height(2.dp)
+                            .background(if (isSelected) MaterialTheme.eumColors.textPrimary else Color.Transparent),
+                    )
                 }
             }
         }
+        Box(Modifier.fillMaxWidth().height(EumSpacing.x1).background(MaterialTheme.eumColors.line))
     }
 }
 
+// 섹션 사이의 전폭 8dp 구분띠. Figma 띠 색은 노드 값을 확인하지 못해 surfaceSecondary로 가정한다.
 @Composable
-private fun ProductKeyValueRow(row: CatalogKeyValueUiModel) {
+private fun ProductSectionDivider() {
+    Box(Modifier.fillMaxWidth().height(EumSpacing.x8).background(MaterialTheme.eumColors.surfaceSecondary))
+}
+
+@Composable
+private fun ProductKeyValueRow(row: CatalogKeyValueUiModel, labelWidth: Dp) {
     Row(
-        Modifier.fillMaxWidth().padding(top = EumSpacing.x12),
-        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x16),
+        Modifier.fillMaxWidth().heightIn(min = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
     ) {
-        Text(row.label, Modifier.weight(0.38f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
-        Text(row.value, Modifier.weight(0.62f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textPrimary)
+        Text(row.label, Modifier.width(labelWidth), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
+        Text(row.value, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textPrimary)
+    }
+}
+
+// Figma 별은 면색과 테두리색이 달라 단색 tint로 못 그린다. 채움 아이콘과 윤곽 아이콘을 겹쳐 2색으로 그린다.
+@Composable
+private fun ProductRatingStar(isFilled: Boolean, modifier: Modifier = Modifier) {
+    Box(modifier.size(28.dp)) {
+        Icon(
+            painterResource(R.drawable.ic_star_catalog_filled),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            tint = if (isFilled) DETAIL_STAR_FILL_COLOR else MaterialTheme.eumColors.surface,
+        )
+        Icon(
+            painterResource(R.drawable.ic_star),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            tint = if (isFilled) MaterialTheme.eumColors.ratingStarOutline else MaterialTheme.eumColors.lineStrong,
+        )
     }
 }
 
@@ -408,24 +485,15 @@ private fun ProductKeyValueRow(row: CatalogKeyValueUiModel) {
 private fun ProductRatingRow(ratingLabel: String, reviewCountLabel: String?, modifier: Modifier = Modifier) {
     val filledStarCount = ratingLabel.toFloatOrNull()?.toInt()?.coerceIn(0, 5) ?: 0
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-        Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-            repeat(5) { index ->
-                val isFilled = index < filledStarCount
-                Icon(
-                    painterResource(if (isFilled) R.drawable.ic_star_catalog_filled else R.drawable.ic_star),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = if (isFilled) MaterialTheme.eumColors.ratingStar else MaterialTheme.eumColors.lineStrong,
-                )
-            }
+        Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            repeat(5) { index -> ProductRatingStar(isFilled = index < filledStarCount) }
         }
         val ratingText = reviewCountLabel?.let { stringResource(R.string.catalog_rating_with_review_count, ratingLabel, it) } ?: ratingLabel
         Text(
             ratingText,
-            Modifier.padding(start = EumSpacing.x12).background(MaterialTheme.eumColors.surface)
-                .padding(horizontal = EumSpacing.x6, vertical = EumSpacing.x4),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.eumColors.textSecondary,
+            Modifier.padding(start = EumSpacing.x8),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.eumColors.textTertiary,
         )
     }
 }
@@ -508,12 +576,17 @@ private fun ProductDetailBottomActions(
 ) {
     val isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired
     val isSoldOut = uiModel.product.isSoldOut
+    val lineColor = MaterialTheme.eumColors.line
     if (isQuoteRequired && !isSoldOut) {
         ProductQuoteBottomActions(uiModel, onEvent, modifier)
         return
     }
     Row(
-        modifier.fillMaxWidth().background(MaterialTheme.eumColors.background).padding(horizontal = EumSpacing.x16, vertical = EumSpacing.x8),
+        modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface)
+            .drawBehind { drawLine(lineColor, Offset.Zero, Offset(size.width, 0f), strokeWidth = 1.dp.toPx()) }
+            // 배경 뒤에 인셋을 적용해 내비게이션 바 구간도 흰색으로 이어진다.
+            .navigationBarsPadding()
+            .padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -526,6 +599,9 @@ private fun ProductDetailBottomActions(
                     uiModel.product.name,
                 ),
                 bordered = true,
+                borderColor = MaterialTheme.eumColors.lineStrong,
+                buttonSize = 56.dp,
+                iconSize = 24.dp,
             )
             EumPrimaryButton(
                 onClick = {},
@@ -543,6 +619,9 @@ private fun ProductDetailBottomActions(
                     uiModel.product.name,
                 ),
                 bordered = true,
+                borderColor = MaterialTheme.eumColors.lineStrong,
+                buttonSize = 56.dp,
+                iconSize = 24.dp,
             )
             EumOutlinedButton(
                 onClick = {
@@ -571,7 +650,7 @@ private fun ProductQuoteBottomActions(
     onEvent: (CatalogProductDetailEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface)) {
+    Column(modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface).navigationBarsPadding()) {
         Row(
             // 가격 문의 안내는 오류가 아니라 정보이므로 중립 표면 토큰을 쓴다(L-c).
             Modifier.fillMaxWidth().heightIn(min = 40.dp).background(MaterialTheme.eumColors.surfaceSecondary).padding(horizontal = EumSpacing.x20),

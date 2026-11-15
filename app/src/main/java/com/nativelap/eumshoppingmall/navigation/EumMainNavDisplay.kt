@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -18,6 +19,7 @@ import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.data.local.CartLine
 import com.nativelap.eumshoppingmall.ui.account.view.AccountDrawerRoute
 import com.nativelap.eumshoppingmall.ui.account.view.MyPageRoute
+import com.nativelap.eumshoppingmall.ui.auth.createLoginAuthenticator
 import com.nativelap.eumshoppingmall.ui.auth.view.AuthLoginRoute
 import com.nativelap.eumshoppingmall.ui.benefits.CouponRoute
 import com.nativelap.eumshoppingmall.ui.benefits.PointsRoute
@@ -46,6 +48,8 @@ import com.nativelap.eumshoppingmall.ui.screendata.ShoppingScreenDataProvider
 import com.nativelap.eumshoppingmall.ui.support.CustomerSupportRoute
 import com.nativelap.eumshoppingmall.ui.support.InquiryHistoryRoute
 import com.nativelap.eumshoppingmall.ui.support.NoticeListRoute
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 /**
  * 앱의 단일 NavDisplay. 하단 탭 5개가 각자 back stack을 갖고, 드로어는 Dialog scene으로 띄운다.
@@ -70,12 +74,17 @@ fun EumMainNavDisplay(
     val navigationState = rememberEumMainNavigationState()
     val navigator = remember(navigationState) { EumMainNavigator(navigationState) }
     val quoteProductSelection = rememberEumQuoteProductSelection()
+    val loginSession = rememberEumLoginSession()
+    val loginAuthenticator = remember { createLoginAuthenticator() }
+    // 결제 직후 장바구니 제거는 결제 화면이 사라져도 끝나야 하므로 화면 밖 scope에서 실행한다.
+    val orderScope = rememberCoroutineScope()
+    val currentOnCartItemsRemoved by rememberUpdatedState(onCartItemsRemoved)
     val currentCartItemCount by rememberUpdatedState(cartItemCount)
     val currentSavedCartLines by rememberUpdatedState(savedCartLines)
     // 담기 결과는 Route가 아니라 여기서 보관한다. Route가 사라져도 결과가 남아 다음 화면 구성에서 안내된다.
     var cartAddOutcome by rememberSaveable(stateSaver = CartAddOutcome.Saver) { mutableStateOf<CartAddOutcome?>(null) }
     val currentCartAddOutcome by rememberUpdatedState(cartAddOutcome)
-    val entryProvider = remember(navigationState, navigator, screenDataProvider, quoteProductSelection, onAddToCart) {
+    val entryProvider = remember(navigationState, navigator, screenDataProvider, quoteProductSelection, loginSession, loginAuthenticator, onAddToCart) {
         entryProvider<NavKey> {
             entry<EumDestination.Home> {
                 HomeRoute(
@@ -126,11 +135,17 @@ fun EumMainNavDisplay(
                     onQuantityChanged = onCartQuantityChanged,
                     onItemsRemoved = onCartItemsRemoved,
                     onCartLinesRestored = onCartLinesRestored,
-                    isLoggedIn = screenDataProvider.isLoggedIn,
+                    isLoggedIn = loginSession.isLoggedIn,
                     cartItemCount = currentCartItemCount,
                     onTabSelected = navigator::navigateToTab,
                     onSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
-                    onCheckoutClick = { navigator.push(EumDestination.CheckoutAddress) },
+                    onCheckoutClick = { orderedLineIds ->
+                        navigator.push(
+                            gateDestination(EumDestination.CheckoutAddress(orderedLineIds), loginSession.isLoggedIn),
+                        )
+                    },
+                    // 배너에서는 돌아갈 곳이 지금 장바구니이므로 보류 목적지 없이 로그인만 연다.
+                    onLoginClick = { navigator.push(EumDestination.Login()) },
                     onQuoteRequestClick = { navigator.push(EumDestination.QuoteRequest()) },
                 )
             }
@@ -195,7 +210,9 @@ fun EumMainNavDisplay(
                     uiModel = remember(destination) { screenDataProvider.productDetail(destination.productId) },
                     onBackClick = { navigator.goBack() },
                     onCartClick = { navigator.navigateToTab(MainNavigationTab.Cart) },
-                    onBuyNowClick = { navigator.push(EumDestination.CheckoutAddress) },
+                    onBuyNowClick = {
+                        navigator.push(gateDestination(EumDestination.CheckoutAddress(), loginSession.isLoggedIn))
+                    },
                     onQuoteRequestClick = { productId -> navigator.push(EumDestination.QuoteRequest(productId)) },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
                     onAddToCart = onAddToCart,
@@ -203,30 +220,53 @@ fun EumMainNavDisplay(
                     onCartAddOutcomeChange = { outcome -> cartAddOutcome = outcome },
                 )
             }
-            entry<EumDestination.CheckoutAddress> {
+            entry<EumDestination.CheckoutAddress> { destination ->
                 CheckoutAddressRoute(
                     uiModel = remember { screenDataProvider.checkout() },
                     onBackClick = { navigator.goBack() },
-                    onNextClick = { navigator.push(EumDestination.CheckoutPayment) },
+                    onNextClick = {
+                        navigator.push(EumDestination.CheckoutPayment(destination.orderedCartLineIds))
+                    },
                 )
             }
-            entry<EumDestination.CheckoutPayment> {
+            entry<EumDestination.CheckoutPayment> { destination ->
                 CheckoutPaymentRoute(
                     uiModel = remember { screenDataProvider.checkout() },
                     onBackClick = { navigator.goBack() },
                     onPaymentClick = {
                         // 주문 완료 뒤 뒤로가기로 결제 단계에 다시 들어가지 않도록 A-08·A-09를 걷어 낸다.
-                        navigator.popWhileAndPush(EumDestination.OrderComplete) { navKey ->
+                        val isPaymentCompleted = navigator.popWhileAndPushIfTop(
+                            topDestination = destination,
+                            destination = EumDestination.OrderComplete,
+                        ) { navKey ->
                             navKey is EumDestination.CheckoutAddress || navKey is EumDestination.CheckoutPayment
+                        }
+                        // 이동은 제거 완료를 기다리지 않는다. 연타된 두 번째 결제는 맨 위가 달라 여기에 오지 않는다.
+                        if (isPaymentCompleted && destination.orderedCartLineIds.isNotEmpty()) {
+                            val orderedLineIds = destination.orderedCartLineIds.toSet()
+                            orderScope.launch {
+                                try {
+                                    currentOnCartItemsRemoved(orderedLineIds)
+                                } catch (exception: CancellationException) {
+                                    throw exception
+                                } catch (exception: Exception) {
+                                    // 저장 실패는 주문 완료를 되돌리지 않는다. 장바구니에 남은 줄은 사용자가 직접 지울 수 있다.
+                                }
+                            }
                         }
                     },
                 )
             }
             entry<EumDestination.OrderComplete> {
+                // A-10의 뒤로가기·X·쇼핑 계속은 결제 직전 화면이 아니라 홈으로 간다(F1). 연타는 맨 위가 OrderComplete일 때만 처리한다.
+                fun closeOrderComplete() {
+                    navigator.closeTopAndOpenTabRootIfTop(EumDestination.OrderComplete, MainNavigationTab.Home)
+                }
+
                 OrderCompleteRoute(
                     uiModel = remember { screenDataProvider.orderComplete() },
-                    onContinueShoppingClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home) },
-                    onCloseClick = { navigator.goBack() },
+                    onContinueShoppingClick = ::closeOrderComplete,
+                    onCloseClick = ::closeOrderComplete,
                 )
             }
             entry<EumDestination.QuoteRequest> { destination ->
@@ -353,7 +393,15 @@ fun EumMainNavDisplay(
                 )
             }
             entry<EumDestination.Login> {
-                AuthLoginRoute(onCloseClick = { navigator.goBack() })
+                AuthLoginRoute(
+                    authenticator = loginAuthenticator,
+                    // 세션을 먼저 갱신한 뒤 이동해, 도착한 화면이 로그인 상태로 그려지게 한다.
+                    onLoginSuccess = {
+                        loginSession.markLoggedIn()
+                        navigator.completeLogin()
+                    },
+                    onCloseClick = { navigator.goBack() },
+                )
             }
         }
     }
@@ -367,6 +415,11 @@ fun EumMainNavDisplay(
         transitionSpec = EumNavTransitions.transitionSpec,
         popTransitionSpec = EumNavTransitions.popTransitionSpec,
         predictivePopTransitionSpec = EumNavTransitions.predictivePopTransitionSpec,
-        onBack = { navigator.goBack() },
+        onBack = {
+            // 시스템 뒤로가기도 A-10에서는 홈으로 보낸다. BackHandler로 가로채지 않고 이 경로로 통일한다.
+            if (!navigator.closeTopAndOpenTabRootIfTop(EumDestination.OrderComplete, MainNavigationTab.Home)) {
+                navigator.goBack()
+            }
+        },
     )
 }

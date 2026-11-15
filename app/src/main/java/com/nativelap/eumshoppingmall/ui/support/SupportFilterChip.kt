@@ -20,9 +20,10 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
-private val CHIP_VISUAL_HEIGHT = 34.dp
+private val CHIP_VISUAL_HEIGHT = 36.dp
+private val CHIP_HORIZONTAL_PADDING = 14.dp
 
-/** 시각 높이(34dp)와 터치 영역(최소 48dp)을 분리해, 칩 모양은 Figma에 맞추고 터치 기준은 유지한다. */
+/** 시각 높이(36dp)와 터치 영역(최소 48dp)을 분리해, 칩 모양은 Figma에 맞추고 터치 기준은 유지한다. */
 @Composable
 internal fun SupportFilterChip(
     label: String,
@@ -44,7 +45,7 @@ internal fun SupportFilterChip(
             Box(
                 Modifier
                     .height(CHIP_VISUAL_HEIGHT)
-                    .padding(horizontal = EumSpacing.x12),
+                    .padding(horizontal = CHIP_HORIZONTAL_PADDING),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
