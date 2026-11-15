@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.DeliveryProgressStage
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -53,7 +54,7 @@ fun DeliveryProgressStrip(currentStage: DeliveryProgressStage, modifier: Modifie
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (index > 0) {
                         Spacer(
-                            Modifier.weight(1f).height(1.dp)
+                            Modifier.weight(1f).height(2.dp)
                                 .background(if (isPast || isCurrent) MaterialTheme.eumColors.lineStrong else MaterialTheme.eumColors.line),
                         )
                     }
@@ -84,14 +85,14 @@ fun DeliveryProgressStrip(currentStage: DeliveryProgressStage, modifier: Modifie
                     }
                     if (index < stageLabels.lastIndex) {
                         Spacer(
-                            Modifier.weight(1f).height(1.dp)
+                            Modifier.weight(1f).height(2.dp)
                                 .background(if (isPast) MaterialTheme.eumColors.lineStrong else MaterialTheme.eumColors.line),
                         )
                     }
                 }
                 Text(
                     stringResource(labelResId),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = EumTypographyTokens.labelXs,
                     color = if (isCurrent) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textSecondary,
                     maxLines = 2,
                 )
