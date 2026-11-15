@@ -550,6 +550,7 @@
     <string name="auth_phone_invalid">휴대폰 번호를 확인해 주세요.</string>
     <string name="auth_verification_code_invalid">인증번호를 확인해 주세요.</string>
     <string name="auth_login_mismatch">이메일 또는 비밀번호가 일치하지 않습니다. (%1$d/5회)</string>
+    <string name="auth_login_unavailable">로그인 서비스를 준비 중입니다. 잠시 후 다시 시도해 주세요.</string>
     <string name="auth_social_login_a">간편로그인 A</string>
     <string name="auth_social_login_b">간편로그인 B</string>
     <string name="auth_member_personal">개인 회원</string>

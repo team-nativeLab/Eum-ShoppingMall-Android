@@ -74,7 +74,11 @@ fun AuthLoginScreen(uiModel: AuthLoginUiModel, onEvent: (AuthScreenEvent) -> Uni
                     isVisible = uiModel.isPasswordVisible,
                     onValueChange = { onEvent(AuthScreenEvent.LoginPasswordChanged(it)) },
                     onVisibilityChange = { onEvent(AuthScreenEvent.LoginPasswordVisibilityChanged) },
-                    errorText = if (uiModel.isCredentialsInvalid) stringResource(R.string.auth_login_mismatch, uiModel.failedAttemptCount) else null,
+                    errorText = when {
+                        uiModel.isServiceUnavailable -> stringResource(R.string.auth_login_unavailable)
+                        uiModel.isCredentialsInvalid -> stringResource(R.string.auth_login_mismatch, uiModel.failedAttemptCount)
+                        else -> null
+                    },
                 )
                 Row(
                     Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(AuthScreenEvent.RememberLoginChanged(!uiModel.isRemembered)) },

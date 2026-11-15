@@ -77,7 +77,10 @@ fun CartScreen(
                     modifier = Modifier.statusBarsPadding(),
                 )
                 if (!isLoggedIn) {
-                    CartLoginNoticeBanner(Modifier.fillMaxWidth())
+                    CartLoginNoticeBanner(
+                        onClick = { onEvent(CartScreenEvent.LoginClicked) },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
             }
         },
