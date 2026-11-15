@@ -14,23 +14,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 data class CustomerSupportFaqUiModel(val id: String, val question: String, val answer: String)
@@ -56,7 +52,7 @@ sealed interface CustomerSupportEvent {
 @Composable
 fun CustomerSupportScreen(uiModel: CustomerSupportUiModel, onEvent: (CustomerSupportEvent) -> Unit, modifier: Modifier = Modifier) {
     UiAuditScreenScaffold(stringResource(R.string.customer_support_title), { onEvent(CustomerSupportEvent.BackClicked) }, modifier) { padding ->
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(top = EumSpacing.x24, bottom = EumSpacing.x40), verticalArrangement = Arrangement.spacedBy(EumSpacing.x24)) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(top = EumSpacing.x24, bottom = EumSpacing.x40), verticalArrangement = Arrangement.spacedBy(EumSpacing.x32)) {
             Surface(
                 shape = RoundedCornerShape(EumRadius.x12),
                 color = MaterialTheme.eumColors.surface,
@@ -64,12 +60,12 @@ fun CustomerSupportScreen(uiModel: CustomerSupportUiModel, onEvent: (CustomerSup
             ) {
                 Column(
                     Modifier.fillMaxWidth().padding(EumSpacing.x20),
-                    verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
+                    verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
                 ) {
                     Text(stringResource(R.string.customer_support_phone_label), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
                     Text(uiModel.phoneNumber, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.eumColors.textPrimary)
-                    Text(uiModel.businessHours, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
-                    Row(Modifier.padding(top = EumSpacing.x8), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                    Text(uiModel.businessHours, style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textSecondary)
+                    Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                         OutlinedButton(
                             onClick = { onEvent(CustomerSupportEvent.CallClicked) },
                             modifier = Modifier.weight(1f).heightIn(min = 48.dp),
@@ -93,30 +89,11 @@ fun CustomerSupportScreen(uiModel: CustomerSupportUiModel, onEvent: (CustomerSup
                     }
                 }
             }
-            Column(Modifier.padding(top = EumSpacing.x12), verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
+            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
                 Text(stringResource(R.string.customer_support_faq_title), style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.eumColors.textPrimary)
-                OutlinedTextField(
-                    value = uiModel.query,
-                    onValueChange = { onEvent(CustomerSupportEvent.QueryChanged(it)) },
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                    placeholder = {
-                        Text(stringResource(R.string.customer_support_faq_search_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
-                    },
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_search),
-                            contentDescription = null,
-                            tint = MaterialTheme.eumColors.textSecondary,
-                        )
-                    },
-                    singleLine = true,
-                    shape = RoundedCornerShape(50),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.eumColors.surfaceSecondary,
-                        unfocusedContainerColor = MaterialTheme.eumColors.surfaceSecondary,
-                        focusedBorderColor = MaterialTheme.eumColors.lineStrong,
-                        unfocusedBorderColor = Color.Transparent,
-                    ),
+                CustomerSupportSearchField(
+                    query = uiModel.query,
+                    onQueryChange = { onEvent(CustomerSupportEvent.QueryChanged(it)) },
                 )
                 if (uiModel.query.isBlank()) {
                     FlowRow(

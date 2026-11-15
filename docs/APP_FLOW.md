@@ -19,7 +19,7 @@
 
 ### 스킬 예외
 
-1. **단일 NavDisplay + 로그인 push**: `android-navigation` 스킬의 기본 구조는 로그인 전 Auth NavDisplay와 로그인 후 Main NavDisplay를 나누는 것이다. 이 앱은 비로그인 상태에서도 홈·검색·장바구니를 쓰고, 로그인은 보호된 화면 앞에서만 요구한다. 그래서 `Login(pendingDestination)`을 현재 탭 위에 push하고, 로그인 성공 시 pop한 뒤 보류된 목적지를 push하는 구조(F4)를 택했다. 로그인 성공 처리는 아직 구현하지 않았다.
+1. **단일 NavDisplay + 로그인 push**: `android-navigation` 스킬의 기본 구조는 로그인 전 Auth NavDisplay와 로그인 후 Main NavDisplay를 나누는 것이다. 이 앱은 비로그인 상태에서도 홈·검색·장바구니를 쓰고, 로그인은 보호된 화면 앞에서만 요구한다. 그래서 `Login(pendingDestination)`을 현재 탭 위에 push하고, 로그인 성공 시 pop한 뒤 보류된 목적지를 push하는 구조(F4)를 택했다. 인증 서버는 아직 없어 debug 빌드만 mock 로그인으로 성공하고, release는 "로그인 서비스 준비 중"을 안내한다.
 2. **화면 안 시트·다이얼로그 유지**: 옵션 시트(A-05s), 배송 요청 선택 메뉴(A-08), 설정 다이얼로그(A-35l), 탈퇴 다이얼로그(A-26c) 등은 NavKey overlay가 아니라 기존처럼 각 Screen/Route의 내부 상태로 연다. overlay 목적지로 옮기는 일은 후속 이슈에서 다룬다.
 
 ## 하단 탭과 드로어
@@ -52,13 +52,17 @@ flowchart LR
 ```mermaid
 flowchart LR
     A05["A-05 상품 상세 / ProductDetail(productId)"] -- 장바구니 아이콘 --> A07["A-07 장바구니 / Cart (탭 전환)"]
-    A07 -- 주문하기 --> A08["A-08 배송지 / CheckoutAddress"]
-    A08 -- 다음 --> A09["A-09 결제 / CheckoutPayment"]
+    A07 -- 주문하기(비로그인) --> A13["A-13 로그인 / Login(pending=CheckoutAddress(ids))"]
+    A13 -- 로그인 성공 --> A08
+    A07 -- 주문하기(로그인) --> A08["A-08 배송지 / CheckoutAddress(orderedCartLineIds)"]
+    A08 -- 다음 --> A09["A-09 결제 / CheckoutPayment(orderedCartLineIds)"]
     A09 -- 결제하기 --> A10["A-10 주문 완료 / OrderComplete"]
-    A10 -- 쇼핑 계속 --> A02["A-02 홈 / Home (홈 탭 루트)"]
+    A10 -- 뒤로가기·X·쇼핑 계속 --> A02["A-02 홈 / Home (홈 탭 루트)"]
 ```
 
-A-10으로 갈 때 A-08·A-09를 스택에서 걷어 낸다. 그래서 A-10에서 뒤로가면 결제 화면이 아니라 장바구니로 돌아간다. "쇼핑 계속"은 A-10을 닫고, 홈 탭 기록을 루트만 남긴 뒤 홈 탭으로 전환한다(`closeTopAndOpenTabRoot`). 출발 탭과 상관없이 항상 홈 첫 화면이 보인다(사용자 결정, 2026-11-09).
+- 주문 대상은 장바구니에서 선택된 주문 가능한 줄이다. 선택이 없으면 "주문하기"는 이동하지 않는다. 줄 id 목록은 NavKey 인자(`orderedCartLineIds`)로 A-08 → A-09까지 전달한다.
+- 결제 성공 시 A-08·A-09를 스택에서 걷어 내고 A-10을 쌓으며, 이때 주문한 줄을 장바구니에서 제거해 배지를 갱신한다. 이동은 제거 완료를 기다리지 않고, 결제 버튼 연타는 맨 위가 결제 화면일 때만 한 번 처리한다(`popWhileAndPushIfTop`). 장바구니가 샘플(폴백) 목록일 때는 저장소에 줄이 없어 제거가 일어나지 않는다.
+- A-10에서 뒤로가기·X·"쇼핑 계속"은 모두 A-10을 닫고 홈 탭 루트로 간다(`closeTopAndOpenTabRoot`). 출발 탭과 상관없이 항상 홈 첫 화면이 보인다. 시스템 뒤로가기도 `NavDisplay.onBack`에서 같은 경로로 처리한다(사용자 결정, 2026-11-14. 이전 문서의 "A-10에서 뒤로가면 장바구니" 서술을 정정).
 
 ### F2 검색
 
@@ -82,22 +86,29 @@ flowchart LR
 ```mermaid
 flowchart LR
     A04["A-04 상품 목록 / ProductList(categoryId)"] --> A05["A-05 상품 상세 / ProductDetail"]
-    A05 -- 옵션 시트에서 바로구매 --> A08["A-08 배송지 / CheckoutAddress"]
-    A08 --> A09["A-09 결제 / CheckoutPayment"] --> A10["A-10 주문 완료 / OrderComplete"]
+    A05 -- 옵션 시트에서 바로구매(로그인) --> A08["A-08 배송지 / CheckoutAddress()"]
+    A05 -- 옵션 시트에서 바로구매(비로그인) --> A13["A-13 로그인 / Login(pending=CheckoutAddress())"]
+    A13 -- 로그인 성공 --> A08
+    A08 --> A09["A-09 결제 / CheckoutPayment()"] --> A10["A-10 주문 완료 / OrderComplete"]
 ```
 
-### F4 비로그인 보호 화면 (구조만)
+바로구매는 `orderedCartLineIds`가 빈 목록이라 결제 성공 시 장바구니를 건드리지 않는다. A-10 뒤로가기는 F1과 같이 홈 탭 루트로 간다. 시작 탭이 홈이 아닌 경우(예: 검색 탭에서 상세 진입) 그 탭의 기록은 `closeTopAndOpenTabRoot`가 홈 탭만 정리하므로 그대로 남는다.
+
+### F4 비로그인 보호 화면
 
 ```mermaid
 flowchart LR
     P["보호 화면으로 이동 시도"] --> L["A-13 로그인 / Login(pendingDestination)"]
-    L -- 로그인 성공(미구현) --> X["Login pop 후 pendingDestination push"]
+    L -- 로그인 성공 --> X["세션 갱신 후 Login pop, pendingDestination push"]
     L -- 닫기 --> B["이전 화면"]
 ```
 
 - 현재 로그인 진입점: 마이(A-11) 비로그인 카드의 "로그인 또는 회원가입", 드로어의 "로그인". 둘 다 `Login()`(보류 목적지 없음)이다.
-- 장바구니 로그인 안내 배너는 클릭 동작이 없어 연결하지 않았다.
-- `EumMainNavigator.completeLogin()`이 성공 후 처리를 담당하며, 단위 테스트로만 검증했다.
+- 장바구니 로그인 안내 배너는 `Login()`(보류 목적지 없음)을 연다. 돌아갈 곳이 이미 장바구니이기 때문이다.
+- 게이트는 `gateDestination(target, isLoggedIn)`(순수 함수)이 정하고 호출부(`EumMainNavDisplay`)가 적용한다. 적용 지점은 장바구니 "주문하기"와 상세 "바로구매"다. `Login`은 다시 감싸지 않는다.
+- 로그인 여부는 `EumLoginSession`(rememberSaveable Boolean, 비밀값 없음)이 가지며 모든 빌드에서 초기값은 비로그인이다. 마이·드로어·설정의 `isLoggedIn` 연결은 후속 단계다.
+- 인증은 `LoginAuthenticator`가 맡는다. debug는 이메일 형식이 맞고 비밀번호가 비어 있지 않으면 성공하는 mock이고(실제 인증 아님), release는 "로그인 서비스 준비 중" 인라인 안내만 보여 준다. 소셜 로그인은 성공 처리하지 않는다.
+- 성공하면 `EumLoginSession.markLoggedIn()` 뒤 `EumMainNavigator.completeLogin()`이 맨 위부터 이어진 인증 계열 화면을 모두 pop하고 가장 아래 Login의 보류 목적지를 push한다. 맨 위가 인증 계열이 아니면 아무것도 하지 않아 연타해도 한 번만 열린다. 닫기·뒤로는 이전 화면으로 간다.
 
 ### F5 마이 1단계
 
@@ -116,8 +127,8 @@ flowchart LR
 ```
 
 바로가기(A-16·20·21·22·22p)와 메뉴 행(견적 문의 내역 A-25, 1:1 문의 내역 A-31)은 로그인한 마이 화면에만 보인다.
-로그인 성공 경로가 없으므로 debug 샘플 제공자(`SampleShoppingScreenDataProvider`)만 `isLoggedIn = true`로 두어 실행 중에 확인한다. release는 비로그인 그대로다.
-debug가 로그인 상태이므로 장바구니의 로그인 안내 배너와 드로어의 "로그인" 메뉴는 debug 실행 중에는 보이지 않는다.
+모든 빌드에서 초기 로그인 상태는 비로그인이다(사용자 결정, 2026-11-14). debug 샘플 제공자는 더 이상 `isLoggedIn = true`로 두지 않는다.
+단계 1에서는 마이·드로어·설정이 `provider.isLoggedIn`(false)을 읽으므로 mock 로그인에 성공해도 비로그인 표시이며, debug 마이의 로그인 전용 바로가기도 나타나지 않는다(세션 연결은 단계 1b, #37 병합 후).
 
 마이 화면 ID 연결 현황(`EumMenuDestinations`):
 
@@ -162,7 +173,8 @@ flowchart LR
 | 흐름 | 이유 |
 |---|---|
 | auth 하위(가입 A-14, 계정 찾기 A-27·28, 비밀번호·휴대폰 변경 A-29·30, 탈퇴 A-26) | 이번 범위 제외 |
-| 로그인 성공 처리 | 인증 연동 없음 |
+| 실제 인증(서버 연동)·소셜 로그인 | 인증 서버 없음. debug mock만 제공 |
+| 마이·드로어·설정의 로그인 상태 연결 | 후속 단계(1b) |
 | 클레임 A-19·A-50~54 반려 변형, 주문 상세 A-17, 배송 조회 A-18 | 2단계 흐름 |
 | 설정·약관 A-35~39, 알림 A-32 | 이번 범위 제외 |
 | 마이 `profile` → 내 정보 관리 A-23 | 화면 진입 전 비밀번호 재확인 단계가 있어 인증 연동 없이 연결하지 않는다 |
@@ -175,3 +187,10 @@ flowchart LR
 | 스플래시 A-01 | 화면에 완료 콜백 없음 |
 | F2 네트워크 실패 | 해당 화면 없음 |
 | 홈 히어로 버튼, 홈 카테고리 행 | 목적지 미정 또는 미사용 컴포넌트 |
+
+## 알려진 한계 (서버 연동 전 후속)
+
+- 결제 화면(A-09) 진입 시 로그인 상태를 다시 검사하지 않는다. 게이트는 A-08 진입 앞에서만 적용된다.
+- 세션은 `rememberSaveable` Boolean 하나라 서버 세션·토큰 만료와 연결되지 않는다.
+- 결제 후 장바구니 제거 코루틴은 앱 범위 scope(`orderScope`)에서 실행되어 화면 종료와 무관하게 끝난다.
+- 백업·데이터 추출 규칙(로그인 상태·장바구니 저장소 포함 여부)은 아직 점검하지 않았다.

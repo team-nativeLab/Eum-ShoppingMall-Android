@@ -1,6 +1,5 @@
 package com.nativelap.eumshoppingmall.ui.checkout.view
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,11 +9,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,15 +20,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditRadioIndicator
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditTextField
 import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 enum class DeliveryRequestOption {
@@ -79,20 +80,19 @@ fun DeliveryRequestScreen(
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(contentPadding)
-                .padding(top = EumSpacing.x16, bottom = EumSpacing.x20),
+                .padding(top = EumSpacing.x16, bottom = EumSpacing.x32),
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
         ) {
             Text(
                 text = stringResource(R.string.ui_audit_shipping_request_helper),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.eumColors.textSecondary,
+                style = EumTypographyTokens.caption,
+                color = MaterialTheme.eumColors.textTertiary,
             )
             Surface(
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x8),
                 color = MaterialTheme.eumColors.surface,
-                border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.lineNeutral),
             ) {
-                Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x16)) {
+                Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x16).selectableGroup()) {
                     requestOptions.forEachIndexed { index, (option, label) ->
                         val isSelected = uiModel.selectedRequest == option
                         Row(
@@ -108,17 +108,10 @@ fun DeliveryRequestScreen(
                             Text(
                                 text = label,
                                 modifier = Modifier.weight(1f).padding(vertical = EumSpacing.x12),
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.eumColors.textPrimary,
                             )
-                            RadioButton(
-                                selected = isSelected,
-                                onClick = null,
-                                colors = RadioButtonDefaults.colors(
-                                    selectedColor = MaterialTheme.eumColors.textPrimary,
-                                    unselectedColor = MaterialTheme.eumColors.textSecondary,
-                                ),
-                            )
+                            UiAuditRadioIndicator(selected = isSelected)
                         }
                         if (index != requestOptions.lastIndex) {
                             HorizontalDivider(color = MaterialTheme.eumColors.line)
@@ -126,29 +119,31 @@ fun DeliveryRequestScreen(
                     }
                 }
             }
-            if (uiModel.selectedRequest == DeliveryRequestOption.Custom) {
-                Text(
-                    text = stringResource(R.string.ui_audit_request_custom_detail_label),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.eumColors.textPrimary,
-                )
-                UiAuditTextField(
-                    label = stringResource(R.string.ui_audit_request_custom_detail_label),
-                    value = uiModel.customRequest,
-                    placeholder = stringResource(R.string.ui_audit_request_custom_placeholder),
-                    onValueChange = { request ->
-                        onEvent(DeliveryRequestScreenEvent.CustomRequestChanged(request.take(MAX_REQUEST_LENGTH)))
-                    },
-                    minHeight = 120.dp,
-                    maxLines = 4,
-                )
-                Text(
-                    text = stringResource(R.string.ui_audit_request_character_count, uiModel.customRequest.length),
-                    modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.eumColors.textTertiary,
-                )
-            }
+            // Figma 기준으로 상세 요청 입력은 선택과 관계없이 항상 보인다.
+            Text(
+                text = stringResource(R.string.ui_audit_request_custom_detail_label),
+                // Figma 13 Medium 토큰이 없어 labelMedium(14)으로 대체한다.
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.eumColors.textPrimary,
+            )
+            UiAuditTextField(
+                label = stringResource(R.string.ui_audit_request_custom_detail_label),
+                value = uiModel.customRequest,
+                placeholder = stringResource(R.string.ui_audit_request_custom_placeholder),
+                onValueChange = { request ->
+                    onEvent(DeliveryRequestScreenEvent.CustomRequestChanged(request.take(MAX_REQUEST_LENGTH)))
+                },
+                minHeight = 120.dp,
+                maxLines = 4,
+                contentVerticalPadding = RequestInputVerticalPadding,
+            )
+            Text(
+                text = stringResource(R.string.ui_audit_request_character_count, uiModel.customRequest.length),
+                modifier = Modifier.fillMaxWidth(),
+                style = EumTypographyTokens.caption,
+                textAlign = TextAlign.End,
+                color = MaterialTheme.eumColors.textTertiary,
+            )
         }
     }
 }
@@ -166,3 +161,6 @@ private fun DeliveryRequestScreenPreview() {
 }
 
 private const val MAX_REQUEST_LENGTH = 100
+
+// Figma 입력창 패딩 14dp 사방. EumSpacing에 14dp 토큰이 없어 이 화면에서만 쓴다.
+private val RequestInputVerticalPadding = 14.dp

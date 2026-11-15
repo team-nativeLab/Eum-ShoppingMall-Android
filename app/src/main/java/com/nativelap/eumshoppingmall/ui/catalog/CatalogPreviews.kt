@@ -1,8 +1,13 @@
 package com.nativelap.eumshoppingmall.ui.catalog
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
 import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
@@ -451,5 +456,39 @@ private fun CatalogSearchPreview() {
             ),
             onEvent = {},
         )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 390, name = "카탈로그 카드 할인·견적·품절")
+@Composable
+private fun CatalogProductCardStatesPreview() {
+    EumShoppingMallTheme {
+        androidx.compose.foundation.layout.Row(
+            Modifier.padding(16.dp),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+        ) {
+            previewProducts.take(3).forEach { product ->
+                CatalogProductCard(product, onClick = {}, onFavoriteClick = {}, modifier = Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320, fontScale = 1.5f, name = "상세 탭 · fontScale 1.5")
+@Composable
+private fun CatalogProductDetailTabsLargeFontPreview() {
+    EumShoppingMallTheme {
+        ProductDetailTabs(CatalogProductDetailUiModel(product = previewProducts.first()), onEvent = {})
+    }
+}
+
+@Preview(showBackground = true, widthDp = 390, name = "검색창 입력 있음·없음")
+@Composable
+private fun CatalogSearchHeaderPreview() {
+    EumShoppingMallTheme {
+        Column {
+            CatalogSearchHeader(query = "", onQueryChanged = {}, onSubmit = {}, onCancel = {})
+            CatalogSearchHeader(query = "안전모", onQueryChanged = {}, onSubmit = {}, onCancel = {})
+        }
     }
 }
