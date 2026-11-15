@@ -59,7 +59,7 @@ fun OrderRequestOrderSelectionScreen(uiModel: OrderRequestOrderSelectionUiModel,
                 }
             }
             item {
-                Surface(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20), shape = RoundedCornerShape(EumRadius.x12), color = MaterialTheme.eumColors.backgroundSubtle) {
+                Surface(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20), shape = RoundedCornerShape(EumRadius.x12), color = MaterialTheme.eumColors.surfaceSecondary) {
                     Text(stringResource(R.string.request_selection_notice), Modifier.padding(EumSpacing.x16), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
                 }
             }

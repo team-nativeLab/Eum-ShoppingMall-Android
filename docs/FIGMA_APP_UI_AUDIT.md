@@ -135,3 +135,18 @@
 - 별 색: 카탈로그 카드의 채운 별을 warning에서 ratingStar로 바꿨다.
 - 주의: `backgroundSubtle`(#FAFAFA)이 `background`와 같아져 채움만으로 구분하던 컨테이너가 사라질 수 있다. `AuthPrimaryAction` 비활성 배경은 #38에서 `surfaceSecondary`로 보정했고, 나머지 6곳(BrandScreens, OrderRequestComponents, OrderRequestFormScreen, OrderRequestEntryScreens, SearchResultScreens, MyPageScreen)은 #39/#40에서 후속 확인한다.
 - 범위 밖(후속): 카드 그림자, 라디오·체크 커스텀, 필수 * 공용 컴포넌트, caption·가격·헤드라인 호출부 교체.
+
+## #46 주문 요청·주소·필터·리뷰 화면 Figma 세부 일치 (A-46~A-53)
+
+- 기준: `feature/#46-figma-order-request-screens`(#38 27f135f 위). Figma 도구 없이 이슈 명세 값만 사용했다.
+- 공용: `UiAuditRadioIndicator`(20dp 원, 선택 textPrimary 채움, 미선택 흰 채움+1.5dp 링 #A0A0A0=addressPlaceholder 값). 행 전체 `selectable`이 selected·RadioButton 시맨틱을 맡는다. `UiAuditTextField`에 `contentVerticalPadding` 매개변수(기본 12dp 유지)를 더했다.
+- A-47 배송 요청: 안내 caption textTertiary, 옵션 카드 테두리 제거·14/20, 상세 요청 입력 항상 표시(라벨 13→labelMedium 14 대체), 입력 패딩 14, 글자 수 caption 오른쪽 정렬, 본문 하단 32.
+- A-48 필터: pt16·섹션 간격 12·라벨-칩 12, 제목 labelMedium, 칩 r17·px14(터치 48 유지), 정렬 카드 테두리 제거·공용 라디오. 칩 글자 13 Medium 토큰이 없어 labelMedium 14 유지.
+- A-50~A-53: A-50 안내 textTertiary·라벨 labelMedium·값 14 Regular·입력칸 px14·버튼 r10, A-51 제목 headlineSmall(좌우 3dp 로컬 상수)·`OrderInfoCard` 옵트인 매개변수(`contentVerticalPadding` 14·`contentSpacing` 10, 기본값은 기존 16·0이라 OrderDetail·DetailCard·SelectableRequestProduct·EntryScreens·결제 내역 카드는 변경 없음, 신청 상세·철회 화면만 지정)·상품 카드 아이콘 24·`RequestInfoRow` 아이콘 20/라벨 폭 최소 72 Medium/값 15/24/세로 중앙, A-52·A-53 철회 카드 행 4개(값은 nullable 매개변수 `requestKindLabel`·`productLabel`·`requestDateLabel`로 받고 없으면 행을 숨김, 샘플 값은 debug 프리뷰에만 둠, 본문 세로 스크롤, 행 gap 은 명세에 없어 A-51 과 같은 10으로 통일)·본문 py16·A-53 아이콘 64/32·제목 headlineSmall.
+- A-49 리뷰 등록: 상품 이미지 그라디언트 토큰 대체·아이콘 32, 작성자 카드 r10·아바타 surfaceSecondary·뱃지 22/14/accent(#0A6E57 로컬 상수)·구분선, 평점 제목 headlineSmall·gap 8, 입력창 BasicTextField(132h r10 패딩 14 테두리 line), 사진 박스 r10·아이콘 28, 제출 `EumPrimaryButton`(56·비활성 surfaceSecondary)·하단 바 surface+구분선+pb16.
+- backgroundSubtle 보정: `HubActionCard`(surface+테두리), `OrderRequestEntryScreens` 안내 박스(surfaceSecondary). `OrderRequestFormScreen.ExchangeOptionCard`는 #43 소관이라 미수정.
+- 보류: A-46 자간 0(선택), A-51 철회 완료 CTA 제거(동선 때문에 유지), A-53 상단바 뒤로가기 없음(공통 상단바 유지), A-50·A-51 변형 HF 프레임 미확인.
+- 리뷰 등록 후속 처리: 입력창 contentDescription 을 제거해 입력 텍스트가 읽히게 했고 placeholder 시맨틱은 유지. accent(#0A6E57, 대비 약 5.5:1)는 화면 로컬 상수이며 TODO 로 accent 토큰 승격과 `EumDesignTokenTest` 추가를 후속에 남긴다.
+- 선택 그룹: 라디오 목록 Column·필터 칩 FlowRow 에 `selectableGroup()` 적용, 필터 라디오 행 gap 8.
+- Preview: A-48·A-49 는 `ProductFilterPreviews.kt`·`ProductReviewWritePreviews.kt`(debug)에 이미 있다. 철회 화면 샘플 값은 `OrderRequestPreviews.kt`에서 넘긴다.
+- 후속(이번 이슈 보류): A-53 상단바 뒤로가기 제거 여부, 13sp 타입 토큰, accent 색 토큰, 철회 4행 실제 데이터 연동(#41 이후), 라디오 미선택 링 대비 2.61(선택 여부는 채움 유무로 구분 중).
