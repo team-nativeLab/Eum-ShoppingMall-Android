@@ -5,5 +5,9 @@
     <string name="quote_delivery_area_label">납품 지역</string>
     <string name="quote_details_label">상세 내용</string>
     <string name="quote_submit_label">견적 문의 접수</string>
+    <string name="quote_progress_step_received">문의 접수</string>
+    <string name="quote_progress_step_consulting">상담</string>
+    <string name="quote_progress_step_estimate">견적 발송</string>
+    <string name="quote_progress_step_production">제작</string>
     <string name="quote_detail_content_label">내용</string>
 </resources>

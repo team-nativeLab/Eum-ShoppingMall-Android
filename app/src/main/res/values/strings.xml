@@ -701,7 +701,7 @@
     <string name="company_certification_english">Certification</string>
     <string name="company_partners_english">Partners</string>
     <string name="company_location_english">Location</string>
-    <string name="company_tagline_home">사람이 있는 곳에, 더 안전한 내일을 연결합니다.</string>
+    <string name="company_tagline_home">사람이 있는 곳에,\n더 안전한 내일을 연결합니다.</string>
     <string name="company_support_hours">평일 %1$s – %2$s (주말·공휴일 휴무)</string>
     <string name="company_search_results_count">검색 결과 %1$d건</string>
     <string name="order_process_cart_description">상품과 옵션을 골라 장바구니에 담습니다.</string>

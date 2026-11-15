@@ -29,6 +29,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -90,7 +92,7 @@ fun QuoteHistoryScreen(
                                     R.string.quote_filter_empty_title
                                 },
                             ),
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            style = MaterialTheme.typography.headlineSmall,
                             textAlign = TextAlign.Center,
                         )
 
@@ -127,18 +129,26 @@ private fun QuoteHistoryFilters(selected: QuoteHistoryFilter, onEvent: (QuoteHis
     ) {
         items(QuoteHistoryFilter.entries) { filter ->
             val selectedFilter = filter == selected
-            Surface(
-                onClick = { onEvent(QuoteHistoryEvent.FilterSelected(filter)) },
-                shape = RoundedCornerShape(20.dp),
-                color = if (selectedFilter) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface,
-                contentColor = if (selectedFilter) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textSecondary,
-                border = if (selectedFilter) null else BorderStroke(1.dp, MaterialTheme.eumColors.lineControl),
+            // 근사: 칩 시각 높이 36dp, 터치 영역 48dp(Figma 36 근사값).
+            Box(
+                Modifier.heightIn(min = 48.dp)
+                    .clickable(role = Role.RadioButton) { onEvent(QuoteHistoryEvent.FilterSelected(filter)) }
+                    .semantics { this.selected = selectedFilter },
+                contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    stringResource(filter.labelRes),
-                    Modifier.heightIn(min = 48.dp).padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x8),
-                    style = MaterialTheme.typography.labelSmall,
-                )
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = if (selectedFilter) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface,
+                    contentColor = if (selectedFilter) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textSecondary,
+                    border = if (selectedFilter) null else BorderStroke(1.dp, MaterialTheme.eumColors.lineControl),
+                ) {
+                    Box(
+                        Modifier.heightIn(min = 36.dp).padding(horizontal = EumSpacing.x12),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(stringResource(filter.labelRes), style = MaterialTheme.typography.labelSmall)
+                    }
+                }
             }
         }
     }

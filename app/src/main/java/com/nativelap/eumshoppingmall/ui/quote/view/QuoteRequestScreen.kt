@@ -6,7 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,13 +21,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,15 +47,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.quote.view.components.QuoteBottomActions
@@ -65,6 +67,7 @@ import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestField
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumCheckboxColors
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -92,33 +95,24 @@ fun QuoteRequestScreen(
         LazyColumn(
             modifier = contentModifier.fillMaxSize().padding(horizontal = EumSpacing.x20),
             contentPadding = PaddingValues(top = EumSpacing.x12, bottom = EumSpacing.x24),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
+            verticalArrangement = Arrangement.spacedBy(EumSpacing.x20),
         ) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
-                    Text(stringResource(R.string.quote_custom_order_english).uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary, letterSpacing = 1.2.sp)
+                    Text(
+                        stringResource(R.string.quote_custom_order_english).uppercase(),
+                        style = EumTypographyTokens.overline,
+                        color = MaterialTheme.eumColors.textTertiary,
+                    )
                     Text(
                         stringResource(R.string.quote_safety_solution_lines),
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.headlineLarge,
                         color = MaterialTheme.eumColors.textPrimary,
                     )
 
                     Spacer(Modifier.height(EumSpacing.x8))
 
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.eumColors.surface,
-                        border = BorderStroke(1.dp, MaterialTheme.eumColors.lineControl),
-                    ) {
-                        Text(
-                            stringResource(R.string.quote_breadcrumb),
-                            Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x8),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.eumColors.textSecondary,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
+                    QuoteProgressGuide()
                 }
             }
             item {
@@ -132,9 +126,9 @@ fun QuoteRequestScreen(
                     color = MaterialTheme.eumColors.surface,
                     border = BorderStroke(1.dp, MaterialTheme.eumColors.line),
                 ) {
-                    Column(Modifier.padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x8)) {
+                    Column(Modifier.padding(EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                            Text(stringResource(R.string.quote_inquiry_product_count, uiModel.products.size), modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
+                            Text(stringResource(R.string.quote_inquiry_product_count, uiModel.products.size), modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleLarge)
                             Text(
                                 stringResource(R.string.quote_product_add),
                                 modifier = Modifier.heightIn(min = 48.dp).clickable { onEvent(QuoteRequestEvent.AddProductClicked) }.padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x12),
@@ -147,21 +141,24 @@ fun QuoteRequestScreen(
             }
             item {
                 QuoteSectionTitle(stringResource(R.string.quote_inquiry_type), required = true)
-                Column {
-                    QuoteRequestType.entries.chunked(2).forEach { rowTypes ->
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            rowTypes.forEach { type ->
-                                val selected = type == uiModel.requestType
-                                Row(
-                                    modifier = Modifier.weight(1f).heightIn(min = 48.dp).clickable(role = Role.RadioButton) { onEvent(QuoteRequestEvent.RequestTypeSelected(type)) }
-                                        .semantics { this.selected = selected },
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    RadioButton(selected = selected, onClick = { onEvent(QuoteRequestEvent.RequestTypeSelected(type)) })
-                                    Text(stringResource(type.labelRes), style = MaterialTheme.typography.labelSmall)
-                                }
-                            }
-                            if (rowTypes.size == 1) Spacer(Modifier.weight(1f))
+                Spacer(Modifier.height(EumSpacing.x8))
+
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth().selectableGroup(),
+                    horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+                ) {
+                    QuoteRequestType.entries.forEach { type ->
+                        val selected = type == uiModel.requestType
+                        Row(
+                            modifier = Modifier.heightIn(min = 48.dp)
+                                .selectable(selected = selected, role = Role.RadioButton) {
+                                    onEvent(QuoteRequestEvent.RequestTypeSelected(type))
+                                },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+                        ) {
+                            QuoteRadioMark(selected)
+                            Text(stringResource(type.labelRes), style = MaterialTheme.typography.labelSmall)
                         }
                     }
                 }
@@ -262,11 +259,15 @@ fun QuoteRequestScreen(
             item {
                 Surface(
                     onClick = { onEvent(QuoteRequestEvent.AddAttachmentClicked) },
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).dashedBorder(MaterialTheme.eumColors.lineStrong, 8.dp, 1.dp),
-                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 96.dp).dashedBorder(MaterialTheme.eumColors.lineControl, 12.dp, 1.dp),
+                    shape = RoundedCornerShape(12.dp),
                     color = MaterialTheme.eumColors.background,
                 ) {
-                    Column(Modifier.padding(EumSpacing.x12), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        Modifier.padding(EumSpacing.x12),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                             Icon(painterResource(R.drawable.ic_paperclip), null, modifier = Modifier.size(18.dp))
                             Text(stringResource(R.string.quote_attachment_add), style = MaterialTheme.typography.labelMedium)
@@ -313,8 +314,8 @@ fun QuoteRequestScreen(
 
 @Composable
 private fun QuoteProductRow(product: CatalogProductUiModel, onRemove: () -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(vertical = EumSpacing.x6), verticalAlignment = Alignment.CenterVertically) {
-        Surface(Modifier.size(44.dp), shape = RoundedCornerShape(4.dp), color = MaterialTheme.eumColors.surfaceSecondary) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Surface(Modifier.size(48.dp), shape = RoundedCornerShape(6.dp), color = MaterialTheme.eumColors.surfaceSecondary) {
             val imageResId = product.imageResId
             if (imageResId == null) {
                 Icon(
@@ -327,7 +328,7 @@ private fun QuoteProductRow(product: CatalogProductUiModel, onRemove: () -> Unit
                 Image(
                     painter = painterResource(imageResId),
                     contentDescription = product.imageDescription ?: product.name,
-                    modifier = Modifier.clip(RoundedCornerShape(4.dp)),
+                    modifier = Modifier.clip(RoundedCornerShape(6.dp)),
                     contentScale = ContentScale.Crop,
                 )
             }
@@ -339,6 +340,64 @@ private fun QuoteProductRow(product: CatalogProductUiModel, onRemove: () -> Unit
         IconButton(onClick = onRemove, modifier = Modifier.size(48.dp)) {
             Icon(painterResource(R.drawable.ic_x), stringResource(R.string.quote_product_remove, product.name), modifier = Modifier.size(18.dp))
         }
+    }
+}
+
+@Composable
+private fun QuoteProgressGuide() {
+    val progressSteps =
+        listOf(
+            R.string.quote_progress_step_received,
+            R.string.quote_progress_step_consulting,
+            R.string.quote_progress_step_estimate,
+            R.string.quote_progress_step_production,
+        )
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.eumColors.surface,
+        border = BorderStroke(1.dp, MaterialTheme.eumColors.line),
+    ) {
+        // 접근성 설명은 quote_breadcrumb 하나로 읽힌다. 단계 문구를 바꾸면 quote_progress_step_*과 함께 고친다.
+        val breadcrumbDescription = stringResource(R.string.quote_breadcrumb)
+        // 좁은 폭·큰 글자에서는 단계 단위로 다음 줄에 내려가 라벨이 한 글자씩 깨지지 않는다.
+        FlowRow(
+            Modifier.fillMaxWidth().heightIn(min = 40.dp).padding(horizontal = EumSpacing.x12, vertical = EumSpacing.x8)
+                .clearAndSetSemantics { contentDescription = breadcrumbDescription },
+            horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(EumSpacing.x4, Alignment.CenterVertically),
+            itemVerticalAlignment = Alignment.CenterVertically,
+        ) {
+            progressSteps.forEachIndexed { index, stepLabelRes ->
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                    if (index > 0) {
+                        Icon(
+                            painterResource(R.drawable.ic_chevron_right),
+                            null,
+                            modifier = Modifier.size(12.dp),
+                            tint = MaterialTheme.eumColors.textTertiary,
+                        )
+                    }
+                    Text(
+                        stringResource(stepLabelRes),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.eumColors.textSecondary,
+                    )
+                }
+            }
+        }
+    }
+}
+
+// Figma 라디오 14dp. 안쪽 점 6dp·테두리 1dp는 Figma에서 확인하지 못한 임시값이며, 터치 영역은 부모 Row(48dp)가 담당한다.
+@Composable
+private fun QuoteRadioMark(isSelected: Boolean) {
+    val markColor = if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.lineControl
+    Box(
+        modifier = Modifier.size(14.dp).border(1.dp, markColor, CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (isSelected) Box(Modifier.size(6.dp).background(markColor, CircleShape))
     }
 }
 

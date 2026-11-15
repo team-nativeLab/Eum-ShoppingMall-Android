@@ -21,10 +21,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -33,11 +33,14 @@ internal fun NotificationItemRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val rowBackground = if (item.isUnread) MaterialTheme.eumColors.surface else MaterialTheme.eumColors.background
     Row(
         modifier
             .fillMaxWidth()
+            .background(rowBackground)
+            .border(EumSpacing.x1, MaterialTheme.eumColors.line)
             .clickable(onClick = onClick)
-            .padding(vertical = EumSpacing.x16),
+            .padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
         verticalAlignment = Alignment.Top,
     ) {
@@ -51,29 +54,31 @@ internal fun NotificationItemRow(
                 painter = painterResource(item.iconRes),
                 contentDescription = null,
                 modifier = Modifier.size(EumSpacing.x20),
-                tint = MaterialTheme.eumColors.textSecondary,
+                tint = MaterialTheme.eumColors.textPrimary,
             )
         }
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x6), verticalAlignment = Alignment.CenterVertically) {
                     Text(item.categoryLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
-                    Text(item.timeLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
+                    Text(item.timeLabel, style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
                 }
                 if (item.isUnread) {
                     val unreadDescription = stringResource(R.string.notification_unread_description)
                     Box(
                         Modifier
-                            .size(EumSpacing.x6)
-                            .background(MaterialTheme.eumColors.success, CircleShape)
+                            .size(width = EumSpacing.x6, height = EumSpacing.x12)
                             .semantics { contentDescription = unreadDescription },
-                    )
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Box(Modifier.size(EumSpacing.x6).background(MaterialTheme.eumColors.success, CircleShape))
+                    }
                 }
             }
             Text(
                 text = item.title,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = if (item.isUnread) FontWeight.Bold else FontWeight.Normal),
-                color = MaterialTheme.eumColors.textPrimary,
+                style = if (item.isUnread) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodySmall,
+                color = if (item.isUnread) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textSecondary,
             )
             Text(item.body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
         }
