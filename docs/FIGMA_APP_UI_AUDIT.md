@@ -135,3 +135,20 @@
 - 별 색: 카탈로그 카드의 채운 별을 warning에서 ratingStar로 바꿨다.
 - 주의: `backgroundSubtle`(#FAFAFA)이 `background`와 같아져 채움만으로 구분하던 컨테이너가 사라질 수 있다. `AuthPrimaryAction` 비활성 배경은 #38에서 `surfaceSecondary`로 보정했고, 나머지 6곳(BrandScreens, OrderRequestComponents, OrderRequestFormScreen, OrderRequestEntryScreens, SearchResultScreens, MyPageScreen)은 #39/#40에서 후속 확인한다.
 - 범위 밖(후속): 카드 그림자, 라디오·체크 커스텀, 필수 * 공용 컴포넌트, caption·가격·헤드라인 호출부 교체.
+
+## #44 견적·고객지원·알림·설정·공지 화면 세부 일치
+
+- 기준: `feature/#44-figma-support-notice-screens`(#38 커밋 27f135f 위). Figma 노드 A-15 182:2696, A-25 358:4125, A-31 480:5124, A-32 480:5502, A-35 655:7083, A-40 657:35718, A-40z 657:35872, A-41 657:36024, A-42 661:8066, A-43 663:8212·879:8767, A-44 879:8789. 구현 명세에 적힌 값만 반영했고 확인하지 못한 값은 추정으로 채우지 않았다.
+- A-15 견적 문의: 헤드라인 H1(headlineLarge), 개요 오버라인 `EumTypographyTokens.overline`(0.16em), 진행 안내를 높이 40·r12·테두리 line의 4단계+chevron-right 12를 FlowRow(가운데 정렬, 단계 단위 줄바꿈)로 교체(문구는 `quote_progress_step_*` 신설, 접근성 설명은 기존 `quote_breadcrumb`), 문의 유형 14dp 커스텀 라디오(FlowRow), 문의 상품 카드 패딩 16·gap 12·제목 title(16/24)·썸네일 48 r6, 첨부 박스 높이 96·r12·lineControl, 필드 간 20.
+- A-25 견적 내역(근사): 칩 시각 36dp·터치 48dp, 빈 상태 제목 headlineSmall.
+- A-31 문의 내역: 카드 r12, 제목 16/24 1줄 ellipsis, 메타 caption textTertiary, 본문 14/20 textTertiary 1줄, 상태 배지 h20 px6, 필터 칩 시각 36 px14(A-42 공유), 칩↔목록 gap 16·본문 상 16/하 32.
+- A-32 알림: 행마다 배경(읽지 않음 surface·읽음 background)+1px line, 좌우 20·상하 16(행은 scaffold 좌우 여백을 쓰지 않고 화면 폭을 채움), 제목 14/20(안읽음 Medium textPrimary·읽음 Regular textSecondary), 메타 간 6·텍스트 열 gap 4, 아이콘 textPrimary, 점 6×12 래퍼, 섹션 헤더 labelMedium pt16·pb8, 요약 행 bodySmall·py8·'모두 읽음' 시각 36 px12(터치 48), 하단 안내 caption·py24.
+- A-35 설정: 그룹 라벨 labelMedium textSecondary, 설명·부가 caption(13sp 오버라이드 제거), 앱 버전 값 14/20 textTertiary, 회원 탈퇴 caption 밑줄, 스위치 행 최소 56, 본문 하단 40. 파일 구조가 같아 최소 hunk로 적용했다(#37과 충돌 가능).
+- A-40~A-41 공지: 목록 제목 bodyMedium 최대 2줄 ellipsis, 고정 배지를 `NoticePinnedBadge`(h20 px6 r4 11/14 Medium)로 추출해 목록·상세가 공용, 고정 행 backgroundSubtle·일반 행 surface, 날짜 caption. 빈 상태는 상단 정렬(pt120·pb32), 원 64 surface+`ic_search_x` 28, 제목 headlineSmall '등록된 공지사항이 없습니다', 설명 문구 제거(`notice_empty_description` 삭제). 상세 본문 bodyMedium textSecondary, 날짜는 데이터 모델에 있어 유지하고 caption 적용.
+- A-42 고객센터: FAQ Q(title, 폭 32)·질문 bodyLMedium 16/26, 답변 박스 r8·p24·A Medium textTertiary·본문 bodyMedium·질문 바로 아래·아래 spacer 24, 연락처 카드 gap 12·시간 caption, 검색바 시각 44·터치 48(BasicTextField 기반 `CustomerSupportSearchField`)·힌트 bodyMedium, 섹션 gap 32.
+- A-43 회사 소개: eyebrow overline 토큰, 히어로 제목 h2 줄바꿈(`company_tagline_home`에 `\n` 추가), 히어로 설명 bodyMedium, 히어로 gap 16·pt16/pb32, 앵커 칩 띠 높이 56·surface·위아래 1dp line, 칩 시각 36 px14 capsule(개요 칩 고정 선택, 스크롤 연동은 범위 밖이라 탭으로 선택이 옮겨지지 않음), 사업 분야 설명 caption, 연혁 설명 caption textTertiary·간격 2, 정보 행 라벨 14/20 textTertiary, 파트너 박스 surface·caption, 지도 비율 1.776·세로 그라디언트(imagePlaceholderStart→End)·r12, 지도 앱 버튼 gap 6·아이콘 18·lineStrong 테두리, 마지막 섹션 구분선 없음·pb40. 코드에만 있는 '1:1 문의하기' 행은 제거하지 않고 유지했다.
+- A-43 1:1 문의 작성·A-44 상품 문의: 안내 문구 색 textTertiary(13sp 토큰이 없어 14 유지), 필드 라벨 13sp SemiBold·라벨 상단→필드 상단 24, 필드 간 18.
+- backgroundSubtle: 고정 공지 행만 사용하며 값이 background와 같아 채움으로 구분되지 않지만 행 구분선(line)으로 구분된다. 추가 보정은 없다.
+- 보류·미확인: 주요 버튼 15/22 SemiBold(`UiAuditPrimaryButton`은 #38 완료분이고 여러 화면이 공유해 재수정하지 않음), '모두 읽음' 버튼의 채움·테두리, 라디오 선택 표시(안쪽 점 6dp·테두리 1dp는 임시), 문의 유형 라디오 gap 12(가로)/세로 0(터치 48 우선), 알림 요약 행 'px20/12'의 12, 알림 행 사이 테두리 겹침(2dp), 라벨 줄 높이 19sp(24-5 계산), 진행 안내 FlowRow의 320dp·fontScale 1.5 실제 줄바꿈 렌더, A-44 다른 상태 변형, 연혁·소개 외 화면 Preview 렌더 확인.
+- 사후 검토 반영(1회차): 회사 소개 개요 칩 고정 선택으로 단순화, 견적 진행 안내를 FlowRow로 바꿔 320dp·큰 글자에서 단계 단위 줄바꿈, FAQ 검색 입력은 pointerInput+FocusRequester로 터치 영역을 넓히고 힌트를 필드 내부 장식으로 이동, 견적 라디오에 selectableGroup·selectable 적용, 문의 작성 화면 공용 상수를 `InquiryFormMetrics.kt`로 통합.
+- 후속(보류): '모두 읽음' 버튼 r8·채움 Figma 확인, `UiAuditPrimaryButton` 15/22 SemiBold는 공용 컴포넌트라 별도 이슈, 알림 행 테두리 겹침, 라디오 선택 표시 Figma 값 확인.
