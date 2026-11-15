@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.data.local.CartLine
 import com.nativelap.eumshoppingmall.data.local.totalQuantity
+import com.nativelap.eumshoppingmall.ui.common.rememberFavoriteToggles
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
@@ -39,6 +40,11 @@ fun CatalogProductDetailRoute(
     onBuyNowClick: () -> Unit,
     onQuoteRequestClick: (productId: String) -> Unit,
     onProductClick: (productId: String) -> Unit,
+    isLoggedIn: Boolean,
+    onLoginRequired: () -> Unit,
+    onAllReviewsClick: (productId: String) -> Unit,
+    onReviewWriteClick: (productId: String) -> Unit,
+    onQuestionWriteClick: (productId: String) -> Unit,
     onAddToCart: suspend (addedLines: List<CartLine>) -> Unit,
     cartAddOutcome: CartAddOutcome?,
     onCartAddOutcomeChange: (CartAddOutcome?) -> Unit,
@@ -51,6 +57,11 @@ fun CatalogProductDetailRoute(
     var selectedTabIndex by rememberSaveable { mutableStateOf(uiModel.selectedTabIndex) }
     var isOptionsSheetVisible by rememberSaveable { mutableStateOf(uiModel.optionsSheetVisible) }
     var isProductFavorite by rememberSaveable { mutableStateOf(uiModel.product.isFavorite) }
+    val relatedFavoriteToggles = rememberFavoriteToggles(
+        initialFavoriteIds = uiModel.relatedProducts.filter { product -> product.isFavorite }.map { product -> product.id }.toSet(),
+        isLoggedIn = isLoggedIn,
+        onLoginRequired = onLoginRequired,
+    )
     // 선택은 id와 수량만 저장하고(회전 복원), 표시에 쓸 옵션 정보는 현재 UiModel에서 다시 찾는다. 상품이 바뀌면 선택도 새로 시작한다.
     var optionSelections by rememberSaveable(uiModel.product.id, stateSaver = OptionSelectionsSaver) {
         mutableStateOf(emptyList<OptionSelection>())
@@ -138,6 +149,9 @@ fun CatalogProductDetailRoute(
     CatalogProductDetailContent(
         uiModel = uiModel.copy(
             product = uiModel.product.copy(isFavorite = isProductFavorite),
+            relatedProducts = uiModel.relatedProducts.map { product ->
+                product.copy(isFavorite = relatedFavoriteToggles.isFavorite(product.id))
+            },
             selectedImageIndex = selectedImageIndex,
             selectedTabIndex = selectedTabIndex,
             optionsSheetVisible = isOptionsSheetVisible,
@@ -206,12 +220,22 @@ fun CatalogProductDetailRoute(
 
                 is CatalogProductDetailEvent.RelatedProductSelected -> onProductClick(event.productId)
 
-                CatalogProductDetailEvent.ProductFavoriteToggled -> isProductFavorite = !isProductFavorite
+                CatalogProductDetailEvent.ProductFavoriteToggled -> if (isLoggedIn) {
+                    isProductFavorite = !isProductFavorite
+                } else {
+                    onLoginRequired()
+                }
 
-                // 공유와 연관 상품 찜 저장은 이번 범위가 아니다.
-                CatalogProductDetailEvent.ShareClicked,
-                is CatalogProductDetailEvent.FavoriteToggled,
-                -> Unit
+                is CatalogProductDetailEvent.FavoriteToggled -> relatedFavoriteToggles.toggle(event.productId)
+
+                CatalogProductDetailEvent.AllReviewsClicked -> onAllReviewsClick(uiModel.product.id)
+
+                CatalogProductDetailEvent.ReviewWriteClicked -> onReviewWriteClick(uiModel.product.id)
+
+                CatalogProductDetailEvent.QuestionWriteClicked -> onQuestionWriteClick(uiModel.product.id)
+
+                // 공유는 이번 범위가 아니다.
+                CatalogProductDetailEvent.ShareClicked -> Unit
             }
         },
         optionsSheetState = optionsSheetState,

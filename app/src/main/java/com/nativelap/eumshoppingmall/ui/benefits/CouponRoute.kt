@@ -11,6 +11,7 @@ fun CouponRoute(
     uiModel: CouponScreenUiModel,
     onBackClick: () -> Unit,
     onBrowseProductsClick: () -> Unit,
+    onPointsClick: () -> Unit = {},
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(uiModel.selectedTab) }
     var registeredCode by rememberSaveable { mutableStateOf(uiModel.registeredCode) }
@@ -29,10 +30,11 @@ fun CouponRoute(
 
                 CouponScreenEvent.BrowseProductsClicked -> onBrowseProductsClick()
 
-                // 쿠폰 등록·상세와 적립금 화면은 이번 범위가 아니다.
+                CouponScreenEvent.PointsClicked -> onPointsClick()
+
+                // 쿠폰 등록·상세는 이번 범위가 아니다.
                 CouponScreenEvent.RegisterClicked,
                 is CouponScreenEvent.CouponClicked,
-                CouponScreenEvent.PointsClicked,
                 -> Unit
             }
         },

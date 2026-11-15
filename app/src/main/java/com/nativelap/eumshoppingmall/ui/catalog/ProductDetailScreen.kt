@@ -41,6 +41,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -283,7 +284,12 @@ internal fun CatalogProductDetailContent(
                             } else {
                                 uiModel.reviews.forEach { review -> ProductReviewCard(review) }
                             }
-                            OutlinedButton(onClick = { onEvent(CatalogProductDetailEvent.TabSelected(2)) }, modifier = Modifier.fillMaxWidth()) {
+                            if (uiModel.reviewCount > 0) {
+                                TextButton(onClick = { onEvent(CatalogProductDetailEvent.AllReviewsClicked) }, modifier = Modifier.fillMaxWidth()) {
+                                    Text(stringResource(R.string.flow_view_all_reviews))
+                                }
+                            }
+                            OutlinedButton(onClick = { onEvent(CatalogProductDetailEvent.ReviewWriteClicked) }, modifier = Modifier.fillMaxWidth()) {
                                 Text(stringResource(R.string.catalog_review_write))
                             }
                         }
@@ -299,7 +305,7 @@ internal fun CatalogProductDetailContent(
                             } else {
                                 uiModel.questions.forEach { question -> ProductQuestionCard(question) }
                             }
-                            OutlinedButton(onClick = { onEvent(CatalogProductDetailEvent.TabSelected(3)) }, modifier = Modifier.fillMaxWidth()) {
+                            OutlinedButton(onClick = { onEvent(CatalogProductDetailEvent.QuestionWriteClicked) }, modifier = Modifier.fillMaxWidth()) {
                                 Text(stringResource(R.string.catalog_question_write))
                             }
                         }

@@ -15,6 +15,7 @@ fun CatalogCategoryRoute(
     onTabSelected: (MainNavigationTab) -> Unit,
     onSearchClick: () -> Unit,
     onCategoryClick: (categoryId: String?) -> Unit,
+    onBrandClick: (brandId: String) -> Unit = {},
 ) {
     var isBrandModeSelected by rememberSaveable { mutableStateOf(uiModel.brandModeSelected) }
     CatalogCategoryScreen(
@@ -25,15 +26,10 @@ fun CatalogCategoryRoute(
         onEvent = { event ->
             when (event) {
                 CatalogCategoryEvent.SearchClicked -> onSearchClick()
-
                 CatalogCategoryEvent.ViewAllClicked -> onCategoryClick(null)
-
                 is CatalogCategoryEvent.ModeSelected -> isBrandModeSelected = event.brandMode
-
                 is CatalogCategoryEvent.CategorySelected -> onCategoryClick(event.categoryId)
-
-                // 브랜드 상세(A-34) 연결은 이번 범위가 아니다.
-                is CatalogCategoryEvent.BrandSelected -> Unit
+                is CatalogCategoryEvent.BrandSelected -> onBrandClick(event.brandId)
             }
         },
     )

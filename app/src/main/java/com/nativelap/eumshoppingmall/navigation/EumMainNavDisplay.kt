@@ -1,5 +1,9 @@
 package com.nativelap.eumshoppingmall.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,7 +12,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -19,6 +25,7 @@ import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.data.local.CartLine
 import com.nativelap.eumshoppingmall.ui.account.view.AccountDrawerRoute
 import com.nativelap.eumshoppingmall.ui.account.view.MyPageRoute
+import com.nativelap.eumshoppingmall.ui.auth.createAccountService
 import com.nativelap.eumshoppingmall.ui.auth.createLoginAuthenticator
 import com.nativelap.eumshoppingmall.ui.auth.view.AuthLoginRoute
 import com.nativelap.eumshoppingmall.ui.benefits.CouponRoute
@@ -32,6 +39,7 @@ import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchResultsRoute
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchRoute
 import com.nativelap.eumshoppingmall.ui.checkout.view.CheckoutAddressRoute
 import com.nativelap.eumshoppingmall.ui.checkout.view.CheckoutPaymentRoute
+import com.nativelap.eumshoppingmall.ui.common.EumSnackbarHost
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.company.CompanyIntroRoute
 import com.nativelap.eumshoppingmall.ui.events.EventListRoute
@@ -39,12 +47,14 @@ import com.nativelap.eumshoppingmall.ui.favorites.FavoritesRoute
 import com.nativelap.eumshoppingmall.ui.home.HomeRoute
 import com.nativelap.eumshoppingmall.ui.ordercomplete.view.OrderCompleteRoute
 import com.nativelap.eumshoppingmall.ui.orders.view.OrderHistoryRoute
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestType
 import com.nativelap.eumshoppingmall.ui.quote.view.QuoteCompleteRoute
 import com.nativelap.eumshoppingmall.ui.quote.view.QuoteHistoryRoute
 import com.nativelap.eumshoppingmall.ui.quote.view.QuoteInquiryDetailRoute
 import com.nativelap.eumshoppingmall.ui.quote.view.QuoteRequestRoute
 import com.nativelap.eumshoppingmall.ui.recent.RecentProductsRoute
 import com.nativelap.eumshoppingmall.ui.screendata.ShoppingScreenDataProvider
+import com.nativelap.eumshoppingmall.ui.splash.SplashOverlay
 import com.nativelap.eumshoppingmall.ui.support.CustomerSupportRoute
 import com.nativelap.eumshoppingmall.ui.support.InquiryHistoryRoute
 import com.nativelap.eumshoppingmall.ui.support.NoticeListRoute
@@ -76,6 +86,13 @@ fun EumMainNavDisplay(
     val quoteProductSelection = rememberEumQuoteProductSelection()
     val loginSession = rememberEumLoginSession()
     val loginAuthenticator = remember { createLoginAuthenticator() }
+    val accountService = remember { createAccountService() }
+    val addressSelection = rememberEumAddressSelection()
+    val entryContext = remember(navigator, loginSession, screenDataProvider) {
+        EumEntryContext(navigator, loginSession, screenDataProvider)
+    }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val signupWelcomeMessage = stringResource(R.string.flow_signup_welcome)
     // 결제 직후 장바구니 제거는 결제 화면이 사라져도 끝나야 하므로 화면 밖 scope에서 실행한다.
     val orderScope = rememberCoroutineScope()
     val currentOnCartItemsRemoved by rememberUpdatedState(onCartItemsRemoved)
@@ -84,7 +101,17 @@ fun EumMainNavDisplay(
     // 담기 결과는 Route가 아니라 여기서 보관한다. Route가 사라져도 결과가 남아 다음 화면 구성에서 안내된다.
     var cartAddOutcome by rememberSaveable(stateSaver = CartAddOutcome.Saver) { mutableStateOf<CartAddOutcome?>(null) }
     val currentCartAddOutcome by rememberUpdatedState(cartAddOutcome)
-    val entryProvider = remember(navigationState, navigator, screenDataProvider, quoteProductSelection, loginSession, loginAuthenticator, onAddToCart) {
+
+    // 맨 위가 인증 화면일 때만 세션을 갱신하고 이동한다. 늦게 도착한 성공 콜백이 세션만 바꾸는 불일치를 막는다.
+    fun completeAuthentication(): Boolean {
+        val topKey = navigationState.currentBackStack.lastOrNull() ?: return false
+        if (!isAuthDestination(topKey)) return false
+        // 세션을 먼저 갱신한 뒤 이동해, 도착한 화면이 로그인 상태로 그려지게 한다.
+        loginSession.markLoggedIn()
+        navigator.completeLogin()
+        return true
+    }
+    val entryProvider = remember(navigationState, navigator, screenDataProvider, quoteProductSelection, addressSelection, entryContext, loginSession, loginAuthenticator, accountService, onAddToCart) {
         entryProvider<NavKey> {
             entry<EumDestination.Home> {
                 HomeRoute(
@@ -104,6 +131,8 @@ fun EumMainNavDisplay(
                     onMenuClick = { navigator.push(EumDestination.Drawer) },
                     onSeeAllProductsClick = { navigator.push(EumDestination.ProductList()) },
                     onSeeRecommendedProductsClick = { navigator.push(EumDestination.ProductList()) },
+                    isFavoriteAllowed = loginSession.isLoggedIn,
+                    onFavoriteBlocked = entryContext::openLogin,
                     onNavigationSelected = navigator::navigateToTab,
                 )
             }
@@ -115,6 +144,7 @@ fun EumMainNavDisplay(
                     onTabSelected = navigator::navigateToTab,
                     onSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
                     onCategoryClick = { categoryId -> navigator.push(EumDestination.ProductList(categoryId)) },
+                    onBrandClick = { brandId -> navigator.push(EumDestination.BrandDetail(brandId)) },
                 )
             }
             entry<EumDestination.Search> {
@@ -140,13 +170,12 @@ fun EumMainNavDisplay(
                     onTabSelected = navigator::navigateToTab,
                     onSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
                     onCheckoutClick = { orderedLineIds ->
-                        navigator.push(
-                            gateDestination(EumDestination.CheckoutAddress(orderedLineIds), loginSession.isLoggedIn),
-                        )
+                        entryContext.open(EumDestination.CheckoutAddress(orderedLineIds))
                     },
                     // 배너에서는 돌아갈 곳이 지금 장바구니이므로 보류 목적지 없이 로그인만 연다.
                     onLoginClick = { navigator.push(EumDestination.Login()) },
                     onQuoteRequestClick = { navigator.push(EumDestination.QuoteRequest()) },
+                    onOptionChangeClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
                 )
             }
             entry<EumDestination.MyPage> {
@@ -157,10 +186,10 @@ fun EumMainNavDisplay(
                     onLoginClick = { navigator.push(EumDestination.Login()) },
                     onDrawerClick = { navigator.push(EumDestination.Drawer) },
                     onShortcutClick = { shortcutId ->
-                        EumMenuDestinations.myPageShortcut(shortcutId)?.let(navigator::push)
+                        EumMenuDestinations.myPageShortcut(shortcutId)?.let(entryContext::open)
                     },
                     onMenuRowClick = { rowId ->
-                        EumMenuDestinations.myPageMenuRow(rowId)?.let(navigator::push)
+                        EumMenuDestinations.myPageMenuRow(rowId)?.let(entryContext::open)
                     },
                 )
             }
@@ -190,6 +219,8 @@ fun EumMainNavDisplay(
                     onBackClick = { navigator.goBack() },
                     onSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
+                    isLoggedIn = loginSession.isLoggedIn,
+                    onLoginRequired = entryContext::openLogin,
                 )
             }
             entry<EumDestination.SearchResults> { destination ->
@@ -203,6 +234,8 @@ fun EumMainNavDisplay(
                     onSearch = { query -> navigator.replaceTop(EumDestination.SearchResults(query)) },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
                     onQuoteRequestClick = { navigator.push(EumDestination.QuoteRequest()) },
+                    isLoggedIn = loginSession.isLoggedIn,
+                    onLoginRequired = entryContext::openLogin,
                 )
             }
             entry<EumDestination.ProductDetail> { destination ->
@@ -211,10 +244,15 @@ fun EumMainNavDisplay(
                     onBackClick = { navigator.goBack() },
                     onCartClick = { navigator.navigateToTab(MainNavigationTab.Cart) },
                     onBuyNowClick = {
-                        navigator.push(gateDestination(EumDestination.CheckoutAddress(), loginSession.isLoggedIn))
+                        entryContext.open(EumDestination.CheckoutAddress())
                     },
                     onQuoteRequestClick = { productId -> navigator.push(EumDestination.QuoteRequest(productId)) },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
+                    isLoggedIn = loginSession.isLoggedIn,
+                    onLoginRequired = entryContext::openLogin,
+                    onAllReviewsClick = { productId -> navigator.push(EumDestination.ProductReviews(productId)) },
+                    onReviewWriteClick = { productId -> entryContext.open(EumDestination.ReviewWrite(productId)) },
+                    onQuestionWriteClick = { productId -> entryContext.open(EumDestination.ProductInquiryWrite(productId)) },
                     onAddToCart = onAddToCart,
                     cartAddOutcome = currentCartAddOutcome,
                     onCartAddOutcomeChange = { outcome -> cartAddOutcome = outcome },
@@ -227,6 +265,10 @@ fun EumMainNavDisplay(
                     onNextClick = {
                         navigator.push(EumDestination.CheckoutPayment(destination.orderedCartLineIds))
                     },
+                    onAddressChangeClick = { navigator.push(EumDestination.AddressSearch) },
+                    pickedAddressId = addressSelection.pendingAddressId,
+                    addressLabelById = screenDataProvider::addressLabel,
+                    onPickedAddressConsumed = addressSelection::consume,
                 )
             }
             entry<EumDestination.CheckoutPayment> { destination ->
@@ -263,10 +305,15 @@ fun EumMainNavDisplay(
                     navigator.closeTopAndOpenTabRootIfTop(EumDestination.OrderComplete, MainNavigationTab.Home)
                 }
 
+                val orderCompleteUiModel = remember { screenDataProvider.orderComplete() }
                 OrderCompleteRoute(
-                    uiModel = remember { screenDataProvider.orderComplete() },
+                    uiModel = orderCompleteUiModel,
                     onContinueShoppingClick = ::closeOrderComplete,
                     onCloseClick = ::closeOrderComplete,
+                    // 서버 연동 전이라 주문 ID가 없어 주문 번호를 주문 ID로 쓴다.
+                    onViewOrderDetailsClick = {
+                        entryContext.open(EumDestination.OrderDetail(orderCompleteUiModel.orderNumber))
+                    },
                 )
             }
             entry<EumDestination.QuoteRequest> { destination ->
@@ -293,6 +340,8 @@ fun EumMainNavDisplay(
                     onTabSelected = navigator::navigateToTab,
                     onBackClick = { navigator.goBack() },
                     onSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
+                    isLoggedIn = loginSession.isLoggedIn,
+                    onLoginRequired = entryContext::openLogin,
                     onProductClick = { productId ->
                         // 상세로 가지 않고 바로 폼에 담는다. 퇴장 애니메이션 중 두 번째 탭이 폼까지 닫거나
                         // 소비되지 않는 ID를 남기지 않도록, 선택 화면이 맨 위여서 pop에 성공했을 때만 ID를 맡긴다.
@@ -307,14 +356,14 @@ fun EumMainNavDisplay(
                     uiModel = remember { screenDataProvider.quoteComplete() },
                     onCloseClick = { navigator.goBack() },
                     onContinueShoppingClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home) },
-                    onViewInquiriesClick = { navigator.replaceTop(EumDestination.QuoteHistory) },
+                    onViewInquiriesClick = { navigator.replaceTop(gateIfProtected(EumDestination.QuoteHistory, loginSession.isLoggedIn)) },
                 )
             }
             entry<EumDestination.QuoteHistory> {
                 QuoteHistoryRoute(
                     uiModel = remember { screenDataProvider.quoteHistory() },
                     onBackClick = { navigator.goBack() },
-                    onInquiryClick = { inquiryId -> navigator.push(EumDestination.QuoteInquiryDetail(inquiryId)) },
+                    onInquiryClick = { inquiryId -> entryContext.open(EumDestination.QuoteInquiryDetail(inquiryId)) },
                     onNewInquiryClick = { navigator.push(EumDestination.QuoteRequest()) },
                 )
             }
@@ -329,7 +378,13 @@ fun EumMainNavDisplay(
                 OrderHistoryRoute(
                     uiModel = remember { screenDataProvider.orderHistory() },
                     onBackClick = { navigator.goBack() },
-                    onBrowseProductsClick = { navigator.navigateToTab(MainNavigationTab.Home) },
+                    onBrowseProductsClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home) },
+                    onOrderDetailsClick = { orderId -> entryContext.open(EumDestination.OrderDetail(orderId)) },
+                    onTrackDeliveryClick = { orderId -> entryContext.open(EumDestination.DeliveryTracking(orderId)) },
+                    onCancelClick = { orderId ->
+                        entryContext.open(EumDestination.ClaimRequest(orderId, OrderRequestType.Cancel.name))
+                    },
+                    onCancelReturnClick = { entryContext.open(EumDestination.ClaimHub) },
                 )
             }
             entry<EumDestination.Favorites> {
@@ -337,7 +392,7 @@ fun EumMainNavDisplay(
                     uiModel = remember { screenDataProvider.favorites() },
                     onBackClick = { navigator.goBack() },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
-                    onBrowseProductsClick = { navigator.navigateToTab(MainNavigationTab.Home) },
+                    onBrowseProductsClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home) },
                 )
             }
             entry<EumDestination.RecentProducts> {
@@ -345,45 +400,51 @@ fun EumMainNavDisplay(
                     uiModel = remember { screenDataProvider.recentProducts() },
                     onBackClick = { navigator.goBack() },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
-                    onBrowseProductsClick = { navigator.navigateToTab(MainNavigationTab.Home) },
+                    onBrowseProductsClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home) },
                 )
             }
             entry<EumDestination.Coupons> {
                 CouponRoute(
                     uiModel = remember { screenDataProvider.coupons() },
                     onBackClick = { navigator.goBack() },
-                    onBrowseProductsClick = { navigator.navigateToTab(MainNavigationTab.Home) },
+                    onBrowseProductsClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home) },
+                    onPointsClick = { entryContext.open(EumDestination.Points) },
                 )
             }
             entry<EumDestination.Points> {
                 PointsRoute(
                     uiModel = remember { screenDataProvider.points() },
                     onBackClick = { navigator.goBack() },
-                    onShopClick = { navigator.navigateToTab(MainNavigationTab.Home) },
+                    onShopClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home) },
                 )
             }
             entry<EumDestination.InquiryHistory> {
                 InquiryHistoryRoute(
                     items = remember { screenDataProvider.inquiryHistory() },
                     onBackClick = { navigator.goBack() },
+                    onItemClick = { inquiryId -> entryContext.open(EumDestination.InquiryDetail(inquiryId)) },
+                    onWriteClick = { entryContext.open(EumDestination.InquiryWrite) },
                 )
             }
             entry<EumDestination.CustomerSupport> {
                 CustomerSupportRoute(
                     uiModel = remember { screenDataProvider.customerSupport() },
                     onBackClick = { navigator.goBack() },
+                    onInquiryClick = { entryContext.open(EumDestination.InquiryWrite) },
                 )
             }
             entry<EumDestination.NoticeList> {
                 NoticeListRoute(
                     notices = remember { screenDataProvider.notices() },
                     onBackClick = { navigator.goBack() },
+                    onNoticeClick = { noticeId -> navigator.push(EumDestination.NoticeDetail(noticeId)) },
                 )
             }
             entry<EumDestination.EventList> {
                 EventListRoute(
                     events = remember { screenDataProvider.events() },
                     onBackClick = { navigator.goBack() },
+                    onEventClick = { eventId -> navigator.push(EumDestination.EventDetail(eventId)) },
                 )
             }
             entry<EumDestination.CompanyIntro> {
@@ -396,30 +457,48 @@ fun EumMainNavDisplay(
                 AuthLoginRoute(
                     authenticator = loginAuthenticator,
                     // 세션을 먼저 갱신한 뒤 이동해, 도착한 화면이 로그인 상태로 그려지게 한다.
-                    onLoginSuccess = {
-                        loginSession.markLoggedIn()
-                        navigator.completeLogin()
-                    },
+                    onLoginSuccess = { completeAuthentication() },
                     onCloseClick = { navigator.goBack() },
+                    onFindEmailClick = { navigator.push(EumDestination.AccountRecovery()) },
+                    onFindPasswordClick = { navigator.push(EumDestination.AccountRecovery(findsPassword = true)) },
+                    onSignupClick = { navigator.push(EumDestination.Signup) },
                 )
             }
+            addAuthEntries(entryContext, accountService) {
+                // 가입 완료는 곧 로그인이다. 인증 화면이 맨 위일 때만 진행하고 환영 안내를 띄운다.
+                if (completeAuthentication()) {
+                    orderScope.launch {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar(message = signupWelcomeMessage, duration = SnackbarDuration.Short)
+                    }
+                }
+            }
+            addOrderEntries(entryContext, addressSelection)
+            addSupportEntries(entryContext)
+            addCatalogDetailEntries(entryContext)
         }
     }
-    NavDisplay(
-        entries = navigationState.rememberNavEntries(entryProvider),
-        modifier = modifier,
-        sceneStrategies = listOf(
-            DialogSceneStrategy(),
-            SinglePaneSceneStrategy(),
-        ),
-        transitionSpec = EumNavTransitions.transitionSpec,
-        popTransitionSpec = EumNavTransitions.popTransitionSpec,
-        predictivePopTransitionSpec = EumNavTransitions.predictivePopTransitionSpec,
-        onBack = {
-            // 시스템 뒤로가기도 A-10에서는 홈으로 보낸다. BackHandler로 가로채지 않고 이 경로로 통일한다.
-            if (!navigator.closeTopAndOpenTabRootIfTop(EumDestination.OrderComplete, MainNavigationTab.Home)) {
-                navigator.goBack()
-            }
-        },
-    )
+    Box(modifier = modifier) {
+        NavDisplay(
+            entries = navigationState.rememberNavEntries(entryProvider),
+            sceneStrategies = listOf(
+                DialogSceneStrategy(),
+                SinglePaneSceneStrategy(),
+            ),
+            transitionSpec = EumNavTransitions.transitionSpec,
+            popTransitionSpec = EumNavTransitions.popTransitionSpec,
+            predictivePopTransitionSpec = EumNavTransitions.predictivePopTransitionSpec,
+            onBack = {
+                // 시스템 뒤로가기도 A-10에서는 홈으로 보낸다. BackHandler로 가로채지 않고 이 경로로 통일한다.
+                if (!navigator.closeTopAndOpenTabRootIfTop(EumDestination.OrderComplete, MainNavigationTab.Home)) {
+                    navigator.goBack()
+                }
+            },
+        )
+        EumSnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
+        )
+        SplashOverlay()
+    }
 }

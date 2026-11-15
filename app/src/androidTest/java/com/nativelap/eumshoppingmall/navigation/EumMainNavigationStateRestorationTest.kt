@@ -18,6 +18,39 @@ class EumMainNavigationStateRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
+    fun loginSignupRecoveryStackAndPendingDestinationSurviveSavedStateRestore() {
+        val restorationTester = StateRestorationTester(composeRule)
+        lateinit var navigationState: EumMainNavigationState
+        restorationTester.setContent {
+            navigationState = rememberEumMainNavigationState()
+        }
+        val pendingDestination = EumDestination.OrderDetail("order-1")
+
+        composeRule.runOnIdle {
+            val navigator = EumMainNavigator(navigationState)
+            navigator.push(EumDestination.Login(pendingDestination = pendingDestination))
+            navigator.push(EumDestination.AccountRecovery(findsPassword = true))
+            navigator.push(EumDestination.Signup)
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.runOnIdle {
+            assertEquals(
+                listOf(
+                    EumDestination.Home,
+                    EumDestination.Login(pendingDestination = pendingDestination),
+                    EumDestination.AccountRecovery(findsPassword = true),
+                    EumDestination.Signup,
+                ),
+                stackOf(navigationState, MainNavigationTab.Home),
+            )
+            EumMainNavigator(navigationState).completeLogin()
+            assertEquals(listOf(EumDestination.Home, pendingDestination), stackOf(navigationState, MainNavigationTab.Home))
+        }
+    }
+
+    @Test
     fun tabIndexAndEveryBackStackSurviveSavedStateRestore() {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var navigationState: EumMainNavigationState

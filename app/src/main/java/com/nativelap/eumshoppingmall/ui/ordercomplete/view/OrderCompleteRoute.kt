@@ -9,6 +9,7 @@ fun OrderCompleteRoute(
     uiModel: OrderCompleteUiModel,
     onContinueShoppingClick: () -> Unit,
     onCloseClick: () -> Unit,
+    onViewOrderDetailsClick: () -> Unit = {},
 ) {
     OrderCompleteScreen(
         uiModel = uiModel,
@@ -18,10 +19,10 @@ fun OrderCompleteRoute(
 
                 OrderCompleteScreenEvent.CloseClicked -> onCloseClick()
 
-                // 주문 상세(A-17)와 계좌 복사는 이번 범위가 아니다.
-                OrderCompleteScreenEvent.ViewOrderDetailsClicked,
-                OrderCompleteScreenEvent.CopyAccountNumberClicked,
-                -> Unit
+                OrderCompleteScreenEvent.ViewOrderDetailsClicked -> onViewOrderDetailsClick()
+
+                // 계좌 복사는 클립보드 연동 전이라 연결하지 않는다.
+                OrderCompleteScreenEvent.CopyAccountNumberClicked -> Unit
             }
         },
     )
