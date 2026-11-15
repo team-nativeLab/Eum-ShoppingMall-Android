@@ -36,15 +36,15 @@ fun EumAlertDialog(
         text = text,
         confirmButton = {
             if (isDestructive) {
-                EumOutlinedButton(onClick = onConfirm) {
+                EumOutlinedButton(onClick = onConfirm, minHeight = EumDialogButtonHeight) {
                     Text(confirmLabel, color = MaterialTheme.eumColors.danger)
                 }
             } else {
-                EumPrimaryButton(onClick = onConfirm) { Text(confirmLabel) }
+                EumPrimaryButton(onClick = onConfirm, minHeight = EumDialogButtonHeight) { Text(confirmLabel) }
             }
         },
         dismissButton = {
-            EumOutlinedButton(onClick = onDismiss) { Text(dismissLabel) }
+            EumOutlinedButton(onClick = onDismiss, minHeight = EumDialogButtonHeight) { Text(dismissLabel) }
         },
     )
 }

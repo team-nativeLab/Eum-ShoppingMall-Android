@@ -11,12 +11,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
-/** 보조 CTA 버튼. 흰 배경에 textPrimary 글자와 테두리, r8, 최소 높이 52dp. 누르면 scale 0.98이 더해진다. */
+/** 보조 CTA 버튼. 흰 배경에 textPrimary 글자와 테두리, r8, 최소 높이 56dp(EumCtaButtonHeight). 누르면 scale 0.98이 더해진다. */
 @Composable
 fun EumOutlinedButton(
     onClick: () -> Unit,
@@ -24,6 +25,7 @@ fun EumOutlinedButton(
     enabled: Boolean = true,
     /** 누를 수는 있지만 비활성처럼 보여야 할 때 true. 기본값은 enabled의 반대다. */
     inactiveLook: Boolean = !enabled,
+    minHeight: Dp = EumCtaButtonHeight,
     content: @Composable RowScope.() -> Unit,
 ) {
     OutlinedButton(
@@ -31,7 +33,7 @@ fun EumOutlinedButton(
         enabled = enabled,
         modifier = modifier
             .pressScale(enabled = enabled && !inactiveLook)
-            .heightIn(min = EumCtaButtonHeight),
+            .heightIn(min = minHeight),
         shape = RoundedCornerShape(EumRadius.x8),
         border = BorderStroke(
             width = 1.dp,

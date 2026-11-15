@@ -86,7 +86,7 @@
 
 ## 현재 확인된 시각·기능 차이 및 한계
 
-- Figma의 신규 폼·정보 화면은 390px 프레임 기준이며 20px 좌우 여백, 52px 입력 필드, 8~10px 둥근 모서리, 중립 계열 표면·선 색을 사용한다. 추가한 Compose 화면은 기존 디자인 토큰과 `Scaffold`/edge-to-edge 구조를 사용한다.
+- Figma의 신규 폼·정보 화면은 390px 프레임 기준이며 20px 좌우 여백, 입력 필드(48/52 미확정, #38에서 변경하지 않음), 8~10px 둥근 모서리, 중립 계열 표면·선 색을 사용한다. 추가한 Compose 화면은 기존 디자인 토큰과 `Scaffold`/edge-to-edge 구조를 사용한다.
 - 서체: 앱은 Pretendard를 사용한다(`ui/theme/Type.kt`, `res/font/pretendard_*`). Figma 스타일가이드는 Noto Sans KR을 지정하지만, 2026-11-09 사용자 결정으로 Pretendard를 유지하고 Figma·문서 쪽을 정정 대상으로 둔다. (정정 전 문구는 "기본 시스템 서체 사용, Noto Sans KR 파일 없음"이었으며 사실과 달라 2026-11-09에 바로잡았다.)
 - 기준 `dev`에는 A-11~14, A-23~24, A-26~32, A-35~43의 관련 구현이 다른 Issue 작업 브랜치로 존재한다. GitHub CLI 인증이 거부되어 열린 PR의 최신 상태와 중복 범위를 확인하지 못했고, 해당 브랜치 코드를 #28에 복사하지 않았다.
 - 이번 구현 화면들은 `MainActivity` 내 전체 navigation으로 연결되지는 않았다. 기존 앱 전체 navigation 통합은 독립된 #27 작업 브랜치와 겹치므로, 그 PR 상태 확인 전에는 통합하지 않는다.
@@ -101,7 +101,7 @@
 - 기준: `feature/#34-ui-review-animation`(origin/dev 400219d). 명세와 체크리스트는 `docs/MOTION_SPEC.md`. 아직 커밋 전이며, 실기기 확인이 끝나지 않았다.
 - 반영한 항목:
   - 기본 강조색을 Figma 기준 `#111111` 토큰으로 전역 교체(사용자 승인). 기존 파란색 primary 제거.
-  - 공용 버튼 `EumPrimaryButton`·`EumOutlinedButton`(radius 8, 최소 높이 52dp 임시값), 공용 `EumAlertDialog`(radius 12), 탈퇴·설정 다이얼로그에 적용.
+  - 공용 버튼 `EumPrimaryButton`·`EumOutlinedButton`(radius 8, 최소 높이 56dp 확정, #38. 다이얼로그 버튼만 52dp 유지), 공용 `EumAlertDialog`(radius 12), 탈퇴·설정 다이얼로그에 적용.
   - 찜 색을 `heartActive`로 통일, 공용 `FavoriteToggleButton`을 홈·카탈로그·상세 5곳에 적용.
   - `surfaceContainer*`·`surfaceBright/Dim` 토큰 명시.
   - 장바구니: 품절 상품을 "주문 가능 상품" 집계에서 제외, 품절 배지(`dangerTint`), 비활성 스테퍼 테두리, 체크박스 비활성 색.
@@ -117,7 +117,21 @@
   - 주문 내역의 "주문 상세"는 라우트가 연결되지 않아 이동하지 않는다(후속). 따라서 완료 주문의 "결제 금액" 라벨은 실기기에서 미확인.
   - 저장 장바구니의 배송비 금액 원천 없음(배송 정책 확정 후 후속).
   - 탭 재선택 시 맨 위로 스크롤(P0-2 일부)은 미구현.
-  - CTA 높이 52dp, 찜 버튼 테두리, 비활성 체크박스·disabled 색은 Figma 값 미확인 임시값.
+  - 찜 버튼 테두리, 비활성 체크박스·disabled 색은 Figma 값 미확인 임시값.
   - 화면 전용 색 상수(#FFE9E9 등) 토큰화는 보류.
   - 견적 CTA(상세 `ProductDetailScreen`의 견적 버튼)는 명세 목록 밖이라 기존 스타일 유지.
 - 서체: Pretendard 유지(사용자 결정). Figma 스타일가이드의 Noto Sans KR 표기와 다르므로 디자이너 전달 항목으로 남긴다.
+
+## #38 디자인 토큰·공통 컴포넌트 일치
+
+- 기준: `feature/#38-figma-design-tokens`(dev a43a664). Figma 변수(`178:369`)로 확인한 값이다.
+- 색 토큰(Light): background #FAFAFA, textPrimary #171717, textSecondary #4A4A4A, textTertiary #666666, line #E5E5E5, lineStrong #8C8C8C, placeholderGlyph #A6A6A6, surfaceSecondary #F2F2F2, textDisabled #707070.
+- 추가 확정 값: lineControl #777777, inverseSecondary #F2F2F2(hf/inverse-2), heartIdle #666666, checkboxChecked #171717, backgroundSubtle #FAFAFA(hf/bg-subtle, 공지·회사소개 노드). danger #C5221F, dangerTint #FDECEA는 기존 값과 같아 유지했다. `accentTint` #E7F5F1 신설. `colors.xml` hf_*와 `ic_close.xml`도 같은 값으로 맞췄다. 값이 같아진 토큰은 역할이 달라 병합하지 않았다.
+- 타이포: `labelSmall`을 labelS(12/16 Medium)로 정정했다. headline·price 토큰은 호출부 교체를 화면 이슈로 넘겼고 Type.kt 주석에 의미만 적었다.
+- CTA: `EumCtaButtonHeight` 56dp 확정. `UiAuditPrimaryButton`·`AuthPrimaryAction`이 같은 상수를 쓴다. `EumAlertDialog` 버튼은 Figma 값을 확인하지 못해 52dp(`EumDialogButtonHeight`)를 유지한다. 입력 필드 높이(48/52)는 불확정이라 바꾸지 않았다.
+- 상단바: 제목 16/24 Medium(titleLarge) 가운데 정렬, 구분선 없음. `UiAuditScreenScaffold` 상단바 아래 구분선을 제거했다. `CatalogTopBar`는 좌우 액션 폭을 측정해 두 슬롯을 같은 폭으로 맞춰 제목이 가운데에 온다. HomeTopBar·AddressSearchTopBar는 제외했다.
+- CTA 바 구분선 정책: `showBottomDivider`를 제거하고 CTA 바에 Surface 배경과 상단 1dp 구분선을 항상 그린다. 상단 구분선이 새로 생긴 화면은 ProductFilterScreen, OneToOneInquiryFormScreen, EventDetailScreen, ProductInquiryCompleteScreen, ProductInquiryScreen 5곳이다. 기존에 옵션을 켜던 ProductReviewScreen, DeliveryRequestScreen, InquiryHistoryScreen, PrivacyConsentDetailScreen, TermsDialogScreen은 구분선이 그대로이고 배경만 Surface가 된다.
+- `UiAuditIconInfoCard`: 카드 r14, 아이콘 타일 36dp r11 accentTint, 글리프 20dp, 제목 14 SemiBold, 설명 13sp text-3(줄 높이 18sp는 추정). `EumRadius.x11`·`x14` 추가.
+- 별 색: 카탈로그 카드의 채운 별을 warning에서 ratingStar로 바꿨다.
+- 주의: `backgroundSubtle`(#FAFAFA)이 `background`와 같아져 채움만으로 구분하던 컨테이너가 사라질 수 있다. `AuthPrimaryAction` 비활성 배경은 #38에서 `surfaceSecondary`로 보정했고, 나머지 6곳(BrandScreens, OrderRequestComponents, OrderRequestFormScreen, OrderRequestEntryScreens, SearchResultScreens, MyPageScreen)은 #39/#40에서 후속 확인한다.
+- 범위 밖(후속): 카드 그림자, 라디오·체크 커스텀, 필수 * 공용 컴포넌트, caption·가격·헤드라인 호출부 교체.

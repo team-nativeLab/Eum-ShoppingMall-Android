@@ -84,7 +84,6 @@ fun ProductReviewScreen(
         modifier = modifier,
         bottomActionLabel = stringResource(R.string.catalog_review_write),
         onBottomActionClick = { onEvent(ProductReviewScreenEvent.ReviewWriteClicked) },
-        showBottomDivider = true,
     ) { contentPadding ->
         Column(
             modifier = Modifier.fillMaxSize()

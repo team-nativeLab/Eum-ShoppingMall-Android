@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -36,7 +35,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductRow
@@ -204,10 +202,9 @@ internal fun CatalogProductListControls(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
             ) {
-                // Figma 정렬 pill 글자는 labelSmall(11sp)보다 약 14% 커서 12.5sp로 맞춘다.
                 Text(
                     sortLabel,
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.5.sp, lineHeight = 16.sp),
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.eumColors.textPrimary,
                 )
                 Icon(painterResource(R.drawable.ic_chevron_down), null, modifier = Modifier.size(16.dp))

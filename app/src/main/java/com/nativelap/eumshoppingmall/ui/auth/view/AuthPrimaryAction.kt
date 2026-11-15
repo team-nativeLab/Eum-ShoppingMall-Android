@@ -8,7 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.nativelap.eumshoppingmall.ui.common.EumCtaButtonHeight
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -16,11 +16,11 @@ internal fun AuthPrimaryAction(label: String, enabled: Boolean, modifier: Modifi
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp),
+        modifier = modifier.fillMaxWidth().heightIn(min = EumCtaButtonHeight),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.eumColors.textPrimary,
             contentColor = MaterialTheme.eumColors.background,
-            disabledContainerColor = MaterialTheme.eumColors.backgroundSubtle,
+            disabledContainerColor = MaterialTheme.eumColors.surfaceSecondary,
             disabledContentColor = MaterialTheme.eumColors.textTertiary,
         ),
         shape = MaterialTheme.shapes.medium,

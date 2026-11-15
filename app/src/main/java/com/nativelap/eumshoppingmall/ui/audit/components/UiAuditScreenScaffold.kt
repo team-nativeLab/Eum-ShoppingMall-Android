@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.audit.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +28,6 @@ fun UiAuditScreenScaffold(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     isCloseAction: Boolean = false,
-    showBottomDivider: Boolean = false,
     bottomActionLabel: String? = null,
     onBottomActionClick: () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
@@ -45,26 +46,24 @@ fun UiAuditScreenScaffold(
                     )
                 }
             }
-            HorizontalDivider(color = MaterialTheme.eumColors.line)
         },
         bottomBar = {
             if (bottomActionLabel != null) {
-                if (showBottomDivider) {
-                    HorizontalDivider(color = MaterialTheme.eumColors.line)
-                }
-                Box(
-                    modifier = Modifier.fillMaxWidth().navigationBarsPadding().imePadding(),
-                ) {
-                    Box(
-                        modifier = Modifier.widthIn(max = 600.dp)
-                            .fillMaxWidth()
-                            .align(Alignment.Center)
-                            .padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
-                    ) {
-                        UiAuditPrimaryButton(
-                            label = bottomActionLabel,
-                            onClick = onBottomActionClick,
-                        )
+                // CTA 바는 Surface 배경과 상단 구분선을 항상 그린다.
+                Surface(color = MaterialTheme.eumColors.surface) {
+                    Column(Modifier.fillMaxWidth().navigationBarsPadding().imePadding()) {
+                        HorizontalDivider(color = MaterialTheme.eumColors.line)
+                        Box(
+                            modifier = Modifier.widthIn(max = 600.dp)
+                                .fillMaxWidth()
+                                .align(Alignment.CenterHorizontally)
+                                .padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
+                        ) {
+                            UiAuditPrimaryButton(
+                                label = bottomActionLabel,
+                                onClick = onBottomActionClick,
+                            )
+                        }
                     }
                 }
             }

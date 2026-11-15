@@ -32,7 +32,6 @@ fun InquiryHistoryScreen(items: List<InquiryHistoryItemUiModel>, selectedStatus:
         title = stringResource(R.string.inquiry_history_title),
         onBackClick = { onEvent(InquiryHistoryEvent.BackClicked) },
         modifier = modifier,
-        showBottomDivider = true,
         bottomActionLabel = stringResource(R.string.inquiry_history_write),
         onBottomActionClick = { onEvent(InquiryHistoryEvent.WriteClicked) },
     ) { padding ->
