@@ -1,6 +1,9 @@
 package com.nativelap.eumshoppingmall.ui.orders.view
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -22,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
@@ -39,6 +45,7 @@ import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderPaymentBreak
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrdersTopBar
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderDetailScreenEvent
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderDetailUiModel
+import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -93,8 +100,8 @@ fun OrderDetailScreen(
         ResponsiveContentContainer(Modifier.fillMaxSize()) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(contentPadding),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
-                verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
+                verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
             ) {
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
@@ -149,29 +156,45 @@ fun OrderDetailScreen(
                     }
                 }
                 item {
-                    OrderInfoCard {
-                        TextButton(
-                            onClick = { onEvent(OrderDetailScreenEvent.StatementDownloadClicked) },
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
-                        ) {
-                            Icon(painterResource(R.drawable.ic_download), contentDescription = null)
-                            Text(stringResource(R.string.orders_download_statement), modifier = Modifier.weight(1f).padding(start = EumSpacing.x8), color = MaterialTheme.eumColors.textPrimary)
-                            Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = MaterialTheme.eumColors.textPrimary)
-                        }
-                        HorizontalDivider(color = MaterialTheme.eumColors.line)
-                        TextButton(
-                            onClick = { onEvent(OrderDetailScreenEvent.ReceiptViewClicked) },
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
-                        ) {
-                            Icon(painterResource(R.drawable.ic_receipt), contentDescription = null)
-                            Text(stringResource(R.string.orders_view_receipt), modifier = Modifier.weight(1f).padding(start = EumSpacing.x8), color = MaterialTheme.eumColors.textPrimary)
-                            Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = MaterialTheme.eumColors.textPrimary)
-                        }
-                    }
+                    OrderDocumentMenuCard(
+                        onStatementClick = { onEvent(OrderDetailScreenEvent.StatementDownloadClicked) },
+                        onReceiptClick = { onEvent(OrderDetailScreenEvent.ReceiptViewClicked) },
+                    )
                 }
             }
         }
     }
 }
+
+// Figma: 박스 안쪽 여백 없이 56dp MenuRow 두 개를 구분선으로 잇는다.
+@Composable
+private fun OrderDocumentMenuCard(onStatementClick: () -> Unit, onReceiptClick: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(EumRadius.x12),
+        color = MaterialTheme.eumColors.surface,
+        border = BorderStroke(1.dp, MaterialTheme.eumColors.line),
+    ) {
+        Column {
+            OrderDocumentMenuRow(R.drawable.ic_download, stringResource(R.string.orders_download_statement), onStatementClick)
+            HorizontalDivider(color = MaterialTheme.eumColors.line)
+            OrderDocumentMenuRow(R.drawable.ic_receipt, stringResource(R.string.orders_view_receipt), onReceiptClick)
+        }
+    }
+}
+
+@Composable
+private fun OrderDocumentMenuRow(@DrawableRes iconResId: Int, label: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().heightIn(min = ORDER_MENU_ROW_HEIGHT).clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = EumSpacing.x16),
+        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(painterResource(iconResId), contentDescription = null, tint = MaterialTheme.eumColors.textPrimary)
+        Text(label, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textPrimary)
+        Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = MaterialTheme.eumColors.textPrimary)
+    }
+}
+
+private val ORDER_MENU_ROW_HEIGHT = 56.dp

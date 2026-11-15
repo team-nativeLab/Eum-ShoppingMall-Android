@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -53,6 +54,7 @@ fun FavoriteToggleButton(
     buttonSize: Dp = 48.dp,
     iconSize: Dp = 20.dp,
     bordered: Boolean = false,
+    borderColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Unspecified,
 ) {
     val reducedMotion = rememberReducedMotion()
     val scale = remember { Animatable(1f) }
@@ -79,7 +81,11 @@ fun FavoriteToggleButton(
     val borderModifier = if (bordered) {
         Modifier
             .clip(RoundedCornerShape(EumRadius.x8))
-            .border(1.dp, MaterialTheme.eumColors.line, RoundedCornerShape(EumRadius.x8))
+            .border(
+                1.dp,
+                borderColor.takeIf { it.isSpecified } ?: MaterialTheme.eumColors.line,
+                RoundedCornerShape(EumRadius.x8),
+            )
     } else {
         Modifier
     }

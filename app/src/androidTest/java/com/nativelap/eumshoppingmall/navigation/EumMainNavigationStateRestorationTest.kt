@@ -6,6 +6,8 @@ import androidx.navigation3.runtime.NavKey
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,6 +58,67 @@ class EumMainNavigationStateRestorationTest {
             )
             assertEquals(listOf(EumDestination.Categories), stackOf(navigationState, MainNavigationTab.Categories))
             assertEquals(listOf(EumDestination.MyPage), stackOf(navigationState, MainNavigationTab.MyPage))
+        }
+    }
+
+    @Test
+    fun loggedInSessionAndCheckoutWithOrderedLineIdsSurviveSavedStateRestore() {
+        val restorationTester = StateRestorationTester(composeRule)
+        lateinit var navigationState: EumMainNavigationState
+        lateinit var loginSession: EumLoginSession
+        restorationTester.setContent {
+            navigationState = rememberEumMainNavigationState()
+            loginSession = rememberEumLoginSession()
+        }
+
+        composeRule.runOnIdle {
+            assertFalse(loginSession.isLoggedIn)
+            loginSession.markLoggedIn()
+            val navigator = EumMainNavigator(navigationState)
+            navigator.navigateToTab(MainNavigationTab.Cart)
+            navigator.push(EumDestination.CheckoutAddress(orderedCartLineIds = listOf("line-1", "line-2")))
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.runOnIdle {
+            assertTrue(loginSession.isLoggedIn)
+            assertEquals(MainNavigationTab.Cart, navigationState.currentTab)
+            assertEquals(
+                listOf(
+                    EumDestination.Cart,
+                    EumDestination.CheckoutAddress(orderedCartLineIds = listOf("line-1", "line-2")),
+                ),
+                stackOf(navigationState, MainNavigationTab.Cart),
+            )
+        }
+    }
+
+    @Test
+    fun loginWithCheckoutPendingDestinationSurvivesSavedStateRestore() {
+        val restorationTester = StateRestorationTester(composeRule)
+        lateinit var navigationState: EumMainNavigationState
+        lateinit var loginSession: EumLoginSession
+        restorationTester.setContent {
+            navigationState = rememberEumMainNavigationState()
+            loginSession = rememberEumLoginSession()
+        }
+        val pendingCheckout = EumDestination.CheckoutAddress(orderedCartLineIds = listOf("line-1"))
+
+        composeRule.runOnIdle {
+            val navigator = EumMainNavigator(navigationState)
+            navigator.navigateToTab(MainNavigationTab.Cart)
+            navigator.push(gateDestination(pendingCheckout, loginSession.isLoggedIn))
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.runOnIdle {
+            assertFalse(loginSession.isLoggedIn)
+            assertEquals(
+                listOf(EumDestination.Cart, EumDestination.Login(pendingDestination = pendingCheckout)),
+                stackOf(navigationState, MainNavigationTab.Cart),
+            )
         }
     }
 
