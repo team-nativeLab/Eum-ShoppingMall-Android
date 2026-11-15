@@ -135,3 +135,19 @@
 - 별 색: 카탈로그 카드의 채운 별을 warning에서 ratingStar로 바꿨다.
 - 주의: `backgroundSubtle`(#FAFAFA)이 `background`와 같아져 채움만으로 구분하던 컨테이너가 사라질 수 있다. `AuthPrimaryAction` 비활성 배경은 #38에서 `surfaceSecondary`로 보정했고, 나머지 6곳(BrandScreens, OrderRequestComponents, OrderRequestFormScreen, OrderRequestEntryScreens, SearchResultScreens, MyPageScreen)은 #39/#40에서 후속 확인한다.
 - 범위 밖(후속): 카드 그림자, 라디오·체크 커스텀, 필수 * 공용 컴포넌트, caption·가격·헤드라인 호출부 교체.
+
+## #45 브랜드·정책·이벤트 화면 Figma 세부 일치 (A-33·A-34·A-36~A-39·A-54~A-57)
+
+- 기준: #38(27f135f) 위. Figma 값은 이슈 명세에서 받은 값만 썼고, 구현 중 Figma를 직접 열어 보지 않았다. Preview·실기기 렌더는 확인하지 못했다(컴파일·빌드만 확인).
+- 공통: `BrandLogoPlate`(흰 판 r8+테두리, 안쪽 로고 r4)를 `catalog/components`에 추출해 배너 64/48, 목록·다른 브랜드 행 56/44, 상세 120×48/88×32에 쓴다. 정책 조항은 `PolicyClauseArticle`·`PolicyChapterGroup`으로 통합해 `PolicyDocumentScreen`과 `TermsDialogScreen`이 같이 쓴다(TermsDialog의 중복 `TermsArticle` 제거).
+- A-33: 세그먼트(테두리 r8·패딩 4·세그먼트 36 r6·14 Medium·미선택 textSecondary), 배너(py24·gap16·이름 h3), 툴바(surface+하단 line, 검색바 44 capsule·bodyM, 정렬 44 r8 lineControl, gap 8), 섹션 헤더(h2·하단 lineStrong·섹션 간 32), 행 72(구분선 line·화살표 20). 시각 36·44 요소는 바깥 48dp 박스(터치·선택 의미)와 안쪽 시각 박스 구조로 터치 48을 보장한다.
+- A-34: 히어로 220, 소개 영역(pt24 pb32 gap20, 이름 h1, 소개 bodyM 3줄), 스토리(pt48·제목 h2·6줄 clamp+더 보기/접기 토글은 로컬 상태), facts(라벨 88 14/20 textTertiary·값 Medium·행 하단 line), 제품 헤더 h3·칩 36(px14, 선택 textPrimary+line 테두리, 미선택 lineStrong)·그리드 세로 24·가로 12·섹션 py48, 다른 브랜드(단일 r12 카드·행 72·구분선).
+- A-36~A-39: 문서 헤더(meta-row+하단선 pb20, 이전 약관 버튼 36 r8), 목차(제목 Medium·개수 caption 제목 오른쪽·아이콘 20), 조항(제목 bodyLMedium·본문 bodyM·gap 12/8/24/32), dl-card r12·w88·gap 12, steps(원 24·제목 labelM·gap 2), 버전 시트(상단 r12·그래버 36×4·헤더 56+X 44·행 56·라디오 14·선택 행 labelL·현재 배지 h20), 약관 동의(Body py24 gap24·caption Medium)·동의서(gap24·카드 r12 패딩 16·내부 gap 8·caption).
+- A-54~A-57: 안내 문구 색 textTertiary(14 유지), A-57 카드 minHeight 72, A-56·A-55 카드 80은 기존과 일치해 변경 없음.
+- backgroundSubtle 소실 보정: 브랜드 검색 캡슐은 surfaceSecondary+line 테두리, 다른 브랜드 띠는 surfaceSecondary.
+- 보류(값·모델 없음, 구현하지 않음): A-33 가나다/ABC 토글·인덱스 칩, A-34 히어로 CTA 교체·'제품 00개 보기'·'더 보기 (6/00)'·'BRAND A · 개인보호장비' 보조 줄·'전체 브랜드 보기' 링크, A-38 '고객센터 가기', A-36o·A-36u, A-54 trailing 아이콘. 버전 시트 그림자(-8/32/-4 16%)는 ModalBottomSheet에 맞는 적용 방법이 없어 보류.
+- 편차(터치 48 보장): 바깥 48dp 박스 때문에 세그먼트 컨테이너와 툴바 행이 Figma보다 각각 약 12dp·4dp 높고, 칩 줄 간격도 Figma보다 커진다.
+- 접근성: 스토리 더 보기 토글에 펼쳐짐/접힘 stateDescription, 세그먼트·버전 시트 행에 selectable(Tab·RadioButton) 의미, 시트 그래버는 `BottomSheetDefaults.DragHandle`을 쓴다. 스토리 펼침 상태는 `rememberSaveable(brand.id)`.
+- 가정: A-39 시행일 색은 값이 없어 textDisabled 유지. 다른 브랜드 "72 타일" 해석(56/44 판의 72dp 행)은 Figma 확인 필요.
+- 후속(보류): 리뷰 S3·S4·S7.
+- 추정값: 버전 시트 라디오 선택 점 6dp, 다른 브랜드 카드 행은 목록 행과 같은 56/44 판, 칩→그리드 간격은 그리드 행 위 24.

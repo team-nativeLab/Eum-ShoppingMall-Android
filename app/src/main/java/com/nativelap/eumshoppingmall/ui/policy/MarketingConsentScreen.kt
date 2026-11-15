@@ -47,7 +47,7 @@ fun MarketingConsentScreen(
                 text = stringResource(R.string.ui_audit_marketing_helper),
                 modifier = Modifier.padding(bottom = EumSpacing.x8),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.eumColors.textDisabled,
+                color = MaterialTheme.eumColors.textTertiary,
             )
             UiAuditIconInfoCard(
                 iconRes = R.drawable.ic_megaphone,

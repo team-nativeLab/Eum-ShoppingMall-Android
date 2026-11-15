@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.policy
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -29,12 +29,12 @@ internal fun PolicyStepRow(number: Int, step: PolicyDocumentStepUiModel) {
         ) {
             Text(number.toString(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.surface)
         }
-        Column(Modifier.padding(start = EumSpacing.x12)) {
-            Text(step.title, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.eumColors.textPrimary)
+        Column(Modifier.padding(start = EumSpacing.x12), verticalArrangement = Arrangement.spacedBy(EumSpacing.x2)) {
+            Text(step.title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textPrimary)
             Text(step.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
         }
     }
 }
 
 // Figma 단계 번호 원형 크기는 EumSpacing 토큰에 없어 이 행 전용 값으로 둔다.
-private val PolicyStepBadgeSize: Dp = 20.dp
+private val PolicyStepBadgeSize: Dp = 24.dp

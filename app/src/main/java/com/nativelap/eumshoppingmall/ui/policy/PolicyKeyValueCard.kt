@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 /** 라벨과 값이 짝을 이루는 정책 항목 표(제3자 제공, 위탁, 보호책임자 등)를 보여준다. */
@@ -25,14 +26,14 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 internal fun PolicyKeyValueCard(rows: List<Pair<String, String>>) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(EumRadius.x8),
+        shape = RoundedCornerShape(EumRadius.x12),
         color = MaterialTheme.eumColors.surface,
         border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.line),
     ) {
         Column(Modifier.fillMaxWidth().padding(EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
             rows.forEach { (label, value) ->
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                    Text(label, Modifier.width(PolicyKeyValueLabelWidth), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                    Text(label, Modifier.width(PolicyKeyValueLabelWidth), style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textSecondary)
                     Text(value, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textPrimary)
                 }
             }
@@ -41,4 +42,4 @@ internal fun PolicyKeyValueCard(rows: List<Pair<String, String>>) {
 }
 
 // Figma 표 라벨 열 폭은 EumSpacing 토큰에 없어 이 카드 전용 값으로 둔다.
-private val PolicyKeyValueLabelWidth: Dp = 96.dp
+private val PolicyKeyValueLabelWidth: Dp = 88.dp
