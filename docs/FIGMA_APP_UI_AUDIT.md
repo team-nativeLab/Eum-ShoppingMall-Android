@@ -135,3 +135,17 @@
 - 별 색: 카탈로그 카드의 채운 별을 warning에서 ratingStar로 바꿨다.
 - 주의: `backgroundSubtle`(#FAFAFA)이 `background`와 같아져 채움만으로 구분하던 컨테이너가 사라질 수 있다. `AuthPrimaryAction` 비활성 배경은 #38에서 `surfaceSecondary`로 보정했고, 나머지 6곳(BrandScreens, OrderRequestComponents, OrderRequestFormScreen, OrderRequestEntryScreens, SearchResultScreens, MyPageScreen)은 #39/#40에서 후속 확인한다.
 - 범위 밖(후속): 카드 그림자, 라디오·체크 커스텀, 필수 * 공용 컴포넌트, caption·가격·헤드라인 호출부 교체.
+
+## #39 쇼핑 화면 Figma 세부 일치 (A-02~A-06)
+
+- 기준: `feature/#39-figma-shopping-screens`(#38 27f135f 위). 노드 A-02 178:369, A-03 178:722, A-04 179:743, A-05 179:938, A-06 180:1374. Compose Preview 렌더와 실기기 확인은 하지 못했다(에뮬레이터 사용 금지).
+- 카탈로그 카드: 모서리 12, 그림자는 `Modifier.shadow(1dp)`와 `EumShadows.level1` 색으로 근사(blur·offset 정확 재현 불가), 이미지 모서리 6·그라디언트(#F2F2F2→#E8E8E8), 이미지↔정보·하단 10, 정보 행 간격 4·좌우 추가 패딩 0, 가격 `priceM`(할인가 danger, 가격 문의 textPrimary), 견적 배지 사각 4·높이 20·좌우 6·lineStrong·labelXs. 목록형 행의 backgroundSubtle 채움은 surfaceSecondary로 보정.
+- 홈 카드: 배경 surface, 상품명 textPrimary, 가격 문의 priceM textPrimary.
+- A-03: 아이콘 타일 44·r12·surface·line 테두리·그림자(0,4,16) 근사, 아이콘↔텍스트 14, 행 높이 64. 제품/브랜드 세그먼트는 36dp 알약, 터치 48dp는 바깥 투명 영역이 맡아 컨테이너 세로 패딩을 0으로 둠(컨테이너 높이는 Figma 값 미확인 근사). 브랜드 행은 노드 값이 없어 유지.
+- A-04: 칩 좌우 14·surface·lineStrong(공용 `CatalogSelectionChip`이라 즐겨찾기·검색 결과 칩도 같이 바뀜), 정렬 알약 좌 14·우 10·간격 4·쉐브론 14, 격자 행 간격 24.
+- A-05: 밑줄형 탭(48dp), 상품명 h2, 가격 priceL, 별 28dp·간격 7(2색), 정보 상자·표(라벨 72/96), 그룹 간격, 섹션 사이 8dp 띠(색 미확인, surfaceSecondary 가정), 하단 바(패딩 20/12·상단 구분선·찜 56). 할인 색 #DB2129와 채운 별 면 #E6A93D(노드 179:938, 토큰 ratingStar #F5B301과 다른 승인 편차)와 할인 #DB2129는 Figma 직접 지정 값이라 화면 전용 private 상수로 두었고 토큰은 만들지 않았다. 채운 별 윤곽은 `ratingStarOutline`(#A96F16), 빈 별은 surface 면·lineStrong 윤곽 토큰을 쓴다(#38의 녹색 리터럴 제거 합의 유지). 정가 #7A7A7A는 대비 때문에 textTertiary 유지.
+- A-06: 입력창 44·surface·1.5dp 테두리, 최근 검색어 FlowRow 칩(보이는 36·터치 48), 그룹 사이 전폭 구분선, 인기 검색어 열 간격 16·순위 폭 20·1~3위만 textPrimary. 빈 결과 화면은 Figma 프레임을 찾지 못해 변경하지 않았다.
+- 터치 48 우선으로 Figma 시각 값과 달라진 곳: 전체 삭제·인기 검색어 행(40→48), 최근 검색어 칩 세로 간격(8→시각 12), 검색 입력의 지우기 버튼 44.
+- 사후 검토 반영: 검색창 BasicTextField 최소 높이 44dp 복원, 상세 하단 바(일반·견적)는 배경 뒤에 navigationBarsPadding을 적용해 인셋 구간도 surface로 이어짐, 상세 탭은 IntrinsicSize.Max로 밑줄 y를 모든 탭에서 동일하게 맞춤, 검색 결과 없음 원 backgroundSubtle을 surfaceSecondary로 보정.
+- 미보정으로 남은 backgroundSubtle 사용처(후속): 홈 배너(테두리 있음), BrandScreens(#45), 리뷰 작성·주문 신청 화면(#40/#46), 마이페이지(#40).
+- Preview 추가: 카탈로그 카드(할인·견적·품절), 상세 탭 fontScale 1.5, 검색창 입력 있음·없음. 렌더는 확인하지 못했다.
