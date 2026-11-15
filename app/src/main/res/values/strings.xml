@@ -550,6 +550,7 @@
     <string name="auth_phone_invalid">휴대폰 번호를 확인해 주세요.</string>
     <string name="auth_verification_code_invalid">인증번호를 확인해 주세요.</string>
     <string name="auth_login_mismatch">이메일 또는 비밀번호가 일치하지 않습니다. (%1$d/5회)</string>
+    <string name="auth_login_unavailable">로그인 서비스를 준비 중입니다. 잠시 후 다시 시도해 주세요.</string>
     <string name="auth_social_login_a">간편로그인 A</string>
     <string name="auth_social_login_b">간편로그인 B</string>
     <string name="auth_member_personal">개인 회원</string>
@@ -700,7 +701,7 @@
     <string name="company_certification_english">Certification</string>
     <string name="company_partners_english">Partners</string>
     <string name="company_location_english">Location</string>
-    <string name="company_tagline_home">사람이 있는 곳에, 더 안전한 내일을 연결합니다.</string>
+    <string name="company_tagline_home">사람이 있는 곳에,\n더 안전한 내일을 연결합니다.</string>
     <string name="company_support_hours">평일 %1$s – %2$s (주말·공휴일 휴무)</string>
     <string name="company_search_results_count">검색 결과 %1$d건</string>
     <string name="order_process_cart_description">상품과 옵션을 골라 장바구니에 담습니다.</string>

@@ -8,6 +8,7 @@ import kotlinx.serialization.descriptors.elementDescriptors
 import kotlinx.serialization.encoding.AbstractDecoder
 import kotlinx.serialization.encoding.AbstractEncoder
 import kotlinx.serialization.encoding.CompositeDecoder
+import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import org.junit.Assert.assertEquals
@@ -35,8 +36,10 @@ class EumDestinationSerializationTest {
         EumDestination.ProductList(categoryId = "protective"),
         EumDestination.SearchResults(query = "안전모"),
         EumDestination.ProductDetail(productId = "p1"),
-        EumDestination.CheckoutAddress,
-        EumDestination.CheckoutPayment,
+        EumDestination.CheckoutAddress(),
+        EumDestination.CheckoutAddress(orderedCartLineIds = listOf("line-1", "line-2")),
+        EumDestination.CheckoutPayment(),
+        EumDestination.CheckoutPayment(orderedCartLineIds = listOf("line-1")),
         EumDestination.OrderComplete,
         EumDestination.QuoteRequest(),
         EumDestination.QuoteRequest(productId = "p1"),
@@ -57,6 +60,7 @@ class EumDestinationSerializationTest {
         EumDestination.Login(),
         nestedLoginDestination,
         EumDestination.Login(pendingDestination = EumDestination.Login(pendingDestination = EumDestination.Coupons)),
+        EumDestination.Login(pendingDestination = EumDestination.CheckoutAddress(orderedCartLineIds = listOf("line-1"))),
     )
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -127,6 +131,12 @@ private class SequentialListEncoder : AbstractEncoder() {
     override fun encodeNotNullMark() {
         encodedValues.add(NOT_NULL_MARK)
     }
+
+    // 목록 필드(주문 대상 줄 id)는 길이를 먼저 기록해야 decoder가 읽을 개수를 안다.
+    override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int): CompositeEncoder {
+        encodedValues.add(collectionSize)
+        return this
+    }
 }
 
 /** [SequentialListEncoder]가 쌓은 순서 그대로 읽는 테스트 전용 decoder. */
@@ -151,6 +161,8 @@ private class SequentialListDecoder(
     override fun decodeSequentially(): Boolean = true
 
     override fun decodeNotNullMark(): Boolean = remainingValues.removeFirst() == NOT_NULL_MARK
+
+    override fun decodeCollectionSize(descriptor: SerialDescriptor): Int = remainingValues.removeFirst() as Int
 
     override fun decodeNull(): Nothing? = null
 }

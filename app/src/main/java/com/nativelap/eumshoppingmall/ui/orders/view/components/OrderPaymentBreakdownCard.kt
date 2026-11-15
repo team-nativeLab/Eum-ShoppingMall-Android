@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderPaymentBreakdownUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -47,7 +48,7 @@ private fun PaymentRow(label: String, value: String, emphasize: Boolean = false)
         )
         Text(
             value,
-            style = if (emphasize) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.bodySmall,
+            style = if (emphasize) EumTypographyTokens.priceL else MaterialTheme.typography.bodySmall,
             color = MaterialTheme.eumColors.textPrimary,
         )
     }

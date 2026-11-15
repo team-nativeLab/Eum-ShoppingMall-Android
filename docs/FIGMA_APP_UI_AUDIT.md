@@ -136,6 +136,49 @@
 - 주의: `backgroundSubtle`(#FAFAFA)이 `background`와 같아져 채움만으로 구분하던 컨테이너가 사라질 수 있다. `AuthPrimaryAction` 비활성 배경은 #38에서 `surfaceSecondary`로 보정했고, 나머지 6곳(BrandScreens, OrderRequestComponents, OrderRequestFormScreen, OrderRequestEntryScreens, SearchResultScreens, MyPageScreen)은 #39/#40에서 후속 확인한다.
 - 범위 밖(후속): 카드 그림자, 라디오·체크 커스텀, 필수 * 공용 컴포넌트, caption·가격·헤드라인 호출부 교체.
 
+## #39 쇼핑 화면 Figma 세부 일치 (A-02~A-06)
+
+- 기준: `feature/#39-figma-shopping-screens`(#38 27f135f 위). 노드 A-02 178:369, A-03 178:722, A-04 179:743, A-05 179:938, A-06 180:1374. Compose Preview 렌더와 실기기 확인은 하지 못했다(에뮬레이터 사용 금지).
+- 카탈로그 카드: 모서리 12, 그림자는 `Modifier.shadow(1dp)`와 `EumShadows.level1` 색으로 근사(blur·offset 정확 재현 불가), 이미지 모서리 6·그라디언트(#F2F2F2→#E8E8E8), 이미지↔정보·하단 10, 정보 행 간격 4·좌우 추가 패딩 0, 가격 `priceM`(할인가 danger, 가격 문의 textPrimary), 견적 배지 사각 4·높이 20·좌우 6·lineStrong·labelXs. 목록형 행의 backgroundSubtle 채움은 surfaceSecondary로 보정.
+- 홈 카드: 배경 surface, 상품명 textPrimary, 가격 문의 priceM textPrimary.
+- A-03: 아이콘 타일 44·r12·surface·line 테두리·그림자(0,4,16) 근사, 아이콘↔텍스트 14, 행 높이 64. 제품/브랜드 세그먼트는 36dp 알약, 터치 48dp는 바깥 투명 영역이 맡아 컨테이너 세로 패딩을 0으로 둠(컨테이너 높이는 Figma 값 미확인 근사). 브랜드 행은 노드 값이 없어 유지.
+- A-04: 칩 좌우 14·surface·lineStrong(공용 `CatalogSelectionChip`이라 즐겨찾기·검색 결과 칩도 같이 바뀜), 정렬 알약 좌 14·우 10·간격 4·쉐브론 14, 격자 행 간격 24.
+- A-05: 밑줄형 탭(48dp), 상품명 h2, 가격 priceL, 별 28dp·간격 7(2색), 정보 상자·표(라벨 72/96), 그룹 간격, 섹션 사이 8dp 띠(색 미확인, surfaceSecondary 가정), 하단 바(패딩 20/12·상단 구분선·찜 56). 할인 색 #DB2129와 채운 별 면 #E6A93D(노드 179:938, 토큰 ratingStar #F5B301과 다른 승인 편차)와 할인 #DB2129는 Figma 직접 지정 값이라 화면 전용 private 상수로 두었고 토큰은 만들지 않았다. 채운 별 윤곽은 `ratingStarOutline`(#A96F16), 빈 별은 surface 면·lineStrong 윤곽 토큰을 쓴다(#38의 녹색 리터럴 제거 합의 유지). 정가 #7A7A7A는 대비 때문에 textTertiary 유지.
+- A-06: 입력창 44·surface·1.5dp 테두리, 최근 검색어 FlowRow 칩(보이는 36·터치 48), 그룹 사이 전폭 구분선, 인기 검색어 열 간격 16·순위 폭 20·1~3위만 textPrimary. 빈 결과 화면은 Figma 프레임을 찾지 못해 변경하지 않았다.
+- 터치 48 우선으로 Figma 시각 값과 달라진 곳: 전체 삭제·인기 검색어 행(40→48), 최근 검색어 칩 세로 간격(8→시각 12), 검색 입력의 지우기 버튼 44.
+- 사후 검토 반영: 검색창 BasicTextField 최소 높이 44dp 복원, 상세 하단 바(일반·견적)는 배경 뒤에 navigationBarsPadding을 적용해 인셋 구간도 surface로 이어짐, 상세 탭은 IntrinsicSize.Max로 밑줄 y를 모든 탭에서 동일하게 맞춤, 검색 결과 없음 원 backgroundSubtle을 surfaceSecondary로 보정.
+- 미보정으로 남은 backgroundSubtle 사용처(후속): 홈 배너(테두리 있음), BrandScreens(#45), 리뷰 작성·주문 신청 화면(#40/#46), 마이페이지(#40).
+- Preview 추가: 카탈로그 카드(할인·견적·품절), 상세 탭 fontScale 1.5, 검색창 입력 있음·없음. 렌더는 확인하지 못했다.
+
+## #43 주문 내역·혜택 화면 Figma 세부 일치 (A-16~A-22)
+
+- 기준: `feature/#43-figma-orders-benefits-screens`(#38 커밋 27f135f 위). Figma 도구 없이 명세 값만 사용했고, 시각 확인은 Preview(`OrdersFigmaPreviews.kt`, `BenefitPreviews.kt`)로만 했다. Preview 렌더 결과는 눈으로 확인하지 못했다(컴파일만 통과).
+- 반영: A-16 칩 36dp·14/20·가로 14(근사)와 카드 이름 16/24·가격 priceM·버튼 S 36(M3 Button 내부 최소 높이 40dp 때문에 Surface로 직접 구성, 터치 48 유지, 근사). A-17 상단·카드 간 16, 상품명 16/24·가격 priceM, 총 결제 금액 priceL, 문서 메뉴 박스 안 56dp MenuRow(근사). A-18 상품 박스 테두리·r12·썸네일 48·이름 16/24, 공용 `NoticeInline`, 진행 스트립 트랙 2dp·라벨 11/14(근사). A-19 사진 칸 72, 스테퍼 시각 36(터치 48), 체크 16, 라디오 카드 56(근사). A-20 정렬 텍스트 링크+chevron-down, 행 간격 20. A-21 카드 패딩·gap·r6·아이콘 32, 제품명 1줄, 평점 줄 상시 표시, 견적 배지, 품절 오버레이, priceM, 목록 리듬, 노티스 가로 14. A-22 티켓 노치·절취선·본문/스텁 치수·타이포, 등록 행·포인트 링크(coins+chevron)·세그먼트 46.
+- Figma에 없어 유지하고 결정을 넘긴 요소: A-17 상품 섹션 접기 TextButton, A-21 우상단 삭제 X 버튼(Figma는 찜 44), 단가·수량 줄.
+- 값 미확정으로 추정한 항목: 절취선 파선 간격 4/4dp(imgPerforation 자산 없음), 견적 배지 배경(surface), 품절 배지 색(기존 dangerTint 유지), A-19 "라디오 카드 56"의 대상(사유 선택 칩에 적용), 쿠폰 카드 최소 높이 132 유지.
+- 미확정·보류: A-16 빈 상태 제목, A-17 주문일 제목, A-18 도착 예정 제목은 H2(22/30) 자리인지 명세에 없어 headlineSmall 유지(T2 미적용). 세그먼트 탭 클릭 영역은 컨테이너 높이 46dp 전체를 쓰며 48dp보다 2dp 작다(Figma 값 우선, 시각 박스 36dp는 안쪽).
+- backgroundSubtle 보정: `OrderRequestFormScreen`의 교환 옵션 카드 채움을 `surfaceSecondary`로 바꿨다. 이 화면의 다른 backgroundSubtle 사용은 없다. OrderRequestComponents·OrderRequestEntryScreens는 #46 범위라 건드리지 않았다.
+- 공용 컴포넌트: `ui/common/NoticeInline.kt` 신설(A-18·A-21). `CatalogProductCard`·`CatalogSelectionChip`·`EumSpacing`은 변경하지 않아 10/14dp 등은 화면 안 상수로 뒀다(#39 병합 시 토큰으로 교체 가능).
+- 사후 검토 반영: 쿠폰 노치는 지름 12(반경 6) 유지(Figma '상하 12px 원'), CouponTicketShape는 remember로 재생성 방지, 할인 수치 줄은 FlowRow로 좁은 폭·큰 글자에서 배지가 아래 줄로 넘어감, 스텁 텍스트 정렬은 Figma 미확인이라 현행 유지. 최근 본 상품 평점 줄은 평점(+리뷰 수) → subtitle → "평점 없음" 순서이며(CatalogProductCard는 subtitle과 평점을 별도 줄로 표시해 규칙이 완전히 같지는 않다), 견적 배지는 가격이 견적 문의일 때만 표시한다.
+- 세그먼트 Row는 `heightIn(min=46).height(IntrinsicSize.Min)`(Row IntrinsicSize.Min)이라 탭 fillMaxHeight가 남은 높이를 다 먹지 않고, 큰 글꼴에서는 높이가 늘어난다.
+
+## #44 견적·고객지원·알림·설정·공지 화면 세부 일치
+
+- 기준: `feature/#44-figma-support-notice-screens`(#38 커밋 27f135f 위). Figma 노드 A-15 182:2696, A-25 358:4125, A-31 480:5124, A-32 480:5502, A-35 655:7083, A-40 657:35718, A-40z 657:35872, A-41 657:36024, A-42 661:8066, A-43 663:8212·879:8767, A-44 879:8789. 구현 명세에 적힌 값만 반영했고 확인하지 못한 값은 추정으로 채우지 않았다.
+- A-15 견적 문의: 헤드라인 H1(headlineLarge), 개요 오버라인 `EumTypographyTokens.overline`(0.16em), 진행 안내를 높이 40·r12·테두리 line의 4단계+chevron-right 12를 FlowRow(가운데 정렬, 단계 단위 줄바꿈)로 교체(문구는 `quote_progress_step_*` 신설, 접근성 설명은 기존 `quote_breadcrumb`), 문의 유형 14dp 커스텀 라디오(FlowRow), 문의 상품 카드 패딩 16·gap 12·제목 title(16/24)·썸네일 48 r6, 첨부 박스 높이 96·r12·lineControl, 필드 간 20.
+- A-25 견적 내역(근사): 칩 시각 36dp·터치 48dp, 빈 상태 제목 headlineSmall.
+- A-31 문의 내역: 카드 r12, 제목 16/24 1줄 ellipsis, 메타 caption textTertiary, 본문 14/20 textTertiary 1줄, 상태 배지 h20 px6, 필터 칩 시각 36 px14(A-42 공유), 칩↔목록 gap 16·본문 상 16/하 32.
+- A-32 알림: 행마다 배경(읽지 않음 surface·읽음 background)+1px line, 좌우 20·상하 16(행은 scaffold 좌우 여백을 쓰지 않고 화면 폭을 채움), 제목 14/20(안읽음 Medium textPrimary·읽음 Regular textSecondary), 메타 간 6·텍스트 열 gap 4, 아이콘 textPrimary, 점 6×12 래퍼, 섹션 헤더 labelMedium pt16·pb8, 요약 행 bodySmall·py8·'모두 읽음' 시각 36 px12(터치 48), 하단 안내 caption·py24.
+- A-35 설정: 그룹 라벨 labelMedium textSecondary, 설명·부가 caption(13sp 오버라이드 제거), 앱 버전 값 14/20 textTertiary, 회원 탈퇴 caption 밑줄, 스위치 행 최소 56, 본문 하단 40. 파일 구조가 같아 최소 hunk로 적용했다(#37과 충돌 가능).
+- A-40~A-41 공지: 목록 제목 bodyMedium 최대 2줄 ellipsis, 고정 배지를 `NoticePinnedBadge`(h20 px6 r4 11/14 Medium)로 추출해 목록·상세가 공용, 고정 행 backgroundSubtle·일반 행 surface, 날짜 caption. 빈 상태는 상단 정렬(pt120·pb32), 원 64 surface+`ic_search_x` 28, 제목 headlineSmall '등록된 공지사항이 없습니다', 설명 문구 제거(`notice_empty_description` 삭제). 상세 본문 bodyMedium textSecondary, 날짜는 데이터 모델에 있어 유지하고 caption 적용.
+- A-42 고객센터: FAQ Q(title, 폭 32)·질문 bodyLMedium 16/26, 답변 박스 r8·p24·A Medium textTertiary·본문 bodyMedium·질문 바로 아래·아래 spacer 24, 연락처 카드 gap 12·시간 caption, 검색바 시각 44·터치 48(BasicTextField 기반 `CustomerSupportSearchField`)·힌트 bodyMedium, 섹션 gap 32.
+- A-43 회사 소개: eyebrow overline 토큰, 히어로 제목 h2 줄바꿈(`company_tagline_home`에 `\n` 추가), 히어로 설명 bodyMedium, 히어로 gap 16·pt16/pb32, 앵커 칩 띠 높이 56·surface·위아래 1dp line, 칩 시각 36 px14 capsule(개요 칩 고정 선택, 스크롤 연동은 범위 밖이라 탭으로 선택이 옮겨지지 않음), 사업 분야 설명 caption, 연혁 설명 caption textTertiary·간격 2, 정보 행 라벨 14/20 textTertiary, 파트너 박스 surface·caption, 지도 비율 1.776·세로 그라디언트(imagePlaceholderStart→End)·r12, 지도 앱 버튼 gap 6·아이콘 18·lineStrong 테두리, 마지막 섹션 구분선 없음·pb40. 코드에만 있는 '1:1 문의하기' 행은 제거하지 않고 유지했다.
+- A-43 1:1 문의 작성·A-44 상품 문의: 안내 문구 색 textTertiary(13sp 토큰이 없어 14 유지), 필드 라벨 13sp SemiBold·라벨 상단→필드 상단 24, 필드 간 18.
+- backgroundSubtle: 고정 공지 행만 사용하며 값이 background와 같아 채움으로 구분되지 않지만 행 구분선(line)으로 구분된다. 추가 보정은 없다.
+- 보류·미확인: 주요 버튼 15/22 SemiBold(`UiAuditPrimaryButton`은 #38 완료분이고 여러 화면이 공유해 재수정하지 않음), '모두 읽음' 버튼의 채움·테두리, 라디오 선택 표시(안쪽 점 6dp·테두리 1dp는 임시), 문의 유형 라디오 gap 12(가로)/세로 0(터치 48 우선), 알림 요약 행 'px20/12'의 12, 알림 행 사이 테두리 겹침(2dp), 라벨 줄 높이 19sp(24-5 계산), 진행 안내 FlowRow의 320dp·fontScale 1.5 실제 줄바꿈 렌더, A-44 다른 상태 변형, 연혁·소개 외 화면 Preview 렌더 확인.
+- 사후 검토 반영(1회차): 회사 소개 개요 칩 고정 선택으로 단순화, 견적 진행 안내를 FlowRow로 바꿔 320dp·큰 글자에서 단계 단위 줄바꿈, FAQ 검색 입력은 pointerInput+FocusRequester로 터치 영역을 넓히고 힌트를 필드 내부 장식으로 이동, 견적 라디오에 selectableGroup·selectable 적용, 문의 작성 화면 공용 상수를 `InquiryFormMetrics.kt`로 통합.
+- 후속(보류): '모두 읽음' 버튼 r8·채움 Figma 확인, `UiAuditPrimaryButton` 15/22 SemiBold는 공용 컴포넌트라 별도 이슈, 알림 행 테두리 겹침, 라디오 선택 표시 Figma 값 확인.
+
 ## #46 주문 요청·주소·필터·리뷰 화면 Figma 세부 일치 (A-46~A-53)
 
 - 기준: `feature/#46-figma-order-request-screens`(#38 27f135f 위). Figma 도구 없이 이슈 명세 값만 사용했다.
