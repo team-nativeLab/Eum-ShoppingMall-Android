@@ -55,12 +55,10 @@ import com.nativelap.eumshoppingmall.ui.support.NoticeItemUiModel
 /**
  * debug 빌드에서 화면 흐름(F1~F7)을 눈으로 따라갈 수 있게 하는 고정 샘플.
  *
- * 실제 상품·가격이 아니며 release 소스셋에는 포함되지 않는다. 로그인 후 화면을 확인할 수 있도록 로그인 상태로 둔다.
+ * 실제 상품·가격이 아니며 release 소스셋에는 포함되지 않는다. 로그인 상태는 이 제공자가 아니라 로그인 세션이 소유하며,
+ * 모든 빌드에서 초기값은 비로그인이다(debug는 mock 로그인으로 전환한다).
  */
 object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
-    // 로그인 후 화면(마이 바로가기 등)을 실행 중에 확인하기 위한 debug 전용 값이다. 실제 인증 상태가 아니며 release는 비로그인 그대로다.
-    override val isLoggedIn: Boolean = true
-
     private const val QUOTE_ONLY_PRODUCT_ID = "sample-belt"
 
     private val sampleProducts = listOf(
