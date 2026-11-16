@@ -117,6 +117,25 @@ internal fun editCartLinesRaw(raw: String, transform: (CartLine) -> CartLine?): 
     return output.joinToString(LINE_SEPARATOR)
 }
 
+/** 원본 줄 확인·삭제·대상 줄 병합을 한 원문 변환으로 수행한다. 원본이 없으면 원문을 그대로 돌려준다. */
+internal fun replaceCartLineRaw(raw: String, sourceLineId: String, replacement: CartLine): Pair<String, Boolean> {
+    val rawLines = raw.split(LINE_SEPARATOR).filter(String::isNotBlank)
+    val decoded = rawLines.mapNotNull(::decodeCartLine)
+    val sources = decoded.filter { it.lineId() == sourceLineId }
+    val source = sources.singleOrNull() ?: return raw to false
+    val remaining = decoded.filterNot { it.lineId() == sourceLineId }
+    val target = replacement.copy(quantity = source.quantity)
+    val merged = remaining.mergedWith(listOf(target))
+    var mergedIndex = 0
+    val output = rawLines.mapNotNull { rawLine ->
+        val line = decodeCartLine(rawLine) ?: return@mapNotNull rawLine
+        if (line.lineId() == sourceLineId) return@mapNotNull null
+        encodeCartLine(merged[mergedIndex++])
+    }.toMutableList()
+    merged.drop(remaining.size).forEach { line -> output.add(encodeCartLine(line)) }
+    return output.joinToString(LINE_SEPARATOR) to true
+}
+
 // 디코딩된 줄은 merged의 앞쪽 decodedCount개와 순서대로 대응한다. 나머지는 새 줄이다.
 private fun rewriteCartLines(rawLines: List<String>, merged: List<CartLine>, decodedCount: Int): String {
     var nextMergedIndex = 0

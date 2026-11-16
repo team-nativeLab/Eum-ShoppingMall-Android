@@ -99,4 +99,36 @@ class ProductDetailSheetTest {
 
         assertEquals(original, OptionSelectionsSaver.restore(saved))
     }
+
+    @Test
+    fun cartEditGroupRequiresOneCurrentGroupAndMatchingProduct() {
+        val source = com.nativelap.eumshoppingmall.data.local.CartLine(
+            productId = "product-1",
+            productName = "상품",
+            optionId = "option-1",
+            optionLabel = "옵션",
+            quantity = 2,
+            optionExtraWon = 0,
+            productPriceLabel = "₩1,000",
+            isQuoteRequired = false,
+        )
+        val group = CatalogOptionGroupUiModel("group-1", "그룹", listOf(CatalogOptionUiModel("option-1", "옵션", 1, null)))
+
+        assertEquals(group, resolveCartOptionEditGroup(source, "product-1", listOf(group)))
+        assertEquals(null, resolveCartOptionEditGroup(source, "product-2", listOf(group)))
+        assertEquals(null, resolveCartOptionEditGroup(source, "product-1", emptyList()))
+        assertEquals(null, resolveCartOptionEditGroup(source, "product-1", listOf(group, group.copy(id = "group-2"))))
+        assertTrue(isCartOptionEditAllowed(source, "product-1", group, isSoldOut = false, isQuoteRequired = false))
+        assertFalse(isCartOptionEditAllowed(source, "product-1", group, isSoldOut = true, isQuoteRequired = false))
+        assertFalse(isCartOptionEditAllowed(source, "product-1", group, isSoldOut = false, isQuoteRequired = true))
+        assertTrue(isSingleValidCartOptionSelection(listOf(CatalogSelectedOptionUiModel("group-1", group.options.single())), group))
+        assertFalse(isSingleValidCartOptionSelection(emptyList(), group))
+        assertFalse(isSingleValidCartOptionSelection(listOf(CatalogSelectedOptionUiModel("other", group.options.single())), group))
+        assertFalse(
+            isSingleValidCartOptionSelection(
+                listOf(CatalogSelectedOptionUiModel("group-1", group.options.single()), CatalogSelectedOptionUiModel("other", group.options.single())),
+                group,
+            ),
+        )
+    }
 }

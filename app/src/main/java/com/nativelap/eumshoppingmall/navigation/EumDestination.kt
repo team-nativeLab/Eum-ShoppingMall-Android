@@ -45,7 +45,7 @@ sealed interface EumDestination : NavKey {
 
     /** A-05 상품 상세. */
     @Serializable
-    data class ProductDetail(val productId: String) : EumDestination
+    data class ProductDetail(val productId: String, val editSourceLineId: String? = null) : EumDestination
 
     /**
      * A-08 주문하기 1 배송지.

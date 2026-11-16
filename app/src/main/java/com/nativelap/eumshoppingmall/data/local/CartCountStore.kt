@@ -56,6 +56,17 @@ class CartCountStore(private val dataStore: DataStore<Preferences>) {
         }
     }
 
+    /** 원본 줄이 여전히 존재할 때만 한 번의 DataStore edit에서 교체하고 대상 줄과 수량을 병합한다. */
+    suspend fun replaceCartLine(sourceLineId: String, replacement: CartLine): Boolean {
+        var replaced = false
+        dataStore.edit { preferences ->
+            val (raw, didReplace) = replaceCartLineRaw(preferences[CART_LINES_KEY].orEmpty(), sourceLineId, replacement)
+            if (didReplace) preferences[CART_LINES_KEY] = raw
+            replaced = didReplace
+        }
+        return replaced
+    }
+
     /** 줄의 수량을 바꾼다. 수량은 1 이상이고, 스테퍼와 같이 Int 최댓값까지 허용한다. 없는 줄은 무시한다. */
     suspend fun updateCartLineQuantity(lineId: String, quantity: Int) {
         dataStore.edit { preferences ->

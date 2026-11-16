@@ -175,6 +175,7 @@ data class CatalogProductDetailUiModel(
     val optionGroups: List<CatalogOptionGroupUiModel> = emptyList(),
     val selectedOptions: List<CatalogSelectedOptionUiModel> = emptyList(),
     val optionsSheetVisible: Boolean = false,
+    val isCartOptionEdit: Boolean = false,
     val totalPriceLabel: String? = null,
     // 상품 설명 본문. 데이터 원천이 없으면 null이며, 화면은 값이 있을 때만 그린다.
     val description: String? = null,
