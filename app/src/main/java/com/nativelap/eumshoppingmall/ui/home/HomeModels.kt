@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.home
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 
 data class HomeProductUiModel(
@@ -18,7 +19,8 @@ data class HomeProductUiModel(
 )
 
 data class HomeCategoryUiModel(
-    val label: String,
+    val id: String,
+    @param:StringRes val labelResId: Int,
     @param:DrawableRes val iconResId: Int,
 )
 
@@ -27,7 +29,7 @@ sealed interface HomeScreenEvent {
     data object SearchSubmitted : HomeScreenEvent
     data class CategoryClicked(val category: HomeCategoryUiModel) : HomeScreenEvent
     data class ProductClicked(val product: HomeProductUiModel) : HomeScreenEvent
-    data class HeroActionClicked(val slideIndex: Int) : HomeScreenEvent
+    data class HeroActionClicked(val action: HomeHeroActionId) : HomeScreenEvent
     data object QuoteClicked : HomeScreenEvent
     data object MenuClicked : HomeScreenEvent
     data object NotificationsClicked : HomeScreenEvent
@@ -35,4 +37,10 @@ sealed interface HomeScreenEvent {
     data object SeeRecommendedProductsClicked : HomeScreenEvent
     data class FavoriteClicked(val product: HomeProductUiModel) : HomeScreenEvent
     data class NavigationSelected(val item: MainNavigationTab) : HomeScreenEvent
+}
+
+enum class HomeHeroActionId {
+    BrowseProducts,
+    RequestQuote,
+    ViewCompany,
 }

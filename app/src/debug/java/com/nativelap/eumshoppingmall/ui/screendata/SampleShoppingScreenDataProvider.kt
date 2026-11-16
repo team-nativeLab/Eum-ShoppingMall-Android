@@ -17,8 +17,8 @@ import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemUiModel
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogBrandDetailUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogBrandUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryDefinitions
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryScreenUiModel
-import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogKeyValueUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogOptionGroupUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogOptionUiModel
@@ -167,12 +167,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
     override fun homeBestSellerProducts(): List<HomeProductUiModel> = sampleProducts.map(::toHomeProduct)
 
     override fun categoryScreen(): CatalogCategoryScreenUiModel = CatalogCategoryScreenUiModel(
-        categories = listOf(
-            CatalogCategoryUiModel("protective", "개인보호장비", R.drawable.ic_hard_hat),
-            CatalogCategoryUiModel("uniform", "작업복/유니폼", R.drawable.ic_shirt),
-            CatalogCategoryUiModel("traffic", "교통·도로 안전", R.drawable.ic_traffic_cone),
-            CatalogCategoryUiModel("fire", "소방·방재용품", R.drawable.ic_fire_extinguisher),
-        ),
+        categories = CatalogCategoryDefinitions.all,
         brands = sampleBrands,
     )
 

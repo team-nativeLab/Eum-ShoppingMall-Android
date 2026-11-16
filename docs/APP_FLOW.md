@@ -210,6 +210,23 @@ flowchart LR
 - 스플래시(A-01): NavKey가 아니라 `EumMainNavDisplay` 위 `SplashOverlay`(rememberSaveable, 1.5초, 입력 차단, 줄이기 설정이면 페이드 없음).
 - 옵션 변경(장바구니): 저장된 줄은 해당 상품 상세로 보낸다(줄 자체가 교체되지는 않는다).
 
+### F11 홈 탐색·프로모션 진입 (Issue #59)
+
+```mermaid
+flowchart LR
+    A02["A-02 홈"] -- 제품 둘러보기 --> ALL["A-04 ProductList(null)"]
+    A02 -- 견적 문의하기 --> Q["A-15 QuoteRequest()"]
+    A02 -- 회사소개 보기 --> CO["CompanyIntro"]
+    A02 -- 카테고리 ID --> CAT["A-04 ProductList(categoryId)"]
+    A03["A-03 카테고리"] -- 카테고리 ID --> CAT
+    A02 -- 맞춤 제작·대량 납품 견적 배너 --> Q
+```
+
+- 히어로 CTA는 슬라이드 순번이 아닌 `HomeHeroActionId`로 식별하고 `EumMainNavDisplay`에서 목적지를 선택한다. 홈의 카테고리 행과 A-03은 `CatalogCategoryDefinitions`의 같은 8개 항목(ID: `protective`, `uniform`, `traffic`, `fire`, `industrial`, `security`, `living`, `custom`)을 사용한다. 이 ID는 화면 흐름용 고정값이며 서버 카테고리 ID로 확정된 값이 아니다.
+- 홈 카테고리 행은 Figma A-02에 없는 구성이다. 카테고리 탐색을 홈에서도 제공해 달라는 사용자 결정으로 2026-11-16 추가했다. 각 카테고리 행은 해당 ID를 가진 상품 목록으로 이동한다.
+- A-03 카테고리 목록은 release에서도 공통 데이터 정의를 사용한다. 다만 상품 목록의 실제 카테고리별 필터링은 서버 데이터가 없어 연결하지 않았다.
+- 홈 하단 견적 배너는 기존에 `QuoteRequest()`로 연결되어 있어 유지했다.
+
 ## 제외한 흐름 (후속)
 
 | 흐름 | 이유 |
@@ -218,7 +235,6 @@ flowchart LR
 | 실제 인증(서버 연동)·소셜 로그인·비밀번호 찾기 발송 | 인증 서버 없음. debug mock만 제공 |
 | 마이·드로어·홈 알림 버튼·설정의 로그인 상태 연결 | #37 소관 |
 | 약관·개인정보 링크(QuoteRequest PrivacyDetailsClicked, 가입 동의 보기, 설정) | PolicyDocument destination을 #37이 신설 중, 병합 후 재사용 |
-| 홈 히어로·카테고리 행·프로모 카드 | 목적지를 Figma로 확인하지 못했다 |
 | 주문 내역 "다시 구매", 명세서·영수증·운송장 복사·첨부 파일·사진 첨부·클레임 회수지/교환 옵션 변경 | 상품 ID·파일·클립보드·선택기 연동 전 |
 | 마이 `profile`(A-23)·`addresses`(A-24)·`returns` 메뉴 행 | #37의 `EumMenuDestinations` 소관 |
 | 결제 실패·품절 분기 | 결과 훅 설계가 필요해 보류 |

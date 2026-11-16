@@ -212,7 +212,7 @@ private fun CategoryRow(category: CatalogCategoryUiModel, onClick: () -> Unit) {
             )
         }
         Text(
-            category.label,
+            stringResource(category.labelResId),
             modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.eumColors.textPrimary,

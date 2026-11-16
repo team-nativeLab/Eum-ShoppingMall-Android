@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.catalog
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 
 sealed interface CatalogPriceUiModel {
     data class Available(
@@ -30,7 +31,7 @@ data class CatalogProductUiModel(
 
 data class CatalogCategoryUiModel(
     val id: String,
-    val label: String,
+    @param:StringRes val labelResId: Int,
     @param:DrawableRes val iconResId: Int,
 )
 
