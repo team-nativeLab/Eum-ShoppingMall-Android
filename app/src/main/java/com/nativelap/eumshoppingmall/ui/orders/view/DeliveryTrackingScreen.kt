@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -30,8 +31,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.NoticeInline
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.orders.view.components.DeliveryProgressStrip
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderProductThumbnail
@@ -39,6 +40,7 @@ import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderStatusBadge
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrdersTopBar
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.DeliveryTrackingScreenEvent
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.DeliveryTrackingUiModel
+import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -173,29 +175,24 @@ fun DeliveryTrackingScreen(
                     }
                 }
                 item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface, MaterialTheme.shapes.medium).padding(EumSpacing.x16),
-                        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
-                        verticalAlignment = Alignment.CenterVertically,
+                    // Figma: 상품 박스는 line 테두리 r12, 썸네일 48dp, 이름 16/24.
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(EumRadius.x12),
+                        color = MaterialTheme.eumColors.surface,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.eumColors.line),
                     ) {
-                        OrderProductThumbnail(null, stringResource(R.string.orders_products_title), size = 52.dp)
-                        Text(uiModel.productsSummaryLabel, style = MaterialTheme.typography.bodyMedium)
+                        Row(
+                            modifier = Modifier.padding(EumSpacing.x16),
+                            horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            OrderProductThumbnail(null, stringResource(R.string.orders_products_title), size = 48.dp)
+                            Text(uiModel.productsSummaryLabel, style = MaterialTheme.typography.titleMedium)
+                        }
                     }
                 }
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface, MaterialTheme.shapes.medium).padding(EumSpacing.x12),
-                        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        androidx.compose.material3.Icon(
-                            painterResource(R.drawable.ic_info),
-                            contentDescription = null,
-                            tint = MaterialTheme.eumColors.textSecondary,
-                        )
-                        Text(uiModel.noticeLabel, style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp, lineHeight = 18.sp), color = MaterialTheme.eumColors.textSecondary)
-                    }
-                }
+                item { NoticeInline(uiModel.noticeLabel) }
             }
         }
     }

@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,10 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderInfoCard
+import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderInfoCardFigmaContentGap
+import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderInfoCardFigmaVerticalPadding
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestRejectionScreenEvent
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestRejectionUiModel
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestResultScreenEvent
@@ -41,10 +44,10 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 @Composable
 fun OrderRequestResultScreen(uiModel: OrderRequestResultUiModel, onEvent: (OrderRequestResultScreenEvent) -> Unit, modifier: Modifier = Modifier) {
     RequestScaffold(uiModel.statusLabel, { onEvent(OrderRequestResultScreenEvent.BackClicked) }, modifier, bottomContent = {
-        Button(onClick = { onEvent(OrderRequestResultScreenEvent.RequestHistoryClicked) }, Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(EumRadius.x8), colors = darkButtonColors()) { Text(stringResource(R.string.request_view_history)) }
+        Button(onClick = { onEvent(OrderRequestResultScreenEvent.RequestHistoryClicked) }, Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(EumRadius.x10), colors = darkButtonColors()) { Text(stringResource(R.string.request_view_history)) }
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x24)) {
-            Text(stringResource(R.string.request_result_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+            Text(stringResource(R.string.request_result_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
             RequestLabeledField(stringResource(R.string.request_result_number_label), uiModel.requestNumber)
             RequestLabeledField(stringResource(R.string.request_result_notice_label), uiModel.statusDescription)
         }
@@ -55,68 +58,91 @@ fun OrderRequestResultScreen(uiModel: OrderRequestResultUiModel, onEvent: (Order
 @Composable
 private fun RequestLabeledField(label: String, value: String) {
     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-        Text(label, style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textPrimary)
         Surface(
             modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
             shape = RoundedCornerShape(EumRadius.x8),
             color = MaterialTheme.eumColors.surface,
             border = BorderStroke(1.dp, MaterialTheme.eumColors.line),
         ) {
-            Box(Modifier.fillMaxWidth().heightIn(min = 50.dp).padding(horizontal = EumSpacing.x16, vertical = EumSpacing.x12), contentAlignment = Alignment.CenterStart) {
-                Text(value, style = MaterialTheme.typography.bodyLarge)
+            Box(Modifier.fillMaxWidth().heightIn(min = 50.dp).padding(horizontal = RequestFieldHorizontalPadding, vertical = EumSpacing.x12), contentAlignment = Alignment.CenterStart) {
+                Text(value, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textPrimary)
             }
         }
     }
 }
 
 @Composable
-fun OrderRequestWithdrawalConfirmScreen(requestNumber: String, onEvent: (OrderRequestWithdrawalScreenEvent) -> Unit, modifier: Modifier = Modifier) {
+fun OrderRequestWithdrawalConfirmScreen(
+    requestNumber: String,
+    onEvent: (OrderRequestWithdrawalScreenEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    requestKindLabel: String? = null,
+    productLabel: String? = null,
+    requestDateLabel: String? = null,
+) {
     RequestScaffold(stringResource(R.string.request_withdraw_confirm_title), { onEvent(OrderRequestWithdrawalScreenEvent.BackClicked) }, modifier, bottomContent = {
         Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
             OutlinedButton(onClick = { onEvent(OrderRequestWithdrawalScreenEvent.WithdrawalCancelled) }, modifier = Modifier.weight(1f).heightIn(min = 56.dp), shape = RoundedCornerShape(EumRadius.x8), border = BorderStroke(1.dp, MaterialTheme.eumColors.textPrimary)) { Text(stringResource(R.string.request_cancel_action), color = MaterialTheme.eumColors.textPrimary) }
             Button(onClick = { onEvent(OrderRequestWithdrawalScreenEvent.WithdrawalConfirmed) }, modifier = Modifier.weight(1f).heightIn(min = 56.dp), shape = RoundedCornerShape(EumRadius.x8), colors = darkButtonColors()) { Text(stringResource(R.string.request_withdraw_action)) }
         }
     }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).padding(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
             Surface(shape = RoundedCornerShape(EumRadius.x12), color = MaterialTheme.eumColors.dangerTint, modifier = Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(EumSpacing.x16)) {
-                    Text(stringResource(R.string.request_withdraw_question), style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.eumColors.danger)
+                Column(Modifier.padding(horizontal = EumSpacing.x16, vertical = WithdrawalNoticeVerticalPadding)) {
+                    Text(stringResource(R.string.request_withdraw_question), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.eumColors.danger)
                     Text(stringResource(R.string.request_withdraw_warning_body), Modifier.padding(top = EumSpacing.x4), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textPrimary)
                 }
             }
-            OrderInfoCard(Modifier.fillMaxWidth()) {
+            OrderInfoCard(Modifier.fillMaxWidth(), contentVerticalPadding = OrderInfoCardFigmaVerticalPadding, contentSpacing = OrderInfoCardFigmaContentGap) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(painterResource(R.drawable.ic_package), contentDescription = null, tint = MaterialTheme.eumColors.textPrimary, modifier = Modifier.size(20.dp))
-                    Text(stringResource(R.string.request_withdraw_target_title), Modifier.padding(start = EumSpacing.x8), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                    Text(stringResource(R.string.request_withdraw_target_title), Modifier.padding(start = EumSpacing.x8), style = MaterialTheme.typography.titleMedium)
                 }
-                Column(Modifier.padding(top = EumSpacing.x8)) {
-                    RequestInfoRow(R.drawable.ic_receipt, stringResource(R.string.request_number), requestNumber)
-                }
+                WithdrawalTargetRows(requestKindLabel, productLabel, requestNumber, requestDateLabel)
             }
         }
     }
 }
 
+/** 철회 대상 신청 정보 행. 값이 없는 행(종류·상품·신청일)은 숨기고 신청 번호는 항상 보인다. */
 @Composable
-fun OrderRequestWithdrawalCompleteScreen(uiModel: OrderRequestResultUiModel, onEvent: (OrderRequestWithdrawalScreenEvent) -> Unit, modifier: Modifier = Modifier) {
+private fun WithdrawalTargetRows(requestKindLabel: String?, productLabel: String?, requestNumber: String, requestDateLabel: String?) {
+    Column(verticalArrangement = Arrangement.spacedBy(OrderInfoCardFigmaContentGap)) {
+        requestKindLabel?.let { RequestInfoRow(R.drawable.ic_file_text, stringResource(R.string.request_type_label), it) }
+        productLabel?.let { RequestInfoRow(R.drawable.ic_package, stringResource(R.string.request_product_title), it) }
+        RequestInfoRow(R.drawable.ic_receipt, stringResource(R.string.request_number), requestNumber)
+        requestDateLabel?.let { RequestInfoRow(R.drawable.ic_calendar, stringResource(R.string.request_date_label), it) }
+    }
+}
+
+@Composable
+fun OrderRequestWithdrawalCompleteScreen(
+    uiModel: OrderRequestResultUiModel,
+    onEvent: (OrderRequestWithdrawalScreenEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    requestKindLabel: String? = null,
+    productLabel: String? = null,
+    requestDateLabel: String? = null,
+) {
     RequestScaffold(stringResource(R.string.request_withdraw_complete_title), { onEvent(OrderRequestWithdrawalScreenEvent.BackClicked) }, modifier, bottomContent = {
         Button(onClick = { onEvent(OrderRequestWithdrawalScreenEvent.RequestHistoryClicked) }, Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(EumRadius.x8), colors = darkButtonColors()) { Text(stringResource(R.string.request_view_history)) }
     }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).padding(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-            Box(Modifier.fillMaxWidth().padding(top = EumSpacing.x24), contentAlignment = Alignment.Center) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Surface(shape = CircleShape, color = MaterialTheme.eumColors.textPrimary, modifier = Modifier.size(64.dp)) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(painterResource(R.drawable.ic_check), contentDescription = null, tint = MaterialTheme.eumColors.inverse, modifier = Modifier.size(28.dp))
+                        Icon(painterResource(R.drawable.ic_check), contentDescription = null, tint = MaterialTheme.eumColors.inverse, modifier = Modifier.size(32.dp))
                     }
                 }
             }
-            Text(stringResource(R.string.request_withdraw_done_headline), Modifier.padding(top = EumSpacing.x12), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-            Text(uiModel.statusDescription, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-            OrderInfoCard(Modifier.fillMaxWidth().padding(top = EumSpacing.x12)) {
-                Text(stringResource(R.string.request_withdrawn_target_title), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-                Column(Modifier.padding(top = EumSpacing.x8)) {
-                    RequestInfoRow(R.drawable.ic_receipt, stringResource(R.string.request_number), uiModel.requestNumber)
-                }
+            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                Text(stringResource(R.string.request_withdraw_done_headline), style = MaterialTheme.typography.headlineSmall)
+                Text(uiModel.statusDescription, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary)
+            }
+            OrderInfoCard(Modifier.fillMaxWidth(), contentVerticalPadding = OrderInfoCardFigmaVerticalPadding, contentSpacing = OrderInfoCardFigmaContentGap) {
+                Text(stringResource(R.string.request_withdrawn_target_title), style = MaterialTheme.typography.titleMedium)
+                WithdrawalTargetRows(requestKindLabel, productLabel, uiModel.requestNumber, requestDateLabel)
             }
         }
     }
@@ -138,3 +164,7 @@ fun OrderRequestRejectionScreen(uiModel: OrderRequestRejectionUiModel, onEvent: 
         }
     }
 }
+
+// Figma 값(A-50 입력칸 좌우 14, A-52 안내 카드 세로 14)은 EumSpacing 토큰에 없어 이 파일에서만 쓴다.
+private val RequestFieldHorizontalPadding = 14.dp
+private val WithdrawalNoticeVerticalPadding = 14.dp

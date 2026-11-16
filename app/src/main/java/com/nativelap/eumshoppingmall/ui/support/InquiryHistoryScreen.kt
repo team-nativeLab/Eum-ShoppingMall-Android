@@ -36,8 +36,8 @@ fun InquiryHistoryScreen(items: List<InquiryHistoryItemUiModel>, selectedStatus:
         onBottomActionClick = { onEvent(InquiryHistoryEvent.WriteClicked) },
     ) { padding ->
         Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(top = EumSpacing.x12, bottom = EumSpacing.x24),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(top = EumSpacing.x16, bottom = EumSpacing.x32),
+            verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
         ) {
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                 SupportFilterChip(stringResource(R.string.inquiry_filter_all), selectedStatus == null) { onEvent(InquiryHistoryEvent.FilterSelected(null)) }

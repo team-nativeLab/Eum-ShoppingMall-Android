@@ -36,6 +36,7 @@ fun UiAuditTextField(
     modifier: Modifier = Modifier,
     minHeight: androidx.compose.ui.unit.Dp = EumSpacing.x52,
     maxLines: Int = 1,
+    contentVerticalPadding: androidx.compose.ui.unit.Dp = EumSpacing.x12,
     keyboardType: KeyboardType = KeyboardType.Text,
     readOnly: Boolean = false,
     isSelected: Boolean = false,
@@ -56,7 +57,7 @@ fun UiAuditTextField(
             if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.eumColors.lineNeutral,
         ),
     ) {
-        Box(Modifier.padding(horizontal = UiAuditTextFieldHorizontalPadding, vertical = EumSpacing.x12)) {
+        Box(Modifier.padding(horizontal = UiAuditTextFieldHorizontalPadding, vertical = contentVerticalPadding)) {
             if (value.isEmpty()) {
                 Text(
                     text = placeholder,

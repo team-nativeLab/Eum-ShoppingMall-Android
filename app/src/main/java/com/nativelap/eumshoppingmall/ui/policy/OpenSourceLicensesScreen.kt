@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditIconInfoCard
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
@@ -49,18 +50,22 @@ fun OpenSourceLicensesScreen(
                 text = stringResource(R.string.ui_audit_licenses_helper),
                 modifier = Modifier.padding(bottom = EumSpacing.x16),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.eumColors.textDisabled,
+                color = MaterialTheme.eumColors.textTertiary,
             )
             licenses.forEach { license ->
                 UiAuditIconInfoCard(
                     iconRes = R.drawable.ic_package,
                     title = license.libraryName,
                     description = license.licenseName,
+                    minHeight = LicenseCardMinHeight,
                 )
             }
         }
     }
 }
+
+// Figma 오픈소스 라이선스 카드 높이 72dp(EumSpacing 토큰에 없음).
+private val LicenseCardMinHeight = 72.dp
 
 @ResponsiveUiPreview
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)

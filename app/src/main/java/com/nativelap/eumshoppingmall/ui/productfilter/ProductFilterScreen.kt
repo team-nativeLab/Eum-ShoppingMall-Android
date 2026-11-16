@@ -13,12 +13,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +28,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditRadioIndicator
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
 import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
@@ -81,8 +81,8 @@ fun ProductFilterScreen(
     ) { contentPadding ->
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                .padding(contentPadding).padding(top = EumSpacing.x20, bottom = EumSpacing.x20),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x20),
+                .padding(contentPadding).padding(top = EumSpacing.x16, bottom = EumSpacing.x20),
+            verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
         ) {
             FilterChipSection(
                 title = stringResource(R.string.ui_audit_category),
@@ -98,18 +98,17 @@ fun ProductFilterScreen(
                     priceOptions.firstOrNull { it.first == label }?.let { onEvent(ProductFilterScreenEvent.PriceRangeSelected(it.second)) }
                 },
             )
-            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
                 Text(
                     text = stringResource(R.string.ui_audit_filter_sort),
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.eumColors.textPrimary,
                 )
                 Surface(
                     shape = RoundedCornerShape(EumRadius.x8),
                     color = MaterialTheme.eumColors.surface,
-                    border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.lineNeutral),
                 ) {
-                    Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x16)) {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x16).selectableGroup()) {
                         sortRows.forEachIndexed { index, (label, sort) ->
                             val selected = uiModel.selectedSort == sort
                             Row(
@@ -120,22 +119,15 @@ fun ProductFilterScreen(
                                         onClick = { onEvent(ProductFilterScreenEvent.SortSelected(sort)) },
                                     ),
                                 verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
                             ) {
                                 Text(
                                     text = label,
                                     modifier = Modifier.weight(1f).padding(vertical = EumSpacing.x12),
-                                    style = MaterialTheme.typography.bodyMedium,
+                                    style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.eumColors.textPrimary,
                                 )
-                                // Figma 정렬 라디오는 파란 강조색 대신 검정 채움을 쓴다(화면 전용 색 지정).
-                                RadioButton(
-                                    selected = selected,
-                                    onClick = null,
-                                    colors = RadioButtonDefaults.colors(
-                                        selectedColor = MaterialTheme.eumColors.textPrimary,
-                                        unselectedColor = MaterialTheme.eumColors.lineStrong,
-                                    ),
-                                )
+                                UiAuditRadioIndicator(selected = selected)
                             }
                             if (index != sortRows.lastIndex) HorizontalDivider(color = MaterialTheme.eumColors.line)
                         }
@@ -154,10 +146,10 @@ private fun FilterChipSection(
     selected: String?,
     onSelected: (String) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-        Text(title, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.eumColors.textPrimary)
+    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+        Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textPrimary)
         FlowRow(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().selectableGroup(),
             horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x4),
         ) {
@@ -173,13 +165,13 @@ private fun FilterChipSection(
                 ) {
                     Surface(
                         modifier = Modifier.heightIn(min = 34.dp),
-                        shape = RoundedCornerShape(EumRadius.x12),
+                        shape = RoundedCornerShape(FilterChipRadius),
                         color = if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface,
                         border = BorderStroke(EumSpacing.x1, if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.lineNeutral),
                     ) {
                         Text(
                             text = label,
-                            modifier = Modifier.padding(horizontal = EumSpacing.x16, vertical = EumSpacing.x6),
+                            modifier = Modifier.padding(horizontal = FilterChipHorizontalPadding, vertical = EumSpacing.x6),
                             style = MaterialTheme.typography.labelMedium,
                             color = if (isSelected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textPrimary,
                         )
@@ -213,3 +205,7 @@ private fun ProductFilterScreenPreview() {
         ProductFilterScreen(ProductFilterUiModel(emptyList(), null, null, ProductFilterSort.Recommended), onEvent = {})
     }
 }
+
+// Figma 칩 시각 높이 34(r17)·좌우 14는 토큰에 없어 이 화면에서만 쓴다. 터치 영역은 바깥 Box 48dp가 유지한다.
+private val FilterChipRadius = 17.dp
+private val FilterChipHorizontalPadding = 14.dp

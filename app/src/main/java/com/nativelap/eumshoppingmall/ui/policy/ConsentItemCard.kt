@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 /**
@@ -23,15 +24,15 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 internal fun ConsentItemCard(title: String, description: String) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(EumRadius.x8),
+        shape = RoundedCornerShape(EumRadius.x12),
         color = MaterialTheme.eumColors.surface,
         border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.line),
     ) {
         Column(
-            Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x16, vertical = EumSpacing.x20),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+            Modifier.fillMaxWidth().padding(EumSpacing.x16),
+            verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
         ) {
-            Text(title, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
+            Text(title, style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textSecondary)
             Text(description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textPrimary)
         }
     }

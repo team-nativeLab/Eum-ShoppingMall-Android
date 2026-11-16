@@ -19,6 +19,10 @@ import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditTextField
 import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
+import com.nativelap.eumshoppingmall.ui.support.INQUIRY_FIELD_GAP
+import com.nativelap.eumshoppingmall.ui.support.INQUIRY_LABEL_FONT_SIZE
+import com.nativelap.eumshoppingmall.ui.support.INQUIRY_LABEL_GAP
+import com.nativelap.eumshoppingmall.ui.support.INQUIRY_LABEL_LINE_HEIGHT
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -49,13 +53,13 @@ fun ProductInquiryScreen(
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(contentPadding).padding(top = EumSpacing.x20),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
+            verticalArrangement = Arrangement.spacedBy(INQUIRY_FIELD_GAP),
         ) {
             Text(
                 text = stringResource(R.string.ui_audit_inquiry_helper),
                 modifier = Modifier.padding(bottom = EumSpacing.x24),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.eumColors.textDisabled,
+                color = MaterialTheme.eumColors.textTertiary,
             )
             AuditInquiryField(
                 label = stringResource(R.string.ui_audit_product_label),
@@ -102,10 +106,14 @@ private fun AuditInquiryField(
     onValueChange: ((String) -> Unit)? = null,
     onClick: (() -> Unit)? = null,
 ) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(INQUIRY_LABEL_GAP)) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+            style = MaterialTheme.typography.labelMedium.copy(
+                fontSize = INQUIRY_LABEL_FONT_SIZE,
+                lineHeight = INQUIRY_LABEL_LINE_HEIGHT,
+                fontWeight = FontWeight.SemiBold,
+            ),
             color = MaterialTheme.eumColors.textPrimary,
         )
         if (onValueChange != null) {

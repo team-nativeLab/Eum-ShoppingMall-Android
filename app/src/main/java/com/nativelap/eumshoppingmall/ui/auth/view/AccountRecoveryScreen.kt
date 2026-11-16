@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -53,9 +54,9 @@ fun AccountRecoveryScreen(uiModel: AccountRecoveryUiModel, onEvent: (AuthScreenE
 private fun AccountRecoveryFormScreen(uiModel: AccountRecoveryUiModel, onEvent: (AuthScreenEvent) -> Unit) {
     val isEmailMode = uiModel.mode == AccountRecoveryMode.FIND_EMAIL
     Scaffold(
-        topBar = { AuthTopBar(stringResource(R.string.auth_find_account), onBack = { onEvent(AuthScreenEvent.BackClicked) }, isClose = true) },
+        topBar = { AuthTopBar(stringResource(R.string.auth_find_account), onBack = { onEvent(AuthScreenEvent.BackClicked) }) },
         bottomBar = {
-            Column(Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8)) {
+            AuthBottomBar {
                 AuthPrimaryAction(
                     stringResource(if (isEmailMode) R.string.account_find_email else R.string.common_next),
                     uiModel.isSubmitEnabled,
@@ -66,48 +67,59 @@ private fun AccountRecoveryFormScreen(uiModel: AccountRecoveryUiModel, onEvent: 
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
         Column(
-            Modifier.fillMaxSize().padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
+            Modifier.fillMaxSize().padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(start = EumSpacing.x20, end = EumSpacing.x20, top = EumSpacing.x16, bottom = EumSpacing.x16),
         ) {
             AuthSegmentedControl(
                 labels = listOf(stringResource(R.string.account_find_email), stringResource(R.string.account_find_password)),
                 selectedIndex = if (isEmailMode) 0 else 1,
                 onSelected = { onEvent(AuthScreenEvent.RecoveryModeChanged(if (it == 0) AccountRecoveryMode.FIND_EMAIL else AccountRecoveryMode.FIND_PASSWORD)) },
             )
-            Text(
-                stringResource(if (isEmailMode) R.string.account_find_email_instruction else R.string.account_find_password_instruction),
-                style = MaterialTheme.typography.headlineSmall,
-            )
-            Text(
-                stringResource(if (isEmailMode) R.string.account_find_email_description else R.string.account_identity_verification_notice),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.eumColors.textSecondary,
-            )
-            if (isEmailMode) {
-                AuthTextField(
-                    stringResource(R.string.auth_full_name_label),
-                    uiModel.name,
-                    { onEvent(AuthScreenEvent.RecoveryNameChanged(it)) },
-                    placeholder = stringResource(R.string.auth_name_placeholder),
+
+            Spacer(Modifier.height(EumSpacing.x24))
+
+            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                Text(
+                    stringResource(if (isEmailMode) R.string.account_find_email_instruction else R.string.account_find_password_instruction),
+                    style = MaterialTheme.typography.headlineSmall,
                 )
-            } else {
-                AuthTextField(
-                    stringResource(R.string.auth_email_label),
-                    uiModel.email,
-                    { onEvent(AuthScreenEvent.RecoveryEmailChanged(it)) },
-                    placeholder = stringResource(R.string.auth_email_placeholder),
-                    keyboardType = KeyboardType.Email,
+                Text(
+                    stringResource(if (isEmailMode) R.string.account_find_email_description else R.string.account_identity_verification_notice),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.eumColors.textSecondary,
                 )
             }
-            AuthPhoneVerificationFields(
-                label = stringResource(R.string.auth_phone_number),
-                state = uiModel.phone,
-                onPhoneChanged = { onEvent(AuthScreenEvent.RecoveryPhoneChanged(it)) },
-                onResend = { onEvent(AuthScreenEvent.RecoveryPhoneResendClicked) },
-                onCodeChanged = { onEvent(AuthScreenEvent.RecoveryVerificationCodeChanged(it)) },
-                onConfirm = { onEvent(AuthScreenEvent.RecoveryVerificationConfirmClicked) },
-            )
+
+            Spacer(Modifier.height(EumSpacing.x24))
+
+            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
+                if (isEmailMode) {
+                    AuthTextField(
+                        stringResource(R.string.auth_full_name_label),
+                        uiModel.name,
+                        { onEvent(AuthScreenEvent.RecoveryNameChanged(it)) },
+                        placeholder = stringResource(R.string.auth_name_placeholder),
+                    )
+                } else {
+                    AuthTextField(
+                        stringResource(R.string.auth_email_label),
+                        uiModel.email,
+                        { onEvent(AuthScreenEvent.RecoveryEmailChanged(it)) },
+                        placeholder = stringResource(R.string.auth_email_placeholder),
+                        keyboardType = KeyboardType.Email,
+                    )
+                }
+                AuthPhoneVerificationFields(
+                    label = stringResource(R.string.auth_phone_number),
+                    state = uiModel.phone,
+                    onPhoneChanged = { onEvent(AuthScreenEvent.RecoveryPhoneChanged(it)) },
+                    onResend = { onEvent(AuthScreenEvent.RecoveryPhoneResendClicked) },
+                    onCodeChanged = { onEvent(AuthScreenEvent.RecoveryVerificationCodeChanged(it)) },
+                    onConfirm = { onEvent(AuthScreenEvent.RecoveryVerificationConfirmClicked) },
+                )
+            }
             if (isEmailMode) {
+                Spacer(Modifier.height(EumSpacing.x24))
+
                 Text(
                     stringResource(R.string.account_password_reset_phone_notice),
                     style = MaterialTheme.typography.labelSmall,
@@ -152,7 +164,9 @@ private fun AccountRecoveryResultScreen(uiModel: AccountRecoveryUiModel, onEvent
                     tint = if (found) MaterialTheme.eumColors.background else MaterialTheme.eumColors.textSecondary,
                 )
             }
+
             Spacer(Modifier.padding(EumSpacing.x8))
+
             Text(
                 stringResource(if (found) R.string.account_email_found else R.string.auth_recovery_not_found_title),
                 style = MaterialTheme.typography.headlineSmall,

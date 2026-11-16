@@ -49,6 +49,23 @@ Android Studio와 Android SDK 37을 설치한 뒤 프로젝트를 엽니다. Gra
 ./gradlew :app:connectedDebugAndroidTest
 ```
 
+### Debug 화면 갤러리
+
+Figma 대조용으로 A-01~A-57 화면을 에뮬레이터에서 직접 열어볼 수 있다. `app/src/debug` 전용이라 release 빌드에는 포함되지 않으며 launcher에는 노출되지 않는다.
+
+```bash
+# 목록 열기
+adb shell am start -n com.nativelap.eumshoppingmall/.debuggallery.ScreenGalleryActivity
+# 화면 바로 열기 (폭 dp, 글자 배율은 선택)
+adb shell am start -n com.nativelap.eumshoppingmall/.debuggallery.ScreenGalleryActivity --es screen A-33 --ei width 320 --ef fontScale 1.5
+# 수동 확인: A-57을 열어 오픈소스 라이선스 목록이 렌더되는지 본다
+adb shell am start -n com.nativelap.eumshoppingmall/.debuggallery.ScreenGalleryActivity --es screen A-57
+```
+
+- 800dp는 기기 폭에 맞춰 density를 줄인 축소 표시라 터치 영역 비율 검증에는 맞지 않는다.
+- 화면 Preview를 리플렉션으로 호출하므로 Preview가 예외를 던지면 갤러리도 크래시한다(원인은 logcat `ScreenGallery` 태그에 남는다).
+- 알 수 없는 `--es screen` id는 토스트와 `Log.w`로 알리고 목록을 연다.
+
 ## 디자인 시스템과 공통 리소스
 
 - Compose 토큰: `ui/theme/Color.kt`, `Type.kt`, `EumSpacing.kt`, `Shapes.kt`, `Elevation.kt` (중립색은 Figma 변수 값, CTA 버튼 최소 높이 56dp, `labelSmall`은 12/16 Medium)
@@ -81,6 +98,7 @@ EumShoppingMall/
 │       │   │   ├── ui/splash/       # 스플래시 화면 컴포넌트
 │       │   │   └── ui/theme/        # Compose 테마 및 디자인 토큰
 │       │   └── res/                # Android 리소스
+│       ├── debug/                  # debug 전용 Preview fixture·화면 갤러리(debuggallery)
 │       ├── test/                   # 로컬 단위 테스트
 │       └── androidTest/            # Android 계측 테스트
 ├── gradle/libs.versions.toml       # 라이브러리 및 플러그인 버전 카탈로그
