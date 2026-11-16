@@ -202,6 +202,9 @@ sealed interface CatalogProductDetailEvent {
     data class FavoriteToggled(val productId: String) : CatalogProductDetailEvent
     data object ProductFavoriteToggled : CatalogProductDetailEvent
     data object CloseOptionsSheet : CatalogProductDetailEvent
+    data object AllReviewsClicked : CatalogProductDetailEvent
+    data object ReviewWriteClicked : CatalogProductDetailEvent
+    data object QuestionWriteClicked : CatalogProductDetailEvent
 }
 
 data class CatalogBrandListUiModel(

@@ -2,9 +2,12 @@ package com.nativelap.eumshoppingmall.ui.screendata
 
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountProfileUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.MyPageUiModel
+import com.nativelap.eumshoppingmall.ui.addresssearch.AddressSearchUiModel
 import com.nativelap.eumshoppingmall.ui.benefits.CouponScreenUiModel
 import com.nativelap.eumshoppingmall.ui.benefits.PointsScreenUiModel
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogBrandDetailUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogBrandUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryScreenUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductDetailUiModel
@@ -16,12 +19,29 @@ import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutAddressUiMode
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutPaymentSummaryUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
 import com.nativelap.eumshoppingmall.ui.company.CompanyIntroUiModel
+import com.nativelap.eumshoppingmall.ui.events.EventDetailUiModel
 import com.nativelap.eumshoppingmall.ui.events.EventUiModel
 import com.nativelap.eumshoppingmall.ui.favorites.FavoritesUiModel
 import com.nativelap.eumshoppingmall.ui.home.HomeProductUiModel
 import com.nativelap.eumshoppingmall.ui.ordercomplete.viewmodel.OrderCompleteUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.DeliveryProgressStage
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.DeliveryTrackingUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderDetailAddressUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderDetailUiModel
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryEmptyState
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderPaymentBreakdownUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestDetailUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestFormUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestHistoryUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestOrderSelectionUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestRejectionUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestResultUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestStatus
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestType
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderStatus
+import com.nativelap.eumshoppingmall.ui.productreview.ProductReviewUiModel
+import com.nativelap.eumshoppingmall.ui.productreview.ProductReviewWriteUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteCompleteUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteHistoryUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryDetailUiModel
@@ -29,8 +49,11 @@ import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryStatus
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
 import com.nativelap.eumshoppingmall.ui.recent.RecentProductsUiModel
 import com.nativelap.eumshoppingmall.ui.support.CustomerSupportUiModel
+import com.nativelap.eumshoppingmall.ui.support.InquiryDetailUiModel
 import com.nativelap.eumshoppingmall.ui.support.InquiryHistoryItemUiModel
+import com.nativelap.eumshoppingmall.ui.support.NoticeDetailUiModel
 import com.nativelap.eumshoppingmall.ui.support.NoticeItemUiModel
+import com.nativelap.eumshoppingmall.ui.support.OneToOneInquiryUiModel
 
 /**
  * 서버·ViewModel이 연결되기 전까지 화면에 넣을 UiModel을 공급한다.
@@ -163,6 +186,133 @@ interface ShoppingScreenDataProvider {
     fun notices(): List<NoticeItemUiModel> = emptyList()
 
     fun events(): List<EventUiModel> = emptyList()
+
+    fun noticeDetail(noticeId: String): NoticeDetailUiModel = NoticeDetailUiModel(title = "", dateLabel = "", content = "")
+
+    fun eventDetail(eventId: String): EventDetailUiModel = EventDetailUiModel(
+        title = "",
+        period = "",
+        benefit = "",
+        participation = "",
+        notice = "",
+    )
+
+    fun inquiryDetail(inquiryId: String): InquiryDetailUiModel = InquiryDetailUiModel(
+        title = "",
+        statusLabel = "",
+        dateLabel = "",
+        typeLabel = "",
+        orderNumber = "",
+        content = "",
+    )
+
+    fun inquiryForm(): OneToOneInquiryUiModel = OneToOneInquiryUiModel(
+        inquiryType = "",
+        title = "",
+        content = "",
+        attachmentLabel = "",
+    )
+
+    fun orderDetail(orderId: String): OrderDetailUiModel = OrderDetailUiModel(
+        orderDateLabel = "",
+        orderNumber = "",
+        products = emptyList(),
+        address = OrderDetailAddressUiModel(recipientName = "", contactLabel = "", addressLabel = "", requestLabel = ""),
+        payment = OrderPaymentBreakdownUiModel(
+            productAmountLabel = "",
+            shippingFeeLabel = "",
+            couponDiscountLabel = "",
+            pointsUsedLabel = "",
+            totalAmountLabel = "",
+            paymentMethodLabel = "",
+        ),
+        expectedPointsLabel = "",
+    )
+
+    fun deliveryTracking(orderId: String): DeliveryTrackingUiModel = DeliveryTrackingUiModel(
+        status = OrderStatus.PaymentComplete,
+        expectedArrivalLabel = "",
+        carrierName = "",
+        trackingNumber = "",
+        progressStage = DeliveryProgressStage.PaymentComplete,
+        productsSummaryLabel = "",
+        noticeLabel = "",
+    )
+
+    fun claimOrders(): OrderRequestOrderSelectionUiModel = OrderRequestOrderSelectionUiModel(periodLabel = "")
+
+    fun claimForm(orderId: String, requestType: OrderRequestType): OrderRequestFormUiModel = OrderRequestFormUiModel(
+        type = requestType,
+        products = emptyList(),
+        reasons = emptyList(),
+        productAmountLabel = "",
+        feeLabel = "",
+        expectedAmountLabel = "",
+        paymentMethodLabel = "",
+    )
+
+    fun claimResult(requestId: String): OrderRequestResultUiModel = OrderRequestResultUiModel(
+        requestNumber = "",
+        statusLabel = "",
+        statusDescription = "",
+    )
+
+    fun claimWithdrawalResult(requestId: String): OrderRequestResultUiModel = claimResult(requestId)
+
+    fun claimHistory(): OrderRequestHistoryUiModel = OrderRequestHistoryUiModel(hasNoRequests = true)
+
+    fun claimDetail(requestId: String): OrderRequestDetailUiModel = OrderRequestDetailUiModel(
+        requestNumber = "",
+        requestType = OrderRequestType.Cancel,
+        requestDateLabel = "",
+        status = OrderRequestStatus.Requested,
+        statusDescription = "",
+        productSummaryLabel = "",
+        reasonSummaryLabel = "",
+        collectionAddressLabel = "",
+        canWithdraw = false,
+    )
+
+    fun claimRejection(requestId: String): OrderRequestRejectionUiModel = OrderRequestRejectionUiModel(
+        requestNumber = "",
+        productSummaryLabel = "",
+        requestReasonLabel = "",
+        statusDescription = "",
+        rejectionReasonLabel = "",
+    )
+
+    fun addressSearch(query: String): AddressSearchUiModel = AddressSearchUiModel(
+        query = query,
+        results = emptyList(),
+        selectedAddressId = null,
+        hasSearched = query.isNotBlank(),
+    )
+
+    /** 주소 검색 결과 ID를 배송지에 표시할 도로명 주소로 바꾼다. 모르는 ID면 null이다. */
+    fun addressLabel(addressId: String): String? = null
+
+    fun brandDetail(brandId: String): CatalogBrandDetailUiModel = CatalogBrandDetailUiModel(
+        brand = CatalogBrandUiModel(id = brandId, name = "", productCountLabel = ""),
+        description = "",
+        sortLabel = "",
+    )
+
+    fun productReviews(productId: String): ProductReviewUiModel = ProductReviewUiModel(
+        productId = productId,
+        productName = "",
+        brandName = null,
+        variantLabel = null,
+        rating = 0f,
+        reviewCountLabel = "",
+        reviews = emptyList(),
+    )
+
+    fun reviewWrite(productId: String): ProductReviewWriteUiModel = ProductReviewWriteUiModel(
+        brand = "",
+        product = "",
+        option = "",
+        reviewer = "",
+    )
 
     fun companyIntro(): CompanyIntroUiModel = CompanyIntroUiModel(
         businessAreas = emptyList(),

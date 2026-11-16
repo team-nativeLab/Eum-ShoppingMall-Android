@@ -107,7 +107,7 @@ flowchart LR
 - 장바구니 로그인 안내 배너는 `Login()`(보류 목적지 없음)을 연다. 돌아갈 곳이 이미 장바구니이기 때문이다.
 - 게이트는 `gateDestination(target, isLoggedIn)`(순수 함수)이 정하고 호출부(`EumMainNavDisplay`)가 적용한다. 적용 지점은 장바구니 "주문하기"와 상세 "바로구매"다. `Login`은 다시 감싸지 않는다.
 - 로그인 여부는 `EumLoginSession`(rememberSaveable Boolean, 비밀값 없음)이 가지며 모든 빌드에서 초기값은 비로그인이다. 마이·드로어·설정의 `isLoggedIn` 연결은 후속 단계다.
-- 인증은 `LoginAuthenticator`가 맡는다. debug는 이메일 형식이 맞고 비밀번호가 비어 있지 않으면 성공하는 mock이고(실제 인증 아님), release는 "로그인 서비스 준비 중" 인라인 안내만 보여 준다. 소셜 로그인은 성공 처리하지 않는다.
+- 보호 목적지 목록은 `requiresLogin`, 호출부 적용은 `gateIfProtected`다. 인증은 `LoginAuthenticator`가 맡는다. debug는 이메일 형식이 맞고 비밀번호가 비어 있지 않으면 성공하는 mock이고(실제 인증 아님), release는 "로그인 서비스 준비 중" 인라인 안내만 보여 준다. 소셜 로그인은 성공 처리하지 않는다.
 - 성공하면 `EumLoginSession.markLoggedIn()` 뒤 `EumMainNavigator.completeLogin()`이 맨 위부터 이어진 인증 계열 화면을 모두 pop하고 가장 아래 Login의 보류 목적지를 push한다. 맨 위가 인증 계열이 아니면 아무것도 하지 않아 연타해도 한 번만 열린다. 닫기·뒤로는 이전 화면으로 간다.
 
 ### F5 마이 1단계
@@ -168,25 +168,63 @@ flowchart LR
     A05["A-05 상세 (가격 문의 상품)"] -- 옵션 시트에서 견적 문의 --> A15["A-15 견적 문의 / QuoteRequest(productId)"]
 ```
 
+### F8 인증 계열(회원가입·계정 찾기)
+
+- `Login` 위에 `Signup`(A-14)·`AccountRecovery(findsPassword)`(A-27·A-28)를 push한다. Login을 교체하지 않으므로 보류 목적지가 그대로 남고, 뒤로가기는 로그인으로 돌아온다.
+- 가입 완료 → `EumLoginSession.markLoggedIn()` → `completeLogin()`(맨 위부터 이어진 Login·Signup·AccountRecovery를 모두 pop하고 가장 아래 Login의 보류 목적지 push) → 환영 스낵바(`flow_signup_welcome`).
+- 서버 호출은 `AccountService`(가입·이메일 중복·휴대폰 인증번호·이메일 찾기) 경계 뒤에 둔다. debug는 형식만 맞으면 성공하는 mock, release는 전부 `ServiceUnavailable`("준비 중" 스낵바)이다. mock 인증은 release 소스셋에 없다.
+- 비밀번호 찾기는 재설정 발송 서버가 없어 제출 시 준비 중 안내만 한다. 소셜 로그인은 성공 처리하지 않고 "준비 중" 안내만 한다. 사업자 인증·등록증 업로드도 안내만 한다.
+- 로그인 도움말 링크(이메일 찾기·비밀번호 찾기·회원가입)를 연결했다.
+
+### F9 주문·클레임
+
+```mermaid
+flowchart LR
+    OC["A-10 OrderComplete"] -- 주문 상세 보기 --> OD["A-17 OrderDetail(orderId)"]
+    OH["A-16 OrderHistory"] -- 항목 --> OD
+    OH -- 배송 조회 --> DT["A-18 DeliveryTracking(orderId)"]
+    OD -- 배송 조회 --> DT
+    OH -- 주문 취소 --> CR["A-19 ClaimRequest(orderId, type)"]
+    OD -- 교환·반품 --> CR
+    OH -- 취소·반품 내역 --> CH["ClaimHub"]
+    CH --> CS["ClaimOrderSelection"] --> CR
+    CH --> CHist["A-51 ClaimHistory"]
+    CR -- 제출 --> CRes["A-50 ClaimResult"]
+    CHist --> CD["ClaimDetail"] --> CW["A-52 ClaimWithdrawal"]
+    CHist --> CRj["A-53 ClaimRejection"]
+```
+
+- 주문 상세·배송 조회·클레임 전체는 `requiresLogin` 대상이라 `EumEntryContext.open`이 `gateIfProtected`로 로그인 게이트를 적용한다(로그인 성공 후 해당 화면으로 이동).
+- 제출 시 신청 폼·주문 선택을 걷어 내고 완료 화면을 쌓는다(`popWhileAndPushIfTop`). 서버 연동 전이라 신청 ID 대신 주문 ID를 쓰고, 주문 완료의 주문 상세는 주문 번호를 주문 ID로 쓴다.
+- 신청 완료·상세·철회·반려에서 "내역"은 사이에 쌓인 화면을 걷어 내고 내역 하나만 남긴다.
+- A-46 주소 검색: `CheckoutAddress`의 배송지 변경 → `AddressSearch` push. 고른 주소는 ID 하나만 `EumAddressSelection`(단일 슬롯)에 맡기고 pop하며, 배송지 Route가 ID로 주소를 다시 찾는다(rememberSaveable에는 ID만 저장). 배송 요청 A-47은 Figma 흐름 확인 전이라 인라인 선택을 유지한다.
+- 마이 하위 목록(주문·찜·최근·쿠폰·적립금)의 "쇼핑하러 가기"는 `closeTopAndOpenTabRoot(Home)`로 맨 위 화면만 닫고 홈 루트를 보여 준다(깊은 스택에서는 그 아래 화면이 마이 탭에 남는다).
+- 담기 스낵바 "보기"는 장바구니 탭으로 전환만 하므로 출발 탭의 상세 기록은 그대로 남고, 장바구니 루트에서 뒤로가기는 홈 탭이다.
+
+### F10 지원·콘텐츠·상품 부가
+
+- 공지 목록 → `NoticeDetail`(A-41), 이벤트 목록 → `EventDetail`(A-55), 쿠폰함 → `Points`, 고객센터 전화 → 전화 앱(ACTION_DIAL), 고객센터·문의 내역 → `InquiryWrite`/`InquiryDetail`(게이트).
+- 카테고리 브랜드 → `BrandDetail`(A-34), 상세의 전체 리뷰 → `ProductReviews`(A-49), 리뷰 작성 → `ReviewWrite`(게이트), 상품 문의 → `ProductInquiryWrite`(게이트) → `ProductInquiryComplete`.
+- 찜 하트(홈·목록·검색결과·상세·브랜드): 비로그인이면 `Login()`(보류 없음)으로 보내 이전 화면으로 복귀하고 자동 재생하지 않는다. 로그인 후 토글은 화면 로컬 상태이다.
+- 필터·정렬(A-48): 별도 NavKey 없이 목록 Route가 `ProductFilterState`(rememberSaveable)를 소유하고 `ProductFilterHost`가 화면 안에서 연다. 가격 범위·가격순 정렬만 데이터 근거가 있어 적용한다.
+- 스플래시(A-01): NavKey가 아니라 `EumMainNavDisplay` 위 `SplashOverlay`(rememberSaveable, 1.5초, 입력 차단, 줄이기 설정이면 페이드 없음).
+- 옵션 변경(장바구니): 저장된 줄은 해당 상품 상세로 보낸다(줄 자체가 교체되지는 않는다).
+
 ## 제외한 흐름 (후속)
 
 | 흐름 | 이유 |
 |---|---|
-| auth 하위(가입 A-14, 계정 찾기 A-27·28, 비밀번호·휴대폰 변경 A-29·30, 탈퇴 A-26) | 이번 범위 제외 |
-| 실제 인증(서버 연동)·소셜 로그인 | 인증 서버 없음. debug mock만 제공 |
-| 마이·드로어·설정의 로그인 상태 연결 | 후속 단계(1b) |
-| 클레임 A-19·A-50~54 반려 변형, 주문 상세 A-17, 배송 조회 A-18 | 2단계 흐름 |
-| 설정·약관 A-35~39, 알림 A-32 | 이번 범위 제외 |
-| 마이 `profile` → 내 정보 관리 A-23 | 화면 진입 전 비밀번호 재확인 단계가 있어 인증 연동 없이 연결하지 않는다 |
-| 마이 `addresses` → 배송지 관리 A-24 | 배송지 추가·수정 폼이 주소 검색(A-46) 결과 반환을 필요로 한다 |
-| 마이 `returns` → 취소·반품·교환 A-19·A-50~54 | 주문 선택·사유 입력·결과로 이어지는 2단계 흐름이다 |
-| 적립금 A-22p 필터별 목록, 쿠폰함의 적립금 바로가기 | 내역 항목에 적립·사용·소멸 구분 값이 없다. 쿠폰함 → 적립금 연결은 이번 지적 범위 밖 |
-| 1:1 문의 상세·작성(A-31 하위) | 2단계 흐름 |
-| 주소 검색 A-46, 배송 요청 A-47, 상품 필터 A-48 | 결과 반환이 필요 |
-| 브랜드 A-33·34, 이벤트 상세 A-55, 공지 상세 A-41 | 2단계 또는 범위 밖 |
-| 스플래시 A-01 | 화면에 완료 콜백 없음 |
-| F2 네트워크 실패 | 해당 화면 없음 |
-| 홈 히어로 버튼, 홈 카테고리 행 | 목적지 미정 또는 미사용 컴포넌트 |
+| 탈퇴 A-26, 비밀번호 변경 A-29, 휴대폰 번호 변경 A-30 | 로그인한 계정 화면이라 Figma에서 진입 경로를 확인하지 못했다 |
+| 실제 인증(서버 연동)·소셜 로그인·비밀번호 찾기 발송 | 인증 서버 없음. debug mock만 제공 |
+| 마이·드로어·홈 알림 버튼·설정의 로그인 상태 연결 | #37 소관 |
+| 약관·개인정보 링크(QuoteRequest PrivacyDetailsClicked, 가입 동의 보기, 설정) | PolicyDocument destination을 #37이 신설 중, 병합 후 재사용 |
+| 홈 히어로·카테고리 행·프로모 카드 | 목적지를 Figma로 확인하지 못했다 |
+| 주문 내역 "다시 구매", 명세서·영수증·운송장 복사·첨부 파일·사진 첨부·클레임 회수지/교환 옵션 변경 | 상품 ID·파일·클립보드·선택기 연동 전 |
+| 마이 `profile`(A-23)·`addresses`(A-24)·`returns` 메뉴 행 | #37의 `EumMenuDestinations` 소관 |
+| 결제 실패·품절 분기 | 결과 훅 설계가 필요해 보류 |
+| 알림 A-32, 설정·약관 A-35~39 | 이번 범위 제외 |
+| 찜·최근 본 상품의 정렬·삭제·전체 삭제 | 로컬 상태 편집이라 이번 범위에서 연결하지 않았다 |
+| 배송 요청 A-47 별도 화면 | Figma 흐름 확인 전, 인라인 유지 |
 
 ## 알려진 한계 (서버 연동 전 후속)
 
@@ -194,3 +232,17 @@ flowchart LR
 - 세션은 `rememberSaveable` Boolean 하나라 서버 세션·토큰 만료와 연결되지 않는다.
 - 결제 후 장바구니 제거 코루틴은 앱 범위 scope(`orderScope`)에서 실행되어 화면 종료와 무관하게 끝난다.
 - 백업·데이터 추출 규칙(로그인 상태·장바구니 저장소 포함 여부)은 아직 점검하지 않았다.
+- 제출형 화면(클레임 신청·1:1 문의·리뷰·상품 문의)은 서버 연동 전이라 입력을 저장하지 않고 화면 흐름만 이어진다.
+- 찜 토글·필터 상태는 화면 로컬 값이라 화면을 떠나면 사라진다.
+- 거짓 완료: 서버 연동 전이라 클레임 신청·1:1 문의·리뷰·상품 문의는 제출하면 저장 없이 완료 화면이나 이전 화면으로 이동하고, 철회도 내역 데이터에 반영되지 않는다. 사용자에게는 완료처럼 보이므로 연동 전까지 알려진 한계로 둔다(제출 피드백은 추가하지 않기로 결정).
+- 마이 화면의 바로가기·메뉴 행은 `EumMainNavDisplay`에서 `entryContext.open`(`gateIfProtected`)으로 열어 보호 목적지는 비로그인이면 로그인 게이트를 거친다. 다만 마이 화면 자체가 아직 `provider.isLoggedIn`을 읽어(#37 소관) 로그인 후에도 바로가기가 보이지 않을 수 있다.
+- 개인 데이터 목록(주문·문의·견적 내역, 쿠폰, 적립금)과 결제 3단계는 모두 `requiresLogin`이다. 최근 본 상품만 공개다. `requiresLogin`은 else 없는 `when`이라 새 목적지는 컴파일 때 분류가 강제된다.
+- 가입·계정 찾기·주소 검색의 이름·연락처·이메일·사업자 정보·검색어는 `remember`로만 보관한다(회전·프로세스 복원 모두 입력이 사라진다). 입력에 종속된 플래그(이메일 사용 가능, 인증번호 요청·오류, 조회 결과 없음)도 `remember`로 함께 초기화되며 비PII 플래그(약관 동의 체크, 고른 주소 ID 등)만 `rememberSaveable`이다. 알려진 한계: 회전만 해도 입력 중이던 가입·찾기 내용이 지워진다.
+
+## 스킬 예외 (추가)
+
+3. **필터 호스트의 BackHandler**: A-48 필터 화면은 NavKey 없이 목록 Route 안에서 열고 `BackHandler`로 닫는다. 목록 상태(가격·정렬)를 Route가 소유해야 해서 overlay 목적지로 만들지 않았다.
+4. **스플래시 overlay**: A-01은 NavKey 루트가 아니라 `EumMainNavDisplay` 위 `SplashOverlay`다. 회전·복원 시 반복되지 않게 표시 여부를 rememberSaveable로 두었다.
+- 가입 요청이 진행 중일 때 뒤로가기를 하고 그 직후 짧은 구간에 성공이 도착하면 로그인될 수 있다(서버 연동 시 재검토).
+- 주문 상세의 "교환·반품 신청"은 항상 반품(Return)으로 시작한다(신청 폼에서 유형 변경 가능, 이번 범위 밖).
+- 견적 완료 → 내역 보기는 요청(QuoteRequest)은 공개, 내역(QuoteHistory)은 로그인 보호라 비대칭이다. 비로그인이면 내역 보기에서 로그인으로 간다.

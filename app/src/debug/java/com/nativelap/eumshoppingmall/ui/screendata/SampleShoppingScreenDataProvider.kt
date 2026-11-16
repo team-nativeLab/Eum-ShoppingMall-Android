@@ -6,6 +6,8 @@ import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountOrderStatusUiMo
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountProfileUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountShortcutUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.MyPageUiModel
+import com.nativelap.eumshoppingmall.ui.addresssearch.AddressSearchResultUiModel
+import com.nativelap.eumshoppingmall.ui.addresssearch.AddressSearchUiModel
 import com.nativelap.eumshoppingmall.ui.benefits.CouponScreenUiModel
 import com.nativelap.eumshoppingmall.ui.benefits.CouponUiModel
 import com.nativelap.eumshoppingmall.ui.benefits.PointHistoryUiModel
@@ -13,6 +15,8 @@ import com.nativelap.eumshoppingmall.ui.benefits.PointsScreenUiModel
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemType
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemUiModel
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogBrandDetailUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogBrandUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryScreenUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogKeyValueUiModel
@@ -22,21 +26,45 @@ import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductDetailUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductListUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogReviewUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchResultsUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutAddressUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutPaymentSummaryUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutProductUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
+import com.nativelap.eumshoppingmall.ui.events.EventDetailUiModel
 import com.nativelap.eumshoppingmall.ui.events.EventUiModel
 import com.nativelap.eumshoppingmall.ui.favorites.FavoritesUiModel
 import com.nativelap.eumshoppingmall.ui.home.HomeProductUiModel
 import com.nativelap.eumshoppingmall.ui.ordercomplete.viewmodel.OrderCompleteUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.DeliveryProgressStage
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.DeliveryTimelineItemUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.DeliveryTrackingUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderDetailAddressUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderDetailProductUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderDetailUiModel
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryAction
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryItemUiModel
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryProductUiModel
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderPaymentBreakdownUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestDetailUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestFormUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestHistoryItemUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestHistoryUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestOrderSelectionUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestProductUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestReason
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestRejectionUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestResultUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestStatus
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestType
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderStatus
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.RequestableOrderUiModel
+import com.nativelap.eumshoppingmall.ui.productreview.ProductReviewItemUiModel
+import com.nativelap.eumshoppingmall.ui.productreview.ProductReviewUiModel
+import com.nativelap.eumshoppingmall.ui.productreview.ProductReviewWriteUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteCompleteUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteDetailItemUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteHistoryUiModel
@@ -48,9 +76,12 @@ import com.nativelap.eumshoppingmall.ui.recent.RecentProductGroupUiModel
 import com.nativelap.eumshoppingmall.ui.recent.RecentProductsUiModel
 import com.nativelap.eumshoppingmall.ui.support.CustomerSupportFaqUiModel
 import com.nativelap.eumshoppingmall.ui.support.CustomerSupportUiModel
+import com.nativelap.eumshoppingmall.ui.support.InquiryDetailUiModel
 import com.nativelap.eumshoppingmall.ui.support.InquiryHistoryItemUiModel
 import com.nativelap.eumshoppingmall.ui.support.InquiryStatus
+import com.nativelap.eumshoppingmall.ui.support.NoticeDetailUiModel
 import com.nativelap.eumshoppingmall.ui.support.NoticeItemUiModel
+import com.nativelap.eumshoppingmall.ui.support.OneToOneInquiryUiModel
 
 /**
  * debug 빌드에서 화면 흐름(F1~F7)을 눈으로 따라갈 수 있게 하는 고정 샘플.
@@ -98,6 +129,27 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
         ),
     )
 
+    private val sampleBrands = listOf(
+        CatalogBrandUiModel(id = "brand-a", name = "샘플 브랜드 A", productCountLabel = "2개 상품", letterGroup = "A", productCount = 2),
+        CatalogBrandUiModel(id = "brand-b", name = "샘플 브랜드 B", productCountLabel = "1개 상품", letterGroup = "B", productCount = 1),
+    )
+
+    private val sampleAddresses = listOf(
+        AddressSearchResultUiModel("addr-1", "서울특별시 샘플구 샘플로 1", "샘플동 1-1"),
+        AddressSearchResultUiModel("addr-2", "경기도 샘플시 샘플대로 2", "샘플동 2-2"),
+    )
+
+    private val sampleClaimProducts = listOf(
+        OrderRequestProductUiModel(
+            id = "claim-product-1",
+            name = "경량 안전화 4인치",
+            optionLabel = "사이즈 270",
+            priceAndQuantityLabel = "₩54,000 · 1개",
+            quantityLabel = "1개",
+            isSelected = true,
+        ),
+    )
+
     private val sampleProfile = AccountProfileUiModel(
         name = "샘플 사용자",
         email = "sample@example.com",
@@ -121,6 +173,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             CatalogCategoryUiModel("traffic", "교통·도로 안전", R.drawable.ic_traffic_cone),
             CatalogCategoryUiModel("fire", "소방·방재용품", R.drawable.ic_fire_extinguisher),
         ),
+        brands = sampleBrands,
     )
 
     override fun productList(categoryId: String?): CatalogProductListUiModel = CatalogProductListUiModel(
@@ -159,6 +212,8 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             galleryImageResIds = listOf(null, null, null),
             shippingRows = listOf(CatalogKeyValueUiModel("배송비", "₩3,000")),
             specifications = listOf(CatalogKeyValueUiModel("소재", "샘플")),
+            reviewCount = 1,
+            reviews = listOf(CatalogReviewUiModel("샘플 구매자", "★ 5", "샘플 일자", "샘플 리뷰입니다.")),
             relatedProducts = sampleProducts.filterNot { it.id == product.id },
             optionGroups = listOf(
                 CatalogOptionGroupUiModel(
@@ -319,6 +374,17 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
                 ),
                 actions = listOf(OrderHistoryAction.TrackDelivery),
             ),
+            OrderHistoryItemUiModel(
+                id = "order-2",
+                orderDateLabel = "샘플 일자",
+                orderNumber = "SAMPLE-0002",
+                status = OrderStatus.PaymentComplete,
+                product = OrderHistoryProductUiModel(
+                    name = "경량 안전화 4인치",
+                    priceAndQuantityLabel = "₩54,000 · 1개",
+                ),
+                actions = listOf(OrderHistoryAction.Cancel),
+            ),
         ),
     )
 
@@ -397,6 +463,267 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
 
     override fun events(): List<EventUiModel> = listOf(
         EventUiModel("event-1", "진행 중", "샘플 이벤트", R.drawable.ic_ticket),
+    )
+
+    override fun noticeDetail(noticeId: String): NoticeDetailUiModel = NoticeDetailUiModel(
+        title = "샘플 공지사항",
+        dateLabel = "샘플 일자",
+        content = "샘플 공지 본문입니다.",
+        isPinned = true,
+    )
+
+    override fun eventDetail(eventId: String): EventDetailUiModel = EventDetailUiModel(
+        title = "샘플 이벤트",
+        period = "샘플 기간",
+        benefit = "샘플 혜택 안내",
+        participation = "샘플 참여 방법",
+        notice = "샘플 유의사항",
+    )
+
+    override fun inquiryDetail(inquiryId: String): InquiryDetailUiModel = inquiryHistory()
+        .firstOrNull { inquiry -> inquiry.id == inquiryId }
+        ?.let { inquiry ->
+            InquiryDetailUiModel(
+                title = inquiry.title,
+                statusLabel = if (inquiry.status == InquiryStatus.Answered) "답변 완료" else "답변 대기",
+                dateLabel = inquiry.dateLabel,
+                typeLabel = inquiry.categoryLabel,
+                orderNumber = "SAMPLE-0001",
+                content = inquiry.body,
+                answerDateLabel = inquiry.answer?.let { inquiry.dateLabel },
+                answer = inquiry.answer,
+            )
+        }
+        ?: super.inquiryDetail(inquiryId)
+
+    override fun inquiryForm(): OneToOneInquiryUiModel = OneToOneInquiryUiModel(
+        inquiryType = "배송 문의",
+        title = "",
+        content = "",
+        attachmentLabel = "파일 첨부",
+    )
+
+    // TODO: 서버 연동 시 주문 ID 체계를 통일한다. 지금은 주문 완료가 주문 번호를 ID로 넘기므로 번호와 ID를 모두 받는다.
+    override fun orderDetail(orderId: String): OrderDetailUiModel = if (orderId !in knownOrderIds) {
+        super.orderDetail(orderId)
+    } else {
+        sampleOrderDetail()
+    }
+
+    private val knownOrderIds = setOf("order-1", "order-2", "SAMPLE-0001", "SAMPLE-0002")
+
+    private fun sampleOrderDetail(): OrderDetailUiModel = OrderDetailUiModel(
+        orderDateLabel = "샘플 일자",
+        orderNumber = "SAMPLE-0001",
+        products = listOf(
+            OrderDetailProductUiModel(
+                id = "detail-product-1",
+                name = "세이프가드 ABS 안전모",
+                optionLabel = "사이즈 L",
+                priceAndQuantityLabel = "₩18,000 · 1개",
+                status = OrderStatus.Shipping,
+            ),
+        ),
+        address = OrderDetailAddressUiModel(
+            recipientName = "샘플 사용자",
+            contactLabel = "010-0000-0000",
+            addressLabel = "서울특별시 샘플구 샘플로 1",
+            requestLabel = "문 앞에 놓아 주세요",
+        ),
+        payment = OrderPaymentBreakdownUiModel(
+            productAmountLabel = "₩18,000",
+            shippingFeeLabel = "₩3,000",
+            couponDiscountLabel = "-₩0",
+            pointsUsedLabel = "-₩0",
+            totalAmountLabel = "₩21,000",
+            paymentMethodLabel = "신용카드",
+        ),
+        expectedPointsLabel = "180P",
+    )
+
+    override fun deliveryTracking(orderId: String): DeliveryTrackingUiModel = if (orderId !in knownOrderIds) {
+        super.deliveryTracking(orderId)
+    } else {
+        sampleDeliveryTracking()
+    }
+
+    private fun sampleDeliveryTracking(): DeliveryTrackingUiModel = DeliveryTrackingUiModel(
+        status = OrderStatus.Shipping,
+        expectedArrivalLabel = "샘플 도착 예정일",
+        carrierName = "샘플 택배",
+        trackingNumber = "0000-0000-0000",
+        progressStage = DeliveryProgressStage.InTransit,
+        timeline = listOf(
+            DeliveryTimelineItemUiModel("배송 중", "샘플 터미널 · 샘플 시각", isCurrent = true),
+            DeliveryTimelineItemUiModel("집하 완료", "샘플 지점 · 샘플 시각"),
+        ),
+        productsSummaryLabel = "세이프가드 ABS 안전모 1개",
+        noticeLabel = "샘플 배송 안내입니다.",
+    )
+
+    override fun claimOrders(): OrderRequestOrderSelectionUiModel = OrderRequestOrderSelectionUiModel(
+        periods = listOf("최근 3개월", "최근 6개월"),
+        periodLabel = "최근 3개월",
+        orders = listOf(
+            RequestableOrderUiModel(
+                id = "order-1",
+                orderDateLabel = "샘플 일자",
+                orderNumber = "SAMPLE-0001",
+                status = OrderStatus.Shipping,
+                products = sampleClaimProducts,
+                canSelectForRequest = true,
+            ),
+            RequestableOrderUiModel(
+                id = "order-2",
+                orderDateLabel = "샘플 일자",
+                orderNumber = "SAMPLE-0002",
+                status = OrderStatus.PaymentComplete,
+                products = sampleClaimProducts,
+                canSelectForRequest = true,
+            ),
+        ),
+    )
+
+    override fun claimForm(orderId: String, requestType: OrderRequestType): OrderRequestFormUiModel = OrderRequestFormUiModel(
+        type = requestType,
+        products = sampleClaimProducts,
+        reasons = listOf(
+            OrderRequestReason.ChangedMind,
+            OrderRequestReason.ProductDefective,
+            OrderRequestReason.WrongProduct,
+            OrderRequestReason.Other,
+        ),
+        collectionAddressLabel = "서울특별시 샘플구 샘플로 1",
+        collectionContactLabel = "010-0000-0000",
+        productAmountLabel = "₩54,000",
+        feeLabel = "₩0",
+        expectedAmountLabel = "₩54,000",
+        paymentMethodLabel = "신용카드",
+    )
+
+    override fun claimResult(requestId: String): OrderRequestResultUiModel = if (requestId !in knownRequestIds) {
+        super.claimResult(requestId)
+    } else {
+        sampleClaimResult()
+    }
+
+    private fun sampleClaimResult(): OrderRequestResultUiModel = OrderRequestResultUiModel(
+        requestNumber = "REQ-0001",
+        statusLabel = "신청 접수",
+        statusDescription = "샘플 신청이 접수되었습니다.",
+    )
+
+    override fun claimWithdrawalResult(requestId: String): OrderRequestResultUiModel = OrderRequestResultUiModel(
+        requestNumber = "REQ-0001",
+        statusLabel = "철회 완료",
+        statusDescription = "샘플 신청이 철회되었습니다.",
+    )
+
+    override fun claimHistory(): OrderRequestHistoryUiModel = OrderRequestHistoryUiModel(
+        items = listOf(
+            OrderRequestHistoryItemUiModel(
+                id = "request-1",
+                requestDateLabel = "샘플 일자",
+                requestType = OrderRequestType.Return,
+                orderNumber = "SAMPLE-0001",
+                productName = "경량 안전화 4인치",
+                priceAndQuantityLabel = "₩54,000 · 1개",
+                status = OrderRequestStatus.Requested,
+                canWithdraw = true,
+            ),
+            OrderRequestHistoryItemUiModel(
+                id = "request-2",
+                requestDateLabel = "샘플 일자",
+                requestType = OrderRequestType.Exchange,
+                orderNumber = "SAMPLE-0002",
+                productName = "세이프가드 ABS 안전모",
+                priceAndQuantityLabel = "₩18,000 · 1개",
+                status = OrderRequestStatus.Rejected,
+                hasRejectionReason = true,
+            ),
+        ),
+    )
+
+    // TODO: 신청 ID 체계를 통일한다. 신청 제출은 서버가 없어 주문 ID를 임시 신청 ID로 넘기므로 주문 ID도 받는다.
+    override fun claimDetail(requestId: String): OrderRequestDetailUiModel = if (requestId !in knownRequestIds) {
+        super.claimDetail(requestId)
+    } else {
+        sampleClaimDetail()
+    }
+
+    private val knownRequestIds = setOf("request-1", "request-2", "order-1", "order-2")
+
+    private fun sampleClaimDetail(): OrderRequestDetailUiModel = OrderRequestDetailUiModel(
+        requestNumber = "REQ-0001",
+        requestType = OrderRequestType.Return,
+        requestDateLabel = "샘플 일자",
+        status = OrderRequestStatus.Requested,
+        statusDescription = "샘플 신청이 접수되었습니다.",
+        productSummaryLabel = "경량 안전화 4인치 1개",
+        reasonSummaryLabel = "단순 변심",
+        collectionAddressLabel = "서울특별시 샘플구 샘플로 1",
+        canWithdraw = true,
+    )
+
+    override fun claimRejection(requestId: String): OrderRequestRejectionUiModel = OrderRequestRejectionUiModel(
+        requestNumber = "REQ-0002",
+        productSummaryLabel = "세이프가드 ABS 안전모 1개",
+        requestReasonLabel = "단순 변심",
+        statusDescription = "샘플 신청이 반려되었습니다.",
+        rejectionReasonLabel = "샘플 반려 사유입니다.",
+    )
+
+    // 검색어가 비어 있으면 아직 검색 전 상태이고, 검색어가 있으면 샘플 주소 중 포함하는 것만 보여 준다.
+    override fun addressSearch(query: String): AddressSearchUiModel = AddressSearchUiModel(
+        query = query,
+        results = if (query.isBlank()) {
+            emptyList()
+        } else {
+            sampleAddresses.filter { address -> address.roadAddress.contains(query.trim()) || address.lotAddress.contains(query.trim()) }
+        },
+        selectedAddressId = null,
+        hasSearched = query.isNotBlank(),
+    )
+
+    override fun addressLabel(addressId: String): String? = sampleAddresses.firstOrNull { address -> address.id == addressId }?.roadAddress
+
+    override fun brandDetail(brandId: String): CatalogBrandDetailUiModel = CatalogBrandDetailUiModel(
+        brand = sampleBrands.firstOrNull { brand -> brand.id == brandId } ?: sampleBrands.first(),
+        description = "샘플 브랜드 소개입니다.",
+        informationRows = listOf(CatalogKeyValueUiModel("원산지", "샘플")),
+        products = sampleProducts.take(2),
+        otherBrands = sampleBrands.filterNot { brand -> brand.id == brandId },
+        selectedCategory = "전체",
+        categories = listOf("전체", "안전모"),
+        sortLabel = "인기순",
+    )
+
+    override fun productReviews(productId: String): ProductReviewUiModel = ProductReviewUiModel(
+        productId = productId,
+        productName = sampleProducts.firstOrNull { product -> product.id == productId }?.name ?: sampleProducts.first().name,
+        brandName = "샘플 브랜드 A",
+        variantLabel = "사이즈 L",
+        rating = 4.5f,
+        reviewCountLabel = "리뷰 1개",
+        reviews = listOf(
+            ProductReviewItemUiModel(
+                id = "review-1",
+                authorName = "샘플 구매자",
+                isPurchaseVerified = true,
+                dateLabel = "샘플 일자",
+                rating = 5,
+                optionLabel = "사이즈 L",
+                body = "샘플 리뷰입니다.",
+                photos = emptyList(),
+            ),
+        ),
+    )
+
+    override fun reviewWrite(productId: String): ProductReviewWriteUiModel = ProductReviewWriteUiModel(
+        brand = "샘플 브랜드 A",
+        product = sampleProducts.firstOrNull { product -> product.id == productId }?.name ?: sampleProducts.first().name,
+        option = "사이즈 L",
+        reviewer = "샘플 사용자",
     )
 
     private fun toHomeProduct(product: CatalogProductUiModel): HomeProductUiModel {

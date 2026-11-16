@@ -124,6 +124,94 @@ sealed interface EumDestination : NavKey {
     @Serializable
     data object CompanyIntro : EumDestination
 
+    /** A-14 회원가입. Login 위에 push하므로 로그인의 보류 목적지는 그 아래 Login이 그대로 가지고, completeLogin이 함께 걷어 낸다. */
+    @Serializable
+    data object Signup : EumDestination
+
+    /** A-27 이메일 찾기 / A-28 비밀번호 찾기. findsPassword가 true면 비밀번호 찾기 탭으로 시작한다. */
+    @Serializable
+    data class AccountRecovery(val findsPassword: Boolean = false) : EumDestination
+
+    /** A-17 주문 상세. */
+    @Serializable
+    data class OrderDetail(val orderId: String) : EumDestination
+
+    /** A-18 배송 조회. */
+    @Serializable
+    data class DeliveryTracking(val orderId: String) : EumDestination
+
+    /** A-19 취소·반품·교환 안내 허브. */
+    @Serializable
+    data object ClaimHub : EumDestination
+
+    /** A-19 신청할 주문 선택. */
+    @Serializable
+    data object ClaimOrderSelection : EumDestination
+
+    /** A-19 취소·반품·교환 신청 폼. requestType은 OrderRequestType 이름이다. */
+    @Serializable
+    data class ClaimRequest(val orderId: String, val requestType: String) : EumDestination
+
+    /** A-50 신청 완료. */
+    @Serializable
+    data class ClaimResult(val requestId: String) : EumDestination
+
+    /** A-51 신청 내역. */
+    @Serializable
+    data object ClaimHistory : EumDestination
+
+    /** A-51 신청 상세. */
+    @Serializable
+    data class ClaimDetail(val requestId: String) : EumDestination
+
+    /** A-52 신청 철회 확인·완료. */
+    @Serializable
+    data class ClaimWithdrawal(val requestId: String) : EumDestination
+
+    /** A-53 반려 사유. */
+    @Serializable
+    data class ClaimRejection(val requestId: String) : EumDestination
+
+    /** A-46 주소 검색. 고른 주소 ID는 [EumAddressSelection]이 받는다. */
+    @Serializable
+    data object AddressSearch : EumDestination
+
+    /** A-34 브랜드 상세. */
+    @Serializable
+    data class BrandDetail(val brandId: String) : EumDestination
+
+    /** A-49 상품 전체 리뷰. */
+    @Serializable
+    data class ProductReviews(val productId: String) : EumDestination
+
+    /** 리뷰 작성. */
+    @Serializable
+    data class ReviewWrite(val productId: String) : EumDestination
+
+    /** A-44 상품 문의 작성. */
+    @Serializable
+    data class ProductInquiryWrite(val productId: String) : EumDestination
+
+    /** A-45 상품 문의 완료. */
+    @Serializable
+    data class ProductInquiryComplete(val productId: String) : EumDestination
+
+    /** A-31 하위 1:1 문의 상세. */
+    @Serializable
+    data class InquiryDetail(val inquiryId: String) : EumDestination
+
+    /** A-31 하위 1:1 문의 작성. */
+    @Serializable
+    data object InquiryWrite : EumDestination
+
+    /** A-41 공지 상세. */
+    @Serializable
+    data class NoticeDetail(val noticeId: String) : EumDestination
+
+    /** A-55 이벤트 상세. */
+    @Serializable
+    data class EventDetail(val eventId: String) : EumDestination
+
     /**
      * A-13 로그인(F4).
      *

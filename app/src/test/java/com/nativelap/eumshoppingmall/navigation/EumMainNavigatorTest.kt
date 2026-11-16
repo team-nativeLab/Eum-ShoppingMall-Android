@@ -397,5 +397,104 @@ class EumMainNavigatorTest {
         assertEquals(listOf(EumDestination.Home), stackOf(MainNavigationTab.Home))
     }
 
+    @Test
+    fun completeLoginViaSignupPopsSignupAndLoginAndOpensPendingDestination() {
+        navigator.navigateToTab(MainNavigationTab.Cart)
+        navigator.push(EumDestination.Login(pendingDestination = EumDestination.CheckoutAddress(listOf("line-1"))))
+        navigator.push(EumDestination.Signup)
+
+        navigator.completeLogin()
+
+        assertEquals(
+            listOf(EumDestination.Cart, EumDestination.CheckoutAddress(listOf("line-1"))),
+            stackOf(MainNavigationTab.Cart),
+        )
+    }
+
+    @Test
+    fun completeLoginViaRecoveryThenSignupKeepsLoginPending() {
+        navigator.push(EumDestination.ProductDetail("p1"))
+        navigator.push(EumDestination.Login(pendingDestination = EumDestination.OrderDetail("order-1")))
+        navigator.push(EumDestination.AccountRecovery())
+        navigator.push(EumDestination.Signup)
+
+        navigator.completeLogin()
+
+        assertEquals(
+            listOf(EumDestination.Home, EumDestination.ProductDetail("p1"), EumDestination.OrderDetail("order-1")),
+            stackOf(MainNavigationTab.Home),
+        )
+    }
+
+    @Test
+    fun signupBackReturnsToLoginWithPendingDestinationKept() {
+        navigator.push(EumDestination.Login(pendingDestination = EumDestination.OrderDetail("order-1")))
+        navigator.push(EumDestination.Signup)
+
+        navigator.goBack()
+
+        assertEquals(
+            listOf(EumDestination.Home, EumDestination.Login(pendingDestination = EumDestination.OrderDetail("order-1"))),
+            stackOf(MainNavigationTab.Home),
+        )
+    }
+
+    @Test
+    fun claimSubmitReplacesFormAndOrderSelectionWithResultOnce() {
+        val claimForm = EumDestination.ClaimRequest("order-1", "Cancel")
+        navigator.navigateToTab(MainNavigationTab.MyPage)
+        navigator.push(EumDestination.ClaimHub)
+        navigator.push(EumDestination.ClaimOrderSelection)
+        navigator.push(claimForm)
+        val claimResult = EumDestination.ClaimResult("order-1")
+        val shouldRemove = ::isClaimSubmitCleanupTarget
+
+        val firstSubmitted = navigator.popWhileAndPushIfTop(claimForm, claimResult, shouldRemove)
+        val secondSubmitted = navigator.popWhileAndPushIfTop(claimForm, claimResult, shouldRemove)
+
+        assertTrue(firstSubmitted)
+        assertFalse(secondSubmitted)
+        assertEquals(
+            listOf(EumDestination.MyPage, EumDestination.ClaimHub, claimResult),
+            stackOf(MainNavigationTab.MyPage),
+        )
+    }
+
+    @Test
+    fun claimHistoryShortcutCollapsesDetailScreensIntoSingleHistory() {
+        navigator.navigateToTab(MainNavigationTab.MyPage)
+        navigator.push(EumDestination.ClaimHistory)
+        navigator.push(EumDestination.ClaimDetail("request-1"))
+        navigator.push(EumDestination.ClaimWithdrawal("request-1"))
+
+        navigator.popWhileAndPush(EumDestination.ClaimHistory, ::isClaimHistoryCleanupTarget)
+
+        assertEquals(listOf(EumDestination.MyPage, EumDestination.ClaimHistory), stackOf(MainNavigationTab.MyPage))
+    }
+
+    @Test
+    fun shoppingFromMyPageSubScreenClosesItAndShowsHomeRoot() {
+        navigator.navigateToTab(MainNavigationTab.MyPage)
+        navigator.push(EumDestination.OrderHistory)
+
+        navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home)
+
+        assertEquals(MainNavigationTab.Home, navigationState.currentTab)
+        assertEquals(listOf(EumDestination.MyPage), stackOf(MainNavigationTab.MyPage))
+        assertEquals(listOf(EumDestination.Home), stackOf(MainNavigationTab.Home))
+    }
+
+    @Test
+    fun cartTabFromDetailSnackbarKeepsDetailInOriginTabAndBackGoesHome() {
+        navigator.navigateToTab(MainNavigationTab.Search)
+        navigator.push(EumDestination.ProductDetail("p1"))
+        navigator.navigateToTab(MainNavigationTab.Cart)
+
+        navigator.goBack()
+
+        assertEquals(MainNavigationTab.Home, navigationState.currentTab)
+        assertEquals(listOf(EumDestination.Search, EumDestination.ProductDetail("p1")), stackOf(MainNavigationTab.Search))
+    }
+
     private fun stackOf(tab: MainNavigationTab): List<NavKey> = navigationState.backStacks.getValue(tab).toList()
 }

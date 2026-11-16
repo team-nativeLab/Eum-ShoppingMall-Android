@@ -63,6 +63,8 @@ fun HomeRoute(
     onSeeAllProductsClick: () -> Unit = {},
     onSeeRecommendedProductsClick: () -> Unit = {},
     onFavoriteClick: (HomeProductUiModel) -> Unit = {},
+    isFavoriteAllowed: Boolean = true,
+    onFavoriteBlocked: () -> Unit = {},
     onNavigationSelected: (MainNavigationTab) -> Unit = {},
 ) {
     var query by rememberSaveable { mutableStateOf("") }
@@ -96,7 +98,9 @@ fun HomeRoute(
 
                 HomeScreenEvent.SeeRecommendedProductsClicked -> onSeeRecommendedProductsClick()
 
-                is HomeScreenEvent.FavoriteClicked -> {
+                is HomeScreenEvent.FavoriteClicked -> if (!isFavoriteAllowed) {
+                    onFavoriteBlocked()
+                } else {
                     val product = event.product
                     favoriteProductIds = if (product.id in favoriteProductIds) {
                         favoriteProductIds - product.id

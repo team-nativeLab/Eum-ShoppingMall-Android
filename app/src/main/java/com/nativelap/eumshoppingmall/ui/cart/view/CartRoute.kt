@@ -48,6 +48,7 @@ fun CartRoute(
     onCheckoutClick: (orderedLineIds: List<String>) -> Unit,
     onLoginClick: () -> Unit,
     onQuoteRequestClick: () -> Unit,
+    onOptionChangeClick: (productId: String) -> Unit = {},
     onQuantityChanged: suspend (itemId: String, quantity: Int) -> Unit,
     onItemsRemoved: suspend (itemIds: Set<String>) -> Unit,
     onCartLinesRestored: suspend (lines: List<CartLine>) -> Unit,
@@ -219,8 +220,11 @@ fun CartRoute(
 
                 CartScreenEvent.LoginClicked -> onLoginClick()
 
-                // 옵션 변경 시트는 이번 범위가 아니다.
-                is CartScreenEvent.OptionChangeClicked -> Unit
+                // 샘플(폴백) 줄은 상품 ID가 없어 열 수 없다. 저장된 줄만 그 상품의 옵션을 고르는 화면으로 보낸다.
+                is CartScreenEvent.OptionChangeClicked ->
+                    savedLines
+                        .firstOrNull { line -> line.cartItemId() == event.itemId }
+                        ?.let { line -> onOptionChangeClick(line.productId) }
             }
         },
     )

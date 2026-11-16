@@ -11,6 +11,8 @@ import androidx.compose.runtime.setValue
 fun InquiryHistoryRoute(
     items: List<InquiryHistoryItemUiModel>,
     onBackClick: () -> Unit,
+    onItemClick: (inquiryId: String) -> Unit = {},
+    onWriteClick: () -> Unit = {},
 ) {
     var selectedStatus by rememberSaveable { mutableStateOf<InquiryStatus?>(null) }
     val visibleItems = remember(items, selectedStatus) {
@@ -23,13 +25,9 @@ fun InquiryHistoryRoute(
         onEvent = { event ->
             when (event) {
                 InquiryHistoryEvent.BackClicked -> onBackClick()
-
                 is InquiryHistoryEvent.FilterSelected -> selectedStatus = event.status
-
-                // 1:1 문의 상세와 작성(A-31 하위)은 이번 범위가 아니다.
-                is InquiryHistoryEvent.ItemClicked,
-                InquiryHistoryEvent.WriteClicked,
-                -> Unit
+                is InquiryHistoryEvent.ItemClicked -> onItemClick(event.id)
+                InquiryHistoryEvent.WriteClicked -> onWriteClick()
             }
         },
     )

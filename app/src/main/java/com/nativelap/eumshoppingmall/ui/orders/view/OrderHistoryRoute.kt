@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryAction
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryFilter
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryScreenEvent
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryUiModel
@@ -14,6 +15,10 @@ fun OrderHistoryRoute(
     uiModel: OrderHistoryUiModel,
     onBackClick: () -> Unit,
     onBrowseProductsClick: () -> Unit,
+    onOrderDetailsClick: (orderId: String) -> Unit = {},
+    onTrackDeliveryClick: (orderId: String) -> Unit = {},
+    onCancelClick: (orderId: String) -> Unit = {},
+    onCancelReturnClick: () -> Unit = {},
 ) {
     var selectedFilter by rememberSaveable { mutableStateOf(uiModel.filter) }
     var periodLabel by rememberSaveable { mutableStateOf(uiModel.periodLabel) }
@@ -41,11 +46,18 @@ fun OrderHistoryRoute(
 
                 OrderHistoryScreenEvent.BrowseProductsClicked -> onBrowseProductsClick()
 
-                // 주문 상세(A-17)·배송 조회(A-18)·취소·반품(A-19)은 2단계 흐름이라 이번 범위가 아니다.
-                OrderHistoryScreenEvent.CancelReturnClicked,
-                is OrderHistoryScreenEvent.OrderDetailsClicked,
-                is OrderHistoryScreenEvent.ActionClicked,
-                -> Unit
+                OrderHistoryScreenEvent.CancelReturnClicked -> onCancelReturnClick()
+
+                is OrderHistoryScreenEvent.OrderDetailsClicked -> onOrderDetailsClick(event.orderId)
+
+                is OrderHistoryScreenEvent.ActionClicked -> when (event.action) {
+                    OrderHistoryAction.TrackDelivery -> onTrackDeliveryClick(event.orderId)
+
+                    OrderHistoryAction.Cancel -> onCancelClick(event.orderId)
+
+                    // 다시 구매할 상품 ID가 주문 항목에 없어 연결하지 않는다.
+                    OrderHistoryAction.BuyAgain -> Unit
+                }
             }
         },
     )

@@ -1,5 +1,9 @@
 package com.nativelap.eumshoppingmall.ui.auth.view
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -9,10 +13,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.LoginAuthResult
 import com.nativelap.eumshoppingmall.ui.auth.LoginAuthenticator
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthLoginUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
+import com.nativelap.eumshoppingmall.ui.common.EumSnackbarHost
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -31,8 +40,13 @@ fun AuthLoginRoute(
     authenticator: LoginAuthenticator,
     onLoginSuccess: () -> Unit,
     onCloseClick: () -> Unit,
+    onFindEmailClick: () -> Unit = {},
+    onFindPasswordClick: () -> Unit = {},
+    onSignupClick: () -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val socialLoginPreparingMessage = stringResource(R.string.flow_social_login_preparing)
     var email by rememberSaveable { mutableStateOf("") }
     var isRemembered by rememberSaveable { mutableStateOf(false) }
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
@@ -75,39 +89,59 @@ fun AuthLoginRoute(
         }
     }
 
-    AuthLoginScreen(
-        uiModel = AuthLoginUiModel(
-            email = email,
-            password = password,
-            isRemembered = isRemembered,
-            isPasswordVisible = isPasswordVisible,
-            isCredentialsInvalid = failedAttemptCount > 0 && !isServiceUnavailable,
-            failedAttemptCount = failedAttemptCount.coerceAtMost(MAX_LOGIN_ATTEMPTS_SHOWN),
-            isServiceUnavailable = isServiceUnavailable,
-            isSubmitEnabled = email.isNotBlank() && password.isNotEmpty() && !isSubmitting,
-        ),
-        onEvent = { event ->
-            when (event) {
-                AuthScreenEvent.BackClicked,
-                AuthScreenEvent.CloseClicked,
-                -> onCloseClick()
+    Box {
+        AuthLoginScreen(
+            uiModel = AuthLoginUiModel(
+                email = email,
+                password = password,
+                isRemembered = isRemembered,
+                isPasswordVisible = isPasswordVisible,
+                isCredentialsInvalid = failedAttemptCount > 0 && !isServiceUnavailable,
+                failedAttemptCount = failedAttemptCount.coerceAtMost(MAX_LOGIN_ATTEMPTS_SHOWN),
+                isServiceUnavailable = isServiceUnavailable,
+                isSubmitEnabled = email.isNotBlank() && password.isNotEmpty() && !isSubmitting,
+            ),
+            onEvent = { event ->
+                when (event) {
+                    AuthScreenEvent.BackClicked,
+                    AuthScreenEvent.CloseClicked,
+                    -> onCloseClick()
 
-                is AuthScreenEvent.LoginEmailChanged -> email = event.value
+                    is AuthScreenEvent.LoginEmailChanged -> email = event.value
 
-                is AuthScreenEvent.LoginPasswordChanged -> {
-                    password.fill('\u0000')
-                    password = event.value
+                    is AuthScreenEvent.LoginPasswordChanged -> {
+                        password.fill('\u0000')
+                        password = event.value
+                    }
+
+                    is AuthScreenEvent.RememberLoginChanged -> isRemembered = event.checked
+
+                    AuthScreenEvent.LoginPasswordVisibilityChanged -> isPasswordVisible = !isPasswordVisible
+
+                    AuthScreenEvent.LoginSubmitted -> submitLogin()
+
+                    is AuthScreenEvent.LoginHelpClicked -> when (event.id) {
+                        "find_email" -> onFindEmailClick()
+                        "find_password" -> onFindPasswordClick()
+                        "signup" -> onSignupClick()
+                    }
+
+                    // 소셜 로그인은 인증 연동 전에 성공 처리하지 않고 준비 중임을 알린다.
+                    is AuthScreenEvent.SocialLoginClicked -> scope.launch {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar(
+                            message = socialLoginPreparingMessage,
+                            duration = SnackbarDuration.Short,
+                        )
+                    }
+
+                    else -> Unit
                 }
-
-                is AuthScreenEvent.RememberLoginChanged -> isRemembered = event.checked
-
-                AuthScreenEvent.LoginPasswordVisibilityChanged -> isPasswordVisible = !isPasswordVisible
-
-                AuthScreenEvent.LoginSubmitted -> submitLogin()
-
-                // 계정 찾기·가입(auth 하위 흐름)과 소셜 로그인은 후속 작업이다. 소셜 로그인은 인증 연동 전에 성공 처리하지 않는다.
-                else -> Unit
-            }
-        },
-    )
+            },
+        )
+        EumSnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
+        )
+    }
 }

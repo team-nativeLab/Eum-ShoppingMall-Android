@@ -36,6 +36,8 @@ class CatalogSearchResultsRouteTest {
                     onSearch = {},
                     onProductClick = {},
                     onQuoteRequestClick = {},
+                    isLoggedIn = true,
+                    onLoginRequired = {},
                 )
             }
         }
