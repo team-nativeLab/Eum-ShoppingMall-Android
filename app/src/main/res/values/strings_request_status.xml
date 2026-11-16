@@ -25,5 +25,6 @@
     <string name="request_withdraw_complete_title">신청 철회 완료</string>
     <string name="request_withdraw_done_headline">철회가 완료됐어요</string>
     <string name="request_withdrawn_target_title">철회된 신청</string>
+    <string name="request_type_label">신청 종류</string>
     <string name="request_rejection_result_subtitle">신청 처리 결과</string>
 </resources>

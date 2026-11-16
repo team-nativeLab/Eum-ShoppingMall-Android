@@ -15,6 +15,7 @@ import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderProductThumb
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderStatusBadge
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderDetailProductUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -27,9 +28,9 @@ fun OrderDetailProductCard(product: OrderDetailProductUiModel, modifier: Modifie
         OrderProductThumbnail(product.imageResId, product.name)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
             OrderStatusBadge(product.status)
-            Text(product.name, style = MaterialTheme.typography.bodySmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(product.name, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(product.optionLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary)
-            Text(product.priceAndQuantityLabel, style = MaterialTheme.typography.titleSmall)
+            Text(product.priceAndQuantityLabel, style = EumTypographyTokens.priceM, color = MaterialTheme.eumColors.textPrimary)
         }
     }
 }

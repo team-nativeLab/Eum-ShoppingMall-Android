@@ -213,7 +213,7 @@ fun CatalogSearchEmptyScreen(
                     Box(
                         modifier = Modifier
                             .size(64.dp)
-                            .background(MaterialTheme.eumColors.backgroundSubtle, CircleShape),
+                            .background(MaterialTheme.eumColors.surfaceSecondary, CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(

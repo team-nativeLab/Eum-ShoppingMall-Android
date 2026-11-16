@@ -58,7 +58,7 @@ fun EventDetailScreen(
             Text(
                 text = uiModel.period,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.eumColors.textDisabled,
+                color = MaterialTheme.eumColors.textTertiary,
             )
             UiAuditIconInfoCard(
                 iconRes = R.drawable.ic_gift,

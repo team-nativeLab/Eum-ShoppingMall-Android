@@ -69,7 +69,9 @@ internal fun HubActionCard(title: String, description: String, onClick: () -> Un
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().heightIn(min = 92.dp),
         shape = RoundedCornerShape(EumRadius.x12),
-        color = MaterialTheme.eumColors.backgroundSubtle,
+        // backgroundSubtle이 background와 같아져 채움이 사라지므로 흰 표면과 테두리로 구분한다.
+        color = MaterialTheme.eumColors.surface,
+        border = BorderStroke(1.dp, MaterialTheme.eumColors.line),
     ) {
         Column(Modifier.padding(EumSpacing.x20)) {
             Text(title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))

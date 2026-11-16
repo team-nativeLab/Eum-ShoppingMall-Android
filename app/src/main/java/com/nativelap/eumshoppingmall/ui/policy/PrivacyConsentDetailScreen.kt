@@ -40,9 +40,9 @@ fun PrivacyConsentDetailScreen(uiModel: PrivacyConsentUiModel, onEvent: (Privacy
         bottomActionLabel = stringResource(R.string.privacy_consent_agree),
         onBottomActionClick = { onEvent(PrivacyConsentEvent.AgreeClicked) },
     ) { padding ->
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(top = EumSpacing.x24, bottom = EumSpacing.x32), verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(vertical = EumSpacing.x24), verticalArrangement = Arrangement.spacedBy(EumSpacing.x24)) {
             Text(stringResource(R.string.policy_effective_date, uiModel.effectiveDate), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
-            Text(uiModel.description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textPrimary)
+            Text(uiModel.description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary)
             ConsentItemCard(stringResource(R.string.privacy_consent_purpose), uiModel.purpose)
             ConsentItemCard(stringResource(R.string.privacy_consent_items), uiModel.collectedItems)
             ConsentItemCard(stringResource(R.string.privacy_consent_retention), uiModel.retentionPeriod)

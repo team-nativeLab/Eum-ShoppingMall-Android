@@ -54,7 +54,7 @@ fun EventListScreen(
                 text = stringResource(R.string.ui_audit_events_helper),
                 modifier = Modifier.padding(bottom = EumSpacing.x32),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.eumColors.textDisabled,
+                color = MaterialTheme.eumColors.textTertiary,
             )
             events.forEach { event ->
                 UiAuditIconInfoCard(

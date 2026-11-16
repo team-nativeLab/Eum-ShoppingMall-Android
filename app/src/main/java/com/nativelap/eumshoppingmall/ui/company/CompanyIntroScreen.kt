@@ -32,18 +32,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
+import com.nativelap.eumshoppingmall.ui.theme.EumCapsuleShape
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
+
+private const val SELECTED_ANCHOR_INDEX = 0
+private val ANCHOR_STRIP_HEIGHT = 56.dp
+private val ANCHOR_CHIP_VISUAL_HEIGHT = 36.dp
+private val ANCHOR_CHIP_HORIZONTAL_PADDING = 14.dp
+private const val MAP_PLACEHOLDER_ASPECT_RATIO = 1.776f
 
 data class CompanyBusinessAreaUiModel(val title: String, val description: String, val iconResId: Int)
 data class CompanyHistoryItemUiModel(val year: String, val description: String)
@@ -78,7 +87,10 @@ fun CompanyIntroScreen(uiModel: CompanyIntroUiModel, onEvent: (CompanyIntroEvent
     UiAuditScreenScaffold(stringResource(R.string.company_about_us), { onEvent(CompanyIntroEvent.BackClicked) }, modifier) { _ ->
         // 가로 여백은 각 섹션이 직접 주어, 칩 띠와 구분선이 화면 전체 폭을 쓰게 한다.
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-            Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
+            Column(
+                Modifier.fillMaxWidth().padding(start = EumSpacing.x20, end = EumSpacing.x20, top = EumSpacing.x16, bottom = EumSpacing.x32),
+                verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
+            ) {
                 Image(
                     painter = painterResource(R.drawable.figma_company_about_visual),
                     contentDescription = stringResource(R.string.company_about_us),
@@ -86,34 +98,18 @@ fun CompanyIntroScreen(uiModel: CompanyIntroUiModel, onEvent: (CompanyIntroEvent
                         .clip(RoundedCornerShape(EumRadius.x12)),
                     contentScale = ContentScale.Crop,
                 )
-                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                    Text(stringResource(R.string.company_about_english).uppercase(), style = companyEyebrowStyle(), color = MaterialTheme.eumColors.textTertiary)
-                    Text(stringResource(R.string.company_tagline_home), style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.eumColors.textPrimary)
+                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
+                    Text(stringResource(R.string.company_about_english).uppercase(), style = EumTypographyTokens.overline, color = MaterialTheme.eumColors.textTertiary)
+                    Text(stringResource(R.string.company_tagline_home), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.eumColors.textPrimary)
                 }
-                Text(stringResource(R.string.company_about_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                Text(stringResource(R.string.company_about_description), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary)
             }
-            Row(
-                modifier = Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surfaceSecondary)
-                    .horizontalScroll(rememberScrollState())
-                    .padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8),
-                horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
-            ) {
-                anchors.forEach { anchor ->
-                    Surface(
-                        Modifier.heightIn(min = 48.dp).clickable(role = Role.Button) {
-                            onEvent(CompanyIntroEvent.SectionSelected(anchor))
-                        },
-                        shape = RoundedCornerShape(50),
-                        color = MaterialTheme.eumColors.surface,
-                    ) {
-                        Box(Modifier.padding(horizontal = EumSpacing.x12), contentAlignment = Alignment.Center) {
-                            Text(anchor, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textPrimary)
-                        }
-                    }
-                }
-            }
+            CompanyAnchorStrip(
+                anchors = anchors,
+                onAnchorClick = { anchor -> onEvent(CompanyIntroEvent.SectionSelected(anchor)) },
+            )
             CompanyIntroSection(stringResource(R.string.company_overview_title), stringResource(R.string.company_overview_english)) {
-                Text(stringResource(R.string.company_about_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                Text(stringResource(R.string.company_about_description), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary)
             }
             CompanyIntroSection(stringResource(R.string.company_business), stringResource(R.string.company_business_english)) {
                 uiModel.businessAreas.chunked(2).forEach { rowAreas ->
@@ -128,7 +124,7 @@ fun CompanyIntroScreen(uiModel: CompanyIntroUiModel, onEvent: (CompanyIntroEvent
                                 Column(Modifier.fillMaxWidth().padding(EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                                     Icon(painterResource(area.iconResId), null, Modifier.size(EumSpacing.x24), tint = MaterialTheme.eumColors.textPrimary)
                                     Text(area.title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textPrimary)
-                                    Text(area.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                                    Text(area.description, style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textSecondary)
                                 }
                             }
                         }
@@ -153,16 +149,20 @@ fun CompanyIntroScreen(uiModel: CompanyIntroUiModel, onEvent: (CompanyIntroEvent
             CompanyIntroSection(stringResource(R.string.company_partners), stringResource(R.string.company_partners_english)) {
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
                     uiModel.partners.forEach { partner ->
-                        Surface(Modifier.size(width = 108.dp, height = 56.dp), shape = RoundedCornerShape(EumRadius.x8), color = MaterialTheme.eumColors.surfaceSecondary) {
-                            Box(contentAlignment = Alignment.Center) { Text(partner, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textSecondary) }
+                        Surface(Modifier.size(width = 108.dp, height = 56.dp), shape = RoundedCornerShape(EumRadius.x8), color = MaterialTheme.eumColors.surface) {
+                            Box(contentAlignment = Alignment.Center) { Text(partner, style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textSecondary) }
                         }
                     }
                 }
             }
-            CompanyIntroSection(stringResource(R.string.company_location), stringResource(R.string.company_location_english)) {
+            CompanyIntroSection(stringResource(R.string.company_location), stringResource(R.string.company_location_english), isLast = true) {
                 Box(
-                    Modifier.fillMaxWidth().aspectRatio(1.8f).clip(RoundedCornerShape(EumRadius.x12))
-                        .background(MaterialTheme.eumColors.surfaceSecondary),
+                    Modifier.fillMaxWidth().aspectRatio(MAP_PLACEHOLDER_ASPECT_RATIO).clip(RoundedCornerShape(EumRadius.x12))
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(MaterialTheme.eumColors.imagePlaceholderStart, MaterialTheme.eumColors.imagePlaceholderEnd),
+                            ),
+                        ),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(painterResource(R.drawable.ic_image), null, Modifier.size(32.dp), tint = MaterialTheme.eumColors.textSecondary)
@@ -174,10 +174,11 @@ fun CompanyIntroScreen(uiModel: CompanyIntroUiModel, onEvent: (CompanyIntroEvent
                     onClick = { onEvent(CompanyIntroEvent.MapClicked) },
                     modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                     shape = RoundedCornerShape(EumRadius.x8),
+                    border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.lineStrong),
                 ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x6), verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.company_map_open), style = MaterialTheme.typography.labelMedium)
-                        Icon(painterResource(R.drawable.ic_external_link), null, Modifier.size(16.dp))
+                        Icon(painterResource(R.drawable.ic_external_link), null, Modifier.size(18.dp))
                     }
                 }
                 Box(
@@ -193,15 +194,66 @@ fun CompanyIntroScreen(uiModel: CompanyIntroUiModel, onEvent: (CompanyIntroEvent
 }
 
 @Composable
-private fun CompanyIntroSection(title: String, englishTitle: String, content: @Composable () -> Unit) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x32), verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
+private fun CompanyIntroSection(title: String, englishTitle: String, isLast: Boolean = false, content: @Composable () -> Unit) {
+    Column(
+        Modifier.fillMaxWidth().padding(
+            start = EumSpacing.x20,
+            end = EumSpacing.x20,
+            top = EumSpacing.x32,
+            bottom = if (isLast) EumSpacing.x40 else EumSpacing.x32,
+        ),
+        verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
+    ) {
         Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
-            Text(englishTitle.uppercase(), style = companyEyebrowStyle(), color = MaterialTheme.eumColors.textTertiary)
+            Text(englishTitle.uppercase(), style = EumTypographyTokens.overline, color = MaterialTheme.eumColors.textTertiary)
             Text(title, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.eumColors.textPrimary)
         }
         content()
     }
-    HorizontalDivider(color = MaterialTheme.eumColors.line)
+    if (!isLast) HorizontalDivider(color = MaterialTheme.eumColors.line)
+}
+
+// 스크롤 연동은 이번 범위가 아니므로 첫 칩(개요)을 고정 선택으로 표시하고 탭으로 선택을 옮기지 않는다.
+@Composable
+private fun CompanyAnchorStrip(anchors: List<String>, onAnchorClick: (String) -> Unit) {
+    Column(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface)) {
+        HorizontalDivider(color = MaterialTheme.eumColors.line)
+        Row(
+            modifier = Modifier.fillMaxWidth().heightIn(min = ANCHOR_STRIP_HEIGHT)
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = EumSpacing.x20),
+            horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            anchors.forEachIndexed { index, anchor ->
+                val isSelected = index == SELECTED_ANCHOR_INDEX
+                // 칩 시각 높이는 36dp, 터치 영역은 48dp를 유지한다.
+                Box(
+                    Modifier.heightIn(min = 48.dp).clickable(role = Role.Button) { onAnchorClick(anchor) }
+                        .then(if (isSelected) Modifier.semantics { selected = true } else Modifier),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Surface(
+                        shape = EumCapsuleShape,
+                        color = if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface,
+                        border = if (isSelected) null else BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.lineStrong),
+                    ) {
+                        Box(
+                            Modifier.heightIn(min = ANCHOR_CHIP_VISUAL_HEIGHT).padding(horizontal = ANCHOR_CHIP_HORIZONTAL_PADDING),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                anchor,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = if (isSelected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textSecondary,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        HorizontalDivider(color = MaterialTheme.eumColors.line)
+    }
 }
 
 @Composable
@@ -217,9 +269,9 @@ private fun CompanyHistoryTimelineItem(item: CompanyHistoryItemUiModel, isLatest
             )
             if (!isLast) Box(Modifier.width(1.dp).weight(1f).background(MaterialTheme.eumColors.line))
         }
-        Column(Modifier.padding(bottom = if (isLast) 0.dp else EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+        Column(Modifier.padding(bottom = if (isLast) 0.dp else EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x2)) {
             Text(item.year, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textPrimary)
-            Text(item.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+            Text(item.description, style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
         }
     }
 }
@@ -227,10 +279,7 @@ private fun CompanyHistoryTimelineItem(item: CompanyHistoryItemUiModel, isLatest
 @Composable
 private fun CompanyInfoRow(label: String, value: String) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12), verticalAlignment = Alignment.Top) {
-        Text(label, Modifier.width(80.dp), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textSecondary)
+        Text(label, Modifier.width(80.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
         Text(value, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textPrimary)
     }
 }
-
-@Composable
-private fun companyEyebrowStyle(): TextStyle = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.08.em)
