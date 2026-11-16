@@ -5,13 +5,16 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -40,6 +43,7 @@ import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.ordercomplete.viewmodel.OrderCompleteScreenEvent
 import com.nativelap.eumshoppingmall.ui.ordercomplete.viewmodel.OrderCompleteUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -57,7 +61,6 @@ fun OrderCompleteScreen(
                     onBackClick = { onEvent(OrderCompleteScreenEvent.CloseClicked) },
                     isCloseAction = true,
                 )
-                CheckoutStepIndicator(currentStep = 4, modifier = Modifier.padding(horizontal = EumSpacing.x40, vertical = EumSpacing.x12))
             }
         },
         bottomBar = {
@@ -82,70 +85,90 @@ fun OrderCompleteScreen(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { contentPadding ->
         ResponsiveContentContainer(Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(contentPadding).verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
-            ) {
-                Surface(
-                    modifier = Modifier.padding(top = EumSpacing.x24).size(64.dp),
-                    shape = CircleShape,
-                    color = MaterialTheme.eumColors.textPrimary,
+            Column(modifier = Modifier.fillMaxSize().padding(contentPadding).verticalScroll(rememberScrollState())) {
+                // 스텝퍼는 본문 첫 항목이다(Figma A-10).
+                CheckoutStepIndicator(currentStep = 4)
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Icon(
-                        painterResource(R.drawable.ic_check),
-                        contentDescription = null,
-                        tint = MaterialTheme.eumColors.inverse,
-                        modifier = Modifier.padding(EumSpacing.x16),
-                    )
-                }
-                Text(
-                    stringResource(if (uiModel.isVirtualAccount) R.string.checkout_order_received else R.string.checkout_order_complete),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.eumColors.textPrimary,
-                )
-                Text(
-                    stringResource(R.string.checkout_order_number, uiModel.orderNumber),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.eumColors.textSecondary,
-                )
-                if (uiModel.isVirtualAccount) {
-                    Text(stringResource(R.string.checkout_virtual_account_deadline_notice), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-                    OrderInformationCard(
-                        rows = listOfNotNull(
-                            uiModel.bankLabel?.let { stringResource(R.string.checkout_bank) to it },
-                            uiModel.accountNumber?.let { stringResource(R.string.checkout_account_number) to it },
-                            uiModel.depositorLabel?.let { stringResource(R.string.checkout_depositor) to it },
-                            uiModel.depositAmountLabel?.let { stringResource(R.string.checkout_deposit_amount) to it },
-                            uiModel.depositDeadlineLabel?.let { stringResource(R.string.checkout_payment_deadline_short) to it },
-                        ),
-                        onCopyAccount = { onEvent(OrderCompleteScreenEvent.CopyAccountNumberClicked) },
-                        isAccountCard = true,
-                    )
+                    Surface(
+                        modifier = Modifier.padding(top = EumSpacing.x40).size(64.dp),
+                        shape = CircleShape,
+                        color = MaterialTheme.eumColors.primary,
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.ic_check),
+                            contentDescription = null,
+                            tint = MaterialTheme.eumColors.inverse,
+                            modifier = Modifier.padding(EumSpacing.x16),
+                        )
+                    }
+
+                    Spacer(Modifier.height(EumSpacing.x24))
+
                     Text(
-                        stringResource(R.string.checkout_virtual_account_expiry_notice),
-                        modifier = Modifier.fillMaxWidth().background(MaterialTheme.eumColors.dangerTint, MaterialTheme.shapes.small).padding(EumSpacing.x12),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.eumColors.danger,
+                        stringResource(if (uiModel.isVirtualAccount) R.string.checkout_order_received else R.string.checkout_order_complete),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.eumColors.textPrimary,
                     )
+
+                    Spacer(Modifier.height(EumSpacing.x8))
+
+                    Text(
+                        stringResource(R.string.checkout_order_number, uiModel.orderNumber),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.eumColors.textSecondary,
+                    )
+
+                    Spacer(Modifier.height(EumSpacing.x32))
+
+                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
+                        if (uiModel.isVirtualAccount) {
+                            Text(stringResource(R.string.checkout_virtual_account_deadline_notice), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                            OrderInformationCard(
+                                rows = listOfNotNull(
+                                    uiModel.bankLabel?.let { OrderInformationRow(stringResource(R.string.checkout_bank), it) },
+                                    uiModel.accountNumber?.let { OrderInformationRow(stringResource(R.string.checkout_account_number), it) },
+                                    uiModel.depositorLabel?.let { OrderInformationRow(stringResource(R.string.checkout_depositor), it) },
+                                    uiModel.depositAmountLabel?.let { OrderInformationRow(stringResource(R.string.checkout_deposit_amount), it) },
+                                    uiModel.depositDeadlineLabel?.let { OrderInformationRow(stringResource(R.string.checkout_payment_deadline_short), it) },
+                                ),
+                                onCopyAccount = { onEvent(OrderCompleteScreenEvent.CopyAccountNumberClicked) },
+                                isAccountCard = true,
+                            )
+                            Text(
+                                stringResource(R.string.checkout_virtual_account_expiry_notice),
+                                modifier = Modifier.fillMaxWidth().background(MaterialTheme.eumColors.dangerTint, MaterialTheme.shapes.small).padding(EumSpacing.x12),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.eumColors.danger,
+                            )
+                        }
+                        OrderInformationCard(
+                            rows = listOf(
+                                OrderInformationRow(stringResource(R.string.checkout_payment_total_label), uiModel.paymentAmountLabel, isAmount = true),
+                                OrderInformationRow(stringResource(R.string.checkout_payment_method), uiModel.paymentMethodLabel),
+                                OrderInformationRow(stringResource(R.string.checkout_delivery_address), uiModel.addressLabel),
+                            ),
+                            onCopyAccount = {},
+                            isAccountCard = false,
+                        )
+                    }
                 }
-                OrderInformationCard(
-                    rows = listOf(
-                        stringResource(R.string.checkout_payment_total_label) to uiModel.paymentAmountLabel,
-                        stringResource(R.string.checkout_payment_method) to uiModel.paymentMethodLabel,
-                        stringResource(R.string.checkout_delivery_address) to uiModel.addressLabel,
-                    ),
-                    onCopyAccount = {},
-                    isAccountCard = false,
-                )
             }
         }
     }
 }
 
+private data class OrderInformationRow(
+    val label: String,
+    val value: String,
+    val isAmount: Boolean = false,
+)
+
 @Composable
 private fun OrderInformationCard(
-    rows: List<Pair<String, String>>,
+    rows: List<OrderInformationRow>,
     onCopyAccount: () -> Unit,
     isAccountCard: Boolean,
 ) {
@@ -156,17 +179,24 @@ private fun OrderInformationCard(
             .padding(EumSpacing.x20),
         verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
     ) {
-        rows.forEachIndexed { index, (label, value) ->
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text(label, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+        rows.forEach { (label, value, isAmount) ->
+            // 주문 요약 카드는 라벨 폭 72 + 값 start 정렬, 결제금액 값은 priceM(Figma A-10). 입금 계좌 카드는 기존 배치를 유지한다.
+            val isSummaryCard = !isAccountCard
+            Row(Modifier.fillMaxWidth(), verticalAlignment = if (isSummaryCard) Alignment.Top else Alignment.CenterVertically) {
+                Text(
+                    label,
+                    modifier = if (isSummaryCard) Modifier.widthIn(min = 72.dp).padding(end = EumSpacing.x8) else Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.eumColors.textSecondary,
+                )
                 Text(
                     value,
                     modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = if (isSummaryCard && isAmount) EumTypographyTokens.priceM else MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.eumColors.textPrimary,
                     maxLines = if (isAccountCard) 1 else 2,
                     overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.End,
+                    textAlign = if (isSummaryCard) TextAlign.Start else TextAlign.End,
                 )
                 if (isAccountCard && label == stringResource(R.string.checkout_account_number)) {
                     TextButton(

@@ -2,16 +2,17 @@ package com.nativelap.eumshoppingmall.ui.auth.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -31,7 +32,7 @@ fun AuthPhoneNumberChangeScreen(
     Scaffold(
         topBar = { AuthTopBar(stringResource(R.string.auth_phone_change_title), onBack = { onEvent(AuthScreenEvent.BackClicked) }) },
         bottomBar = {
-            Column(Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8)) {
+            AuthBottomBar {
                 AuthPrimaryAction(stringResource(R.string.auth_change), isSubmitEnabled) { onEvent(AuthScreenEvent.PhoneChangeSubmitted) }
             }
         },
@@ -40,19 +41,25 @@ fun AuthPhoneNumberChangeScreen(
     ) { padding ->
         Column(
             Modifier.fillMaxSize().padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
         ) {
-            androidx.compose.material3.Text(stringResource(R.string.account_phone_verification_instruction), style = MaterialTheme.typography.headlineSmall)
-            androidx.compose.material3.Text(stringResource(R.string.account_phone_verification_notice), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
-            AuthTextField(stringResource(R.string.auth_current_phone), currentPhoneNumber, {}, enabled = false)
-            AuthPhoneVerificationFields(
-                label = stringResource(R.string.auth_new_phone),
-                state = phoneState,
-                onPhoneChanged = { onEvent(AuthScreenEvent.PhoneChangeFieldChanged("phone", it)) },
-                onResend = { onEvent(AuthScreenEvent.PhoneChangeResendClicked) },
-                onCodeChanged = { onEvent(AuthScreenEvent.PhoneChangeVerificationCodeChanged(it)) },
-                onConfirm = { onEvent(AuthScreenEvent.PhoneChangeVerificationConfirmClicked) },
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                Text(stringResource(R.string.account_phone_verification_instruction), style = MaterialTheme.typography.headlineSmall)
+                Text(stringResource(R.string.account_phone_verification_notice), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+            }
+
+            Spacer(Modifier.height(EumSpacing.x24))
+
+            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
+                AuthTextField(stringResource(R.string.auth_current_phone), currentPhoneNumber, {}, enabled = false)
+                AuthPhoneVerificationFields(
+                    label = stringResource(R.string.auth_new_phone),
+                    state = phoneState,
+                    onPhoneChanged = { onEvent(AuthScreenEvent.PhoneChangeFieldChanged("phone", it)) },
+                    onResend = { onEvent(AuthScreenEvent.PhoneChangeResendClicked) },
+                    onCodeChanged = { onEvent(AuthScreenEvent.PhoneChangeVerificationCodeChanged(it)) },
+                    onConfirm = { onEvent(AuthScreenEvent.PhoneChangeVerificationConfirmClicked) },
+                )
+            }
         }
     }
 }

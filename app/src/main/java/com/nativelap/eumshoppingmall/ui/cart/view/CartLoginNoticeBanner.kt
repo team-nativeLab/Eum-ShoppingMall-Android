@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.cart.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,17 +9,20 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -27,20 +31,24 @@ fun CartLoginNoticeBanner(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val bannerShape = RoundedCornerShape(EumRadius.x12)
     Row(
         modifier = modifier
-            .background(MaterialTheme.eumColors.surfaceSecondary)
+            .padding(horizontal = EumSpacing.x20)
+            .clip(bannerShape)
+            .background(MaterialTheme.eumColors.surface)
+            .border(1.dp, MaterialTheme.eumColors.line, bannerShape)
             .heightIn(min = 48.dp)
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(horizontal = 14.dp, vertical = EumSpacing.x12),
+        verticalAlignment = Alignment.Top,
     ) {
         // 아이콘은 장식용이다. 안내 문구를 읽어 주므로 contentDescription을 두지 않는다.
         Icon(
             painter = painterResource(R.drawable.ic_info),
             contentDescription = null,
             tint = MaterialTheme.eumColors.textSecondary,
-            modifier = Modifier.size(16.dp),
+            modifier = Modifier.padding(top = EumSpacing.x2).size(16.dp),
         )
 
         Spacer(Modifier.width(EumSpacing.x8))

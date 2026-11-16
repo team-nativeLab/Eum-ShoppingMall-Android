@@ -150,6 +150,39 @@
 - 미보정으로 남은 backgroundSubtle 사용처(후속): 홈 배너(테두리 있음), BrandScreens(#45), 리뷰 작성·주문 신청 화면(#40/#46), 마이페이지(#40).
 - Preview 추가: 카탈로그 카드(할인·견적·품절), 상세 탭 fontScale 1.5, 검색창 입력 있음·없음. 렌더는 확인하지 못했다.
 
+## #40 주문·마이 화면 Figma 세부 일치 (A-07~A-12)
+
+- 기준: `feature/#40-figma-order-my-screens`(#38 위). 값은 구현 명세(Figma 노드 180:1780~182:2416)만 사용했다.
+- A-07: 합계 라벨 labelL·금액 priceL(금액 미상이면 기존 16sp), 로그인 안내를 흰 카드(line 1dp, r12, 좌우 20, 내부 14/12)로, 상품 행 서식(labelM 이름·caption 옵션·priceM 가격, 썸네일 r6, 제거 버튼 44dp).
+- A-08: 스텝퍼를 본문 첫 항목(72dp)으로 이동, 섹션 카드(`CheckoutSectionCard`, r16, 헤더 32), 주소 행·기본 배송지 배지·'변경' 아웃라인 버튼(`CheckoutOutlineActionButton`, 터치 48dp), 배송 요청사항은 메뉴 유지 + 48dp 필드 모양, 결제 예정 금액 56dp 한 줄 카드.
+- A-09: 결제수단 타일 56dp, 섹션 헤더 48dp + 전폭 구분선(흰 카드 제거), 쿠폰·적립금 행, 요약 카드 패딩 20·행 간격, 약관 동의 56dp + 16dp 커스텀 체크, 결제 버튼 영역 상단 구분선 + 비활성 표시.
+- A-10: 스텝퍼 본문 첫 항목, 상단 40, 아이콘→텍스트 24, 타이틀 h2, 요약 카드 라벨 폭 최소 72·값 start 정렬·결제금액 priceM.
+- A-11: 프로필 행 112·아바타 72(surfaceSecondary로 보정)·이름 h2·사업자 배지, 바로가기 82, 주문 현황 76, 메뉴 박스 흰 배경·행 56·구분선 inset 20.
+- A-12: 패널 surface·그림자 근사·폭 min(0.82, 320dp), 패딩 상 52·하 34(시스템 바가 크면 그 값), 유저 패널·메뉴 행 52·푸터 56.
+- 판단: 마이 우측 메뉴 아이콘과 드로어 알림 벨은 앱 흐름상 유지. 카트 단가 줄·마이 count 라벨은 Figma에 없어 유지(디자인 확인 필요).
+- 남은 미확인: 증빙 서류 라디오 14×14·간격(Material 유지), cta-hint 서식(노드 263:15606, 보류), 약관 체크 선택 상태 모양(checkboxChecked 가정), 결제 예정 금액 한 줄 카드 글자 서식(labelL·priceL 가정), '설정 바로가기'(879:44841)·비로그인 카드, 로그인 버튼 상태, A-08 하단 CTA 바 구분선, 드로어 푸터 좌우 여백·메뉴 간격.
+- A-07 보정: 상품 행은 이름 labelMedium(14/20 Medium)·옵션 caption+textTertiary·가격 priceM·썸네일 r6·제거 버튼 44dp. 단가 줄은 Figma에 없지만 유지(결정). 마이 count 라벨, 결제 하단의 danger 안내 문구(U-03)도 유지(결정). 드로어 그림자는 `Modifier.shadow` 근사를 허용(결정).
+- 결제 하단 바(A-09)는 배경·상단 구분선을 전폭으로, 버튼 내용만 `ResponsiveWidthContainer` 안에 둔다. A-08 '다음' 바는 surface 배경만 적용하고 구분선은 Figma 미확인이라 넣지 않았다(결정).
+- 후속: private Composable(DrawerFooterButton, OrderAgreementRow, CouponRow·PointsRow, AddressSectionCard·DeliveryRequestSectionCard)을 `view/` 하위 별도 파일로 분리하는 작업은 대규모 이동이라 이번에는 하지 않았다.
+- 병합 메모: `CartLoginNoticeBanner`는 #41이 onClick·clickable·Role.Button·48dp를 추가한다. 충돌 시 양쪽을 병합하고, `CartPreviews`의 호출에는 `onClick = {}`이 필요하다.
+
+## #42 인증·계정 화면 Figma 세부 일치 (A-13·A-14·A-23~A-30)
+
+- 기준: `feature/#42-figma-auth-account-screens`(#38 27f135f 위). 명세 값만 사용했고 Preview·렌더 확인은 하지 못했다(에뮬레이터 미사용).
+- 공통(auth/view): `AuthOutlinedTextField`(BasicTextField+M3 DecorationBox, 입력 bodyM 15/24·좌우 패딩 14·포커스/오류 보더 1.5, 세로 패딩·필드 높이는 불변), 라벨·헬퍼 간격 8, 헬퍼 아이콘 14(circle-alert/circle-check), 비밀번호 눈 아이콘 20(터치 48), 전화 인증 버튼(재전송 labelM·px16, 확인 최소폭 73, 행 gap 12), 세그먼트 시각 36·터치 48, `AuthBottomBar`(surface·상단 1dp line·20/12 패딩), `AuthCard`, `AuthCheckbox`(16·r4·1.5), 필수 `*`.
+- 화면: A-13 로그인 간격·H1·링크·소셜 버튼, A-14 필수 *·동의 카드·가입하기 CTA 영역·액션 버튼 상단 정렬, A-23 재인증 상단 40·h3·24, A-24 카드 간격 6·버튼 시각 36, A-26 혜택 카드·유의사항·동의 박스·리듬·사유 부제/칩/그룹 간격, A-27·A-28 간격·인증 완료 상태·헤더 아이콘, A-29 성공 헬퍼 textSecondary·찾기 링크 2스팬, A-30 공통.
+- 미확인(구현 보류): A-14 타이머 문구 표시 상태, A-26 변형 4종, A-27~30 결과·재설정·완료 변형, A-26 안내·A-30 바 surface-2 적용 조건, 필수 * 대상 범위(사업자 입력).
+- 승인 편차: 필수 * 색은 #DB2129 대신 danger(#C5221F). 세그먼트 외곽선은 lineStrong 토큰. intro 제목은 기존 headlineSmall 유지.
+- 가정: 라벨 `*`는 공백 없이 붙임, 동의 행 체크박스-텍스트 gap 12, 유의사항 점은 4dp 원(슬롯 4×12), 가입 힌트-CTA gap 8, 사유 제목-부제 gap 8, 전화 행 세로 중앙 정렬.
+
+### #42 사후 검토 반영
+- 탈퇴 사유 textarea에 `AuthOutlinedTextField`(singleLine=false, minLines=3)를 적용했고, 입력 필드에 최소 높이 56dp(`OutlinedTextFieldDefaults.MinHeight`)를 명시했다.
+- A-24 버튼 S는 M3 버튼 내부 최소 높이(40dp)를 피하려고 Surface 기반 `AddressSmallButton`(시각 36, `minimumInteractiveComponentSize`로 터치 48)으로 바꿨다.
+- 인증 후 비활성 휴대폰 필드도 text-1 글자색을 쓴다. 인증 완료 후 번호 수정 불가는 회원가입·휴대폰 번호 변경 화면에도 적용되므로, 인증 연동 시 번호 변경 UI가 필요하다(후속).
+- 필수 필드에 접근성 stateDescription("필수 입력")을 추가했고, 헬퍼 문구는 weight(1f)와 오류 liveRegion을 적용했다.
+- 병합 메모: #41(f22c8a2)이 `AuthPasswordField` errorText를 `when { isServiceUnavailable -> auth_login_unavailable; isCredentialsInvalid -> ...; else -> null }`로 바꿨고, #42는 같은 호출 블록을 중첩 Column으로 재들여쓰기했다. 병합 시 #41의 when 블록을 중첩 Column 안에 보존한다.
+- 후속 보류: 상단바 arrow-left vs chevron-left, 필수 * 사업자 입력 대상, A-14 타이머 문구 표시 상태.
+
 ## #43 주문 내역·혜택 화면 Figma 세부 일치 (A-16~A-22)
 
 - 기준: `feature/#43-figma-orders-benefits-screens`(#38 커밋 27f135f 위). Figma 도구 없이 명세 값만 사용했고, 시각 확인은 Preview(`OrdersFigmaPreviews.kt`, `BenefitPreviews.kt`)로만 했다. Preview 렌더 결과는 눈으로 확인하지 못했다(컴파일만 통과).
@@ -178,6 +211,22 @@
 - 보류·미확인: 주요 버튼 15/22 SemiBold(`UiAuditPrimaryButton`은 #38 완료분이고 여러 화면이 공유해 재수정하지 않음), '모두 읽음' 버튼의 채움·테두리, 라디오 선택 표시(안쪽 점 6dp·테두리 1dp는 임시), 문의 유형 라디오 gap 12(가로)/세로 0(터치 48 우선), 알림 요약 행 'px20/12'의 12, 알림 행 사이 테두리 겹침(2dp), 라벨 줄 높이 19sp(24-5 계산), 진행 안내 FlowRow의 320dp·fontScale 1.5 실제 줄바꿈 렌더, A-44 다른 상태 변형, 연혁·소개 외 화면 Preview 렌더 확인.
 - 사후 검토 반영(1회차): 회사 소개 개요 칩 고정 선택으로 단순화, 견적 진행 안내를 FlowRow로 바꿔 320dp·큰 글자에서 단계 단위 줄바꿈, FAQ 검색 입력은 pointerInput+FocusRequester로 터치 영역을 넓히고 힌트를 필드 내부 장식으로 이동, 견적 라디오에 selectableGroup·selectable 적용, 문의 작성 화면 공용 상수를 `InquiryFormMetrics.kt`로 통합.
 - 후속(보류): '모두 읽음' 버튼 r8·채움 Figma 확인, `UiAuditPrimaryButton` 15/22 SemiBold는 공용 컴포넌트라 별도 이슈, 알림 행 테두리 겹침, 라디오 선택 표시 Figma 값 확인.
+
+## #45 브랜드·정책·이벤트 화면 Figma 세부 일치 (A-33·A-34·A-36~A-39·A-54~A-57)
+
+- 기준: #38(27f135f) 위. Figma 값은 이슈 명세에서 받은 값만 썼고, 구현 중 Figma를 직접 열어 보지 않았다. Preview·실기기 렌더는 확인하지 못했다(컴파일·빌드만 확인).
+- 공통: `BrandLogoPlate`(흰 판 r8+테두리, 안쪽 로고 r4)를 `catalog/components`에 추출해 배너 64/48, 목록·다른 브랜드 행 56/44, 상세 120×48/88×32에 쓴다. 정책 조항은 `PolicyClauseArticle`·`PolicyChapterGroup`으로 통합해 `PolicyDocumentScreen`과 `TermsDialogScreen`이 같이 쓴다(TermsDialog의 중복 `TermsArticle` 제거).
+- A-33: 세그먼트(테두리 r8·패딩 4·세그먼트 36 r6·14 Medium·미선택 textSecondary), 배너(py24·gap16·이름 h3), 툴바(surface+하단 line, 검색바 44 capsule·bodyM, 정렬 44 r8 lineControl, gap 8), 섹션 헤더(h2·하단 lineStrong·섹션 간 32), 행 72(구분선 line·화살표 20). 시각 36·44 요소는 바깥 48dp 박스(터치·선택 의미)와 안쪽 시각 박스 구조로 터치 48을 보장한다.
+- A-34: 히어로 220, 소개 영역(pt24 pb32 gap20, 이름 h1, 소개 bodyM 3줄), 스토리(pt48·제목 h2·6줄 clamp+더 보기/접기 토글은 로컬 상태), facts(라벨 88 14/20 textTertiary·값 Medium·행 하단 line), 제품 헤더 h3·칩 36(px14, 선택 textPrimary+line 테두리, 미선택 lineStrong)·그리드 세로 24·가로 12·섹션 py48, 다른 브랜드(단일 r12 카드·행 72·구분선).
+- A-36~A-39: 문서 헤더(meta-row+하단선 pb20, 이전 약관 버튼 36 r8), 목차(제목 Medium·개수 caption 제목 오른쪽·아이콘 20), 조항(제목 bodyLMedium·본문 bodyM·gap 12/8/24/32), dl-card r12·w88·gap 12, steps(원 24·제목 labelM·gap 2), 버전 시트(상단 r12·그래버 36×4·헤더 56+X 44·행 56·라디오 14·선택 행 labelL·현재 배지 h20), 약관 동의(Body py24 gap24·caption Medium)·동의서(gap24·카드 r12 패딩 16·내부 gap 8·caption).
+- A-54~A-57: 안내 문구 색 textTertiary(14 유지), A-57 카드 minHeight 72, A-56·A-55 카드 80은 기존과 일치해 변경 없음.
+- backgroundSubtle 소실 보정: 브랜드 검색 캡슐은 surfaceSecondary+line 테두리, 다른 브랜드 띠는 surfaceSecondary.
+- 보류(값·모델 없음, 구현하지 않음): A-33 가나다/ABC 토글·인덱스 칩, A-34 히어로 CTA 교체·'제품 00개 보기'·'더 보기 (6/00)'·'BRAND A · 개인보호장비' 보조 줄·'전체 브랜드 보기' 링크, A-38 '고객센터 가기', A-36o·A-36u, A-54 trailing 아이콘. 버전 시트 그림자(-8/32/-4 16%)는 ModalBottomSheet에 맞는 적용 방법이 없어 보류.
+- 편차(터치 48 보장): 바깥 48dp 박스 때문에 세그먼트 컨테이너와 툴바 행이 Figma보다 각각 약 12dp·4dp 높고, 칩 줄 간격도 Figma보다 커진다.
+- 접근성: 스토리 더 보기 토글에 펼쳐짐/접힘 stateDescription, 세그먼트·버전 시트 행에 selectable(Tab·RadioButton) 의미, 시트 그래버는 `BottomSheetDefaults.DragHandle`을 쓴다. 스토리 펼침 상태는 `rememberSaveable(brand.id)`.
+- 가정: A-39 시행일 색은 값이 없어 textDisabled 유지. 다른 브랜드 "72 타일" 해석(56/44 판의 72dp 행)은 Figma 확인 필요.
+- 후속(보류): 리뷰 S3·S4·S7.
+- 추정값: 버전 시트 라디오 선택 점 6dp, 다른 브랜드 카드 행은 목록 행과 같은 56/44 판, 칩→그리드 간격은 그리드 행 위 24.
 
 ## #46 주문 요청·주소·필터·리뷰 화면 Figma 세부 일치 (A-46~A-53)
 

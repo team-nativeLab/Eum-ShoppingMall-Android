@@ -1,9 +1,11 @@
 package com.nativelap.eumshoppingmall.ui.account.view
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,10 +28,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -109,7 +114,7 @@ private fun AddressCard(address: AccountAddressUiModel, onEvent: (AccountAddress
     // 기본 배송지 카드는 Figma처럼 진한 테두리로 구분한다.
     val borderColor = if (address.isDefault) MaterialTheme.eumColors.lineStrong else MaterialTheme.eumColors.line
     val postalPrefix = if (address.postalCode.isBlank()) "" else "(" + address.postalCode + ") "
-    Column(Modifier.fillMaxWidth().border(1.dp, borderColor, RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+    Column(Modifier.fillMaxWidth().border(1.dp, borderColor, RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x6)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
             Text(address.label, style = MaterialTheme.typography.titleMedium)
             if (address.isDefault) {
@@ -123,15 +128,37 @@ private fun AddressCard(address: AccountAddressUiModel, onEvent: (AccountAddress
         }
         Text(address.recipient + " · " + address.phoneNumber, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
         Text(postalPrefix + address.address + " " + address.addressDetail, style = MaterialTheme.typography.bodySmall)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().padding(top = EumSpacing.x2), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
             if (!address.isDefault) {
                 Text(stringResource(R.string.address_set_default), Modifier.weight(1f).heightIn(min = 48.dp).clickable { onEvent(AccountAddressListScreenEvent.DefaultSelected(address.id)) }.padding(vertical = EumSpacing.x12), style = MaterialTheme.typography.labelMedium)
             } else {
                 Spacer(Modifier.weight(1f))
             }
-            OutlinedButton(onClick = { onEvent(AccountAddressListScreenEvent.EditClicked(address.id)) }, modifier = Modifier.heightIn(min = 48.dp), shape = MaterialTheme.shapes.small) { Text(stringResource(R.string.address_edit)) }
+            AddressSmallButton(stringResource(R.string.address_edit)) { onEvent(AccountAddressListScreenEvent.EditClicked(address.id)) }
             if (!address.isDefault) {
-                OutlinedButton(onClick = { onEvent(AccountAddressListScreenEvent.DeleteClicked(address.id)) }, modifier = Modifier.heightIn(min = 48.dp), shape = MaterialTheme.shapes.small) { Text(stringResource(R.string.address_delete)) }
+                AddressSmallButton(stringResource(R.string.address_delete)) { onEvent(AccountAddressListScreenEvent.DeleteClicked(address.id)) }
+            }
+        }
+    }
+}
+
+/** 시각 36dp 버튼 S. M3 버튼 내부 최소 높이(40dp)를 피하려고 Surface로 직접 만들고, 터치는 48dp로 넓힌다. */
+@Composable
+private fun AddressSmallButton(label: String, onClick: () -> Unit) {
+    // 클릭 노드를 48dp 박스에 두고, 그 안의 시각 박스만 36dp로 그린다.
+    Box(
+        Modifier.minimumInteractiveComponentSize().clickable(role = Role.Button, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Surface(
+            modifier = Modifier.heightIn(min = 36.dp),
+            shape = MaterialTheme.shapes.small,
+            color = Color.Transparent,
+            contentColor = MaterialTheme.eumColors.textPrimary,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        ) {
+            Box(Modifier.padding(horizontal = EumSpacing.x24, vertical = EumSpacing.x8), contentAlignment = Alignment.Center) {
+                Text(label, style = MaterialTheme.typography.labelMedium)
             }
         }
     }

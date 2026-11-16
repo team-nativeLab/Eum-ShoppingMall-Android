@@ -4,18 +4,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
-import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
 internal fun AuthTextField(
@@ -29,27 +29,28 @@ internal fun AuthTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
     enabled: Boolean = true,
+    isRequired: Boolean = false,
 ) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
-        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textPrimary)
-        OutlinedTextField(
+    val requiredDescription = stringResource(R.string.auth_field_required)
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+        AuthFieldLabel(label, isRequired = isRequired)
+        AuthOutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).semantics { contentDescription = label },
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).semantics {
+                contentDescription = label
+                if (isRequired) stateDescription = requiredDescription
+            },
             enabled = enabled,
-            singleLine = true,
-            placeholder = placeholder?.let { { Text(it) } },
+            placeholder = placeholder,
             isError = errorText != null,
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
-            shape = MaterialTheme.shapes.medium,
+            errorDescription = errorText,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
         )
-        val supportingText = errorText ?: helperText
-        if (supportingText != null) {
-            Text(
-                supportingText,
-                style = MaterialTheme.typography.labelSmall,
-                color = if (errorText != null) MaterialTheme.eumColors.danger else MaterialTheme.eumColors.textTertiary,
-            )
+        if (errorText != null) {
+            AuthHelperMessage(errorText, AuthHelperTone.Error)
+        } else if (helperText != null) {
+            AuthHelperMessage(helperText, AuthHelperTone.Info)
         }
     }
 }

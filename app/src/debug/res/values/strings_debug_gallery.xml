@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="debug_gallery_title">화면 갤러리</string>
+    <string name="debug_gallery_back">뒤로</string>
+    <string name="debug_gallery_unimplemented">미구현</string>
+    <string name="debug_gallery_width_label">폭</string>
+    <string name="debug_gallery_font_scale_label">글자</string>
+    <string name="debug_gallery_width_option">%1$ddp</string>
+    <string name="debug_gallery_font_scale_option">x%1$s</string>
+    <string name="debug_gallery_fit_notice">기기 폭에 맞춰 x%1$s 축소 표시</string>
+    <string name="debug_gallery_missing_preview">Preview 함수를 찾지 못했습니다: %1$s</string>
+    <string name="debug_gallery_unknown_screen">알 수 없는 화면 id: %1$s</string>
+</resources>
