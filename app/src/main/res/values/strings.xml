@@ -158,6 +158,8 @@
     <string name="catalog_brand_featured">추천 브랜드</string>
     <string name="catalog_brand_products">브랜드 상품</string>
     <string name="catalog_other_brands">다른 브랜드</string>
+    <string name="catalog_brand_story_state_expanded">펼쳐짐</string>
+    <string name="catalog_brand_story_state_collapsed">접힘</string>
     <string name="catalog_brand_product_count">상품 %1$s개</string>
     <string name="catalog_no_options">선택 가능한 옵션이 없습니다</string>
     <string name="catalog_brand_website">브랜드 웹사이트</string>
