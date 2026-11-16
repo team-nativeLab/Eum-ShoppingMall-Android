@@ -48,7 +48,7 @@ fun CartRoute(
     onCheckoutClick: (orderedLineIds: List<String>) -> Unit,
     onLoginClick: () -> Unit,
     onQuoteRequestClick: () -> Unit,
-    onOptionChangeClick: (productId: String) -> Unit = {},
+    onOptionChangeClick: (line: CartLine) -> Unit = {},
     onQuantityChanged: suspend (itemId: String, quantity: Int) -> Unit,
     onItemsRemoved: suspend (itemIds: Set<String>) -> Unit,
     onCartLinesRestored: suspend (lines: List<CartLine>) -> Unit,
@@ -224,7 +224,8 @@ fun CartRoute(
                 is CartScreenEvent.OptionChangeClicked ->
                     savedLines
                         .firstOrNull { line -> line.cartItemId() == event.itemId }
-                        ?.let { line -> onOptionChangeClick(line.productId) }
+                        ?.takeIf { line -> !line.isQuoteRequired }
+                        ?.let(onOptionChangeClick)
             }
         },
     )

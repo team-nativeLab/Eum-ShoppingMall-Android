@@ -635,15 +635,17 @@ private fun ProductDetailBottomActions(
                 },
                 modifier = Modifier.weight(1f),
             ) {
-                Text(stringResource(R.string.catalog_add_to_cart))
+                Text(stringResource(if (uiModel.isCartOptionEdit) R.string.catalog_change_cart_option else R.string.catalog_add_to_cart))
             }
-            EumPrimaryButton(
-                onClick = {
-                    onEvent(CatalogProductDetailEvent.SelectOptionClicked(CatalogPurchaseAction.BuyNow))
-                },
-                modifier = Modifier.weight(1f),
-            ) {
-                Text(stringResource(R.string.catalog_buy_now))
+            if (!uiModel.isCartOptionEdit) {
+                EumPrimaryButton(
+                    onClick = {
+                        onEvent(CatalogProductDetailEvent.SelectOptionClicked(CatalogPurchaseAction.BuyNow))
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.catalog_buy_now))
+                }
             }
         }
     }
@@ -757,14 +759,29 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
 
             uiModel.selectedOptions.forEach { selectedOption ->
                 val option = selectedOption.option
-                CatalogSelectedOptionCard(
-                    option = option,
-                    isQuoteRequired = isQuoteRequired,
-                    onQuantityChanged = { quantity ->
-                        onEvent(CatalogProductDetailEvent.QuantityChanged(selectedOption.groupId, option.id, quantity))
-                    },
-                    onRemove = { onEvent(CatalogProductDetailEvent.OptionRemoved(selectedOption.groupId, option.id)) },
-                )
+                if (uiModel.isCartOptionEdit) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x4, vertical = EumSpacing.x8),
+                        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(option.label, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            stringResource(R.string.catalog_options_total_count, option.quantity.coerceAtLeast(1).toLong()),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.eumColors.textSecondary,
+                        )
+                    }
+                } else {
+                    CatalogSelectedOptionCard(
+                        option = option,
+                        isQuoteRequired = isQuoteRequired,
+                        onQuantityChanged = { quantity ->
+                            onEvent(CatalogProductDetailEvent.QuantityChanged(selectedOption.groupId, option.id, quantity))
+                        },
+                        onRemove = { onEvent(CatalogProductDetailEvent.OptionRemoved(selectedOption.groupId, option.id)) },
+                    )
+                }
             }
 
             if (uiModel.selectedOptions.isNotEmpty()) {
@@ -848,23 +865,37 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
             ) {
-                EumOutlinedButton(
-                    onClick = {
-                        if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.AddToCartClicked) else showSelectPrompt = true
-                    },
-                    inactiveLook = !hasRequiredSelections,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.catalog_add_to_cart_options))
+                if (!uiModel.isCartOptionEdit) {
+                    EumOutlinedButton(
+                        onClick = {
+                            if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.AddToCartClicked) else showSelectPrompt = true
+                        },
+                        inactiveLook = !hasRequiredSelections,
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(stringResource(R.string.catalog_add_to_cart_options))
+                    }
                 }
-                EumPrimaryButton(
-                    onClick = {
-                        if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.BuyNowClicked) else showSelectPrompt = true
-                    },
-                    inactiveLook = !hasRequiredSelections,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.catalog_buy_now))
+                if (uiModel.isCartOptionEdit) {
+                    EumPrimaryButton(
+                        onClick = {
+                            if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.AddToCartClicked) else showSelectPrompt = true
+                        },
+                        inactiveLook = !hasRequiredSelections,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.catalog_change_cart_option))
+                    }
+                } else {
+                    EumPrimaryButton(
+                        onClick = {
+                            if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.BuyNowClicked) else showSelectPrompt = true
+                        },
+                        inactiveLook = !hasRequiredSelections,
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(stringResource(R.string.catalog_buy_now))
+                    }
                 }
             }
         }

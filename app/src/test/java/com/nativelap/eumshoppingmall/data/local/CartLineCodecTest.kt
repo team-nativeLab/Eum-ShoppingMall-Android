@@ -131,6 +131,53 @@ class CartLineCodecTest {
         assertEquals(listOf("a" to 5), decodeCartLines(edited).map { it.productId to it.quantity })
     }
 
+    @Test
+    fun replacementKeepsSourceQuantityAndMergesWithExistingTarget() {
+        val source = line(productId = "p", optionId = "old", quantity = 4)
+        val target = line(productId = "p", optionId = "new", quantity = 1).copy(productName = "현재 이름")
+        val existingTarget = line(productId = "p", optionId = "new", quantity = 3)
+
+        val (raw, replaced) = replaceCartLineRaw(encodeCartLines(listOf(source, existingTarget)), source.lineId(), target)
+
+        assertEquals(true, replaced)
+        assertEquals(listOf("new"), decodeCartLines(raw).map { it.optionId })
+        assertEquals(7, decodeCartLines(raw).single().quantity)
+        assertEquals("현재 이름", decodeCartLines(raw).single().productName)
+    }
+
+    @Test
+    fun replacementWithSameOptionPreservesQuantityOnce() {
+        val source = line(productId = "p", optionId = "same", quantity = 4)
+        val replacement = source.copy(productName = "현재 이름", quantity = 1)
+
+        val (raw, replaced) = replaceCartLineRaw(encodeCartLines(listOf(source)), source.lineId(), replacement)
+
+        assertEquals(true, replaced)
+        assertEquals(4, decodeCartLines(raw).single().quantity)
+    }
+
+    @Test
+    fun replacementMissingSourceDoesNotAddTarget() {
+        val originalRaw = encodeCartLines(listOf(line(productId = "p", optionId = "old")))
+
+        val (raw, replaced) = replaceCartLineRaw(originalRaw, "missing", line(productId = "p", optionId = "new"))
+
+        assertEquals(false, replaced)
+        assertEquals(originalRaw, raw)
+    }
+
+    @Test
+    fun replacementSaturatesQuantityAndPreservesMalformedRows() {
+        val source = line(productId = "p", optionId = "old", quantity = 20)
+        val existing = line(productId = "p", optionId = "new", quantity = Int.MAX_VALUE)
+        val broken = "malformed|row"
+
+        val (raw, _) = replaceCartLineRaw(listOf(broken, encodeCartLines(listOf(source, existing))).joinToString("\n"), source.lineId(), existing)
+
+        assertEquals(broken, raw.lineSequence().first())
+        assertEquals(Int.MAX_VALUE, decodeCartLines(raw).single().quantity)
+    }
+
     private fun line(
         productId: String = "p",
         optionId: String = "o",

@@ -46,6 +46,9 @@ fun CatalogProductDetailRoute(
     onReviewWriteClick: (productId: String) -> Unit,
     onQuestionWriteClick: (productId: String) -> Unit,
     onAddToCart: suspend (addedLines: List<CartLine>) -> Unit,
+    editSourceLineId: String? = null,
+    editSourceLine: CartLine? = null,
+    onReplaceCartLine: suspend (sourceLineId: String, replacement: CartLine) -> Boolean = { _, _ -> false },
     cartAddOutcome: CartAddOutcome?,
     onCartAddOutcomeChange: (CartAddOutcome?) -> Unit,
 ) {
@@ -55,7 +58,7 @@ fun CatalogProductDetailRoute(
     val sheetCloseGate = remember { OptionsSheetCloseGate() }
     var selectedImageIndex by rememberSaveable { mutableStateOf(uiModel.selectedImageIndex) }
     var selectedTabIndex by rememberSaveable { mutableStateOf(uiModel.selectedTabIndex) }
-    var isOptionsSheetVisible by rememberSaveable { mutableStateOf(uiModel.optionsSheetVisible) }
+    var isOptionsSheetVisible by rememberSaveable(editSourceLineId) { mutableStateOf(uiModel.optionsSheetVisible || editSourceLineId != null) }
     var isProductFavorite by rememberSaveable { mutableStateOf(uiModel.product.isFavorite) }
     val relatedFavoriteToggles = rememberFavoriteToggles(
         initialFavoriteIds = uiModel.relatedProducts.filter { product -> product.isFavorite }.map { product -> product.id }.toSet(),
@@ -63,8 +66,23 @@ fun CatalogProductDetailRoute(
         onLoginRequired = onLoginRequired,
     )
     // 선택은 id와 수량만 저장하고(회전 복원), 표시에 쓸 옵션 정보는 현재 UiModel에서 다시 찾는다. 상품이 바뀌면 선택도 새로 시작한다.
-    var optionSelections by rememberSaveable(uiModel.product.id, stateSaver = OptionSelectionsSaver) {
+    val editGroup = remember(editSourceLine, uiModel.product.id, uiModel.optionGroups) {
+        resolveCartOptionEditGroup(editSourceLine, uiModel.product.id, uiModel.optionGroups)
+    }
+    val isEditMode = isCartOptionEditAllowed(
+        sourceLine = editSourceLine,
+        currentProductId = uiModel.product.id,
+        editGroup = editGroup,
+        isSoldOut = uiModel.product.isSoldOut,
+        isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired,
+    )
+    var optionSelections by rememberSaveable(uiModel.product.id, editSourceLineId, stateSaver = OptionSelectionsSaver) {
         mutableStateOf(emptyList<OptionSelection>())
+    }
+    LaunchedEffect(editSourceLine, editGroup) {
+        if (isEditMode && optionSelections.isEmpty()) {
+            optionSelections = listOf(OptionSelection(editGroup!!.id, editSourceLine!!.optionId, editSourceLine.quantity))
+        }
     }
     val selectedOptions = remember(uiModel.optionGroups, optionSelections) {
         resolveSelectedOptions(uiModel.optionGroups, optionSelections)
@@ -74,6 +92,7 @@ fun CatalogProductDetailRoute(
     }
     val cartSavedMessage = stringResource(R.string.catalog_added_to_cart)
     val cartFailedMessage = stringResource(R.string.catalog_add_to_cart_failed)
+    val invalidEditMessage = stringResource(R.string.cart_option_edit_failed)
     val viewCartLabel = stringResource(R.string.catalog_view_cart)
     val currentOnCartClick by rememberUpdatedState(onCartClick)
     // 담기 결과 안내. Route 밖에 보관된 결과를 다음 composition에서 한 번 띄우고 비운다(N5).
@@ -97,6 +116,13 @@ fun CatalogProductDetailRoute(
     }
     val defaultOptionLabel = stringResource(R.string.catalog_option_default_label)
     val productUnitPriceWon = (uiModel.product.price as? CatalogPriceUiModel.Available)?.unitPriceWon
+
+    LaunchedEffect(editSourceLineId, isEditMode) {
+        if (editSourceLineId != null && !isEditMode) {
+            snackbarHostState.showSnackbar(invalidEditMessage, duration = SnackbarDuration.Short)
+            onBackClick()
+        }
+    }
 
     // 시트를 닫고(hide 완료 뒤 상태 false) 후속 동작을 실행한다. 닫는 중 다시 누른 요청은 무시한다.
     fun closeOptionsSheet(afterClosed: suspend () -> Unit) {
@@ -131,23 +157,26 @@ fun CatalogProductDetailRoute(
             ),
         )
     } else {
-        selectedOptions.map { selected ->
-            CartLine(
-                productId = uiModel.product.id,
-                productName = uiModel.product.name,
-                optionId = selected.option.id,
-                optionLabel = selected.option.label,
-                quantity = selected.option.quantity.coerceAtLeast(1),
-                optionExtraWon = selected.option.unitPriceWon,
-                productPriceLabel = productPriceLabel,
-                isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired,
-                productUnitPriceWon = productUnitPriceWon,
-            )
-        }
+        selectedOptions
+            .filter { selected -> !isEditMode || selected.groupId == editGroup?.id }
+            .map { selected ->
+                CartLine(
+                    productId = uiModel.product.id,
+                    productName = uiModel.product.name,
+                    optionId = selected.option.id,
+                    optionLabel = selected.option.label,
+                    quantity = if (isEditMode) editSourceLine!!.quantity else selected.option.quantity.coerceAtLeast(1),
+                    optionExtraWon = selected.option.unitPriceWon,
+                    productPriceLabel = productPriceLabel,
+                    isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired,
+                    productUnitPriceWon = productUnitPriceWon,
+                )
+            }
     }
 
     CatalogProductDetailContent(
         uiModel = uiModel.copy(
+            optionGroups = if (isEditMode) listOf(editGroup!!) else uiModel.optionGroups,
             product = uiModel.product.copy(isFavorite = isProductFavorite),
             relatedProducts = uiModel.relatedProducts.map { product ->
                 product.copy(isFavorite = relatedFavoriteToggles.isFavorite(product.id))
@@ -155,7 +184,8 @@ fun CatalogProductDetailRoute(
             selectedImageIndex = selectedImageIndex,
             selectedTabIndex = selectedTabIndex,
             optionsSheetVisible = isOptionsSheetVisible,
-            selectedOptions = selectedOptions,
+            isCartOptionEdit = editSourceLineId != null,
+            selectedOptions = selectedOptions.filter { selected -> !isEditMode || selected.groupId == editGroup?.id },
             totalPriceLabel = totalPriceLabel,
         ),
         onEvent = { event ->
@@ -173,6 +203,7 @@ fun CatalogProductDetailRoute(
                 CatalogProductDetailEvent.CloseOptionsSheet -> closeOptionsSheet(afterClosed = {})
 
                 is CatalogProductDetailEvent.OptionSelected -> {
+                    if (isEditMode && event.groupId != editGroup?.id) return@CatalogProductDetailContent
                     val selectedOption = uiModel.optionGroups
                         .firstOrNull { group -> group.id == event.groupId }
                         ?.options
@@ -181,11 +212,16 @@ fun CatalogProductDetailRoute(
                         selection.groupId == event.groupId && selection.optionId == event.optionId
                     }
                     if (selectedOption != null && !isAlreadySelected) {
-                        optionSelections = optionSelections + OptionSelection(event.groupId, event.optionId, quantity = 1)
+                        optionSelections = if (isEditMode) {
+                            listOf(OptionSelection(event.groupId, event.optionId, editSourceLine!!.quantity))
+                        } else {
+                            optionSelections + OptionSelection(event.groupId, event.optionId, quantity = 1)
+                        }
                     }
                 }
 
                 is CatalogProductDetailEvent.QuantityChanged -> {
+                    if (isEditMode) return@CatalogProductDetailContent
                     optionSelections = optionSelections.map { selection ->
                         if (selection.groupId == event.groupId && selection.optionId == event.optionId) {
                             selection.copy(quantity = event.quantity.coerceAtLeast(1))
@@ -196,6 +232,7 @@ fun CatalogProductDetailRoute(
                 }
 
                 is CatalogProductDetailEvent.OptionRemoved -> {
+                    if (isEditMode) return@CatalogProductDetailContent
                     optionSelections = optionSelections.filterNot { selection ->
                         selection.groupId == event.groupId && selection.optionId == event.optionId
                     }
@@ -208,12 +245,31 @@ fun CatalogProductDetailRoute(
                 }
 
                 CatalogProductDetailEvent.AddToCartClicked -> {
+                    if (editSourceLineId != null && !isEditMode) return@CatalogProductDetailContent
                     val lines = cartLinesForCurrentSelection()
+                    if (isEditMode && (!isSingleValidCartOptionSelection(selectedOptions, editGroup) || lines.size != 1)) {
+                        closeOptionsSheet(afterClosed = {
+                            snackbarHostState.showSnackbar(invalidEditMessage, duration = SnackbarDuration.Short)
+                            onBackClick()
+                        })
+                        return@CatalogProductDetailContent
+                    }
                     if (lines.isNotEmpty()) {
                         closeOptionsSheet(afterClosed = {
                             // NonCancellable 흐름 안에서 결과를 기록만 한다. 안내는 다음 composition에서 띄운다.
-                            val saved = saveAddToCartLines(lines.totalQuantity()) { onAddToCart(lines) }
-                            onCartAddOutcomeChange(CartAddOutcome(serial = System.nanoTime(), saved = saved))
+                            val saved = if (isEditMode && lines.size == 1) {
+                                saveAddToCartLines(lines.totalQuantity()) {
+                                    checkNotNull(editSourceLine)
+                                    check(onReplaceCartLine(editSourceLine.lineId(), lines.single()))
+                                }
+                            } else {
+                                saveAddToCartLines(lines.totalQuantity()) { onAddToCart(lines) }
+                            }
+                            if (isEditMode && saved) {
+                                onBackClick()
+                            } else {
+                                onCartAddOutcomeChange(CartAddOutcome(serial = System.nanoTime(), saved = saved))
+                            }
                         })
                     }
                 }
@@ -259,6 +315,33 @@ internal class OptionsSheetCloseGate {
     fun exit() {
         isClosing = false
     }
+}
+
+/** 원본 상품과 옵션이 현재 카탈로그의 정확히 한 옵션 그룹에서 일치할 때만 편집 그룹을 돌려준다. */
+internal fun resolveCartOptionEditGroup(
+    sourceLine: CartLine?,
+    currentProductId: String,
+    optionGroups: List<CatalogOptionGroupUiModel>,
+): CatalogOptionGroupUiModel? {
+    if (sourceLine == null || sourceLine.productId != currentProductId) return null
+    return optionGroups.filter { group -> group.options.any { option -> option.id == sourceLine.optionId } }.singleOrNull()
+}
+
+internal fun isCartOptionEditAllowed(
+    sourceLine: CartLine?,
+    currentProductId: String,
+    editGroup: CatalogOptionGroupUiModel?,
+    isSoldOut: Boolean,
+    isQuoteRequired: Boolean,
+): Boolean = sourceLine != null && sourceLine.productId == currentProductId && editGroup != null && !isSoldOut && !isQuoteRequired
+
+internal fun isSingleValidCartOptionSelection(
+    selectedOptions: List<CatalogSelectedOptionUiModel>,
+    editGroup: CatalogOptionGroupUiModel?,
+): Boolean {
+    if (editGroup == null || selectedOptions.size != 1) return false
+    val selected = selectedOptions.single()
+    return selected.groupId == editGroup.id && editGroup.options.any { option -> option.id == selected.option.id }
 }
 
 /**

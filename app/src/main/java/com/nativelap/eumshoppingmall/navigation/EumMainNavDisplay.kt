@@ -79,6 +79,7 @@ fun EumMainNavDisplay(
     onCartQuantityChanged: suspend (lineId: String, quantity: Int) -> Unit,
     onCartItemsRemoved: suspend (lineIds: Set<String>) -> Unit,
     onCartLinesRestored: suspend (lines: List<CartLine>) -> Unit,
+    onReplaceCartLine: suspend (sourceLineId: String, replacement: CartLine) -> Boolean,
     modifier: Modifier = Modifier,
 ) {
     val navigationState = rememberEumMainNavigationState()
@@ -178,7 +179,7 @@ fun EumMainNavDisplay(
                     // 배너에서는 돌아갈 곳이 지금 장바구니이므로 보류 목적지 없이 로그인만 연다.
                     onLoginClick = { navigator.push(EumDestination.Login()) },
                     onQuoteRequestClick = { navigator.push(EumDestination.QuoteRequest()) },
-                    onOptionChangeClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
+                    onOptionChangeClick = { line -> navigator.push(EumDestination.ProductDetail(line.productId, line.lineId())) },
                 )
             }
             entry<EumDestination.MyPage> {
@@ -257,6 +258,9 @@ fun EumMainNavDisplay(
                     onReviewWriteClick = { productId -> entryContext.open(EumDestination.ReviewWrite(productId)) },
                     onQuestionWriteClick = { productId -> entryContext.open(EumDestination.ProductInquiryWrite(productId)) },
                     onAddToCart = onAddToCart,
+                    editSourceLineId = destination.editSourceLineId,
+                    editSourceLine = destination.editSourceLineId?.let { lineId -> currentSavedCartLines.firstOrNull { it.lineId() == lineId } },
+                    onReplaceCartLine = onReplaceCartLine,
                     cartAddOutcome = currentCartAddOutcome,
                     onCartAddOutcomeChange = { outcome -> cartAddOutcome = outcome },
                 )

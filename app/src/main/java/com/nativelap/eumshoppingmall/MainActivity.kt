@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
                     onCartQuantityChanged = cartCountStore::updateCartLineQuantity,
                     onCartItemsRemoved = cartCountStore::removeCartLines,
                     onCartLinesRestored = cartCountStore::addCartLines,
+                    onReplaceCartLine = cartCountStore::replaceCartLine,
                 )
             }
         }
