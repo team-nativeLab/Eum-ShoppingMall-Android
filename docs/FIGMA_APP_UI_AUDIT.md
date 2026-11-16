@@ -150,6 +150,23 @@
 - 미보정으로 남은 backgroundSubtle 사용처(후속): 홈 배너(테두리 있음), BrandScreens(#45), 리뷰 작성·주문 신청 화면(#40/#46), 마이페이지(#40).
 - Preview 추가: 카탈로그 카드(할인·견적·품절), 상세 탭 fontScale 1.5, 검색창 입력 있음·없음. 렌더는 확인하지 못했다.
 
+## #42 인증·계정 화면 Figma 세부 일치 (A-13·A-14·A-23~A-30)
+
+- 기준: `feature/#42-figma-auth-account-screens`(#38 27f135f 위). 명세 값만 사용했고 Preview·렌더 확인은 하지 못했다(에뮬레이터 미사용).
+- 공통(auth/view): `AuthOutlinedTextField`(BasicTextField+M3 DecorationBox, 입력 bodyM 15/24·좌우 패딩 14·포커스/오류 보더 1.5, 세로 패딩·필드 높이는 불변), 라벨·헬퍼 간격 8, 헬퍼 아이콘 14(circle-alert/circle-check), 비밀번호 눈 아이콘 20(터치 48), 전화 인증 버튼(재전송 labelM·px16, 확인 최소폭 73, 행 gap 12), 세그먼트 시각 36·터치 48, `AuthBottomBar`(surface·상단 1dp line·20/12 패딩), `AuthCard`, `AuthCheckbox`(16·r4·1.5), 필수 `*`.
+- 화면: A-13 로그인 간격·H1·링크·소셜 버튼, A-14 필수 *·동의 카드·가입하기 CTA 영역·액션 버튼 상단 정렬, A-23 재인증 상단 40·h3·24, A-24 카드 간격 6·버튼 시각 36, A-26 혜택 카드·유의사항·동의 박스·리듬·사유 부제/칩/그룹 간격, A-27·A-28 간격·인증 완료 상태·헤더 아이콘, A-29 성공 헬퍼 textSecondary·찾기 링크 2스팬, A-30 공통.
+- 미확인(구현 보류): A-14 타이머 문구 표시 상태, A-26 변형 4종, A-27~30 결과·재설정·완료 변형, A-26 안내·A-30 바 surface-2 적용 조건, 필수 * 대상 범위(사업자 입력).
+- 승인 편차: 필수 * 색은 #DB2129 대신 danger(#C5221F). 세그먼트 외곽선은 lineStrong 토큰. intro 제목은 기존 headlineSmall 유지.
+- 가정: 라벨 `*`는 공백 없이 붙임, 동의 행 체크박스-텍스트 gap 12, 유의사항 점은 4dp 원(슬롯 4×12), 가입 힌트-CTA gap 8, 사유 제목-부제 gap 8, 전화 행 세로 중앙 정렬.
+
+### #42 사후 검토 반영
+- 탈퇴 사유 textarea에 `AuthOutlinedTextField`(singleLine=false, minLines=3)를 적용했고, 입력 필드에 최소 높이 56dp(`OutlinedTextFieldDefaults.MinHeight`)를 명시했다.
+- A-24 버튼 S는 M3 버튼 내부 최소 높이(40dp)를 피하려고 Surface 기반 `AddressSmallButton`(시각 36, `minimumInteractiveComponentSize`로 터치 48)으로 바꿨다.
+- 인증 후 비활성 휴대폰 필드도 text-1 글자색을 쓴다. 인증 완료 후 번호 수정 불가는 회원가입·휴대폰 번호 변경 화면에도 적용되므로, 인증 연동 시 번호 변경 UI가 필요하다(후속).
+- 필수 필드에 접근성 stateDescription("필수 입력")을 추가했고, 헬퍼 문구는 weight(1f)와 오류 liveRegion을 적용했다.
+- 병합 메모: #41(f22c8a2)이 `AuthPasswordField` errorText를 `when { isServiceUnavailable -> auth_login_unavailable; isCredentialsInvalid -> ...; else -> null }`로 바꿨고, #42는 같은 호출 블록을 중첩 Column으로 재들여쓰기했다. 병합 시 #41의 when 블록을 중첩 Column 안에 보존한다.
+- 후속 보류: 상단바 arrow-left vs chevron-left, 필수 * 사업자 입력 대상, A-14 타이머 문구 표시 상태.
+
 ## #43 주문 내역·혜택 화면 Figma 세부 일치 (A-16~A-22)
 
 - 기준: `feature/#43-figma-orders-benefits-screens`(#38 커밋 27f135f 위). Figma 도구 없이 명세 값만 사용했고, 시각 확인은 Preview(`OrdersFigmaPreviews.kt`, `BenefitPreviews.kt`)로만 했다. Preview 렌더 결과는 눈으로 확인하지 못했다(컴파일만 통과).

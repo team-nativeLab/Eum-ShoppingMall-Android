@@ -3,14 +3,16 @@ package com.nativelap.eumshoppingmall.ui.auth.view
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,8 +27,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthMemberType
@@ -34,6 +38,7 @@ import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthSignupUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -41,8 +46,18 @@ fun AuthSignupScreen(uiModel: AuthSignupUiModel, onEvent: (AuthScreenEvent) -> U
     Scaffold(
         topBar = { AuthTopBar(stringResource(R.string.account_sign_up), onBack = { onEvent(AuthScreenEvent.BackClicked) }) },
         bottomBar = {
-            Column(Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8)) {
-                AuthPrimaryAction(stringResource(R.string.account_sign_up), uiModel.isSubmitEnabled) { onEvent(AuthScreenEvent.SignupSubmitted) }
+            AuthBottomBar {
+                Text(
+                    stringResource(R.string.auth_signup_notice),
+                    Modifier.fillMaxWidth(),
+                    style = EumTypographyTokens.caption,
+                    color = MaterialTheme.eumColors.textTertiary,
+                    textAlign = TextAlign.Center,
+                )
+
+                Spacer(Modifier.height(EumSpacing.x8))
+
+                AuthPrimaryAction(stringResource(R.string.auth_signup_submit), uiModel.isSubmitEnabled) { onEvent(AuthScreenEvent.SignupSubmitted) }
             }
         },
         containerColor = MaterialTheme.eumColors.background,
@@ -50,27 +65,26 @@ fun AuthSignupScreen(uiModel: AuthSignupUiModel, onEvent: (AuthScreenEvent) -> U
     ) { padding ->
         Column(
             Modifier.fillMaxSize().padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20),
-            verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+            verticalArrangement = Arrangement.spacedBy(EumSpacing.x20),
         ) {
             AuthSegmentedControl(
                 labels = listOf(stringResource(R.string.auth_member_personal), stringResource(R.string.auth_member_business)),
                 selectedIndex = if (uiModel.memberType == AuthMemberType.PERSONAL) 0 else 1,
                 onSelected = { onEvent(AuthScreenEvent.SignupMemberTypeChanged(if (it == 0) AuthMemberType.PERSONAL else AuthMemberType.BUSINESS)) },
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.Bottom) {
-                androidx.compose.foundation.layout.Box(Modifier.weight(1f)) {
-                    AuthTextField(
-                        stringResource(R.string.auth_email_label),
-                        uiModel.email,
-                        { onEvent(AuthScreenEvent.SignupFieldChanged("email", it)) },
-                        placeholder = stringResource(R.string.auth_email_placeholder),
-                        helperText = if (uiModel.isEmailAvailable) stringResource(R.string.auth_email_available) else null,
-                        keyboardType = KeyboardType.Email,
-                    )
-                }
-                OutlinedButton(onClick = { onEvent(AuthScreenEvent.EmailDuplicateCheckClicked) }, modifier = Modifier.heightIn(min = 48.dp)) {
-                    Text(stringResource(R.string.auth_email_duplicate_check))
-                }
+            AuthFieldActionRow(
+                actionLabel = stringResource(R.string.auth_email_duplicate_check),
+                onActionClick = { onEvent(AuthScreenEvent.EmailDuplicateCheckClicked) },
+            ) {
+                AuthTextField(
+                    stringResource(R.string.auth_email_label),
+                    uiModel.email,
+                    { onEvent(AuthScreenEvent.SignupFieldChanged("email", it)) },
+                    placeholder = stringResource(R.string.auth_email_placeholder),
+                    helperText = if (uiModel.isEmailAvailable) stringResource(R.string.auth_email_available) else null,
+                    keyboardType = KeyboardType.Email,
+                    isRequired = true,
+                )
             }
             AuthPasswordField(
                 stringResource(R.string.auth_password_label),
@@ -79,6 +93,7 @@ fun AuthSignupScreen(uiModel: AuthSignupUiModel, onEvent: (AuthScreenEvent) -> U
                 onValueChange = { onEvent(AuthScreenEvent.SignupSecretChanged("password", it)) },
                 onVisibilityChange = { onEvent(AuthScreenEvent.SignupPasswordVisibilityChanged("password")) },
                 helperText = stringResource(R.string.auth_password_rule),
+                isRequired = true,
             )
             AuthPasswordField(
                 stringResource(R.string.account_password_confirmation),
@@ -87,12 +102,14 @@ fun AuthSignupScreen(uiModel: AuthSignupUiModel, onEvent: (AuthScreenEvent) -> U
                 onValueChange = { onEvent(AuthScreenEvent.SignupSecretChanged("password_confirmation", it)) },
                 onVisibilityChange = { onEvent(AuthScreenEvent.SignupPasswordVisibilityChanged("confirmation")) },
                 errorText = if (uiModel.passwordConfirmation.isNotEmpty() && !uiModel.password.contentEquals(uiModel.passwordConfirmation)) stringResource(R.string.auth_password_mismatch) else null,
+                isRequired = true,
             )
             AuthTextField(
                 stringResource(if (uiModel.memberType == AuthMemberType.BUSINESS) R.string.auth_contact_name_label else R.string.auth_full_name_label),
                 uiModel.name,
                 { onEvent(AuthScreenEvent.SignupFieldChanged("name", it)) },
                 placeholder = stringResource(R.string.auth_name_placeholder),
+                isRequired = true,
             )
             AuthPhoneVerificationFields(
                 label = stringResource(R.string.auth_phone_number),
@@ -101,17 +118,16 @@ fun AuthSignupScreen(uiModel: AuthSignupUiModel, onEvent: (AuthScreenEvent) -> U
                 onResend = { onEvent(AuthScreenEvent.SignupPhoneResendClicked) },
                 onCodeChanged = { onEvent(AuthScreenEvent.SignupVerificationCodeChanged(it)) },
                 onConfirm = { onEvent(AuthScreenEvent.SignupVerificationConfirmClicked) },
+                isRequired = true,
             )
             if (uiModel.memberType == AuthMemberType.BUSINESS) {
-                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x20)) {
                     Text(stringResource(R.string.auth_business_information), style = MaterialTheme.typography.labelMedium)
-                    Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.Bottom) {
-                        androidx.compose.foundation.layout.Box(Modifier.weight(1f)) {
-                            AuthTextField(stringResource(R.string.auth_business_registration_number), uiModel.businessRegistrationNumber, { onEvent(AuthScreenEvent.SignupFieldChanged("registration_number", it)) }, placeholder = stringResource(R.string.auth_business_registration_placeholder), keyboardType = KeyboardType.Number)
-                        }
-                        OutlinedButton(onClick = { onEvent(AuthScreenEvent.SignupBusinessVerificationClicked) }, modifier = Modifier.heightIn(min = 48.dp)) {
-                            Text(stringResource(R.string.auth_verify))
-                        }
+                    AuthFieldActionRow(
+                        actionLabel = stringResource(R.string.auth_verify),
+                        onActionClick = { onEvent(AuthScreenEvent.SignupBusinessVerificationClicked) },
+                    ) {
+                        AuthTextField(stringResource(R.string.auth_business_registration_number), uiModel.businessRegistrationNumber, { onEvent(AuthScreenEvent.SignupFieldChanged("registration_number", it)) }, placeholder = stringResource(R.string.auth_business_registration_placeholder), keyboardType = KeyboardType.Number)
                     }
                     AuthTextField(stringResource(R.string.auth_company_name), uiModel.companyName, { onEvent(AuthScreenEvent.SignupFieldChanged("company_name", it)) }, placeholder = stringResource(R.string.auth_company_name_placeholder))
                     AuthTextField(stringResource(R.string.auth_representative_name), uiModel.representativeName, { onEvent(AuthScreenEvent.SignupFieldChanged("representative", it)) }, placeholder = stringResource(R.string.auth_representative_name_placeholder))
@@ -135,8 +151,27 @@ fun AuthSignupScreen(uiModel: AuthSignupUiModel, onEvent: (AuthScreenEvent) -> U
                 }
             }
             AuthConsentGroup(uiModel, onEvent)
-            Text(stringResource(R.string.auth_signup_notice), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
-            androidx.compose.foundation.layout.Spacer(Modifier.padding(bottom = EumSpacing.x16))
+
+            Spacer(Modifier.height(EumSpacing.x4))
+        }
+    }
+}
+
+/** 입력 필드 오른쪽 액션 버튼 행. 버튼은 필드 상단에 맞추고 라벨 한 줄 높이만큼 내린다. */
+@Composable
+private fun AuthFieldActionRow(
+    actionLabel: String,
+    onActionClick: () -> Unit,
+    field: @Composable () -> Unit,
+) {
+    val labelLineHeight = with(LocalDensity.current) { MaterialTheme.typography.labelMedium.lineHeight.toDp() }
+    Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.Top) {
+        Box(Modifier.weight(1f)) { field() }
+        OutlinedButton(
+            onClick = onActionClick,
+            modifier = Modifier.padding(top = labelLineHeight + EumSpacing.x8).heightIn(min = 48.dp),
+        ) {
+            Text(actionLabel, style = MaterialTheme.typography.labelMedium)
         }
     }
 }

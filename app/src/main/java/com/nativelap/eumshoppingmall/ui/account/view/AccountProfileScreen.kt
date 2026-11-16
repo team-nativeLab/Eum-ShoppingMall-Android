@@ -80,7 +80,7 @@ fun AccountProfileScreen(
                     verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
                 ) {
                     Column(
-                        Modifier.fillMaxWidth().padding(top = EumSpacing.x24),
+                        Modifier.fillMaxWidth().padding(top = EumSpacing.x40, bottom = EumSpacing.x8),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
                     ) {
@@ -91,7 +91,7 @@ fun AccountProfileScreen(
                             modifier = Modifier.size(24.dp),
                             tint = MaterialTheme.eumColors.textPrimary,
                         )
-                        Text(stringResource(R.string.account_password_reenter), style = MaterialTheme.typography.titleLarge)
+                        Text(stringResource(R.string.account_password_reenter), style = MaterialTheme.typography.headlineSmall)
                         Text(
                             stringResource(R.string.account_password_verify_description),
                             Modifier.widthIn(max = 280.dp),
