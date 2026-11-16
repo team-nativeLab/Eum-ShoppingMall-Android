@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.ui.home.HomeCategoryUiModel
@@ -52,7 +53,7 @@ fun HomeCategoryItem(category: HomeCategoryUiModel, onClick: (HomeCategoryUiMode
             )
         }
         Text(
-            category.label,
+            stringResource(category.labelResId),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.eumColors.textSecondary,
             textAlign = TextAlign.Center,

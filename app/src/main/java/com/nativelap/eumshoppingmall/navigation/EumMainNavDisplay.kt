@@ -115,6 +115,7 @@ fun EumMainNavDisplay(
         entryProvider<NavKey> {
             entry<EumDestination.Home> {
                 HomeRoute(
+                    categories = remember { com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryDefinitions.homeItems() },
                     recommendedProducts = remember { screenDataProvider.homeRecommendedProducts() },
                     bestSellerProducts = remember { screenDataProvider.homeBestSellerProducts() },
                     cartItemCount = currentCartItemCount,
@@ -127,6 +128,8 @@ fun EumMainNavDisplay(
                         }
                     },
                     onProductClick = { product -> navigator.push(EumDestination.ProductDetail(product.id)) },
+                    onCategoryClick = { category -> navigator.push(destinationForCategory(category.id)) },
+                    onHeroAction = { action -> navigator.push(destinationForHomeHeroAction(action)) },
                     onQuoteClick = { navigator.push(EumDestination.QuoteRequest()) },
                     onMenuClick = { navigator.push(EumDestination.Drawer) },
                     onSeeAllProductsClick = { navigator.push(EumDestination.ProductList()) },
@@ -143,7 +146,7 @@ fun EumMainNavDisplay(
                     cartItemCount = currentCartItemCount,
                     onTabSelected = navigator::navigateToTab,
                     onSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
-                    onCategoryClick = { categoryId -> navigator.push(EumDestination.ProductList(categoryId)) },
+                    onCategoryClick = { categoryId -> navigator.push(destinationForCategory(categoryId)) },
                     onBrandClick = { brandId -> navigator.push(EumDestination.BrandDetail(brandId)) },
                 )
             }

@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.home.components.HomeBottomNavigation
+import com.nativelap.eumshoppingmall.ui.home.components.HomeCategoryRow
 import com.nativelap.eumshoppingmall.ui.home.components.HomeHeroCarousel
 import com.nativelap.eumshoppingmall.ui.home.components.HomeNavigationRail
 import com.nativelap.eumshoppingmall.ui.home.components.HomeProductCard
@@ -49,6 +50,7 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
 fun HomeRoute(
+    categories: List<HomeCategoryUiModel> = emptyList(),
     recommendedProducts: List<HomeProductUiModel> = emptyList(),
     bestSellerProducts: List<HomeProductUiModel> = emptyList(),
     cartItemCount: Int = 0,
@@ -56,7 +58,7 @@ fun HomeRoute(
     onSearch: (String) -> Unit = {},
     onCategoryClick: (HomeCategoryUiModel) -> Unit = {},
     onProductClick: (HomeProductUiModel) -> Unit = {},
-    onHeroAction: (Int) -> Unit = {},
+    onHeroAction: (HomeHeroActionId) -> Unit = {},
     onQuoteClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
@@ -71,6 +73,7 @@ fun HomeRoute(
     var favoriteProductIds by rememberSaveable { mutableStateOf(emptySet<String>()) }
     HomeScreen(
         query = query,
+        categories = categories,
         recommendedProducts = recommendedProducts,
         bestSellerProducts = bestSellerProducts,
         cartItemCount = cartItemCount,
@@ -86,7 +89,7 @@ fun HomeRoute(
 
                 is HomeScreenEvent.ProductClicked -> onProductClick(event.product)
 
-                is HomeScreenEvent.HeroActionClicked -> onHeroAction(event.slideIndex)
+                is HomeScreenEvent.HeroActionClicked -> onHeroAction(event.action)
 
                 HomeScreenEvent.QuoteClicked -> onQuoteClick()
 
@@ -119,6 +122,7 @@ fun HomeRoute(
 @Composable
 private fun HomeScreen(
     query: String,
+    categories: List<HomeCategoryUiModel>,
     recommendedProducts: List<HomeProductUiModel>,
     bestSellerProducts: List<HomeProductUiModel>,
     cartItemCount: Int,
@@ -198,6 +202,14 @@ private fun HomeScreen(
                                 HomeHeroCarousel(onActionClick = {
                                     onEvent(HomeScreenEvent.HeroActionClicked(it))
                                 })
+                            }
+                            item { Spacer(Modifier.height(EumSpacing.x24)) }
+                            item {
+                                HomeCategoryRow(
+                                    categories = categories,
+                                    onCategoryClick = { onEvent(HomeScreenEvent.CategoryClicked(it)) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
                             }
                             item { Spacer(Modifier.height(EumSpacing.x40)) }
                             item {

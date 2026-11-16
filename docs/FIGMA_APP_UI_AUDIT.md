@@ -242,3 +242,12 @@
 - 선택 그룹: 라디오 목록 Column·필터 칩 FlowRow 에 `selectableGroup()` 적용, 필터 라디오 행 gap 8.
 - Preview: A-48·A-49 는 `ProductFilterPreviews.kt`·`ProductReviewWritePreviews.kt`(debug)에 이미 있다. 철회 화면 샘플 값은 `OrderRequestPreviews.kt`에서 넘긴다.
 - 후속(이번 이슈 보류): A-53 상단바 뒤로가기 제거 여부, 13sp 타입 토큰, accent 색 토큰, 철회 4행 실제 데이터 연동(#41 이후), 라디오 미선택 링 대비 2.61(선택 여부는 채움 유무로 구분 중).
+
+## #59 홈 히어로·카테고리·견적 배너 목적지 연결
+
+- 범위: A-02 홈 히어로 3개 CTA, A-03 카테고리 8개, 홈의 카테고리 행, 홈 견적 배너 흐름.
+- 목적지: ‘제품 둘러보기’→`ProductList(null)`, ‘견적 문의하기’→`QuoteRequest()`, ‘회사소개 보기’→`CompanyIntro`; 카테고리는 안정 ID를 가진 `ProductList(categoryId)`로 연결한다. 홈 견적 배너는 기존 `QuoteRequest()` 연결을 유지한다.
+- 공통 카테고리 데이터는 ID `protective`, `uniform`, `traffic`, `fire`, `industrial`, `security`, `living`, `custom`과 `strings.xml`의 카테고리 문구, `figma_icon_map.csv`의 아이콘 자원을 사용한다. 해당 ID는 화면 흐름용이며 서버 소유 ID로 간주하지 않는다. debug preview 목록은 운영 데이터 원천으로 사용하지 않는다.
+- Figma 편차: A-02(178:369)에는 카테고리 행이 없다. 홈에도 같은 8개 카테고리 행을 추가한 것은 사용자 결정(2026-11-16)이며 A-03(178:722)의 탐색을 홈에서 제공한다. 행은 작은 폭에서도 가로 스크롤하고 글자 크기 확대 시 카드 폭과 터치 영역을 유지한다.
+- 제한: `ProductList(categoryId)` 목적지 연결까지 구현했다. debug 상품 목록이 카테고리 ID로 실제 상품을 필터링하지 않는 것은 이번 범위 밖이며 완료로 간주하지 않는다.
+- 검증: 목적지 매핑·8개 ID 고유성/공유·공개 로그인 게이트 단위 테스트를 추가했다. 단말 렌더링은 별도 확인하지 않았다.

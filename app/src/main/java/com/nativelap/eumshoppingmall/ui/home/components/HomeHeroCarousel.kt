@@ -50,6 +50,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.home.HomeHeroActionId
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -57,6 +58,7 @@ import com.nativelap.eumshoppingmall.ui.theme.isReducedMotion
 import kotlinx.coroutines.delay
 
 private data class HomeHeroSlide(
+    val actionId: HomeHeroActionId,
     val imageResId: Int,
     val eyebrowResId: Int,
     val titleResId: Int,
@@ -67,6 +69,7 @@ private data class HomeHeroSlide(
 
 private val homeHeroSlides = listOf(
     HomeHeroSlide(
+        actionId = HomeHeroActionId.BrowseProducts,
         imageResId = R.drawable.figma_home_hero_safe_tomorrow,
         eyebrowResId = R.string.home_hero_safe_eyebrow,
         titleResId = R.string.home_hero_safe_title,
@@ -75,6 +78,7 @@ private val homeHeroSlides = listOf(
         imageDescriptionResId = R.string.home_hero_safe_image_description,
     ),
     HomeHeroSlide(
+        actionId = HomeHeroActionId.RequestQuote,
         imageResId = R.drawable.figma_home_hero_custom_solution,
         eyebrowResId = R.string.home_hero_custom_eyebrow,
         titleResId = R.string.home_hero_custom_title,
@@ -83,6 +87,7 @@ private val homeHeroSlides = listOf(
         imageDescriptionResId = R.string.home_hero_custom_image_description,
     ),
     HomeHeroSlide(
+        actionId = HomeHeroActionId.ViewCompany,
         imageResId = R.drawable.figma_home_hero_sustainable_value,
         eyebrowResId = R.string.home_hero_sustainable_eyebrow,
         titleResId = R.string.home_hero_sustainable_title,
@@ -94,7 +99,7 @@ private val homeHeroSlides = listOf(
 
 @Composable
 fun HomeHeroCarousel(
-    onActionClick: (Int) -> Unit,
+    onActionClick: (HomeHeroActionId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val pagerState = rememberPagerState(pageCount = { homeHeroSlides.size })
@@ -145,7 +150,7 @@ fun HomeHeroCarousel(
                 pageIndex = page,
                 pageCount = homeHeroSlides.size,
                 isCurrentPage = pagerState.currentPage == page,
-                onActionClick = { onActionClick(page) },
+                onActionClick = { onActionClick(slide.actionId) },
                 onIndicatorClick = { targetPage ->
                     autoAdvanceResetKey += 1
                     pagerState.requestScrollToPage(targetPage)

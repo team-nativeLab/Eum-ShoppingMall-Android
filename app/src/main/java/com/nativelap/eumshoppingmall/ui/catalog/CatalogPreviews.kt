@@ -352,16 +352,7 @@ private fun CatalogCategoryPreview() {
     EumShoppingMallTheme {
         CatalogCategoryScreen(
             uiModel = CatalogCategoryScreenUiModel(
-                categories = listOf(
-                    CatalogCategoryUiModel("protective", "개인보호장비", R.drawable.ic_hard_hat),
-                    CatalogCategoryUiModel("uniform", "작업복/유니폼", R.drawable.ic_shirt),
-                    CatalogCategoryUiModel("traffic", "교통·도로 안전", R.drawable.ic_traffic_cone),
-                    CatalogCategoryUiModel("fire", "소방·방재용품", R.drawable.ic_fire_extinguisher),
-                    CatalogCategoryUiModel("industrial", "산업 현장용품", R.drawable.ic_briefcase_medical),
-                    CatalogCategoryUiModel("security", "보안·감시", R.drawable.ic_cctv),
-                    CatalogCategoryUiModel("living", "생활 안전용품", R.drawable.ic_leaf),
-                    CatalogCategoryUiModel("custom", "맞춤 제작/납품", R.drawable.ic_package),
-                ),
+                categories = CatalogCategoryDefinitions.all,
             ),
             onEvent = {},
         )

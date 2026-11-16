@@ -15,7 +15,7 @@ fun HomeCategoryRow(
     modifier: Modifier = Modifier,
 ) {
     LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-        items(categories, key = { it.label }) { category ->
+        items(categories, key = { it.id }) { category ->
             HomeCategoryItem(category, onCategoryClick)
         }
     }
