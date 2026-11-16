@@ -20,7 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutPaymentMethod
@@ -55,18 +54,17 @@ fun CheckoutPaymentMethodSelector(
                         color = MaterialTheme.eumColors.surface,
                         border = BorderStroke(
                             width = if (isSelected) 1.5.dp else 1.dp,
-                            color = if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.lineControl,
+                            color = if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.lineStrong,
                         ),
                     ) {
                         Box(
-                            Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = EumSpacing.x8),
+                            Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = EumSpacing.x8),
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
                                 stringResource(labelResId),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = MaterialTheme.eumColors.textPrimary,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textSecondary,
                             )
                         }
                     }

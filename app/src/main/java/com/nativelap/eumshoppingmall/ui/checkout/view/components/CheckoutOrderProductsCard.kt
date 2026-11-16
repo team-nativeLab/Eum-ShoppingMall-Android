@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -36,7 +37,7 @@ fun CheckoutOrderProductsCard(
     onExpandedChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20)) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 productSummaryLabel(products),
@@ -45,6 +46,7 @@ fun CheckoutOrderProductsCard(
             )
             TextButton(
                 onClick = { onExpandedChanged(!isExpanded) },
+                contentPadding = PaddingValues(start = EumSpacing.x12),
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
             ) {
                 Text(stringResource(if (isExpanded) R.string.common_fold else R.string.common_view_details))
