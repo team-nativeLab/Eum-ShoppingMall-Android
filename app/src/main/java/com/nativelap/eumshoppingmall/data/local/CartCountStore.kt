@@ -32,6 +32,9 @@ data class CartLine(
     fun lineId(): String = "$productId/$optionId"
 }
 
+/** 편집 줄 교체 결과. [SourceMissing]은 원본 줄이 없거나 같은 id가 둘 이상인 경우, [Failed]는 저장 쓰기 예외다. */
+enum class CartLineReplaceResult { Replaced, SourceMissing, Failed }
+
 /**
  * 장바구니 줄을 DataStore에 저장하고 읽는다(이전 개수 저장을 확장한 최소 저장소).
  * 같은 상품·같은 옵션을 다시 담으면 줄을 새로 만들지 않고 수량을 더한다.
@@ -56,15 +59,25 @@ class CartCountStore(private val dataStore: DataStore<Preferences>) {
         }
     }
 
-    /** 원본 줄이 여전히 존재할 때만 한 번의 DataStore edit에서 교체하고 대상 줄과 수량을 병합한다. */
-    suspend fun replaceCartLine(sourceLineId: String, replacement: CartLine): Boolean {
-        var replaced = false
-        dataStore.edit { preferences ->
-            val (raw, didReplace) = replaceCartLineRaw(preferences[CART_LINES_KEY].orEmpty(), sourceLineId, replacement)
-            if (didReplace) preferences[CART_LINES_KEY] = raw
-            replaced = didReplace
+    /**
+     * 원본 줄이 여전히 존재할 때만 한 번의 DataStore edit에서 교체하고 대상 줄과 수량을 병합한다.
+     * 결과는 교체 성공, 원본 없음·중복([CartLineReplaceResult.SourceMissing]), 쓰기 실패 셋 중 하나다.
+     */
+    suspend fun replaceCartLine(sourceLineId: String, replacement: CartLine): CartLineReplaceResult {
+        var result = CartLineReplaceResult.SourceMissing
+        return try {
+            dataStore.edit { preferences ->
+                val (raw, didReplace) = replaceCartLineRaw(preferences[CART_LINES_KEY].orEmpty(), sourceLineId, replacement)
+                if (didReplace) preferences[CART_LINES_KEY] = raw
+                result = if (didReplace) CartLineReplaceResult.Replaced else CartLineReplaceResult.SourceMissing
+            }
+            result
+        } catch (exception: kotlinx.coroutines.CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            // 쓰기가 실패하면 DataStore 스냅샷은 바뀌지 않는다. 원인은 호출부가 저장 실패 안내로 알린다.
+            CartLineReplaceResult.Failed
         }
-        return replaced
     }
 
     /** 줄의 수량을 바꾼다. 수량은 1 이상이고, 스테퍼와 같이 Int 최댓값까지 허용한다. 없는 줄은 무시한다. */

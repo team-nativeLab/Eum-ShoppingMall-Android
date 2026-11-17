@@ -42,7 +42,7 @@ fun HomeQuoteBanner(onClick: () -> Unit, modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x2),
         ) {
             Text(
-                stringResource(R.string.quote_custom_order_english),
+                stringResource(R.string.home_quote_banner_eyebrow),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.eumColors.textTertiary,
             )

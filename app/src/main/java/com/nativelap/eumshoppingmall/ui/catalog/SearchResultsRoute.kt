@@ -22,10 +22,18 @@ fun CatalogSearchResultsRoute(
     onQuoteRequestClick: () -> Unit,
     isLoggedIn: Boolean,
     onLoginRequired: () -> Unit,
+    onSearchCleared: () -> Unit = {},
+    // null이면 카드에 담기 버튼을 그리지 않는다.
+    onQuickAddToCart: ((CatalogProductUiModel) -> Unit)? = null,
+    cartAddOutcome: CartAddOutcome? = null,
+    onCartAddOutcomeChange: (CartAddOutcome?) -> Unit = {},
+    onCartClick: () -> Unit = {},
+    onCartLoginRequired: () -> Unit = onLoginRequired,
 ) {
     var editingQuery by rememberSaveable { mutableStateOf(uiModel.query) }
     var selectedFilter by rememberSaveable { mutableStateOf(uiModel.selectedFilter) }
     var isListLayout by rememberSaveable { mutableStateOf(uiModel.isListLayout) }
+    val snackbarHostState = rememberCartAddSnackbarHostState(cartAddOutcome, onCartAddOutcomeChange, onCartClick)
     val filterState = rememberProductFilterState()
     val favoriteToggles = rememberFavoriteToggles(
         initialFavoriteIds = uiModel.products.filter { product -> product.isFavorite }.map { product -> product.id }.toSet(),
@@ -40,7 +48,11 @@ fun CatalogSearchResultsRoute(
 
             CatalogSearchResultsEvent.PopularSearchClicked -> onPopularSearchClick()
 
-            is CatalogSearchResultsEvent.QueryChanged -> editingQuery = event.query
+            is CatalogSearchResultsEvent.QueryChanged -> {
+                editingQuery = event.query
+                // 검색창을 비우면 결과 화면을 떠나 최근·인기 검색어 화면으로 돌아간다.
+                if (isClearedSearchQuery(event.query)) onSearchCleared()
+            }
 
             CatalogSearchResultsEvent.SearchSubmitted -> if (editingQuery.isNotBlank()) onSearch(editingQuery.trim())
 
@@ -58,6 +70,16 @@ fun CatalogSearchResultsRoute(
             -> filterState.open()
 
             is CatalogSearchResultsEvent.FavoriteToggled -> favoriteToggles.toggle(event.productId)
+
+            is CatalogSearchResultsEvent.QuickCartClicked -> {
+                if (isLoggedIn) {
+                    uiModel.products.firstOrNull { product -> product.id == event.productId }?.let { product ->
+                        onQuickAddToCart?.invoke(product)
+                    }
+                } else {
+                    onCartLoginRequired()
+                }
+            }
         }
     }
     if (uiModel.products.isEmpty()) {
@@ -86,6 +108,8 @@ fun CatalogSearchResultsRoute(
                     },
                 ),
                 onEvent = onEvent,
+                snackbarHostState = snackbarHostState,
+                showQuickCart = onQuickAddToCart != null,
                 selectedBottomItem = selectedTab,
                 onBottomItemSelected = onTabSelected,
                 cartItemCount = cartItemCount,

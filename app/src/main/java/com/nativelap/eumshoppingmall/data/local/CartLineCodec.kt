@@ -121,18 +121,35 @@ internal fun editCartLinesRaw(raw: String, transform: (CartLine) -> CartLine?): 
 internal fun replaceCartLineRaw(raw: String, sourceLineId: String, replacement: CartLine): Pair<String, Boolean> {
     val rawLines = raw.split(LINE_SEPARATOR).filter(String::isNotBlank)
     val decoded = rawLines.mapNotNull(::decodeCartLine)
-    val sources = decoded.filter { it.lineId() == sourceLineId }
-    val source = sources.singleOrNull() ?: return raw to false
-    val remaining = decoded.filterNot { it.lineId() == sourceLineId }
+    val source = decoded.filter { it.lineId() == sourceLineId }.singleOrNull() ?: return raw to false
+    val targetId = replacement.lineId()
+    // 대상과 같은 id의 다른 줄은 원본 자리의 대상 줄에 합친다(수량 포화 합산). 합쳐져 사라지는 줄은 제거한다.
     val target = replacement.copy(quantity = source.quantity)
-    val merged = remaining.mergedWith(listOf(target))
-    var mergedIndex = 0
-    val output = rawLines.mapNotNull { rawLine ->
-        val line = decodeCartLine(rawLine) ?: return@mapNotNull rawLine
-        if (line.lineId() == sourceLineId) return@mapNotNull null
-        encodeCartLine(merged[mergedIndex++])
-    }.toMutableList()
-    merged.drop(remaining.size).forEach { line -> output.add(encodeCartLine(line)) }
+    val mergedQuantity = decoded
+        .filter { line -> line.lineId() == targetId && line.lineId() != sourceLineId }
+        .fold(target.quantity) { total, existing -> saturatedSum(total, existing.quantity) }
+    val merged = encodeCartLine(target.copy(quantity = mergedQuantity))
+    var placed = false
+    val output = mutableListOf<String>()
+    rawLines.forEach { rawLine ->
+        val line = decodeCartLine(rawLine)
+        when {
+            // 깨진 줄은 원문 그대로 보존한다.
+            line == null -> output.add(rawLine)
+
+            // 원본 자리에 대상 줄을 한 번만 둔다. 같은 옵션 재확정도 이 자리에서 처리된다.
+            line.lineId() == sourceLineId -> if (!placed) {
+                output.add(merged)
+                placed = true
+            }
+
+            // 대상 줄은 원본 자리로 합쳐졌으므로 원래 자리의 줄은 지운다.
+            line.lineId() == targetId -> Unit
+
+            // 나머지 줄은 원문 그대로 순서를 지킨다.
+            else -> output.add(rawLine)
+        }
+    }
     return output.joinToString(LINE_SEPARATOR) to true
 }
 

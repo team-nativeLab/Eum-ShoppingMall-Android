@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.ui.home.HomeCategoryUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
@@ -59,5 +60,16 @@ fun HomeCategoryItem(category: HomeCategoryUiModel, onClick: (HomeCategoryUiMode
             textAlign = TextAlign.Center,
             maxLines = 2,
         )
+        // 설명 부제는 리소스가 있을 때만 그린다.
+        category.descriptionResId?.let { descriptionResId ->
+            Text(
+                stringResource(descriptionResId),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.eumColors.textTertiary,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }

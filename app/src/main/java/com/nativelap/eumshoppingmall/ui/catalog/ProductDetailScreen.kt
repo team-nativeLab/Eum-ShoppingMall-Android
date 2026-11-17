@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -317,14 +317,20 @@ internal fun CatalogProductDetailContent(
                 }
                 if (uiModel.relatedProducts.isNotEmpty()) {
                     item { Text(stringResource(R.string.catalog_product_related), Modifier.padding(EumSpacing.x20), style = MaterialTheme.typography.titleMedium) }
-                    items(uiModel.relatedProducts.chunked(2)) { row ->
-                        Row(Modifier.padding(horizontal = EumSpacing.x20), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                    itemsIndexed(uiModel.relatedProducts.chunked(2)) { rowIndex, row ->
+                        // 목록 격자와 같은 행 간격(x24)을 행 사이에만 둔다.
+                        if (rowIndex > 0) Spacer(Modifier.height(EumSpacing.x24))
+                        // 연관 상품 행의 카드는 가장 높은 카드에 맞춘다.
+                        Row(
+                            Modifier.padding(horizontal = EumSpacing.x20).height(IntrinsicSize.Max),
+                            horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+                        ) {
                             row.forEach { product ->
                                 CatalogProductCard(
                                     product,
                                     onClick = { onEvent(CatalogProductDetailEvent.RelatedProductSelected(product.id)) },
                                     onFavoriteClick = { onEvent(CatalogProductDetailEvent.FavoriteToggled(product.id)) },
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier.weight(1f).fillMaxHeight(),
                                 )
                             }
                             if (row.size == 1) Spacer(Modifier.weight(1f))
@@ -745,8 +751,9 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
             Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
         ) {
-            if (!isQuoteRequired && uiModel.optionGroups.isEmpty()) {
-                Text(stringResource(R.string.catalog_no_options), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
+            // 옵션 그룹이 없는 상품은 기본 구성으로 바로 담는다. 안내 문구는 담기 버튼 활성과 같은 판정을 쓴다(F4).
+            noOptionGuidanceRes(isQuoteRequired = isQuoteRequired, hasOptionGroups = uiModel.optionGroups.isNotEmpty())?.let { guidanceRes ->
+                Text(stringResource(guidanceRes), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
             }
             uiModel.optionGroups.forEach { group ->
                 CatalogOptionGroupSelector(
@@ -901,3 +908,9 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
         }
     }
 }
+
+/**
+ * 옵션 그룹이 없는 일반 상품의 시트 안내. 견적 상품은 안내가 없다. 옵션이 없으면 "기본 구성"으로 담기 때문에
+ * "선택 가능한 옵션이 없습니다"처럼 담기를 막는 문구를 쓰지 않는다(F4).
+ */
+internal fun noOptionGuidanceRes(isQuoteRequired: Boolean, hasOptionGroups: Boolean): Int? = if (!isQuoteRequired && !hasOptionGroups) R.string.catalog_option_default_label else null

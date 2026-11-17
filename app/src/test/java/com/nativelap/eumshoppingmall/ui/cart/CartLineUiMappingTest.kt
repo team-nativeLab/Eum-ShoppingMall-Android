@@ -2,8 +2,10 @@ package com.nativelap.eumshoppingmall.ui.cart
 
 import com.nativelap.eumshoppingmall.data.local.CartLine
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemType
+import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemUiModel
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartPriceLabels
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartUiModel
+import com.nativelap.eumshoppingmall.ui.cart.viewmodel.canChangeOption
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartProductAmountWon
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartUiModelOf
 import org.junit.Assert.assertEquals
@@ -61,6 +63,31 @@ class CartLineUiMappingTest {
         assertEquals(CartItemType.QuoteRequired, item.type)
         assertFalse(item.isSelected)
         assertNull(item.lineTotalWon)
+    }
+
+    @Test
+    fun quoteLinesCannotChangeOptionWhileOrderableLinesCan() {
+        val quote = cartUiModelOf(listOf(line(productId = "q", isQuoteRequired = true)), labels, fallback = { CartUiModel() }).items.single()
+        val orderable = cartUiModelOf(listOf(line(productId = "o")), labels, fallback = { CartUiModel() }).items.single()
+
+        assertFalse(quote.canChangeOption())
+        assertTrue(orderable.canChangeOption())
+    }
+
+    @Test
+    fun fallbackSampleLineCannotChangeOptionButSavedLineCan() {
+        val fallbackSample = CartItemUiModel(
+            id = "cart-helmet",
+            name = "샘플 안전모",
+            optionLabel = "사이즈 L",
+            quantity = 1,
+            unitPriceLabel = "₩18,000",
+            totalPriceLabel = "₩18,000",
+        )
+        val saved = cartUiModelOf(listOf(line(productId = "helmet")), labels, fallback = { CartUiModel() }).items.single()
+
+        assertFalse(fallbackSample.canChangeOption())
+        assertTrue(saved.canChangeOption())
     }
 
     @Test

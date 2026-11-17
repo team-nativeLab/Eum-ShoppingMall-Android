@@ -178,6 +178,7 @@ internal fun CatalogSearchHeader(
     onSubmit: () -> Unit,
     onCancel: () -> Unit,
     modifier: Modifier = Modifier,
+    showCancelText: Boolean = true,
 ) {
     Row(
         modifier = modifier.fillMaxWidth().background(MaterialTheme.eumColors.background)
@@ -229,15 +230,17 @@ internal fun CatalogSearchHeader(
                 }
             }
         }
-        Box(
-            modifier = Modifier.widthIn(min = 48.dp).heightIn(min = 48.dp).clickable(onClick = onCancel),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                stringResource(R.string.catalog_cancel),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.eumColors.textPrimary,
-            )
+        if (showCancelText) {
+            Box(
+                modifier = Modifier.widthIn(min = 48.dp).heightIn(min = 48.dp).clickable(onClick = onCancel),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    stringResource(R.string.catalog_cancel),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.eumColors.textPrimary,
+                )
+            }
         }
     }
 }

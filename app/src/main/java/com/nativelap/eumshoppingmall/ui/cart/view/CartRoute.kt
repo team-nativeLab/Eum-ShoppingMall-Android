@@ -19,12 +19,19 @@ import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemUiModel
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartPriceLabels
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartScreenEvent
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartUiModel
+import com.nativelap.eumshoppingmall.ui.cart.viewmodel.FallbackQuantitySaver
+import com.nativelap.eumshoppingmall.ui.cart.viewmodel.canChangeOption
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartAmountLabel
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartAmountSummary
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartExpectedPaymentText
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartItemId
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartProductAmountWon
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.cartUiModelOf
+import com.nativelap.eumshoppingmall.ui.cart.viewmodel.withFallbackQuantities
+import com.nativelap.eumshoppingmall.ui.catalog.CartEditNotice
+import com.nativelap.eumshoppingmall.ui.catalog.CartEditOutcome
+import com.nativelap.eumshoppingmall.ui.catalog.cartEditNoticeToShow
+import com.nativelap.eumshoppingmall.ui.catalog.cartShippingFeeWon
 import com.nativelap.eumshoppingmall.ui.catalog.formatWonLabel
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import kotlinx.coroutines.CancellationException
@@ -52,6 +59,10 @@ fun CartRoute(
     onQuantityChanged: suspend (itemId: String, quantity: Int) -> Unit,
     onItemsRemoved: suspend (itemIds: Set<String>) -> Unit,
     onCartLinesRestored: suspend (lines: List<CartLine>) -> Unit,
+    // 편집 화면에서 넘어온 안내 결과(C). 장바구니가 한 번 보여 주고 표시를 남긴 뒤 비운다.
+    editOutcome: CartEditOutcome? = null,
+    onEditOutcomeChange: (CartEditOutcome?) -> Unit = {},
+    onEditOutcomeCleared: (serial: Long) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -65,6 +76,28 @@ fun CartRoute(
     val undoLabel = stringResource(R.string.cart_undo)
     val partialAmountTemplate = stringResource(R.string.cart_product_amount_partial)
     val saveFailedMessage = stringResource(R.string.cart_save_failed)
+    val editInvalidMessage = stringResource(R.string.cart_option_edit_failed)
+    val editSourceMissingMessage = stringResource(R.string.cart_option_edit_source_missing)
+    val editSaveFailedMessage = stringResource(R.string.cart_option_edit_save_failed)
+    // 같은 결과는 한 번만 띄운다. 띄우기 전에 표시를 남기고, 띄운 뒤 상태를 비워 재진입에서 다시 뜨지 않게 한다(C).
+    // at-most-once: 띄우기 전에 shown=true를 저장하고, 비울 때는 표시한 serial과 같을 때만 비운다(S1).
+    LaunchedEffect(editOutcome?.serial) {
+        val outcome = editOutcome ?: return@LaunchedEffect
+        val notice = cartEditNoticeToShow(outcome)
+        if (notice == null) {
+            onEditOutcomeCleared(outcome.serial)
+            return@LaunchedEffect
+        }
+        onEditOutcomeChange(outcome.markedShown())
+        snackbarHostState.showSnackbar(
+            message = when (notice) {
+                CartEditNotice.InvalidEdit -> editInvalidMessage
+                CartEditNotice.SourceMissing -> editSourceMissingMessage
+                CartEditNotice.SaveFailed -> editSaveFailedMessage
+            },
+        )
+        onEditOutcomeCleared(outcome.serial)
+    }
 
     val hasSavedLines = savedLines.isNotEmpty()
     // 저장 기록이 한 번이라도 있었는지 기억한다. 이후 빈 목록이어도 샘플이 다시 나오지 않는다.
@@ -76,6 +109,8 @@ fun CartRoute(
 
     // 기본 목록의 로컬 편집. 저장 기록이 있으면 쓰이지 않는다.
     var fallbackItems by remember(fallback) { mutableStateOf(fallback.items) }
+    // 샘플 줄의 수량 변경. 탭을 떠났다 돌아와도 유지되도록 저장 가능한 상태에 둔다(F2). 저장된 줄은 저장소가 보관한다.
+    var fallbackQuantities by rememberSaveable(stateSaver = FallbackQuantitySaver) { mutableStateOf(emptyMap<String, Int>()) }
     // 선택 상태는 항목 id별 덮어쓰기로만 둔다. 재진입하면 비어 있으므로 기본 선택으로 돌아간다.
     var selectionOverrides by remember { mutableStateOf(emptyMap<String, Boolean>()) }
     // 수량 저장 중인 줄 id. 쓰기가 끝날 때까지 그 줄의 스테퍼를 잠근다(L1).
@@ -84,7 +119,7 @@ fun CartRoute(
     val baseItems = if (isSavedMode) {
         cartUiModelOf(savedLines, priceLabels) { CartUiModel() }.items
     } else {
-        fallbackItems
+        fallbackItems.withFallbackQuantities(fallbackQuantities, priceLabels)
     }
     // 견적 상품은 주문 선택에서 항상 제외한다. 선택 덮어쓰기는 주문 가능한 줄에만 적용된다.
     val items = baseItems.map { item ->
@@ -93,7 +128,8 @@ fun CartRoute(
     }
 
     val productWon = cartProductAmountWon(items)
-    val shippingWon = if (isSavedMode) null else fallback.shippingFeeWon
+    // 배송비는 선택한 상품금액 합계 기준 규칙에서 구한다(F1). 선택이 없거나 금액을 모르면 주문 단계에서 계산한다.
+    val shippingWon = productWon?.takeIf { total -> total > 0L }?.let { total -> cartShippingFeeWon(total) }
     val expectedWon = if (productWon != null && shippingWon != null) {
         try {
             Math.addExact(productWon, shippingWon)
@@ -174,9 +210,7 @@ fun CartRoute(
             if (itemId in quantityLockIds) return
             saveChange(lockedItemId = itemId) { onQuantityChanged(itemId, safeQuantity) }
         } else {
-            fallbackItems = fallbackItems.map { item ->
-                if (item.id == itemId) item.copy(quantity = safeQuantity) else item
-            }
+            fallbackQuantities = fallbackQuantities + (itemId to safeQuantity)
         }
     }
 
@@ -221,11 +255,15 @@ fun CartRoute(
                 CartScreenEvent.LoginClicked -> onLoginClick()
 
                 // 샘플(폴백) 줄은 상품 ID가 없어 열 수 없다. 저장된 줄만 그 상품의 옵션을 고르는 화면으로 보낸다.
-                is CartScreenEvent.OptionChangeClicked ->
-                    savedLines
-                        .firstOrNull { line -> line.cartItemId() == event.itemId }
-                        ?.takeIf { line -> !line.isQuoteRequired }
-                        ?.let(onOptionChangeClick)
+                is CartScreenEvent.OptionChangeClicked -> {
+                    // 버튼 노출과 같은 판정(canChangeOption)을 쓴다. 샘플(폴백) 줄은 savedLines에 없어 열리지 않는다.
+                    val canChange = items.firstOrNull { item -> item.id == event.itemId }?.canChangeOption() == true
+                    if (canChange) {
+                        savedLines
+                            .firstOrNull { line -> line.cartItemId() == event.itemId }
+                            ?.let(onOptionChangeClick)
+                    }
+                }
             }
         },
     )

@@ -219,5 +219,6 @@ sealed interface EumDestination : NavKey {
      * 로그인 성공 시 [EumMainNavigator.completeLogin]이 이 항목을 pop한 뒤 pendingDestination을 push한다.
      */
     @Serializable
-    data class Login(val pendingDestination: EumDestination? = null) : EumDestination
+    // cartNotice는 장바구니 담기에서 온 로그인이면 true다. 로그인 화면이 안내 한 줄을 보여 준다.
+    data class Login(val pendingDestination: EumDestination? = null, val cartNotice: Boolean = false) : EumDestination
 }

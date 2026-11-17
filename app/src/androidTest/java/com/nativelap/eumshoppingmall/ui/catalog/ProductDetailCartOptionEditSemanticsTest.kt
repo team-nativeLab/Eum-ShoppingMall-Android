@@ -2,7 +2,6 @@ package com.nativelap.eumshoppingmall.ui.catalog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -11,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.nativelap.eumshoppingmall.data.local.CartLine
+import com.nativelap.eumshoppingmall.data.local.CartLineReplaceResult
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -57,7 +57,7 @@ class ProductDetailCartOptionEditSemanticsTest {
                     onBackClick = { backClicks++ },
                     onReplaceCartLine = { lineId, replacement ->
                         replacements.add(lineId to replacement)
-                        true
+                        CartLineReplaceResult.Replaced
                     },
                 )
             }
@@ -85,7 +85,7 @@ class ProductDetailCartOptionEditSemanticsTest {
                     onBackClick = { backClicks++ },
                     onReplaceCartLine = { lineId, replacement ->
                         replacements.add(lineId to replacement)
-                        true
+                        CartLineReplaceResult.Replaced
                     },
                 )
             }
@@ -98,10 +98,33 @@ class ProductDetailCartOptionEditSemanticsTest {
         assertEquals(1, backClicks)
     }
 
+    @Test
+    fun replacementFailureReturnsToCartWithTheSaveFailedNotice() {
+        var backClicks = 0
+        val notices = mutableListOf<CartEditNotice>()
+        composeRule.setContent {
+            EumShoppingMallTheme {
+                editRoute(
+                    onBackClick = { backClicks++ },
+                    onReplaceCartLine = { _, _ -> CartLineReplaceResult.Failed },
+                    onCartEditNotice = { notice -> notices.add(notice) },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("선택").performClick()
+        composeRule.onNodeWithText("대체 옵션").performClick()
+        composeRule.onAllNodesWithText("옵션 변경")[1].performClick()
+        composeRule.waitUntil(10_000) { backClicks == 1 }
+
+        assertEquals(listOf(CartEditNotice.SaveFailed), notices)
+    }
+
     @Composable
     private fun editRoute(
         onBackClick: () -> Unit,
-        onReplaceCartLine: suspend (String, CartLine) -> Boolean,
+        onReplaceCartLine: suspend (String, CartLine) -> CartLineReplaceResult,
+        onCartEditNotice: (CartEditNotice) -> Unit = {},
     ) {
         val sourceLine = CartLine(
             productId = "product-1",
@@ -137,6 +160,7 @@ class ProductDetailCartOptionEditSemanticsTest {
             editSourceLineId = sourceLine.lineId(),
             editSourceLine = sourceLine,
             onReplaceCartLine = onReplaceCartLine,
+            onCartEditNotice = onCartEditNotice,
             cartAddOutcome = null,
             onCartAddOutcomeChange = {},
         )

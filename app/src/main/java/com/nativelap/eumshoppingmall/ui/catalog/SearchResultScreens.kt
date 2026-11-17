@@ -7,10 +7,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -51,18 +54,23 @@ fun CatalogSearchResultsScreen(
     onBottomItemSelected: (MainNavigationTab) -> Unit = {},
     cartItemCount: Int = 0,
     modifier: Modifier = Modifier,
+    snackbarHostState: androidx.compose.material3.SnackbarHostState? = null,
+    showQuickCart: Boolean = false,
 ) {
     CatalogScreenScaffold(
         selectedBottomItem = selectedBottomItem,
         onBottomItemSelected = onBottomItemSelected,
         cartItemCount = cartItemCount,
         modifier = modifier,
+        snackbarHostState = snackbarHostState,
         topBar = {
             CatalogSearchHeader(
                 query = uiModel.query,
                 onQueryChanged = { onEvent(CatalogSearchResultsEvent.QueryChanged(it)) },
                 onSubmit = { onEvent(CatalogSearchResultsEvent.SearchSubmitted) },
                 onCancel = { onEvent(CatalogSearchResultsEvent.Cancelled) },
+                // 결과 화면은 뒤로(←)만 둔다. 취소와 뒤로가 같은 동작이라 중복을 뺀다.
+                showCancelText = false,
                 modifier = Modifier.statusBarsPadding(),
             )
         },
@@ -80,9 +88,11 @@ fun CatalogSearchResultsScreen(
                         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
                     ) {
                         items(uiModel.filters) { filter ->
-                            CatalogSelectionChip(filter, filter == uiModel.selectedFilter) {
-                                onEvent(CatalogSearchResultsEvent.FilterSelected(filter))
-                            }
+                            CatalogSelectionChip(
+                                label = filter,
+                                selected = filter == uiModel.selectedFilter,
+                                onClick = { onEvent(CatalogSearchResultsEvent.FilterSelected(filter)) },
+                            )
                         }
                     }
                     CatalogSearchResultHeader(
@@ -103,19 +113,35 @@ fun CatalogSearchResultsScreen(
                             items(uiModel.products, key = { it.id }) { product ->
                                 CatalogProductRow(
                                     product = product,
+                                    highlightQuery = uiModel.query,
+                                    onQuickCartClick = if (showQuickCart) {
+                                        { onEvent(CatalogSearchResultsEvent.QuickCartClicked(product.id)) }
+                                    } else {
+                                        null
+                                    },
                                     onClick = { onEvent(CatalogSearchResultsEvent.ProductSelected(product.id)) },
                                     onFavoriteClick = { onEvent(CatalogSearchResultsEvent.FavoriteToggled(product.id)) },
                                 )
                             }
                         } else {
                             items(uiModel.products.chunked(columns), key = { row -> row.joinToString { it.id } }) { row ->
-                                Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                                // 같은 행의 카드는 가장 높은 카드에 맞춘다.
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+                                    modifier = Modifier.height(IntrinsicSize.Max),
+                                ) {
                                     row.forEach { product ->
                                         CatalogProductCard(
                                             product = product,
+                                            highlightQuery = uiModel.query,
                                             onClick = { onEvent(CatalogSearchResultsEvent.ProductSelected(product.id)) },
                                             onFavoriteClick = { onEvent(CatalogSearchResultsEvent.FavoriteToggled(product.id)) },
-                                            modifier = Modifier.weight(1f),
+                                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                                            onQuickCartClick = if (showQuickCart) {
+                                                { onEvent(CatalogSearchResultsEvent.QuickCartClicked(product.id)) }
+                                            } else {
+                                                null
+                                            },
                                         )
                                     }
                                     if (row.size == 1) androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))

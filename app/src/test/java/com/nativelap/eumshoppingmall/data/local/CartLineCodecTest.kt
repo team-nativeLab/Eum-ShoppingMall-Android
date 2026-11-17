@@ -157,6 +157,79 @@ class CartLineCodecTest {
     }
 
     @Test
+    fun replacementWithSameOptionKeepsItsListPosition() {
+        val first = line(productId = "first", optionId = "o1")
+        val source = line(productId = "p", optionId = "same", quantity = 4)
+        val last = line(productId = "last", optionId = "o2")
+        val replacement = source.copy(productName = "현재 이름", quantity = 1)
+
+        val (raw, replaced) = replaceCartLineRaw(encodeCartLines(listOf(first, source, last)), source.lineId(), replacement)
+
+        val decoded = decodeCartLines(raw)
+        assertEquals(true, replaced)
+        assertEquals(listOf(first.lineId(), source.lineId(), last.lineId()), decoded.map { it.lineId() })
+        assertEquals(4, decoded[1].quantity)
+    }
+
+    @Test
+    fun optionChangeKeepsTheSourceLineInItsListPosition() {
+        val first = line(productId = "first", optionId = "o1")
+        val source = line(productId = "p", optionId = "old", quantity = 2)
+        val last = line(productId = "last", optionId = "o2")
+        val target = line(productId = "p", optionId = "new", quantity = 1)
+
+        val (raw, replaced) = replaceCartLineRaw(encodeCartLines(listOf(first, source, last)), source.lineId(), target)
+
+        val decoded = decodeCartLines(raw)
+        assertEquals(true, replaced)
+        assertEquals(listOf(first.lineId(), target.lineId(), last.lineId()), decoded.map { it.lineId() })
+        assertEquals(2, decoded[1].quantity)
+    }
+
+    @Test
+    fun mergingIntoAnExistingTargetPlacesTheMergedLineAtSourceAndDropsTheDuplicate() {
+        val source = line(productId = "p", optionId = "old", quantity = 4)
+        val first = line(productId = "first", optionId = "o1")
+        val existingTarget = line(productId = "p", optionId = "new", quantity = 2)
+        val last = line(productId = "last", optionId = "o2")
+        val target = line(productId = "p", optionId = "new", quantity = 1)
+
+        val (raw, replaced) = replaceCartLineRaw(encodeCartLines(listOf(source, first, existingTarget, last)), source.lineId(), target)
+
+        val decoded = decodeCartLines(raw)
+        assertEquals(true, replaced)
+        assertEquals(listOf(target.lineId(), first.lineId(), last.lineId()), decoded.map { it.lineId() })
+        assertEquals(6, decoded.first().quantity)
+    }
+
+    @Test
+    fun brokenRowsKeepTheirOriginalTextAcrossAReplacement() {
+        val broken = "malformed|row"
+        val source = line(productId = "p", optionId = "old", quantity = 2)
+        val last = line(productId = "last", optionId = "o2")
+        val target = line(productId = "p", optionId = "new", quantity = 1)
+
+        val (raw, _) = replaceCartLineRaw(listOf(broken, encodeCartLines(listOf(source, last))).joinToString("\n"), source.lineId(), target)
+
+        val lines = raw.lineSequence().toList()
+        assertEquals(broken, lines[0])
+        assertEquals(listOf(target.lineId(), last.lineId()), decodeCartLines(lines.drop(1).joinToString("\n")).map { it.lineId() })
+    }
+
+    @Test
+    fun otherRowsKeepTheirOrderAroundTheReplacedRow() {
+        val a = line(productId = "a", optionId = "o1")
+        val b = line(productId = "b", optionId = "o2")
+        val c = line(productId = "c", optionId = "o3")
+        val source = line(productId = "p", optionId = "old")
+        val target = line(productId = "p", optionId = "new")
+
+        val (raw, _) = replaceCartLineRaw(encodeCartLines(listOf(a, b, source, c)), source.lineId(), target)
+
+        assertEquals(listOf("a/o1", "b/o2", "p/new", "c/o3"), decodeCartLines(raw).map { it.lineId() })
+    }
+
+    @Test
     fun replacementMissingSourceDoesNotAddTarget() {
         val originalRaw = encodeCartLines(listOf(line(productId = "p", optionId = "old")))
 

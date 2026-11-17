@@ -6,6 +6,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,10 +44,19 @@ fun AuthLoginRoute(
     onFindEmailClick: () -> Unit = {},
     onFindPasswordClick: () -> Unit = {},
     onSignupClick: () -> Unit = {},
+    // 장바구니 담기에서 온 로그인이면 한 번 보여 줄 안내 문구.
+    loginNotice: String? = null,
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val socialLoginPreparingMessage = stringResource(R.string.flow_social_login_preparing)
+    // 안내는 이 화면 항목에서 한 번만 띄운다. 회전·재구성 때는 저장된 플래그로 다시 띄우지 않는다.
+    var loginNoticeShown by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(loginNotice) {
+        if (!shouldShowLoginNotice(loginNotice, alreadyShown = loginNoticeShown)) return@LaunchedEffect
+        loginNoticeShown = true
+        snackbarHostState.showSnackbar(message = loginNotice ?: return@LaunchedEffect, duration = SnackbarDuration.Short)
+    }
     var email by rememberSaveable { mutableStateOf("") }
     var isRemembered by rememberSaveable { mutableStateOf(false) }
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }

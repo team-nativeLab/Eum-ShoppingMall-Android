@@ -61,7 +61,7 @@ class CartCountStoreTest {
         val cartStore = createCartStore()
         cartStore.addCartLines(listOf(line(quantity = 4), line(productName = "기존 대상", quantity = 2).copy(optionId = "size-xl")))
 
-        assertTrue(cartStore.replaceCartLine("helmet/size-l", line(productName = "현재 상품", quantity = 1).copy(optionId = "size-xl")))
+        assertEquals(CartLineReplaceResult.Replaced, cartStore.replaceCartLine("helmet/size-l", line(productName = "현재 상품", quantity = 1).copy(optionId = "size-xl")))
 
         val saved = cartStore.cartLines.first()
         assertEquals(1, saved.size)
@@ -80,8 +80,8 @@ class CartCountStoreTest {
         val cartStore = CartCountStore(dataStore)
         val originalRaw = dataStore.data.first()[stringPreferencesKey("cart_lines")]
 
-        assertEquals(false, cartStore.replaceCartLine("helmet/size-l", line().copy(optionId = "size-xl")))
-        assertEquals(false, cartStore.replaceCartLine("missing/line", line().copy(optionId = "size-xl")))
+        assertEquals(CartLineReplaceResult.SourceMissing, cartStore.replaceCartLine("helmet/size-l", line().copy(optionId = "size-xl")))
+        assertEquals(CartLineReplaceResult.SourceMissing, cartStore.replaceCartLine("missing/line", line().copy(optionId = "size-xl")))
         assertEquals(originalRaw, dataStore.data.first()[stringPreferencesKey("cart_lines")])
         assertEquals(listOf(2, 7), cartStore.cartLines.first().map { it.quantity })
     }
@@ -93,11 +93,8 @@ class CartCountStoreTest {
         cartStore.addCartLines(listOf(line(quantity = 3)))
         dataStore.failWrites = true
 
-        try {
-            cartStore.replaceCartLine("helmet/size-l", line().copy(optionId = "size-xl"))
-        } catch (exception: IOException) {
-            // The DataStore failure propagates and its stored snapshot remains unchanged.
-        }
+        // 쓰기 예외는 Failed로 돌려주고, 저장된 원본은 그대로 남는다.
+        assertEquals(CartLineReplaceResult.Failed, cartStore.replaceCartLine("helmet/size-l", line().copy(optionId = "size-xl")))
 
         assertEquals(listOf("size-l"), cartStore.cartLines.first().map { it.optionId })
         assertEquals(listOf(3), cartStore.cartLines.first().map { it.quantity })

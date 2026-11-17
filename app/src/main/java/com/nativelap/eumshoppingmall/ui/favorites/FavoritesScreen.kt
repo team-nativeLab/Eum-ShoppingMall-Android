@@ -4,11 +4,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -25,10 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
-import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBarAction
@@ -78,13 +79,17 @@ fun FavoritesScreen(
                         verticalArrangement = Arrangement.spacedBy(EumSpacing.x20),
                     ) {
                         items(uiModel.products.chunked(columns), key = { row -> row.first().id }) { rowProducts ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                            // 같은 행의 카드는 가장 높은 카드에 맞춘다.
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+                                modifier = Modifier.height(IntrinsicSize.Max),
+                            ) {
                                 rowProducts.forEach { product ->
                                     CatalogProductCard(
                                         product = product,
                                         onClick = { onEvent(FavoritesEvent.ProductClicked(product.id)) },
                                         onFavoriteClick = { onEvent(FavoritesEvent.FavoriteToggled(product.id)) },
-                                        modifier = Modifier.weight(1f),
+                                        modifier = Modifier.weight(1f).fillMaxHeight(),
                                     )
                                 }
                                 repeat(columns - rowProducts.size) { Spacer(Modifier.weight(1f)) }

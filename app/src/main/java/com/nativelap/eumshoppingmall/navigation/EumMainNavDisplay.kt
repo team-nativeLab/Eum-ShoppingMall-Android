@@ -23,6 +23,7 @@ import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.data.local.CartLine
+import com.nativelap.eumshoppingmall.data.local.CartLineReplaceResult
 import com.nativelap.eumshoppingmall.ui.account.view.AccountDrawerRoute
 import com.nativelap.eumshoppingmall.ui.account.view.MyPageRoute
 import com.nativelap.eumshoppingmall.ui.auth.createAccountService
@@ -32,11 +33,19 @@ import com.nativelap.eumshoppingmall.ui.benefits.CouponRoute
 import com.nativelap.eumshoppingmall.ui.benefits.PointsRoute
 import com.nativelap.eumshoppingmall.ui.cart.view.CartRoute
 import com.nativelap.eumshoppingmall.ui.catalog.CartAddOutcome
+import com.nativelap.eumshoppingmall.ui.catalog.CartEditOutcome
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryDefinitions
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryRoute
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductDetailRoute
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductListRoute
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchResultsRoute
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchRoute
+import com.nativelap.eumshoppingmall.ui.catalog.QuickCartGate
+import com.nativelap.eumshoppingmall.ui.catalog.clearedIfShown
+import com.nativelap.eumshoppingmall.ui.catalog.resolveHomeQuickCartLine
+import com.nativelap.eumshoppingmall.ui.catalog.resolveQuickCartLine
+import com.nativelap.eumshoppingmall.ui.catalog.saveAddToCartLines
 import com.nativelap.eumshoppingmall.ui.checkout.view.CheckoutAddressRoute
 import com.nativelap.eumshoppingmall.ui.checkout.view.CheckoutPaymentRoute
 import com.nativelap.eumshoppingmall.ui.common.EumSnackbarHost
@@ -44,7 +53,9 @@ import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.company.CompanyIntroRoute
 import com.nativelap.eumshoppingmall.ui.events.EventListRoute
 import com.nativelap.eumshoppingmall.ui.favorites.FavoritesRoute
+import com.nativelap.eumshoppingmall.ui.home.HomeProductUiModel
 import com.nativelap.eumshoppingmall.ui.home.HomeRoute
+import com.nativelap.eumshoppingmall.ui.home.homeQueryForSearchQuery
 import com.nativelap.eumshoppingmall.ui.ordercomplete.view.OrderCompleteRoute
 import com.nativelap.eumshoppingmall.ui.orders.view.OrderHistoryRoute
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestType
@@ -73,13 +84,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun EumMainNavDisplay(
     cartItemCount: Int,
-    savedCartLines: List<CartLine>,
+    /** 저장된 장바구니 줄. null이면 아직 읽지 못한 상태라 편집 원본을 판정하지 않는다. */
+    savedCartLines: List<CartLine>?,
     screenDataProvider: ShoppingScreenDataProvider,
     onAddToCart: suspend (addedLines: List<CartLine>) -> Unit,
     onCartQuantityChanged: suspend (lineId: String, quantity: Int) -> Unit,
     onCartItemsRemoved: suspend (lineIds: Set<String>) -> Unit,
     onCartLinesRestored: suspend (lines: List<CartLine>) -> Unit,
-    onReplaceCartLine: suspend (sourceLineId: String, replacement: CartLine) -> Boolean,
+    onReplaceCartLine: suspend (sourceLineId: String, replacement: CartLine) -> CartLineReplaceResult,
     modifier: Modifier = Modifier,
 ) {
     val navigationState = rememberEumMainNavigationState()
@@ -101,7 +113,34 @@ fun EumMainNavDisplay(
     val currentSavedCartLines by rememberUpdatedState(savedCartLines)
     // 담기 결과는 Route가 아니라 여기서 보관한다. Route가 사라져도 결과가 남아 다음 화면 구성에서 안내된다.
     var cartAddOutcome by rememberSaveable(stateSaver = CartAddOutcome.Saver) { mutableStateOf<CartAddOutcome?>(null) }
+    // 편집 화면이 장바구니로 넘기는 안내 결과. 장바구니 화면이 한 번 보여 주면 표시를 남기고 비운다(C).
+    var cartEditOutcome by rememberSaveable(stateSaver = CartEditOutcome.Saver) { mutableStateOf<CartEditOutcome?>(null) }
+    // 홈 검색창과 검색 결과가 같은 검색어를 쓴다. 결과에서 지우면 여기서도 비운다.
+    var homeSearchQuery by rememberSaveable { mutableStateOf("") }
     val currentCartAddOutcome by rememberUpdatedState(cartAddOutcome)
+    // 카드 담기는 상세의 옵션 없는 담기와 같은 줄 형식을 쓴다. 결과는 상세와 같은 cartAddOutcome에 남겨 Route가 안내한다.
+    val defaultOptionLabel = stringResource(R.string.catalog_option_default_label)
+    // 담기가 끝나기 전의 연타는 한 번만 처리한다(상세의 닫기 게이트와 같은 방식).
+    val quickCartGate = remember { QuickCartGate() }
+    // 담기 한 줄을 저장하고 결과를 cartAddOutcome에 남긴다. 연타는 게이트에서 한 번만 받는다.
+    val addQuickCartLine: (CartLine) -> Unit = { line ->
+        if (quickCartGate.tryEnter()) {
+            orderScope.launch {
+                try {
+                    val saved = saveAddToCartLines(1) { onAddToCart(listOf(line)) }
+                    cartAddOutcome = CartAddOutcome(serial = System.nanoTime(), saved = saved)
+                } finally {
+                    quickCartGate.exit()
+                }
+            }
+        }
+    }
+    val quickAddToCart: (CatalogProductUiModel) -> Unit = { product ->
+        resolveQuickCartLine(product, defaultOptionLabel)?.let(addQuickCartLine)
+    }
+    val quickAddHomeProduct: (HomeProductUiModel) -> Unit = { product ->
+        resolveHomeQuickCartLine(product, defaultOptionLabel)?.let(addQuickCartLine)
+    }
 
     // 맨 위가 인증 화면일 때만 세션을 갱신하고 이동한다. 늦게 도착한 성공 콜백이 세션만 바꾸는 불일치를 막는다.
     fun completeAuthentication(): Boolean {
@@ -112,13 +151,22 @@ fun EumMainNavDisplay(
         navigator.completeLogin()
         return true
     }
+
+    // 카테고리 탭과 홈 카테고리 행의 단일 이동 경로. 상품이 없는 카테고리는 목록 목적지를 만들지 않아 이동하지 않는다.
+    fun openCategory(categoryId: String?) {
+        destinationForCategoryIfAvailable(categoryId, screenDataProvider.productList(categoryId))
+            ?.let { destination -> navigator.push(destination) }
+    }
     val entryProvider = remember(navigationState, navigator, screenDataProvider, quoteProductSelection, addressSelection, entryContext, loginSession, loginAuthenticator, accountService, onAddToCart) {
         entryProvider<NavKey> {
             entry<EumDestination.Home> {
                 HomeRoute(
-                    categories = remember { com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryDefinitions.homeItems() },
+                    // 홈 카테고리는 카테고리 탭과 같은 공통 정의를 쓰고, 고르면 그 카테고리 상품 목록으로 간다.
+                    categories = remember { CatalogCategoryDefinitions.homeItems() },
                     recommendedProducts = remember { screenDataProvider.homeRecommendedProducts() },
+                    todayProducts = remember { screenDataProvider.homeTodayProducts() },
                     bestSellerProducts = remember { screenDataProvider.homeBestSellerProducts() },
+                    companyIntro = remember { screenDataProvider.homeCompanyIntro() },
                     cartItemCount = currentCartItemCount,
                     selectedTab = MainNavigationTab.Home,
                     onSearch = { query ->
@@ -129,7 +177,7 @@ fun EumMainNavDisplay(
                         }
                     },
                     onProductClick = { product -> navigator.push(EumDestination.ProductDetail(product.id)) },
-                    onCategoryClick = { category -> navigator.push(destinationForCategory(category.id)) },
+                    onCategoryClick = { category -> openCategory(category.id) },
                     onHeroAction = { action -> navigator.push(destinationForHomeHeroAction(action)) },
                     onQuoteClick = { navigator.push(EumDestination.QuoteRequest()) },
                     onMenuClick = { navigator.push(EumDestination.Drawer) },
@@ -138,6 +186,15 @@ fun EumMainNavDisplay(
                     isFavoriteAllowed = loginSession.isLoggedIn,
                     onFavoriteBlocked = entryContext::openLogin,
                     onNavigationSelected = navigator::navigateToTab,
+                    isLoggedIn = loginSession.isLoggedIn,
+                    onLoginRequired = entryContext::openLogin,
+                    onQuickAddToCart = quickAddHomeProduct,
+                    cartAddOutcome = currentCartAddOutcome,
+                    onCartAddOutcomeChange = { outcome -> cartAddOutcome = outcome },
+                    onCartClick = { navigator.navigateToTab(MainNavigationTab.Cart) },
+                    query = homeSearchQuery,
+                    onQueryChange = { homeSearchQuery = it },
+                    onCartLoginRequired = entryContext::openLoginForCart,
                 )
             }
             entry<EumDestination.Categories> {
@@ -147,7 +204,7 @@ fun EumMainNavDisplay(
                     cartItemCount = currentCartItemCount,
                     onTabSelected = navigator::navigateToTab,
                     onSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
-                    onCategoryClick = { categoryId -> navigator.push(destinationForCategory(categoryId)) },
+                    onCategoryClick = { categoryId -> openCategory(categoryId) },
                     onBrandClick = { brandId -> navigator.push(EumDestination.BrandDetail(brandId)) },
                 )
             }
@@ -164,7 +221,10 @@ fun EumMainNavDisplay(
             entry<EumDestination.Cart> {
                 CartRoute(
                     // 저장된 장바구니 줄이 있으면 그것을 먼저 보여 주고, 없을 때만 provider의 기본 목록을 쓴다.
-                    savedLines = currentSavedCartLines,
+                    savedLines = currentSavedCartLines.orEmpty(),
+                    editOutcome = cartEditOutcome,
+                    onEditOutcomeChange = { outcome -> cartEditOutcome = outcome },
+                    onEditOutcomeCleared = { serial -> cartEditOutcome = cartEditOutcome.clearedIfShown(serial) },
                     fallback = remember { screenDataProvider.cart() },
                     onQuantityChanged = onCartQuantityChanged,
                     onItemsRemoved = onCartItemsRemoved,
@@ -225,6 +285,11 @@ fun EumMainNavDisplay(
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
                     isLoggedIn = loginSession.isLoggedIn,
                     onLoginRequired = entryContext::openLogin,
+                    onQuickAddToCart = quickAddToCart,
+                    cartAddOutcome = currentCartAddOutcome,
+                    onCartAddOutcomeChange = { outcome -> cartAddOutcome = outcome },
+                    onCartClick = { navigator.navigateToTab(MainNavigationTab.Cart) },
+                    onCartLoginRequired = entryContext::openLoginForCart,
                 )
             }
             entry<EumDestination.SearchResults> { destination ->
@@ -235,11 +300,25 @@ fun EumMainNavDisplay(
                     onTabSelected = navigator::navigateToTab,
                     onBackClick = { navigator.goBack() },
                     onPopularSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
-                    onSearch = { query -> navigator.replaceTop(EumDestination.SearchResults(query)) },
+                    onSearch = { query ->
+                        // 결과 화면에서 다시 검색하면 홈 검색창 공유 상태도 같은 검색어로 맞춘다.
+                        homeSearchQuery = homeQueryForSearchQuery(query)
+                        navigator.replaceTop(EumDestination.SearchResults(query))
+                    },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
                     onQuoteRequestClick = { navigator.push(EumDestination.QuoteRequest()) },
                     isLoggedIn = loginSession.isLoggedIn,
                     onLoginRequired = entryContext::openLogin,
+                    // 검색을 비우면 옛 결과를 홈 백스택에 남기지 않고 검색 탭 루트로 돌아간다.
+                    onSearchCleared = {
+                        homeSearchQuery = ""
+                        navigator.closeTopAndOpenTabRoot(MainNavigationTab.Search)
+                    },
+                    onQuickAddToCart = quickAddToCart,
+                    cartAddOutcome = currentCartAddOutcome,
+                    onCartAddOutcomeChange = { outcome -> cartAddOutcome = outcome },
+                    onCartClick = { navigator.navigateToTab(MainNavigationTab.Cart) },
+                    onCartLoginRequired = entryContext::openLoginForCart,
                 )
             }
             entry<EumDestination.ProductDetail> { destination ->
@@ -259,8 +338,10 @@ fun EumMainNavDisplay(
                     onQuestionWriteClick = { productId -> entryContext.open(EumDestination.ProductInquiryWrite(productId)) },
                     onAddToCart = onAddToCart,
                     editSourceLineId = destination.editSourceLineId,
-                    editSourceLine = destination.editSourceLineId?.let { lineId -> currentSavedCartLines.firstOrNull { it.lineId() == lineId } },
+                    editSourceLine = destination.editSourceLineId?.let { lineId -> currentSavedCartLines?.firstOrNull { it.lineId() == lineId } },
+                    isCartLoaded = currentSavedCartLines != null,
                     onReplaceCartLine = onReplaceCartLine,
+                    onCartEditNotice = { notice -> cartEditOutcome = CartEditOutcome(serial = System.nanoTime(), notice = notice) },
                     cartAddOutcome = currentCartAddOutcome,
                     onCartAddOutcomeChange = { outcome -> cartAddOutcome = outcome },
                 )
@@ -356,6 +437,7 @@ fun EumMainNavDisplay(
                             quoteProductSelection.select(productId)
                         }
                     },
+                    isQuotePicker = true,
                 )
             }
             entry<EumDestination.QuoteComplete> {
@@ -460,7 +542,7 @@ fun EumMainNavDisplay(
                     onBackClick = { navigator.goBack() },
                 )
             }
-            entry<EumDestination.Login> {
+            entry<EumDestination.Login> { destination ->
                 AuthLoginRoute(
                     authenticator = loginAuthenticator,
                     // 세션을 먼저 갱신한 뒤 이동해, 도착한 화면이 로그인 상태로 그려지게 한다.
@@ -469,6 +551,7 @@ fun EumMainNavDisplay(
                     onFindEmailClick = { navigator.push(EumDestination.AccountRecovery()) },
                     onFindPasswordClick = { navigator.push(EumDestination.AccountRecovery(findsPassword = true)) },
                     onSignupClick = { navigator.push(EumDestination.Signup) },
+                    loginNotice = if (destination.cartNotice) stringResource(R.string.login_required_for_cart) else null,
                 )
             }
             addAuthEntries(entryContext, accountService) {

@@ -8,14 +8,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,16 +24,25 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.catalog.QuickCartButton
+import com.nativelap.eumshoppingmall.ui.catalog.canQuickAddToHomeProduct
+import com.nativelap.eumshoppingmall.ui.catalog.components.ProductCardBadge
+import com.nativelap.eumshoppingmall.ui.catalog.components.ProductChipRow
+import com.nativelap.eumshoppingmall.ui.catalog.components.ProductPriceSlot
+import com.nativelap.eumshoppingmall.ui.catalog.components.ProductRatingLine
+import com.nativelap.eumshoppingmall.ui.catalog.components.ProductSpecLine
+import com.nativelap.eumshoppingmall.ui.catalog.components.quickCartBlockLabel
+import com.nativelap.eumshoppingmall.ui.catalog.homeQuickCartBlockReason
+import com.nativelap.eumshoppingmall.ui.catalog.resolveCatalogPriceSlot
+import com.nativelap.eumshoppingmall.ui.catalog.resolveCatalogProductBadge
 import com.nativelap.eumshoppingmall.ui.common.FavoriteToggleButton
 import com.nativelap.eumshoppingmall.ui.common.pressScale
 import com.nativelap.eumshoppingmall.ui.home.HomeProductUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
-import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
@@ -46,8 +52,20 @@ fun HomeProductCard(
     onClick: (HomeProductUiModel) -> Unit,
     onFavoriteClick: (HomeProductUiModel) -> Unit,
     modifier: Modifier = Modifier,
+    // null이면 담기 버튼을 그리지 않는다. 버튼이 있어도 옵션·품절·가격 문의 상품에는 나오지 않는다.
+    onQuickCartClick: (() -> Unit)? = null,
 ) {
     val cardShape = RoundedCornerShape(EumRadius.x8)
+    // 순위 배지가 있으면 견적 라벨은 가린다(resolveCatalogProductBadge 규칙).
+    val badge = resolveCatalogProductBadge(bestRank = product.bestRank, badgeLabel = product.badgeLabel)
+    // 가격 문의 상품과 가격 정보가 없는 상품은 상세와 같은 "가격 문의" 문구를 쓴다(F6).
+    val priceSlot = resolveCatalogPriceSlot(
+        currentLabel = product.priceLabel,
+        originalLabel = product.originalPriceLabel,
+        discountLabel = product.discountRateLabel,
+        isInquiry = product.isPurchaseUnavailable || product.priceLabel == null,
+        isSoldOut = product.isSoldOut,
+    )
     Column(
         modifier.pressScale().clip(cardShape)
             .background(MaterialTheme.eumColors.surface)
@@ -96,6 +114,12 @@ fun HomeProductCard(
                     color = MaterialTheme.eumColors.danger,
                 )
             }
+            badge?.let { resolvedBadge ->
+                ProductCardBadge(
+                    badge = resolvedBadge,
+                    modifier = Modifier.align(Alignment.TopStart).padding(EumSpacing.x8),
+                )
+            }
             FavoriteToggleButton(
                 isFavorite = isFavorite,
                 onToggle = { onFavoriteClick(product) },
@@ -106,7 +130,17 @@ fun HomeProductCard(
                 modifier = Modifier.align(Alignment.TopEnd),
                 buttonSize = 44.dp,
             )
+            onQuickCartClick?.takeIf { canQuickAddToHomeProduct(product) }?.let { addToCart ->
+                Box(Modifier.align(Alignment.BottomEnd)) {
+                    QuickCartButton(
+                        contentDescription = stringResource(R.string.catalog_quick_add_to_cart_description, product.name),
+                        onClick = addToCart,
+                    )
+                }
+            }
         }
+        // 슬롯 순서: 상품명 1줄 · 규격 1줄 · 평점 1줄 · 가격 2줄 · 배송·혜택 칩 1줄. 값이 없으면 빈 줄을 유지한다.
+        // 상품명을 1줄로 두는 것은 사용자 결정이다(카탈로그 카드는 2줄). 바꾸려면 사용자 확인이 필요하다.
         Column(
             Modifier.padding(horizontal = EumSpacing.x4),
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x4),
@@ -115,76 +149,30 @@ fun HomeProductCard(
                 product.name,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.eumColors.textPrimary,
+                minLines = 1,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            product.ratingLabel?.let { rating ->
-                Row(
-                    modifier = Modifier.heightIn(min = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
-                ) {
-                    product.ratingValue?.takeIf { it in 0f..5f }?.let { ratingValue ->
-                        Row(horizontalArrangement = Arrangement.spacedBy(1.dp)) {
-                            repeat(5) { index ->
-                                Icon(
-                                    painterResource(
-                                        if (index < ratingValue.toInt()) {
-                                            R.drawable.ic_star_filled
-                                        } else {
-                                            R.drawable.ic_star
-                                        },
-                                    ),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.eumColors.ratingStar,
-                                    modifier = Modifier.size(16.dp),
-                                )
-                            }
-                        }
-                    }
-                    Text(
-                        rating,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.eumColors.textTertiary,
-                        maxLines = 1,
-                    )
-                }
-            }
-            if (product.isPurchaseUnavailable || product.priceLabel == null) {
-                // 가격 문의 상품은 상세와 같은 문구로 보여 준다(F6).
-                Text(
-                    stringResource(R.string.home_product_purchase_unavailable),
-                    style = EumTypographyTokens.priceM,
-                    color = MaterialTheme.eumColors.textPrimary,
+            ProductSpecLine(product.specLabel)
+            ProductRatingLine(
+                ratingValue = product.ratingValue,
+                ratingText = product.ratingLabel,
+                reviewCountText = null,
+            )
+            ProductPriceSlot(
+                slot = priceSlot,
+                inquiryLabel = stringResource(R.string.home_product_purchase_unavailable),
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                ProductChipRow(
+                    shippingLabel = product.shippingLabel,
+                    benefitLabels = product.benefitLabels,
+                    modifier = Modifier.fillMaxWidth(),
+                    reasonLabel = quickCartBlockLabel(homeQuickCartBlockReason(product)),
                 )
-            } else {
-                val originalPrice = product.originalPriceLabel
-                if (originalPrice != null) {
-                    Text(
-                        originalPrice,
-                        style = MaterialTheme.typography.labelSmall.copy(textDecoration = TextDecoration.LineThrough),
-                        color = MaterialTheme.eumColors.textTertiary,
-                    )
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    product.discountRateLabel?.let { discount ->
-                        Text(
-                            discount,
-                            style = EumTypographyTokens.labelS,
-                            color = MaterialTheme.eumColors.danger,
-                        )
-                        Spacer(Modifier.width(EumSpacing.x4))
-                    }
-                    Text(
-                        product.priceLabel.orEmpty(),
-                        style = EumTypographyTokens.priceM,
-                        color = if (product.discountRateLabel != null) {
-                            MaterialTheme.eumColors.danger
-                        } else {
-                            MaterialTheme.eumColors.textPrimary
-                        },
-                    )
-                }
             }
         }
     }

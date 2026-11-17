@@ -47,6 +47,11 @@ internal class EumEntryContext(
     fun openLogin() {
         navigator.push(EumDestination.Login())
     }
+
+    // 장바구니 담기에서 온 로그인. 로그인 화면에 담기 안내 한 줄을 붙인다.
+    fun openLoginForCart() {
+        navigator.push(EumDestination.Login(cartNotice = true))
+    }
 }
 
 /** 회원가입(A-14)·계정 찾기(A-27·A-28). 둘 다 Login 위에 쌓이므로 완료 시 [EumMainNavigator.completeLogin]이 함께 걷어 낸다. */
