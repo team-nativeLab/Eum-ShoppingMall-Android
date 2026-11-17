@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -186,13 +188,14 @@ fun CatalogBrandDetailScreen(
                 }
                 val productRows = uiModel.products.chunked(columns)
                 itemsIndexed(productRows) { rowIndex, row ->
+                    // 같은 행의 카드는 가장 높은 카드에 맞춘다.
                     Row(
                         Modifier.padding(
                             start = EumSpacing.x20,
                             end = EumSpacing.x20,
                             top = EumSpacing.x24,
                             bottom = if (rowIndex == productRows.lastIndex) BrandSectionVerticalPadding else 0.dp,
-                        ),
+                        ).height(IntrinsicSize.Max),
                         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
                     ) {
                         row.forEach { product ->
@@ -200,7 +203,7 @@ fun CatalogBrandDetailScreen(
                                 product,
                                 onClick = { onEvent(CatalogBrandDetailEvent.ProductSelected(product.id)) },
                                 onFavoriteClick = { onEvent(CatalogBrandDetailEvent.FavoriteToggled(product.id)) },
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
                             )
                         }
                         if (row.size == 1) Spacer(Modifier.weight(1f))

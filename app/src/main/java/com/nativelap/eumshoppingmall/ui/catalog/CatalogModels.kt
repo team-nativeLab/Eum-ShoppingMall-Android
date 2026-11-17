@@ -26,12 +26,24 @@ data class CatalogProductUiModel(
     val badgeLabel: String? = null,
     val isSoldOut: Boolean = false,
     val isFavorite: Boolean = false,
+    val ratingValue: Float? = null,
+    // 규격 한 줄(예: "10켤레"). 없어도 슬롯 높이는 유지된다.
+    val specLabel: String? = null,
+    val shippingLabel: String? = null,
+    val benefitLabels: List<String> = emptyList(),
+    // 상위 카테고리와 세부 카테고리 id. 목록 칩 필터는 세부, 홈 베스트 탭은 상위를 쓴다.
+    val categoryId: String? = null,
+    val subcategoryId: String? = null,
+    // 옵션 없음이 명시된 상품만 true. null(정보 없음)이면 카드에서 바로 담지 않는다(담기 불가가 기본).
+    val hasOptions: Boolean? = null,
 )
 
 data class CatalogCategoryUiModel(
     val id: String,
     val label: String,
     @param:DrawableRes val iconResId: Int,
+    // 카테고리 설명 부제. 데이터가 없으면 null이고 홈 카테고리에는 줄을 그리지 않는다.
+    val description: String? = null,
 )
 
 data class CatalogBrandUiModel(
@@ -96,10 +108,19 @@ sealed interface CatalogCategoryEvent {
     data class BrandSelected(val brandId: String) : CatalogCategoryEvent
 }
 
+const val CATALOG_ALL_CATEGORY_ID = "all"
+
+// 칩 식별은 id로 하고 label은 표시용이다. count가 null이면 개수 없이 라벨만 그린다.
+data class CatalogCategoryChipUiModel(
+    val id: String,
+    val label: String,
+    val count: Int? = null,
+)
+
 data class CatalogProductListUiModel(
     val title: String,
-    val categories: List<String> = emptyList(),
-    val selectedCategory: String? = null,
+    val categoryChips: List<CatalogCategoryChipUiModel> = emptyList(),
+    val selectedCategoryId: String = CATALOG_ALL_CATEGORY_ID,
     val resultCountLabel: String? = null,
     val sortLabel: String,
     val products: List<CatalogProductUiModel> = emptyList(),
@@ -109,12 +130,13 @@ data class CatalogProductListUiModel(
 sealed interface CatalogProductListEvent {
     data object BackClicked : CatalogProductListEvent
     data object SearchClicked : CatalogProductListEvent
-    data class CategorySelected(val category: String) : CatalogProductListEvent
+    data class CategorySelected(val categoryId: String) : CatalogProductListEvent
     data object SortClicked : CatalogProductListEvent
     data object FilterClicked : CatalogProductListEvent
     data object LayoutToggled : CatalogProductListEvent
     data class ProductSelected(val productId: String) : CatalogProductListEvent
     data class FavoriteToggled(val productId: String) : CatalogProductListEvent
+    data class QuickCartClicked(val productId: String) : CatalogProductListEvent
 }
 
 data class CatalogSearchUiModel(
@@ -154,6 +176,7 @@ sealed interface CatalogSearchResultsEvent {
     data object LayoutToggled : CatalogSearchResultsEvent
     data class ProductSelected(val productId: String) : CatalogSearchResultsEvent
     data class FavoriteToggled(val productId: String) : CatalogSearchResultsEvent
+    data class QuickCartClicked(val productId: String) : CatalogSearchResultsEvent
     data object PopularSearchClicked : CatalogSearchResultsEvent
     data object QuoteRequestClicked : CatalogSearchResultsEvent
 }

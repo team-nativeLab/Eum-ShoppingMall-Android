@@ -8,19 +8,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,28 +27,44 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceSlot
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.QuickCartButton
+import com.nativelap.eumshoppingmall.ui.catalog.canQuickAddToCart
+import com.nativelap.eumshoppingmall.ui.catalog.highlightCatalogQuery
+import com.nativelap.eumshoppingmall.ui.catalog.quickCartBlockReason
+import com.nativelap.eumshoppingmall.ui.catalog.resolveCatalogPriceSlot
+import com.nativelap.eumshoppingmall.ui.catalog.resolveCatalogProductBadge
 import com.nativelap.eumshoppingmall.ui.common.FavoriteToggleButton
 import com.nativelap.eumshoppingmall.ui.common.pressScale
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumShadows
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
-import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
+// 그리드 카드. 슬롯 순서: 브랜드 1줄 · 상품명 2줄 · 규격 1줄 · 평점 1줄 · 가격 2줄 · 칩 1줄(담기 버튼 포함).
+// 같은 행의 카드 높이는 호출 측이 IntrinsicSize.Max와 fillMaxHeight로 맞춘다.
 @Composable
 fun CatalogProductCard(
     product: CatalogProductUiModel,
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier,
+    highlightQuery: String? = null,
+    // null이면 담기 버튼을 그리지 않는다. 버튼이 있어도 옵션 상품과 품절·가격 문의 상품에는 나오지 않는다.
+    onQuickCartClick: (() -> Unit)? = null,
+    showFavorite: Boolean = true,
+    showBlockReason: Boolean = true,
 ) {
     val shape = RoundedCornerShape(EumRadius.x12)
+    // 상품 속성에는 순위가 없다. 순위 배지는 홈 베스트 섹션 순서로만 붙는다.
+    val badge = resolveCatalogProductBadge(bestRank = null, badgeLabel = product.badgeLabel)
+    val priceSlot = catalogPriceSlotOf(product)
+    val highlightedName = remember(product.name, highlightQuery) { highlightCatalogQuery(product.name, highlightQuery) }
     Column(
         modifier = modifier
             .pressScale()
@@ -111,127 +125,85 @@ fun CatalogProductCard(
                     color = MaterialTheme.eumColors.danger,
                 )
             }
-            product.badgeLabel?.let { badge ->
-                // Figma 견적 상품 배지는 모서리 4 사각형, 높이 20, 좌우 6, 흰 배경에 lineStrong 테두리다.
-                val badgeShape = RoundedCornerShape(EumRadius.x4)
-                Box(
-                    modifier = Modifier.align(Alignment.TopStart)
-                        .padding(EumSpacing.x8)
-                        .heightIn(min = 20.dp)
-                        .clip(badgeShape)
-                        .background(MaterialTheme.eumColors.surface)
-                        .border(1.dp, MaterialTheme.eumColors.lineStrong, badgeShape)
-                        .padding(horizontal = EumSpacing.x6),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        badge,
-                        style = EumTypographyTokens.labelXs,
-                        color = MaterialTheme.eumColors.textSecondary,
-                    )
-                }
+            badge?.let { resolvedBadge ->
+                // 순위·견적 배지는 이미지 좌상단 같은 자리에 둔다. 순위가 있으면 견적 라벨은 resolve 단계에서 빠진다.
+                ProductCardBadge(
+                    badge = resolvedBadge,
+                    modifier = Modifier.align(Alignment.TopStart).padding(EumSpacing.x8),
+                )
             }
-            FavoriteToggleButton(
-                isFavorite = product.isFavorite,
-                onToggle = onFavoriteClick,
-                contentDescription = stringResource(
-                    if (product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
-                    product.name,
-                ),
-                modifier = Modifier.align(Alignment.TopEnd),
-            )
+            if (showFavorite) {
+                FavoriteToggleButton(
+                    isFavorite = product.isFavorite,
+                    onToggle = onFavoriteClick,
+                    contentDescription = stringResource(
+                        if (product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
+                        product.name,
+                    ),
+                    modifier = Modifier.align(Alignment.TopEnd),
+                )
+            }
         }
         Column(
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x4),
         ) {
+            ProductBrandLine(product.subtitle)
             Text(
-                product.name,
+                highlightedName,
                 style = MaterialTheme.typography.bodySmall,
                 // Figma 품절 상품명은 회색 톤이라 품절일 때만 textTertiary로 낮춘다.
                 color = if (product.isSoldOut) MaterialTheme.eumColors.textTertiary else MaterialTheme.eumColors.textPrimary,
+                minLines = 2,
                 maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
-            product.subtitle?.let { subtitle ->
-                Text(
-                    subtitle,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.eumColors.textTertiary,
-                    maxLines = 1,
+            ProductSpecLine(product.specLabel)
+            ProductRatingLine(
+                ratingValue = product.ratingValue ?: product.ratingLabel?.toFloatOrNull(),
+                ratingText = ratingTextOf(product),
+                reviewCountText = product.reviewCountLabel,
+            )
+            ProductPriceSlot(
+                slot = priceSlot,
+                inquiryLabel = stringResource(R.string.product_price_inquiry),
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                ProductChipRow(
+                    shippingLabel = product.shippingLabel,
+                    benefitLabels = product.benefitLabels,
+                    modifier = Modifier.weight(1f),
+                    reasonLabel = if (showBlockReason) quickCartBlockLabel(quickCartBlockReason(product)) else null,
                 )
-            }
-            product.ratingLabel?.let { rating ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    rating.toFloatOrNull()?.takeIf { it in 0f..5f }?.let { value ->
-                        val filledStarCount = value.toInt()
-                        repeat(5) { index ->
-                            Icon(
-                                painterResource(
-                                    if (index < filledStarCount) R.drawable.ic_star_catalog_filled else R.drawable.ic_star,
-                                ),
-                                contentDescription = null,
-                                tint = if (index < filledStarCount) MaterialTheme.eumColors.ratingStar else MaterialTheme.eumColors.lineStrong,
-                                modifier = Modifier.size(16.dp),
-                            )
-                        }
-                        Spacer(Modifier.width(EumSpacing.x4))
-                    }
-                    Text(
-                        listOfNotNull(rating, product.reviewCountLabel).joinToString(" "),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.eumColors.textTertiary,
-                        maxLines = 1,
+                onQuickCartClick?.takeIf { canQuickAddToCart(product) }?.let { addToCart ->
+                    QuickCartButton(
+                        contentDescription = stringResource(R.string.catalog_quick_add_to_cart_description, product.name),
+                        onClick = addToCart,
                     )
                 }
-            }
-            when (val price = product.price) {
-                is CatalogPriceUiModel.Available -> {
-                    if (price.originalLabel != null || price.discountLabel != null) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            price.originalLabel?.let { original ->
-                                Text(
-                                    original,
-                                    style = MaterialTheme.typography.labelSmall.copy(textDecoration = TextDecoration.LineThrough),
-                                    color = MaterialTheme.eumColors.textTertiary,
-                                )
-                            }
-                            price.discountLabel?.let { discount ->
-                                Spacer(Modifier.width(EumSpacing.x4))
-                                Text(
-                                    discount,
-                                    style = EumTypographyTokens.labelS.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.eumColors.danger,
-                                )
-                            }
-                        }
-                    }
-                    Text(
-                        price.currentLabel,
-                        style = EumTypographyTokens.priceM,
-                        color = if (price.discountLabel != null) {
-                            MaterialTheme.eumColors.danger
-                        } else {
-                            MaterialTheme.eumColors.textPrimary
-                        },
-                    )
-                }
-
-                CatalogPriceUiModel.QuoteRequired -> Text(
-                    stringResource(R.string.product_price_inquiry),
-                    style = EumTypographyTokens.priceM,
-                    color = MaterialTheme.eumColors.textPrimary,
-                )
             }
         }
     }
 }
 
+// 목록(리스트) 레이아웃 행. 그리드와 같은 정보(규격·평점·가격 슬롯·칩)를 가로 배치로 보여 준다.
 @Composable
 fun CatalogProductRow(
     product: CatalogProductUiModel,
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier,
+    highlightQuery: String? = null,
+    showFavorite: Boolean = true,
+    // 목록 행에도 담기 버튼을 넘긴 화면에서만 보인다(격자와 같은 조건).
+    onQuickCartClick: (() -> Unit)? = null,
+    showBlockReason: Boolean = true,
 ) {
+    val priceSlot = catalogPriceSlotOf(product)
+    val badge = resolveCatalogProductBadge(bestRank = null, badgeLabel = product.badgeLabel)
+    val highlightedName = remember(product.name, highlightQuery) { highlightCatalogQuery(product.name, highlightQuery) }
     Row(
         modifier = modifier.pressScale().fillMaxWidth().clip(RoundedCornerShape(EumRadius.x8))
             // backgroundSubtle이 background와 같아져 구분이 사라져 surfaceSecondary로 보정한다(Figma 노드 값 없음).
@@ -269,22 +241,89 @@ fun CatalogProductRow(
                     color = MaterialTheme.eumColors.danger,
                 )
             }
-        }
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
-            Text(product.name, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textPrimary, maxLines = 2)
-            product.subtitle?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary, maxLines = 1) }
-            when (val price = product.price) {
-                is CatalogPriceUiModel.Available -> Text(price.currentLabel, style = MaterialTheme.typography.titleSmall)
-                CatalogPriceUiModel.QuoteRequired -> Text(stringResource(R.string.product_price_inquiry), style = MaterialTheme.typography.titleSmall)
+            badge?.let { resolvedBadge ->
+                ProductCardBadge(
+                    badge = resolvedBadge,
+                    modifier = Modifier.align(Alignment.TopStart).padding(EumSpacing.x4),
+                )
             }
         }
-        FavoriteToggleButton(
-            isFavorite = product.isFavorite,
-            onToggle = onFavoriteClick,
-            contentDescription = stringResource(
-                if (product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
-                product.name,
-            ),
-        )
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+            ProductBrandLine(product.subtitle)
+            Text(
+                highlightedName,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.eumColors.textPrimary,
+                minLines = 2,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            ProductSpecLine(product.specLabel)
+            ProductRatingLine(
+                ratingValue = product.ratingValue ?: product.ratingLabel?.toFloatOrNull(),
+                ratingText = ratingTextOf(product),
+                reviewCountText = product.reviewCountLabel,
+            )
+            ProductPriceSlot(
+                slot = priceSlot,
+                inquiryLabel = stringResource(R.string.product_price_inquiry),
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                ProductChipRow(
+                    shippingLabel = product.shippingLabel,
+                    benefitLabels = product.benefitLabels,
+                    modifier = Modifier.weight(1f),
+                    reasonLabel = if (showBlockReason) quickCartBlockLabel(quickCartBlockReason(product)) else null,
+                )
+                onQuickCartClick?.takeIf { canQuickAddToCart(product) }?.let { addToCart ->
+                    QuickCartButton(
+                        contentDescription = stringResource(R.string.catalog_quick_add_to_cart_description, product.name),
+                        onClick = addToCart,
+                    )
+                }
+            }
+        }
+        if (showFavorite) {
+            FavoriteToggleButton(
+                isFavorite = product.isFavorite,
+                onToggle = onFavoriteClick,
+                contentDescription = stringResource(
+                    if (product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
+                    product.name,
+                ),
+            )
+        }
     }
+}
+
+@Composable
+private fun ProductBrandLine(subtitle: String?) {
+    Text(
+        subtitle.orEmpty(),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.eumColors.textTertiary,
+        minLines = 1,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
+}
+
+// 평점 텍스트는 평점이 있을 때만 만든다. 평점이 없으면 null을 넘겨 "평점 없음"을 그린다.
+private fun ratingTextOf(product: CatalogProductUiModel): String? {
+    if (product.ratingLabel == null && product.ratingValue == null) return null
+    return listOfNotNull(product.ratingLabel, product.reviewCountLabel).joinToString(" ")
+}
+
+private fun catalogPriceSlotOf(product: CatalogProductUiModel): CatalogPriceSlot {
+    val available = product.price as? CatalogPriceUiModel.Available
+    return resolveCatalogPriceSlot(
+        currentLabel = available?.currentLabel,
+        originalLabel = available?.originalLabel,
+        discountLabel = available?.discountLabel,
+        isInquiry = product.price is CatalogPriceUiModel.QuoteRequired,
+        isSoldOut = product.isSoldOut,
+    )
 }

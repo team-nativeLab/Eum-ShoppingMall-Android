@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -317,14 +317,20 @@ internal fun CatalogProductDetailContent(
                 }
                 if (uiModel.relatedProducts.isNotEmpty()) {
                     item { Text(stringResource(R.string.catalog_product_related), Modifier.padding(EumSpacing.x20), style = MaterialTheme.typography.titleMedium) }
-                    items(uiModel.relatedProducts.chunked(2)) { row ->
-                        Row(Modifier.padding(horizontal = EumSpacing.x20), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                    itemsIndexed(uiModel.relatedProducts.chunked(2)) { rowIndex, row ->
+                        // 목록 격자와 같은 행 간격(x24)을 행 사이에만 둔다.
+                        if (rowIndex > 0) Spacer(Modifier.height(EumSpacing.x24))
+                        // 연관 상품 행의 카드는 가장 높은 카드에 맞춘다.
+                        Row(
+                            Modifier.padding(horizontal = EumSpacing.x20).height(IntrinsicSize.Max),
+                            horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+                        ) {
                             row.forEach { product ->
                                 CatalogProductCard(
                                     product,
                                     onClick = { onEvent(CatalogProductDetailEvent.RelatedProductSelected(product.id)) },
                                     onFavoriteClick = { onEvent(CatalogProductDetailEvent.FavoriteToggled(product.id)) },
-                                    modifier = Modifier.weight(1f),
+                                    modifier = Modifier.weight(1f).fillMaxHeight(),
                                 )
                             }
                             if (row.size == 1) Spacer(Modifier.weight(1f))

@@ -1,17 +1,12 @@
 package com.nativelap.eumshoppingmall.ui.catalog
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -51,7 +46,6 @@ fun CatalogProductDetailRoute(
 ) {
     val scope = rememberCoroutineScope()
     val optionsSheetState = rememberModalBottomSheetState()
-    val snackbarHostState = remember { SnackbarHostState() }
     val sheetCloseGate = remember { OptionsSheetCloseGate() }
     var selectedImageIndex by rememberSaveable { mutableStateOf(uiModel.selectedImageIndex) }
     var selectedTabIndex by rememberSaveable { mutableStateOf(uiModel.selectedTabIndex) }
@@ -72,25 +66,7 @@ fun CatalogProductDetailRoute(
     val totalPriceLabel = remember(selectedOptions) {
         calculateSelectedOptionTotalWon(selectedOptions)?.let(::formatWonLabel)
     }
-    val cartSavedMessage = stringResource(R.string.catalog_added_to_cart)
-    val cartFailedMessage = stringResource(R.string.catalog_add_to_cart_failed)
-    val viewCartLabel = stringResource(R.string.catalog_view_cart)
-    val currentOnCartClick by rememberUpdatedState(onCartClick)
-    // 담기 결과 안내. Route 밖에 보관된 결과를 다음 composition에서 한 번 띄우고 비운다(N5).
-    LaunchedEffect(cartAddOutcome) {
-        val outcome = cartAddOutcome ?: return@LaunchedEffect
-        if (outcome.saved) {
-            val result = snackbarHostState.showSnackbar(
-                message = cartSavedMessage,
-                actionLabel = viewCartLabel,
-                duration = SnackbarDuration.Short,
-            )
-            if (result == SnackbarResult.ActionPerformed) currentOnCartClick()
-        } else {
-            snackbarHostState.showSnackbar(message = cartFailedMessage, duration = SnackbarDuration.Short)
-        }
-        onCartAddOutcomeChange(null)
-    }
+    val snackbarHostState = rememberCartAddSnackbarHostState(cartAddOutcome, onCartAddOutcomeChange, onCartClick)
     val productPriceLabel = when (val price = uiModel.product.price) {
         is CatalogPriceUiModel.Available -> price.currentLabel
         CatalogPriceUiModel.QuoteRequired -> stringResource(R.string.product_price_inquiry)
@@ -120,7 +96,7 @@ fun CatalogProductDetailRoute(
             CartLine(
                 productId = uiModel.product.id,
                 productName = uiModel.product.name,
-                optionId = DEFAULT_OPTION_ID,
+                optionId = CATALOG_DEFAULT_OPTION_ID,
                 optionLabel = defaultOptionLabel,
                 quantity = 1,
                 // 옵션 그룹이 없으면 추가금도 없다.
@@ -310,7 +286,6 @@ internal val OptionSelectionsSaver: Saver<List<OptionSelection>, ArrayList<Strin
 )
 
 private const val SAVED_FIELDS_PER_SELECTION = 3
-private const val DEFAULT_OPTION_ID = "default"
 
 // 현재 옵션 그룹에 없는 선택(상품 정보 변경 등)은 버린다.
 internal fun resolveSelectedOptions(

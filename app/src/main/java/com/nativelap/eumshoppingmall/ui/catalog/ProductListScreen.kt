@@ -1,7 +1,6 @@
 package com.nativelap.eumshoppingmall.ui.catalog
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,12 +54,21 @@ fun CatalogProductListScreen(
     onBottomItemSelected: (MainNavigationTab) -> Unit = {},
     cartItemCount: Int = 0,
     modifier: Modifier = Modifier,
+    snackbarHostState: androidx.compose.material3.SnackbarHostState? = null,
+    // 담기 동작을 넘긴 화면에서만 카드에 담기 버튼을 그린다(쿼트 선택 화면은 false).
+    showQuickCart: Boolean = false,
+    // 목록 위 안내 한 줄(견적 상품 선택 등). null이면 그리지 않는다.
+    guidanceText: String? = null,
+    showFavorite: Boolean = true,
+    // 사유 칩(품절·옵션 필요)은 담기 동작이 있는 목록에서만 보인다. 견적 선택 화면은 숨긴다.
+    showBlockReason: Boolean = true,
 ) {
     CatalogScreenScaffold(
         selectedBottomItem = selectedBottomItem,
         onBottomItemSelected = onBottomItemSelected,
         cartItemCount = cartItemCount,
         modifier = modifier,
+        snackbarHostState = snackbarHostState,
         topBar = {
             CatalogTopBar(
                 title = uiModel.title,
@@ -77,15 +86,25 @@ fun CatalogProductListScreen(
                     else -> 2
                 }
                 Column(Modifier.fillMaxSize()) {
+                    guidanceText?.let { guidance ->
+                        Text(
+                            guidance,
+                            modifier = Modifier.padding(start = EumSpacing.x20, top = EumSpacing.x8, end = EumSpacing.x20),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.eumColors.textSecondary,
+                        )
+                    }
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x8),
                         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
                     ) {
-                        items(uiModel.categories) { category ->
-                            val selected = category == uiModel.selectedCategory
-                            CatalogSelectionChip(category, selected) {
-                                onEvent(CatalogProductListEvent.CategorySelected(category))
-                            }
+                        items(uiModel.categoryChips, key = { chip -> chip.id }) { chip ->
+                            CatalogSelectionChip(
+                                label = chip.label,
+                                selected = chip.id == uiModel.selectedCategoryId,
+                                onClick = { onEvent(CatalogProductListEvent.CategorySelected(chip.id)) },
+                                count = chip.count,
+                            )
                         }
                     }
                     CatalogProductListControls(
@@ -121,6 +140,13 @@ fun CatalogProductListScreen(
                             items(uiModel.products, key = { it.id }) { product ->
                                 CatalogProductRow(
                                     product = product,
+                                    showFavorite = showFavorite,
+                                    showBlockReason = showBlockReason,
+                                    onQuickCartClick = if (showQuickCart) {
+                                        { onEvent(CatalogProductListEvent.QuickCartClicked(product.id)) }
+                                    } else {
+                                        null
+                                    },
                                     onClick = { onEvent(CatalogProductListEvent.ProductSelected(product.id)) },
                                     onFavoriteClick = { onEvent(CatalogProductListEvent.FavoriteToggled(product.id)) },
                                 )
@@ -135,9 +161,16 @@ fun CatalogProductListScreen(
                                     rowProducts.forEach { product ->
                                         CatalogProductCard(
                                             product = product,
+                                            showFavorite = showFavorite,
+                                            showBlockReason = showBlockReason,
                                             onClick = { onEvent(CatalogProductListEvent.ProductSelected(product.id)) },
                                             onFavoriteClick = { onEvent(CatalogProductListEvent.FavoriteToggled(product.id)) },
                                             modifier = Modifier.weight(1f).fillMaxHeight(),
+                                            onQuickCartClick = if (showQuickCart) {
+                                                { onEvent(CatalogProductListEvent.QuickCartClicked(product.id)) }
+                                            } else {
+                                                null
+                                            },
                                         )
                                     }
                                     repeat(columns - rowProducts.size) { Spacer(Modifier.weight(1f)) }
@@ -156,15 +189,20 @@ fun CatalogSelectionChip(
     label: String,
     selected: Boolean,
     onClick: () -> Unit,
+    // 개수는 표시용이다. 선택 비교와 이벤트에는 label만 쓰고, 개수가 null이면 라벨만 그린다.
+    count: Int? = null,
 ) {
+    val displayLabel = count?.let { stringResource(R.string.catalog_chip_label_with_count, label, it) } ?: label
     Surface(
         onClick = onClick,
+        // 레이아웃 크기를 최소 48dp로 예약한다(material3 소스 확인). 칩 행 높이가 48dp까지 커지며, 시각 칩은 가운데에 그려진다.
+        modifier = Modifier.minimumInteractiveComponentSize(),
         shape = RoundedCornerShape(EumRadius.capsule),
         color = if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface,
         border = if (selected) null else BorderStroke(1.dp, MaterialTheme.eumColors.lineStrong),
     ) {
         Text(
-            label,
+            displayLabel,
             modifier = Modifier.padding(horizontal = EumSpacing.x14, vertical = EumSpacing.x8),
             style = MaterialTheme.typography.labelMedium,
             color = if (selected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textSecondary,

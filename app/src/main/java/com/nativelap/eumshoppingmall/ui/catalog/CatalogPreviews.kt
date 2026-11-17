@@ -376,8 +376,7 @@ private fun CatalogProductListPreview() {
         CatalogProductListScreen(
             uiModel = CatalogProductListUiModel(
                 title = "개인보호장비",
-                categories = listOf("전체", "안전모", "보안경", "안전장갑", "방진마스크"),
-                selectedCategory = "전체",
+                categoryChips = previewCategoryChips("전체", "안전모", "보안경", "안전장갑", "방진마스크"),
                 resultCountLabel = "총 40개",
                 sortLabel = "추천순",
                 products = productListFigmaProducts,
@@ -395,8 +394,7 @@ private fun CatalogProductListRowsPreview() {
         CatalogProductListScreen(
             uiModel = CatalogProductListUiModel(
                 title = "개인보호장비",
-                categories = listOf("전체", "안전모", "보호구", "작업복"),
-                selectedCategory = "전체",
+                categoryChips = previewCategoryChips("전체", "안전모", "보호구", "작업복"),
                 resultCountLabel = "총 24개",
                 sortLabel = "인기순",
                 products = previewProducts,
@@ -430,8 +428,7 @@ private fun CatalogProductListNarrowPreview() {
         CatalogProductListScreen(
             uiModel = CatalogProductListUiModel(
                 title = "개인보호장비",
-                categories = listOf("전체", "안전모", "보호구", "작업복"),
-                selectedCategory = "전체",
+                categoryChips = previewCategoryChips("전체", "안전모", "보호구", "작업복"),
                 resultCountLabel = "총 24개",
                 sortLabel = "인기순",
                 products = previewProducts,
@@ -456,6 +453,72 @@ private fun CatalogSearchPreview() {
             ),
             onEvent = {},
         )
+    }
+}
+
+// 미리보기 칩은 라벨 순서대로 id를 준다. 첫 칩은 전체이며 개수는 미리보기용 값이다.
+private fun previewCategoryChips(vararg labels: String): List<CatalogCategoryChipUiModel> = labels.mapIndexed { index, label ->
+    CatalogCategoryChipUiModel(
+        id = if (index == 0) CATALOG_ALL_CATEGORY_ID else "preview-$index",
+        label = label,
+        count = if (index == 0) labels.size * 8 else null,
+    )
+}
+
+@Preview(showBackground = true, widthDp = 390, name = "카탈로그 카드 순위·담기·평점 없음")
+@Composable
+private fun CatalogProductCardRankQuickCartPreview() {
+    EumShoppingMallTheme {
+        androidx.compose.foundation.layout.Row(
+            Modifier.padding(16.dp),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+        ) {
+            CatalogProductCard(
+                product = CatalogProductUiModel(
+                    id = "preview-rank",
+                    name = "순위 배지 상품명이 길어서 두 줄로 줄어드는 예시",
+                    price = CatalogPriceUiModel.Available("₩18,000", originalLabel = "₩22,000", discountLabel = "18%"),
+                    ratingLabel = "4.7",
+                    ratingValue = 4.7f,
+                    reviewCountLabel = "(3)",
+                    specLabel = "1개",
+                    shippingLabel = "당일 출고",
+                    badgeLabel = "견적 상품",
+                    benefitLabels = listOf("쿠폰 적용"),
+                ),
+                onClick = {},
+                onFavoriteClick = {},
+                modifier = Modifier.weight(1f),
+                onQuickCartClick = {},
+            )
+            CatalogProductCard(
+                product = CatalogProductUiModel(
+                    id = "preview-unrated",
+                    name = "평점 없는 상품",
+                    price = CatalogPriceUiModel.Available("₩32,000"),
+                    specLabel = "3.3kg",
+                    shippingLabel = "당일 출고",
+                ),
+                onClick = {},
+                onFavoriteClick = {},
+                modifier = Modifier.weight(1f),
+                onQuickCartClick = {},
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 390, name = "카테고리 칩 개수")
+@Composable
+private fun CatalogSelectionChipCountPreview() {
+    EumShoppingMallTheme {
+        androidx.compose.foundation.layout.Row(
+            Modifier.padding(16.dp),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+        ) {
+            CatalogSelectionChip(label = "개인보호장비", selected = true, onClick = {}, count = 31)
+            CatalogSelectionChip(label = "안전모", selected = false, onClick = {})
+        }
     }
 }
 

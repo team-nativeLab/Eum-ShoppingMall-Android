@@ -5,6 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.common.rememberFavoriteToggles
 
@@ -19,40 +21,67 @@ fun CatalogProductListRoute(
     onProductClick: (productId: String) -> Unit,
     isLoggedIn: Boolean,
     onLoginRequired: () -> Unit,
+    // null이면 카드에 담기 버튼을 그리지 않는다(쿼트 선택 화면). 담기 동작을 넘긴 목록에서만 버튼이 보인다.
+    onQuickAddToCart: ((CatalogProductUiModel) -> Unit)? = null,
+    cartAddOutcome: CartAddOutcome? = null,
+    onCartAddOutcomeChange: (CartAddOutcome?) -> Unit = {},
+    onCartClick: () -> Unit = {},
+    // 견적 상품 선택 화면이면 제목·안내를 바꾸고 찜 하트를 숨긴다.
+    isQuotePicker: Boolean = false,
+    onCartLoginRequired: () -> Unit = onLoginRequired,
 ) {
-    var selectedCategory by rememberSaveable { mutableStateOf(uiModel.selectedCategory) }
+    var selectedCategoryId by rememberSaveable { mutableStateOf(uiModel.selectedCategoryId) }
     var isListLayout by rememberSaveable { mutableStateOf(uiModel.isListLayout) }
+    val snackbarHostState = rememberCartAddSnackbarHostState(cartAddOutcome, onCartAddOutcomeChange, onCartClick)
+    val screenTitle = if (isQuotePicker) stringResource(R.string.quote_product_picker_title) else uiModel.title
     val filterState = rememberProductFilterState()
     val favoriteToggles = rememberFavoriteToggles(
         initialFavoriteIds = uiModel.products.filter { product -> product.isFavorite }.map { product -> product.id }.toSet(),
         isLoggedIn = isLoggedIn,
         onLoginRequired = onLoginRequired,
     )
+    // 칩 라벨은 표시용이고, 선택은 id로 비교한다. 필터 시트의 라벨 목록은 여기서 id와 맞춘다.
+    val categoryLabels = uiModel.categoryChips.map { chip -> chip.label }
+    val selectedCategoryLabel = uiModel.categoryChips.firstOrNull { chip -> chip.id == selectedCategoryId }?.label
+    val shownProducts = filterState.apply(
+        filterCatalogProductsBySubcategory(uiModel.products, selectedCategoryId),
+    ).map { product ->
+        product.copy(isFavorite = favoriteToggles.isFavorite(product.id))
+    }
     ProductFilterHost(
         state = filterState,
-        categories = uiModel.categories,
-        selectedCategory = selectedCategory,
-        onCategorySelected = { category -> selectedCategory = category },
+        categories = categoryLabels,
+        selectedCategory = selectedCategoryLabel,
+        onCategorySelected = { label ->
+            uiModel.categoryChips.firstOrNull { chip -> chip.label == label }?.let { chip ->
+                selectedCategoryId = chip.id
+            }
+        },
     ) {
         CatalogProductListScreen(
             uiModel = uiModel.copy(
-                selectedCategory = selectedCategory,
+                title = screenTitle,
+                selectedCategoryId = selectedCategoryId,
+                resultCountLabel = stringResource(R.string.catalog_product_result_count, shownProducts.size),
                 isListLayout = isListLayout,
                 sortLabel = productSortLabel(filterState.sort, uiModel.sortLabel),
-                products = filterState.apply(uiModel.products).map { product ->
-                    product.copy(isFavorite = favoriteToggles.isFavorite(product.id))
-                },
+                products = shownProducts,
             ),
             selectedBottomItem = selectedTab,
             onBottomItemSelected = onTabSelected,
             cartItemCount = cartItemCount,
+            snackbarHostState = snackbarHostState,
+            showQuickCart = onQuickAddToCart != null,
+            guidanceText = if (isQuotePicker) stringResource(R.string.quote_product_picker_guidance) else null,
+            showFavorite = showsFavoriteToggle(isQuotePicker),
+            showBlockReason = showsBlockReasonChip(isQuotePicker),
             onEvent = { event ->
                 when (event) {
                     CatalogProductListEvent.BackClicked -> onBackClick()
 
                     CatalogProductListEvent.SearchClicked -> onSearchClick()
 
-                    is CatalogProductListEvent.CategorySelected -> selectedCategory = event.category
+                    is CatalogProductListEvent.CategorySelected -> selectedCategoryId = event.categoryId
 
                     CatalogProductListEvent.LayoutToggled -> isListLayout = !isListLayout
 
@@ -64,6 +93,16 @@ fun CatalogProductListRoute(
                     -> filterState.open()
 
                     is CatalogProductListEvent.FavoriteToggled -> favoriteToggles.toggle(event.productId)
+
+                    is CatalogProductListEvent.QuickCartClicked -> {
+                        if (isLoggedIn) {
+                            uiModel.products.firstOrNull { product -> product.id == event.productId }?.let { product ->
+                                onQuickAddToCart?.invoke(product)
+                            }
+                        } else {
+                            onCartLoginRequired()
+                        }
+                    }
                 }
             },
         )
