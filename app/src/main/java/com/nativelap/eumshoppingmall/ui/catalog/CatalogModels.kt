@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.catalog
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 
 sealed interface CatalogPriceUiModel {
     data class Available(
@@ -40,10 +41,10 @@ data class CatalogProductUiModel(
 
 data class CatalogCategoryUiModel(
     val id: String,
-    val label: String,
+    @param:StringRes val labelResId: Int,
     @param:DrawableRes val iconResId: Int,
-    // 카테고리 설명 부제. 데이터가 없으면 null이고 홈 카테고리에는 줄을 그리지 않는다.
-    val description: String? = null,
+    // 카테고리 설명 부제의 문자열 리소스. 없으면 null이고 홈 카테고리에는 줄을 그리지 않는다.
+    @param:StringRes val descriptionResId: Int? = null,
 )
 
 data class CatalogBrandUiModel(
@@ -125,6 +126,8 @@ data class CatalogProductListUiModel(
     val sortLabel: String,
     val products: List<CatalogProductUiModel> = emptyList(),
     val isListLayout: Boolean = false,
+    // 상단 제목 리소스. 카테고리 타일과 같은 라벨 리소스를 쓰며, 있으면 title보다 우선한다(F2).
+    @param:StringRes val titleResId: Int? = null,
 )
 
 sealed interface CatalogProductListEvent {
@@ -197,6 +200,7 @@ data class CatalogProductDetailUiModel(
     val optionGroups: List<CatalogOptionGroupUiModel> = emptyList(),
     val selectedOptions: List<CatalogSelectedOptionUiModel> = emptyList(),
     val optionsSheetVisible: Boolean = false,
+    val isCartOptionEdit: Boolean = false,
     val totalPriceLabel: String? = null,
     // 상품 설명 본문. 데이터 원천이 없으면 null이며, 화면은 값이 있을 때만 그린다.
     val description: String? = null,

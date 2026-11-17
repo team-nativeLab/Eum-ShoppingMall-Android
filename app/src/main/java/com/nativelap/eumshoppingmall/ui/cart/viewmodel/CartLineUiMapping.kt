@@ -26,6 +26,12 @@ internal fun cartUiModelOf(
 /** 저장 줄의 항목 id. 편집(수량·삭제)이 같은 줄을 찾을 때 쓰는 값과 같다. */
 internal fun CartLine.cartItemId(): String = lineId()
 
+/**
+ * 옵션 변경 버튼 노출과 클릭 처리가 함께 쓰는 판정.
+ * 저장된 줄만 옵션 편집 대상이다(샘플 폴백 줄 제외, S2). 견적 전용 줄도 편집 대상이 아니다.
+ */
+internal fun CartItemUiModel.canChangeOption(): Boolean = isSavedLine && type != CartItemType.QuoteRequired
+
 internal fun CartLine.toCartItemUiModel(labels: CartPriceLabels): CartItemUiModel {
     val extraWon = optionExtraWon?.takeIf { amount -> amount != 0L }
     val optionText = if (extraWon == null) optionLabel else "$optionLabel (+${formatWonLabel(extraWon)})"
@@ -38,6 +44,7 @@ internal fun CartLine.toCartItemUiModel(labels: CartPriceLabels): CartItemUiMode
             unitPriceLabel = labels.quotePrice,
             totalPriceLabel = labels.quotePrice,
             type = CartItemType.QuoteRequired,
+            isSavedLine = true,
         )
     }
     val unitWon = unitPriceWonOrNull()
@@ -55,6 +62,24 @@ internal fun CartLine.toCartItemUiModel(labels: CartPriceLabels): CartItemUiMode
         totalPriceLabel = totalLabel,
         type = CartItemType.Orderable,
         isSelected = true,
+        lineTotalWon = lineTotalWon,
+        unitPriceWon = unitWon,
+        isSavedLine = true,
+    )
+}
+
+/**
+ * 고정 샘플 줄의 수량을 바꾼 뒤 줄 금액과 표시 문구를 다시 계산한다(N2).
+ * 단가를 모르면 수량만 바꾸고 금액은 "가격 확인 필요"로 둔다. 저장된 줄은 CartLine에서 다시 매핑되므로 이 함수를 거치지 않는다.
+ */
+internal fun CartItemUiModel.withQuantity(newQuantity: Int, labels: CartPriceLabels): CartItemUiModel {
+    val unitWon = unitPriceWon ?: return copy(quantity = newQuantity)
+    val lineTotalWon = multiplyOrNull(unitWon, newQuantity.toLong())
+    val unitLabel = formatWonLabel(unitWon)
+    return copy(
+        quantity = newQuantity,
+        unitPriceLabel = if (newQuantity > 1) "$unitLabel × $newQuantity" else unitLabel,
+        totalPriceLabel = lineTotalWon?.let(::formatWonLabel) ?: labels.priceCheck,
         lineTotalWon = lineTotalWon,
     )
 }

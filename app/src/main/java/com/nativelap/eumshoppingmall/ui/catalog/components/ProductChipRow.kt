@@ -33,14 +33,17 @@ internal fun ProductChipRow(
     // 담을 수 없는 사유(품절, 옵션 필요)는 배송·혜택 칩보다 앞에 둔다. 칩 개수 상한은 같다.
     reasonLabel: String? = null,
 ) {
-    val labels = listOfNotNull(reasonLabel, shippingLabel?.takeIf { it.isNotBlank() }) +
+    val shippingText = shippingLabel?.takeIf { it.isNotBlank() }
+    val labels = listOfNotNull(reasonLabel, shippingText) +
         benefitLabels.filter { it.isNotBlank() }
     Row(
         modifier = modifier.fillMaxWidth().heightIn(min = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
     ) {
+        // 배송 칩은 자기 폭만큼 먼저 받아 배송비 문구가 잘리지 않게 하고, 다른 칩은 남은 폭만 쓴다(F1).
         labels.take(2).forEach { label ->
-            ProductInfoChip(label, Modifier.weight(1f, fill = false))
+            val chipModifier = if (shippingText != null && label == shippingText) Modifier else Modifier.weight(1f, fill = false)
+            ProductInfoChip(label, chipModifier)
         }
     }
 }

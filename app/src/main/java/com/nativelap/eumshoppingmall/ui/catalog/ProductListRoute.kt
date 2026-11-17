@@ -33,7 +33,8 @@ fun CatalogProductListRoute(
     var selectedCategoryId by rememberSaveable { mutableStateOf(uiModel.selectedCategoryId) }
     var isListLayout by rememberSaveable { mutableStateOf(uiModel.isListLayout) }
     val snackbarHostState = rememberCartAddSnackbarHostState(cartAddOutcome, onCartAddOutcomeChange, onCartClick)
-    val screenTitle = if (isQuotePicker) stringResource(R.string.quote_product_picker_title) else uiModel.title
+    val listTitle = uiModel.titleResId?.let { titleResId -> stringResource(titleResId) } ?: uiModel.title
+    val screenTitle = if (isQuotePicker) stringResource(R.string.quote_product_picker_title) else listTitle
     val filterState = rememberProductFilterState()
     val favoriteToggles = rememberFavoriteToggles(
         initialFavoriteIds = uiModel.products.filter { product -> product.isFavorite }.map { product -> product.id }.toSet(),

@@ -23,6 +23,7 @@ import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.data.local.CartLine
+import com.nativelap.eumshoppingmall.data.local.CartLineReplaceResult
 import com.nativelap.eumshoppingmall.ui.account.view.AccountDrawerRoute
 import com.nativelap.eumshoppingmall.ui.account.view.MyPageRoute
 import com.nativelap.eumshoppingmall.ui.auth.createAccountService
@@ -32,6 +33,8 @@ import com.nativelap.eumshoppingmall.ui.benefits.CouponRoute
 import com.nativelap.eumshoppingmall.ui.benefits.PointsRoute
 import com.nativelap.eumshoppingmall.ui.cart.view.CartRoute
 import com.nativelap.eumshoppingmall.ui.catalog.CartAddOutcome
+import com.nativelap.eumshoppingmall.ui.catalog.CartEditOutcome
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryDefinitions
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryRoute
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductDetailRoute
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductListRoute
@@ -39,6 +42,7 @@ import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchResultsRoute
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchRoute
 import com.nativelap.eumshoppingmall.ui.catalog.QuickCartGate
+import com.nativelap.eumshoppingmall.ui.catalog.clearedIfShown
 import com.nativelap.eumshoppingmall.ui.catalog.resolveHomeQuickCartLine
 import com.nativelap.eumshoppingmall.ui.catalog.resolveQuickCartLine
 import com.nativelap.eumshoppingmall.ui.catalog.saveAddToCartLines
@@ -51,10 +55,7 @@ import com.nativelap.eumshoppingmall.ui.events.EventListRoute
 import com.nativelap.eumshoppingmall.ui.favorites.FavoritesRoute
 import com.nativelap.eumshoppingmall.ui.home.HomeProductUiModel
 import com.nativelap.eumshoppingmall.ui.home.HomeRoute
-import com.nativelap.eumshoppingmall.ui.home.components.HomeHeroTarget
-import com.nativelap.eumshoppingmall.ui.home.components.homeHeroTargetForSlide
 import com.nativelap.eumshoppingmall.ui.home.homeQueryForSearchQuery
-import com.nativelap.eumshoppingmall.ui.home.toHomeCategoryUiModel
 import com.nativelap.eumshoppingmall.ui.ordercomplete.view.OrderCompleteRoute
 import com.nativelap.eumshoppingmall.ui.orders.view.OrderHistoryRoute
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestType
@@ -83,12 +84,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun EumMainNavDisplay(
     cartItemCount: Int,
-    savedCartLines: List<CartLine>,
+    /** 저장된 장바구니 줄. null이면 아직 읽지 못한 상태라 편집 원본을 판정하지 않는다. */
+    savedCartLines: List<CartLine>?,
     screenDataProvider: ShoppingScreenDataProvider,
     onAddToCart: suspend (addedLines: List<CartLine>) -> Unit,
     onCartQuantityChanged: suspend (lineId: String, quantity: Int) -> Unit,
     onCartItemsRemoved: suspend (lineIds: Set<String>) -> Unit,
     onCartLinesRestored: suspend (lines: List<CartLine>) -> Unit,
+    onReplaceCartLine: suspend (sourceLineId: String, replacement: CartLine) -> CartLineReplaceResult,
     modifier: Modifier = Modifier,
 ) {
     val navigationState = rememberEumMainNavigationState()
@@ -110,6 +113,8 @@ fun EumMainNavDisplay(
     val currentSavedCartLines by rememberUpdatedState(savedCartLines)
     // 담기 결과는 Route가 아니라 여기서 보관한다. Route가 사라져도 결과가 남아 다음 화면 구성에서 안내된다.
     var cartAddOutcome by rememberSaveable(stateSaver = CartAddOutcome.Saver) { mutableStateOf<CartAddOutcome?>(null) }
+    // 편집 화면이 장바구니로 넘기는 안내 결과. 장바구니 화면이 한 번 보여 주면 표시를 남기고 비운다(C).
+    var cartEditOutcome by rememberSaveable(stateSaver = CartEditOutcome.Saver) { mutableStateOf<CartEditOutcome?>(null) }
     // 홈 검색창과 검색 결과가 같은 검색어를 쓴다. 결과에서 지우면 여기서도 비운다.
     var homeSearchQuery by rememberSaveable { mutableStateOf("") }
     val currentCartAddOutcome by rememberUpdatedState(cartAddOutcome)
@@ -146,17 +151,21 @@ fun EumMainNavDisplay(
         navigator.completeLogin()
         return true
     }
+
+    // 카테고리 탭과 홈 카테고리 행의 단일 이동 경로. 상품이 없는 카테고리는 목록 목적지를 만들지 않아 이동하지 않는다.
+    fun openCategory(categoryId: String?) {
+        destinationForCategoryIfAvailable(categoryId, screenDataProvider.productList(categoryId))
+            ?.let { destination -> navigator.push(destination) }
+    }
     val entryProvider = remember(navigationState, navigator, screenDataProvider, quoteProductSelection, addressSelection, entryContext, loginSession, loginAuthenticator, accountService, onAddToCart) {
         entryProvider<NavKey> {
             entry<EumDestination.Home> {
                 HomeRoute(
+                    // 홈 카테고리는 카테고리 탭과 같은 공통 정의를 쓰고, 고르면 그 카테고리 상품 목록으로 간다.
+                    categories = remember { CatalogCategoryDefinitions.homeItems() },
                     recommendedProducts = remember { screenDataProvider.homeRecommendedProducts() },
                     todayProducts = remember { screenDataProvider.homeTodayProducts() },
                     bestSellerProducts = remember { screenDataProvider.homeBestSellerProducts() },
-                    // 홈 카테고리는 카테고리 탭과 같은 목록을 쓰고, 고르면 그 카테고리 상품 목록으로 간다.
-                    categories = remember {
-                        screenDataProvider.categoryScreen().categories.map { category -> category.toHomeCategoryUiModel() }
-                    },
                     companyIntro = remember { screenDataProvider.homeCompanyIntro() },
                     cartItemCount = currentCartItemCount,
                     selectedTab = MainNavigationTab.Home,
@@ -168,7 +177,8 @@ fun EumMainNavDisplay(
                         }
                     },
                     onProductClick = { product -> navigator.push(EumDestination.ProductDetail(product.id)) },
-                    onCategoryClick = { category -> navigator.push(EumDestination.ProductList(category.id)) },
+                    onCategoryClick = { category -> openCategory(category.id) },
+                    onHeroAction = { action -> navigator.push(destinationForHomeHeroAction(action)) },
                     onQuoteClick = { navigator.push(EumDestination.QuoteRequest()) },
                     onMenuClick = { navigator.push(EumDestination.Drawer) },
                     onSeeAllProductsClick = { navigator.push(EumDestination.ProductList()) },
@@ -185,14 +195,6 @@ fun EumMainNavDisplay(
                     query = homeSearchQuery,
                     onQueryChange = { homeSearchQuery = it },
                     onCartLoginRequired = entryContext::openLoginForCart,
-                    onHeroAction = { slideIndex ->
-                        when (homeHeroTargetForSlide(slideIndex)) {
-                            HomeHeroTarget.Products -> navigator.push(EumDestination.ProductList())
-                            HomeHeroTarget.Quote -> navigator.push(EumDestination.QuoteRequest())
-                            HomeHeroTarget.CompanyIntro -> navigator.push(EumDestination.CompanyIntro)
-                            null -> Unit
-                        }
-                    },
                 )
             }
             entry<EumDestination.Categories> {
@@ -202,7 +204,7 @@ fun EumMainNavDisplay(
                     cartItemCount = currentCartItemCount,
                     onTabSelected = navigator::navigateToTab,
                     onSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
-                    onCategoryClick = { categoryId -> navigator.push(EumDestination.ProductList(categoryId)) },
+                    onCategoryClick = { categoryId -> openCategory(categoryId) },
                     onBrandClick = { brandId -> navigator.push(EumDestination.BrandDetail(brandId)) },
                 )
             }
@@ -219,7 +221,10 @@ fun EumMainNavDisplay(
             entry<EumDestination.Cart> {
                 CartRoute(
                     // 저장된 장바구니 줄이 있으면 그것을 먼저 보여 주고, 없을 때만 provider의 기본 목록을 쓴다.
-                    savedLines = currentSavedCartLines,
+                    savedLines = currentSavedCartLines.orEmpty(),
+                    editOutcome = cartEditOutcome,
+                    onEditOutcomeChange = { outcome -> cartEditOutcome = outcome },
+                    onEditOutcomeCleared = { serial -> cartEditOutcome = cartEditOutcome.clearedIfShown(serial) },
                     fallback = remember { screenDataProvider.cart() },
                     onQuantityChanged = onCartQuantityChanged,
                     onItemsRemoved = onCartItemsRemoved,
@@ -234,7 +239,7 @@ fun EumMainNavDisplay(
                     // 배너에서는 돌아갈 곳이 지금 장바구니이므로 보류 목적지 없이 로그인만 연다.
                     onLoginClick = { navigator.push(EumDestination.Login()) },
                     onQuoteRequestClick = { navigator.push(EumDestination.QuoteRequest()) },
-                    onOptionChangeClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
+                    onOptionChangeClick = { line -> navigator.push(EumDestination.ProductDetail(line.productId, line.lineId())) },
                 )
             }
             entry<EumDestination.MyPage> {
@@ -332,6 +337,11 @@ fun EumMainNavDisplay(
                     onReviewWriteClick = { productId -> entryContext.open(EumDestination.ReviewWrite(productId)) },
                     onQuestionWriteClick = { productId -> entryContext.open(EumDestination.ProductInquiryWrite(productId)) },
                     onAddToCart = onAddToCart,
+                    editSourceLineId = destination.editSourceLineId,
+                    editSourceLine = destination.editSourceLineId?.let { lineId -> currentSavedCartLines?.firstOrNull { it.lineId() == lineId } },
+                    isCartLoaded = currentSavedCartLines != null,
+                    onReplaceCartLine = onReplaceCartLine,
+                    onCartEditNotice = { notice -> cartEditOutcome = CartEditOutcome(serial = System.nanoTime(), notice = notice) },
                     cartAddOutcome = currentCartAddOutcome,
                     onCartAddOutcomeChange = { outcome -> cartAddOutcome = outcome },
                 )

@@ -36,6 +36,7 @@ class EumDestinationSerializationTest {
         EumDestination.ProductList(categoryId = "protective"),
         EumDestination.SearchResults(query = "안전모"),
         EumDestination.ProductDetail(productId = "p1"),
+        EumDestination.ProductDetail(productId = "p1", editSourceLineId = "p1/option-1"),
         EumDestination.CheckoutAddress(),
         EumDestination.CheckoutAddress(orderedCartLineIds = listOf("line-1", "line-2")),
         EumDestination.CheckoutPayment(),

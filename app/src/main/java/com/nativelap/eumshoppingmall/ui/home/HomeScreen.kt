@@ -60,17 +60,17 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
 fun HomeRoute(
+    categories: List<HomeCategoryUiModel> = emptyList(),
     recommendedProducts: List<HomeProductUiModel> = emptyList(),
     todayProducts: List<HomeProductUiModel> = emptyList(),
     bestSellerProducts: List<HomeProductUiModel> = emptyList(),
-    categories: List<HomeCategoryUiModel> = emptyList(),
     companyIntro: HomeCompanyInfoUiModel = HomeCompanyInfoUiModel(),
     cartItemCount: Int = 0,
     selectedTab: MainNavigationTab = MainNavigationTab.Home,
     onSearch: (String) -> Unit = {},
     onCategoryClick: (HomeCategoryUiModel) -> Unit = {},
     onProductClick: (HomeProductUiModel) -> Unit = {},
-    onHeroAction: (Int) -> Unit = {},
+    onHeroAction: (HomeHeroActionId) -> Unit = {},
     onQuoteClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
@@ -132,7 +132,7 @@ fun HomeRoute(
 
                 is HomeScreenEvent.ProductClicked -> onProductClick(event.product)
 
-                is HomeScreenEvent.HeroActionClicked -> onHeroAction(event.slideIndex)
+                is HomeScreenEvent.HeroActionClicked -> onHeroAction(event.action)
 
                 HomeScreenEvent.QuoteClicked -> onQuoteClick()
 
@@ -441,7 +441,7 @@ private fun HomeBestCategoryTabs(
         }
         items(categories, key = { category -> category.id }) { category ->
             CatalogSelectionChip(
-                label = category.label,
+                label = stringResource(category.labelResId),
                 selected = category.id == selectedCategoryId,
                 onClick = { onCategorySelected(category.id) },
             )

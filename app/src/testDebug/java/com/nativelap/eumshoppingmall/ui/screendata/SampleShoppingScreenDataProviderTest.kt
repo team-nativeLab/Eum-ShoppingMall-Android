@@ -1,7 +1,10 @@
 package com.nativelap.eumshoppingmall.ui.screendata
 
+import com.nativelap.eumshoppingmall.navigation.EumDestination
+import com.nativelap.eumshoppingmall.navigation.destinationForCategoryIfAvailable
 import com.nativelap.eumshoppingmall.ui.catalog.CATALOG_ALL_CATEGORY_ID
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryChipUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryDefinitions
 import com.nativelap.eumshoppingmall.ui.home.filterByBestCategory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -70,8 +73,59 @@ class SampleShoppingScreenDataProviderTest {
     @Test
     fun productListFiltersByTopCategory() {
         assertEquals(listOf("sample-extinguisher"), provider.productList("fire").products.map { product -> product.id })
-        assertTrue(provider.productList("uniform").products.isEmpty())
-        assertEquals(4, provider.productList(null).products.size)
+        assertEquals(listOf("sample-workwear"), provider.productList("uniform").products.map { product -> product.id })
+        assertEquals(10, provider.productList(null).products.size)
+    }
+
+    @Test
+    fun productListTitleIsTheSameLabelResourceAsItsCategoryTile() {
+        CatalogCategoryDefinitions.all.forEach { category ->
+            assertEquals(category.labelResId, provider.productList(category.id).titleResId)
+        }
+    }
+
+    @Test
+    fun debugProductShippingLabelsFollowTheFreeShippingRule() {
+        val byId = provider.productList(null).products.associateBy { product -> product.id }
+
+        assertEquals("무료배송", byId.getValue("sample-boots").shippingLabel)
+        assertEquals("배송비 ₩3,000", byId.getValue("sample-workwear").shippingLabel)
+        assertEquals("배송비 ₩3,000", byId.getValue("sample-extinguisher").shippingLabel)
+        assertEquals("배송비 ₩3,000", byId.getValue("sample-helmet").shippingLabel)
+        byId.values.forEach { product -> assertFalse(product.shippingLabel.orEmpty().contains("당일 출고")) }
+        assertEquals("₩3,000", provider.productDetail("sample-helmet").shippingRows.single().value)
+    }
+
+    @Test
+    fun everyDebugCategoryHasAtLeastOneProduct() {
+        CatalogCategoryDefinitions.all.forEach { category ->
+            assertTrue(category.id, provider.productList(category.id).products.isNotEmpty())
+        }
+    }
+
+    @Test
+    fun everyDebugCategoryNavigatesToItsProductList() {
+        CatalogCategoryDefinitions.all.forEach { category ->
+            assertEquals(
+                EumDestination.ProductList(category.id),
+                destinationForCategoryIfAvailable(category.id, provider.productList(category.id)),
+            )
+        }
+    }
+
+    @Test
+    fun homeSectionsKeepTheSameMockProductsAfterAddingCategoryProducts() {
+        assertEquals(listOf("sample-helmet", "sample-boots"), provider.homeRecommendedProducts().map { product -> product.id })
+        assertEquals(listOf("sample-belt", "sample-extinguisher"), provider.homeTodayProducts().map { product -> product.id })
+        assertEquals(
+            listOf("sample-helmet", "sample-boots", "sample-belt", "sample-extinguisher"),
+            provider.homeBestSellerProducts().map { product -> product.id },
+        )
+    }
+
+    @Test
+    fun categoryOnlyProductOpensItsOwnDetail() {
+        assertEquals("sample-cctv", provider.productDetail("sample-cctv").product.id)
     }
 
     @Test

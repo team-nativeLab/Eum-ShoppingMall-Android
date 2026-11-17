@@ -641,15 +641,17 @@ private fun ProductDetailBottomActions(
                 },
                 modifier = Modifier.weight(1f),
             ) {
-                Text(stringResource(R.string.catalog_add_to_cart))
+                Text(stringResource(if (uiModel.isCartOptionEdit) R.string.catalog_change_cart_option else R.string.catalog_add_to_cart))
             }
-            EumPrimaryButton(
-                onClick = {
-                    onEvent(CatalogProductDetailEvent.SelectOptionClicked(CatalogPurchaseAction.BuyNow))
-                },
-                modifier = Modifier.weight(1f),
-            ) {
-                Text(stringResource(R.string.catalog_buy_now))
+            if (!uiModel.isCartOptionEdit) {
+                EumPrimaryButton(
+                    onClick = {
+                        onEvent(CatalogProductDetailEvent.SelectOptionClicked(CatalogPurchaseAction.BuyNow))
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.catalog_buy_now))
+                }
             }
         }
     }
@@ -749,8 +751,9 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
             Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
         ) {
-            if (!isQuoteRequired && uiModel.optionGroups.isEmpty()) {
-                Text(stringResource(R.string.catalog_no_options), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
+            // 옵션 그룹이 없는 상품은 기본 구성으로 바로 담는다. 안내 문구는 담기 버튼 활성과 같은 판정을 쓴다(F4).
+            noOptionGuidanceRes(isQuoteRequired = isQuoteRequired, hasOptionGroups = uiModel.optionGroups.isNotEmpty())?.let { guidanceRes ->
+                Text(stringResource(guidanceRes), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
             }
             uiModel.optionGroups.forEach { group ->
                 CatalogOptionGroupSelector(
@@ -763,14 +766,29 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
 
             uiModel.selectedOptions.forEach { selectedOption ->
                 val option = selectedOption.option
-                CatalogSelectedOptionCard(
-                    option = option,
-                    isQuoteRequired = isQuoteRequired,
-                    onQuantityChanged = { quantity ->
-                        onEvent(CatalogProductDetailEvent.QuantityChanged(selectedOption.groupId, option.id, quantity))
-                    },
-                    onRemove = { onEvent(CatalogProductDetailEvent.OptionRemoved(selectedOption.groupId, option.id)) },
-                )
+                if (uiModel.isCartOptionEdit) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x4, vertical = EumSpacing.x8),
+                        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(option.label, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            stringResource(R.string.catalog_options_total_count, option.quantity.coerceAtLeast(1).toLong()),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.eumColors.textSecondary,
+                        )
+                    }
+                } else {
+                    CatalogSelectedOptionCard(
+                        option = option,
+                        isQuoteRequired = isQuoteRequired,
+                        onQuantityChanged = { quantity ->
+                            onEvent(CatalogProductDetailEvent.QuantityChanged(selectedOption.groupId, option.id, quantity))
+                        },
+                        onRemove = { onEvent(CatalogProductDetailEvent.OptionRemoved(selectedOption.groupId, option.id)) },
+                    )
+                }
             }
 
             if (uiModel.selectedOptions.isNotEmpty()) {
@@ -854,25 +872,45 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
             ) {
-                EumOutlinedButton(
-                    onClick = {
-                        if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.AddToCartClicked) else showSelectPrompt = true
-                    },
-                    inactiveLook = !hasRequiredSelections,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.catalog_add_to_cart_options))
+                if (!uiModel.isCartOptionEdit) {
+                    EumOutlinedButton(
+                        onClick = {
+                            if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.AddToCartClicked) else showSelectPrompt = true
+                        },
+                        inactiveLook = !hasRequiredSelections,
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(stringResource(R.string.catalog_add_to_cart_options))
+                    }
                 }
-                EumPrimaryButton(
-                    onClick = {
-                        if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.BuyNowClicked) else showSelectPrompt = true
-                    },
-                    inactiveLook = !hasRequiredSelections,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.catalog_buy_now))
+                if (uiModel.isCartOptionEdit) {
+                    EumPrimaryButton(
+                        onClick = {
+                            if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.AddToCartClicked) else showSelectPrompt = true
+                        },
+                        inactiveLook = !hasRequiredSelections,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.catalog_change_cart_option))
+                    }
+                } else {
+                    EumPrimaryButton(
+                        onClick = {
+                            if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.BuyNowClicked) else showSelectPrompt = true
+                        },
+                        inactiveLook = !hasRequiredSelections,
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(stringResource(R.string.catalog_buy_now))
+                    }
                 }
             }
         }
     }
 }
+
+/**
+ * 옵션 그룹이 없는 일반 상품의 시트 안내. 견적 상품은 안내가 없다. 옵션이 없으면 "기본 구성"으로 담기 때문에
+ * "선택 가능한 옵션이 없습니다"처럼 담기를 막는 문구를 쓰지 않는다(F4).
+ */
+internal fun noOptionGuidanceRes(isQuoteRequired: Boolean, hasOptionGroups: Boolean): Int? = if (!isQuoteRequired && !hasOptionGroups) R.string.catalog_option_default_label else null

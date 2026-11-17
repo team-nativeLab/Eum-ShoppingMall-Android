@@ -130,6 +130,14 @@ fun HomeProductCard(
                 modifier = Modifier.align(Alignment.TopEnd),
                 buttonSize = 44.dp,
             )
+            onQuickCartClick?.takeIf { canQuickAddToHomeProduct(product) }?.let { addToCart ->
+                Box(Modifier.align(Alignment.BottomEnd)) {
+                    QuickCartButton(
+                        contentDescription = stringResource(R.string.catalog_quick_add_to_cart_description, product.name),
+                        onClick = addToCart,
+                    )
+                }
+            }
         }
         // 슬롯 순서: 상품명 1줄 · 규격 1줄 · 평점 1줄 · 가격 2줄 · 배송·혜택 칩 1줄. 값이 없으면 빈 줄을 유지한다.
         // 상품명을 1줄로 두는 것은 사용자 결정이다(카탈로그 카드는 2줄). 바꾸려면 사용자 확인이 필요하다.
@@ -162,15 +170,9 @@ fun HomeProductCard(
                 ProductChipRow(
                     shippingLabel = product.shippingLabel,
                     benefitLabels = product.benefitLabels,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.fillMaxWidth(),
                     reasonLabel = quickCartBlockLabel(homeQuickCartBlockReason(product)),
                 )
-                onQuickCartClick?.takeIf { canQuickAddToHomeProduct(product) }?.let { addToCart ->
-                    QuickCartButton(
-                        contentDescription = stringResource(R.string.catalog_quick_add_to_cart_description, product.name),
-                        onClick = addToCart,
-                    )
-                }
             }
         }
     }

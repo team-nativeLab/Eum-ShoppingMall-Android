@@ -8,6 +8,7 @@ import com.nativelap.eumshoppingmall.ui.benefits.PointsScreenUiModel
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogBrandDetailUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogBrandUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryDefinitions
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryScreenUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductDetailUiModel
@@ -59,7 +60,8 @@ import com.nativelap.eumshoppingmall.ui.support.OneToOneInquiryUiModel
 /**
  * 서버·ViewModel이 연결되기 전까지 화면에 넣을 UiModel을 공급한다.
  *
- * 기본 구현은 모두 빈 값이다. 샘플 상품·가격 등은 debug 소스셋의 구현에만 두어 release 빌드에 포함되지 않게 한다.
+ * 서버 카테고리 ID가 필요 없는 탐색 메뉴 메타데이터는 공통 정의를 쓰고, 그 외 기본 데이터는 비어 있다.
+ * 샘플 상품·가격 등은 debug 소스셋의 구현에만 두어 release 빌드에 포함되지 않게 한다.
  * 빌드 타입별 구현은 [createShoppingScreenDataProvider]가 고른다.
  */
 interface ShoppingScreenDataProvider {
@@ -75,7 +77,9 @@ interface ShoppingScreenDataProvider {
 
     fun homeCompanyIntro(): HomeCompanyInfoUiModel = HomeCompanyInfoUiModel()
 
-    fun categoryScreen(): CatalogCategoryScreenUiModel = CatalogCategoryScreenUiModel()
+    fun categoryScreen(): CatalogCategoryScreenUiModel = CatalogCategoryScreenUiModel(
+        categories = CatalogCategoryDefinitions.all,
+    )
 
     fun productList(categoryId: String?): CatalogProductListUiModel = CatalogProductListUiModel(
         title = "",

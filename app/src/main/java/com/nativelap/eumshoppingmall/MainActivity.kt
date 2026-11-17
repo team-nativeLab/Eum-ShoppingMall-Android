@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.nativelap.eumshoppingmall.data.local.CartCountStore
+import com.nativelap.eumshoppingmall.data.local.CartLine
 import com.nativelap.eumshoppingmall.data.local.cartPreferencesDataStore
 import com.nativelap.eumshoppingmall.data.local.totalQuantity
 import com.nativelap.eumshoppingmall.navigation.EumMainNavDisplay
@@ -28,16 +29,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             EumShoppingMallTheme {
-                val cartLines by cartCountStore.cartLines.collectAsState(initial = emptyList())
+                // 초기값 null은 "아직 읽지 못함"이다. 빈 목록으로 두면 복원·편집 직후 원본이 없는 것으로 오판한다(M-A).
+                val cartLines by cartCountStore.cartLines.collectAsState<List<CartLine>, List<CartLine>?>(initial = null)
                 val screenDataProvider = remember { createShoppingScreenDataProvider() }
                 EumMainNavDisplay(
-                    cartItemCount = cartLines.totalQuantity(),
+                    cartItemCount = cartLines.orEmpty().totalQuantity(),
                     savedCartLines = cartLines,
                     screenDataProvider = screenDataProvider,
                     onAddToCart = cartCountStore::addCartLines,
                     onCartQuantityChanged = cartCountStore::updateCartLineQuantity,
                     onCartItemsRemoved = cartCountStore::removeCartLines,
                     onCartLinesRestored = cartCountStore::addCartLines,
+                    onReplaceCartLine = cartCountStore::replaceCartLine,
                 )
             }
         }

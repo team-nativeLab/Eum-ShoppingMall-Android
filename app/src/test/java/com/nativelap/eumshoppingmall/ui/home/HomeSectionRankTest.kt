@@ -42,9 +42,9 @@ class HomeSectionRankTest {
 
 class HomeBestTabVisibilityTest {
     private val categories = listOf(
-        HomeCategoryUiModel(label = "개인보호장비", iconResId = 0, id = "protective"),
-        HomeCategoryUiModel(label = "작업복", iconResId = 0, id = "uniform"),
-        HomeCategoryUiModel(label = "소방", iconResId = 0, id = "fire"),
+        HomeCategoryUiModel(id = "protective", labelResId = 0, iconResId = 0),
+        HomeCategoryUiModel(id = "uniform", labelResId = 0, iconResId = 0),
+        HomeCategoryUiModel(id = "fire", labelResId = 0, iconResId = 0),
     )
 
     @Test

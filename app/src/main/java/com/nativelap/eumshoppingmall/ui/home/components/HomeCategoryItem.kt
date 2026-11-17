@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -53,16 +54,16 @@ fun HomeCategoryItem(category: HomeCategoryUiModel, onClick: (HomeCategoryUiMode
             )
         }
         Text(
-            category.label,
+            stringResource(category.labelResId),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.eumColors.textSecondary,
             textAlign = TextAlign.Center,
             maxLines = 2,
         )
-        // 설명 부제는 데이터가 있을 때만 그린다(현재 목 데이터에는 없다).
-        category.description?.let { description ->
+        // 설명 부제는 리소스가 있을 때만 그린다.
+        category.descriptionResId?.let { descriptionResId ->
             Text(
-                description,
+                stringResource(descriptionResId),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.eumColors.textTertiary,
                 textAlign = TextAlign.Center,

@@ -117,6 +117,42 @@ internal fun editCartLinesRaw(raw: String, transform: (CartLine) -> CartLine?): 
     return output.joinToString(LINE_SEPARATOR)
 }
 
+/** 원본 줄 확인·삭제·대상 줄 병합을 한 원문 변환으로 수행한다. 원본이 없으면 원문을 그대로 돌려준다. */
+internal fun replaceCartLineRaw(raw: String, sourceLineId: String, replacement: CartLine): Pair<String, Boolean> {
+    val rawLines = raw.split(LINE_SEPARATOR).filter(String::isNotBlank)
+    val decoded = rawLines.mapNotNull(::decodeCartLine)
+    val source = decoded.filter { it.lineId() == sourceLineId }.singleOrNull() ?: return raw to false
+    val targetId = replacement.lineId()
+    // 대상과 같은 id의 다른 줄은 원본 자리의 대상 줄에 합친다(수량 포화 합산). 합쳐져 사라지는 줄은 제거한다.
+    val target = replacement.copy(quantity = source.quantity)
+    val mergedQuantity = decoded
+        .filter { line -> line.lineId() == targetId && line.lineId() != sourceLineId }
+        .fold(target.quantity) { total, existing -> saturatedSum(total, existing.quantity) }
+    val merged = encodeCartLine(target.copy(quantity = mergedQuantity))
+    var placed = false
+    val output = mutableListOf<String>()
+    rawLines.forEach { rawLine ->
+        val line = decodeCartLine(rawLine)
+        when {
+            // 깨진 줄은 원문 그대로 보존한다.
+            line == null -> output.add(rawLine)
+
+            // 원본 자리에 대상 줄을 한 번만 둔다. 같은 옵션 재확정도 이 자리에서 처리된다.
+            line.lineId() == sourceLineId -> if (!placed) {
+                output.add(merged)
+                placed = true
+            }
+
+            // 대상 줄은 원본 자리로 합쳐졌으므로 원래 자리의 줄은 지운다.
+            line.lineId() == targetId -> Unit
+
+            // 나머지 줄은 원문 그대로 순서를 지킨다.
+            else -> output.add(rawLine)
+        }
+    }
+    return output.joinToString(LINE_SEPARATOR) to true
+}
+
 // 디코딩된 줄은 merged의 앞쪽 decodedCount개와 순서대로 대응한다. 나머지는 새 줄이다.
 private fun rewriteCartLines(rawLines: List<String>, merged: List<CartLine>, decodedCount: Int): String {
     var nextMergedIndex = 0

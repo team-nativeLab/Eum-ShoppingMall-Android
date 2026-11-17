@@ -19,8 +19,8 @@ import com.nativelap.eumshoppingmall.ui.catalog.CATALOG_ALL_CATEGORY_ID
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogBrandDetailUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogBrandUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryChipUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryDefinitions
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryScreenUiModel
-import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogKeyValueUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogOptionGroupUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogOptionUiModel
@@ -31,6 +31,10 @@ import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogReviewUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchResultsUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.cartShippingFeeWon
+import com.nativelap.eumshoppingmall.ui.catalog.formatWonLabel
+import com.nativelap.eumshoppingmall.ui.catalog.productShippingFeeLabel
+import com.nativelap.eumshoppingmall.ui.catalog.productShippingFeeValue
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutAddressUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutPaymentSummaryUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutProductUiModel
@@ -159,19 +163,102 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             subcategoryId = "extinguisher",
             hasOptions = false,
         ),
-    )
+    ).map(::withShippingPolicy)
+
+    // 카테고리 탭이 빈 목록으로 막히지 않도록 나머지 6개 카테고리에 상품을 하나씩 둔다.
+    // 홈 섹션(추천·오늘의 상품·베스트)은 sampleProducts만 쓰므로 이 목록은 홈 화면 내용을 바꾸지 않는다.
+    private val sampleCategoryProducts = listOf(
+        CatalogProductUiModel(
+            id = "sample-workwear",
+            name = "현장 작업복 상의 (네이비)",
+            subtitle = "샘플 브랜드 A",
+            price = CatalogPriceUiModel.Available(currentLabel = "₩29,000", unitPriceWon = 29_000L),
+            specLabel = "1벌",
+            shippingLabel = "무료배송",
+            categoryId = "uniform",
+            subcategoryId = "workwear",
+            hasOptions = false,
+        ),
+        CatalogProductUiModel(
+            id = "sample-traffic-cone",
+            name = "교통 안전콘 70cm",
+            subtitle = "샘플 브랜드 B",
+            price = CatalogPriceUiModel.Available(currentLabel = "₩12,000", unitPriceWon = 12_000L),
+            specLabel = "1개",
+            shippingLabel = "당일 출고",
+            categoryId = "traffic",
+            subcategoryId = "cone",
+            hasOptions = false,
+        ),
+        CatalogProductUiModel(
+            id = "sample-gloves",
+            name = "내전 작업 장갑",
+            subtitle = "샘플 브랜드 A",
+            price = CatalogPriceUiModel.Available(currentLabel = "₩4,500", unitPriceWon = 4_500L),
+            specLabel = "1켤레",
+            shippingLabel = "당일 출고",
+            categoryId = "industrial",
+            subcategoryId = "gloves",
+            hasOptions = false,
+        ),
+        CatalogProductUiModel(
+            id = "sample-cctv",
+            name = "실내 CCTV 카메라",
+            subtitle = "샘플 브랜드 B",
+            price = CatalogPriceUiModel.Available(currentLabel = "₩89,000", unitPriceWon = 89_000L),
+            specLabel = "1대",
+            shippingLabel = "무료배송",
+            categoryId = "security",
+            subcategoryId = "cctv",
+            hasOptions = false,
+        ),
+        CatalogProductUiModel(
+            id = "sample-door-lock",
+            name = "아동 보호 도어락 잠금장치",
+            subtitle = "샘플 브랜드 A",
+            price = CatalogPriceUiModel.Available(currentLabel = "₩15,000", unitPriceWon = 15_000L),
+            specLabel = "1개",
+            shippingLabel = "무료배송",
+            categoryId = "living",
+            subcategoryId = "home-safety",
+            hasOptions = false,
+        ),
+        CatalogProductUiModel(
+            id = "sample-custom-sign",
+            name = "맞춤 제작 안내 표지판",
+            subtitle = "샘플 브랜드 B",
+            price = CatalogPriceUiModel.QuoteRequired,
+            specLabel = "1개",
+            shippingLabel = "배송 문의",
+            badgeLabel = "견적 상품",
+            categoryId = "custom",
+            subcategoryId = "sign",
+            hasOptions = false,
+        ),
+    ).map(::withShippingPolicy)
+
+    // 상품 목록(카테고리·전체)과 상품 상세 조회가 쓰는 전체 목록. 홈 섹션은 이 목록을 쓰지 않는다.
+    private val sampleCatalogProducts = sampleProducts + sampleCategoryProducts
 
     private val sampleSubcategoryLabels = mapOf(
         "helmet" to "안전모",
         "boots" to "안전화",
         "belt" to "안전벨트",
         "extinguisher" to "소화기",
+        "workwear" to "작업복",
+        "cone" to "교통 콘",
+        "gloves" to "작업 장갑",
+        "cctv" to "CCTV",
+        "home-safety" to "생활 안전",
+        "sign" to "맞춤 표지판",
     )
 
-    private val sampleCategoryTitles = mapOf(
-        "protective" to "개인보호장비",
-        "fire" to "소방·방재용품",
-    )
+    // 배송 문구는 무료배송 기준 규칙(ShippingPolicy)에서만 만든다. 견적 상품은 기존 "배송 문의"를 그대로 둔다.
+    // 당일 출고 문구는 운영 조건이 확정될 때까지 사용자 화면에 노출하지 않는다(A). 리소스·샘플 값은 되살리기 쉽게 남긴다.
+    private fun withShippingPolicy(product: CatalogProductUiModel): CatalogProductUiModel {
+        val price = product.price as? CatalogPriceUiModel.Available ?: return product
+        return product.copy(shippingLabel = productShippingFeeLabel(price.unitPriceWon))
+    }
 
     private val sampleBrands = listOf(
         CatalogBrandUiModel(id = "brand-a", name = "샘플 브랜드 A", productCountLabel = "2개 상품", letterGroup = "A", productCount = 2),
@@ -214,18 +301,13 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
     override fun homeBestSellerProducts(): List<HomeProductUiModel> = sampleProducts.map(::toHomeProduct)
 
     override fun categoryScreen(): CatalogCategoryScreenUiModel = CatalogCategoryScreenUiModel(
-        categories = listOf(
-            CatalogCategoryUiModel("protective", "개인보호장비", R.drawable.ic_hard_hat, description = "머리·손 보호"),
-            CatalogCategoryUiModel("uniform", "작업복/유니폼", R.drawable.ic_shirt, description = "현장 작업복"),
-            CatalogCategoryUiModel("traffic", "교통·도로 안전", R.drawable.ic_traffic_cone, description = "교통 통제 표지"),
-            CatalogCategoryUiModel("fire", "소방·방재용품", R.drawable.ic_fire_extinguisher, description = "소화 방재 장비"),
-        ),
+        categories = CatalogCategoryDefinitions.all,
         brands = sampleBrands,
     )
 
     // 상위 카테고리로 목록을 거르고, 칩은 그 안의 세부 카테고리로 만든다. 칩 개수의 합은 "전체" 개수와 같다.
     override fun productList(categoryId: String?): CatalogProductListUiModel {
-        val products = sampleProducts.filter { product -> categoryId == null || product.categoryId == categoryId }
+        val products = sampleCatalogProducts.filter { product -> categoryId == null || product.categoryId == categoryId }
         val subcategoryChips = products.mapNotNull { product -> product.subcategoryId }.distinct().map { subcategoryId ->
             CatalogCategoryChipUiModel(
                 id = subcategoryId,
@@ -234,7 +316,9 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             )
         }
         return CatalogProductListUiModel(
-            title = sampleCategoryTitles[categoryId] ?: "전체 상품",
+            title = "전체 상품",
+            // 상단 제목은 카테고리 타일과 같은 라벨 리소스를 쓴다(F2).
+            titleResId = categoryId?.let { id -> CatalogCategoryDefinitions.all.firstOrNull { category -> category.id == id }?.labelResId },
             categoryChips = listOf(
                 CatalogCategoryChipUiModel(id = CATALOG_ALL_CATEGORY_ID, label = "전체", count = products.size),
             ) + subcategoryChips,
@@ -263,12 +347,14 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
     }
 
     override fun productDetail(productId: String): CatalogProductDetailUiModel {
-        val product = sampleProducts.firstOrNull { it.id == productId } ?: sampleProducts.first()
+        val product = sampleCatalogProducts.firstOrNull { it.id == productId } ?: sampleProducts.first()
         val isQuoteOnly = product.price is CatalogPriceUiModel.QuoteRequired
         return CatalogProductDetailUiModel(
             product = product,
             galleryImageResIds = listOf(null, null, null),
-            shippingRows = listOf(CatalogKeyValueUiModel("배송비", "₩3,000")),
+            shippingRows = listOf(
+                CatalogKeyValueUiModel("배송비", productShippingFeeValue((product.price as? CatalogPriceUiModel.Available)?.unitPriceWon) ?: "배송 문의"),
+            ),
             specifications = listOf(CatalogKeyValueUiModel("소재", "샘플")),
             reviewCount = 1,
             reviews = listOf(CatalogReviewUiModel("샘플 구매자", "★ 5", "샘플 일자", "샘플 리뷰입니다.")),
@@ -301,6 +387,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
                 totalPriceLabel = "₩18,000",
                 isSelected = true,
                 lineTotalWon = 18_000L,
+                unitPriceWon = 18_000L,
             ),
             CartItemUiModel(
                 id = "cart-belt",
@@ -313,8 +400,8 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             ),
         ),
         productAmountLabel = "₩18,000",
-        shippingFeeLabel = "₩3,000",
-        shippingFeeWon = 3_000L,
+        shippingFeeLabel = formatWonLabel(cartShippingFeeWon(18_000L)),
+        shippingFeeWon = cartShippingFeeWon(18_000L),
         expectedPaymentLabel = "₩21,000",
     )
 

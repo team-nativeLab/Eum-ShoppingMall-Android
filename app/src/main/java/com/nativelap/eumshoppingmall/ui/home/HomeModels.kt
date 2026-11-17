@@ -1,7 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.home
 
 import androidx.annotation.DrawableRes
-import com.nativelap.eumshoppingmall.ui.catalog.CatalogCategoryUiModel
+import androidx.annotation.StringRes
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 
 data class HomeProductUiModel(
@@ -49,18 +49,11 @@ fun List<HomeProductUiModel>.filterByBestCategory(categoryId: String?): List<Hom
 fun List<HomeCategoryUiModel>.withBestProducts(products: List<HomeProductUiModel>): List<HomeCategoryUiModel> = filter { category -> products.any { product -> product.categoryId == category.id } }
 
 data class HomeCategoryUiModel(
-    val label: String,
-    @param:DrawableRes val iconResId: Int,
     val id: String,
-    // 카테고리 설명 부제. 데이터가 없으면 null이고 화면은 줄을 그리지 않는다.
-    val description: String? = null,
-)
-
-fun CatalogCategoryUiModel.toHomeCategoryUiModel(): HomeCategoryUiModel = HomeCategoryUiModel(
-    label = label,
-    iconResId = iconResId,
-    id = id,
-    description = description,
+    @param:StringRes val labelResId: Int,
+    @param:DrawableRes val iconResId: Int,
+    // 카테고리 설명 부제의 문자열 리소스. 없으면 null이고 화면은 줄을 그리지 않는다.
+    @param:StringRes val descriptionResId: Int? = null,
 )
 
 // 사업자 정보 푸터 값. 실제 값이 없으면 전부 null이며, 그때 푸터 섹션은 숨겨진다.
@@ -109,7 +102,7 @@ sealed interface HomeScreenEvent {
     data class BestCategorySelected(val categoryId: String?) : HomeScreenEvent
     data class QuickCartClicked(val product: HomeProductUiModel) : HomeScreenEvent
     data class ProductClicked(val product: HomeProductUiModel) : HomeScreenEvent
-    data class HeroActionClicked(val slideIndex: Int) : HomeScreenEvent
+    data class HeroActionClicked(val action: HomeHeroActionId) : HomeScreenEvent
     data object QuoteClicked : HomeScreenEvent
     data object MenuClicked : HomeScreenEvent
     data object NotificationsClicked : HomeScreenEvent
@@ -127,3 +120,9 @@ fun effectiveHomeQuery(hoisted: String?, internal: String): String = hoisted ?: 
 
 // 히어로 보조 CTA("견적 문의하기")가 내는 이벤트. 기존 견적 진입 경로(QuoteClicked)를 그대로 쓴다.
 fun heroQuoteCtaEvent(): HomeScreenEvent = HomeScreenEvent.QuoteClicked
+
+enum class HomeHeroActionId {
+    BrowseProducts,
+    RequestQuote,
+    ViewCompany,
+}

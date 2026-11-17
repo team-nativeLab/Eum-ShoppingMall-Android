@@ -17,7 +17,8 @@ fun HomeCategoryRow(
 ) {
     LazyRow(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = EumSpacing.x20),
+        // 시작과 끝 여백을 같은 값으로 명시한다. 마지막 카테고리가 화면 오른쪽 가장자리에 붙지 않게 한다(F6).
+        contentPadding = PaddingValues(start = EumSpacing.x20, end = EumSpacing.x20),
         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
     ) {
         // 목 데이터에서 id는 유일하다. 실데이터를 연결하면 id 유일성을 먼저 보장해야 한다(LazyRow 키 충돌 방지).

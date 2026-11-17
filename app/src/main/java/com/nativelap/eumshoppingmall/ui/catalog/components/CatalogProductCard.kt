@@ -143,6 +143,14 @@ fun CatalogProductCard(
                     modifier = Modifier.align(Alignment.TopEnd),
                 )
             }
+            onQuickCartClick?.takeIf { canQuickAddToCart(product) }?.let { addToCart ->
+                Box(Modifier.align(Alignment.BottomEnd)) {
+                    QuickCartButton(
+                        contentDescription = stringResource(R.string.catalog_quick_add_to_cart_description, product.name),
+                        onClick = addToCart,
+                    )
+                }
+            }
         }
         Column(
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x4),
@@ -167,23 +175,12 @@ fun CatalogProductCard(
                 slot = priceSlot,
                 inquiryLabel = stringResource(R.string.product_price_inquiry),
             )
-            Row(
+            ProductChipRow(
+                shippingLabel = product.shippingLabel,
+                benefitLabels = product.benefitLabels,
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                ProductChipRow(
-                    shippingLabel = product.shippingLabel,
-                    benefitLabels = product.benefitLabels,
-                    modifier = Modifier.weight(1f),
-                    reasonLabel = if (showBlockReason) quickCartBlockLabel(quickCartBlockReason(product)) else null,
-                )
-                onQuickCartClick?.takeIf { canQuickAddToCart(product) }?.let { addToCart ->
-                    QuickCartButton(
-                        contentDescription = stringResource(R.string.catalog_quick_add_to_cart_description, product.name),
-                        onClick = addToCart,
-                    )
-                }
-            }
+                reasonLabel = if (showBlockReason) quickCartBlockLabel(quickCartBlockReason(product)) else null,
+            )
         }
     }
 }
@@ -247,6 +244,14 @@ fun CatalogProductRow(
                     modifier = Modifier.align(Alignment.TopStart).padding(EumSpacing.x4),
                 )
             }
+            onQuickCartClick?.takeIf { canQuickAddToCart(product) }?.let { addToCart ->
+                Box(Modifier.align(Alignment.BottomEnd)) {
+                    QuickCartButton(
+                        contentDescription = stringResource(R.string.catalog_quick_add_to_cart_description, product.name),
+                        onClick = addToCart,
+                    )
+                }
+            }
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
             ProductBrandLine(product.subtitle)
@@ -268,23 +273,12 @@ fun CatalogProductRow(
                 slot = priceSlot,
                 inquiryLabel = stringResource(R.string.product_price_inquiry),
             )
-            Row(
+            ProductChipRow(
+                shippingLabel = product.shippingLabel,
+                benefitLabels = product.benefitLabels,
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                ProductChipRow(
-                    shippingLabel = product.shippingLabel,
-                    benefitLabels = product.benefitLabels,
-                    modifier = Modifier.weight(1f),
-                    reasonLabel = if (showBlockReason) quickCartBlockLabel(quickCartBlockReason(product)) else null,
-                )
-                onQuickCartClick?.takeIf { canQuickAddToCart(product) }?.let { addToCart ->
-                    QuickCartButton(
-                        contentDescription = stringResource(R.string.catalog_quick_add_to_cart_description, product.name),
-                        onClick = addToCart,
-                    )
-                }
-            }
+                reasonLabel = if (showBlockReason) quickCartBlockLabel(quickCartBlockReason(product)) else null,
+            )
         }
         if (showFavorite) {
             FavoriteToggleButton(

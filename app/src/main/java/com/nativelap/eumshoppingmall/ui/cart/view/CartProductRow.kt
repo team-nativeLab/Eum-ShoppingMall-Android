@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemType
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemUiModel
+import com.nativelap.eumshoppingmall.ui.cart.viewmodel.canChangeOption
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
@@ -120,16 +121,19 @@ fun CartProductRow(
                 )
             }
             Text(item.optionLabel, style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
-            TextButton(
-                onClick = onOptionChangeClicked,
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
-            ) {
-                Text(
-                    stringResource(R.string.cart_change_option),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.eumColors.textSecondary,
-                    textDecoration = TextDecoration.Underline,
-                )
+            // 견적 전용 줄은 옵션 편집 대상이 아니므로 버튼을 두지 않는다. 클릭 처리(CartRoute)와 같은 판정을 쓴다.
+            if (item.canChangeOption()) {
+                TextButton(
+                    onClick = onOptionChangeClicked,
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+                ) {
+                    Text(
+                        stringResource(R.string.cart_change_option),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.eumColors.textSecondary,
+                        textDecoration = TextDecoration.Underline,
+                    )
+                }
             }
             // 단가(수량 포함)는 작은 글씨로 두고, 줄 합계는 아래 가격 칸에 보인다. 원가 정보가 없으므로 취소선은 긋지 않는다(M2).
             if (item.type == CartItemType.Orderable) {

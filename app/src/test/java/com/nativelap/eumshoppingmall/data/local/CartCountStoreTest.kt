@@ -4,11 +4,14 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -17,6 +20,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
+import java.io.IOException
 
 class CartCountStoreTest {
     @get:Rule
@@ -50,6 +54,50 @@ class CartCountStoreTest {
         cartStore.addCartLines(listOf(line(quantity = 3)))
 
         assertEquals(listOf(5), cartStore.cartLines.first().map { it.quantity })
+    }
+
+    @Test
+    fun replacingLineAtomicallyKeepsSourceQuantityAndMergesTarget() = runBlocking {
+        val cartStore = createCartStore()
+        cartStore.addCartLines(listOf(line(quantity = 4), line(productName = "기존 대상", quantity = 2).copy(optionId = "size-xl")))
+
+        assertEquals(CartLineReplaceResult.Replaced, cartStore.replaceCartLine("helmet/size-l", line(productName = "현재 상품", quantity = 1).copy(optionId = "size-xl")))
+
+        val saved = cartStore.cartLines.first()
+        assertEquals(1, saved.size)
+        assertEquals("현재 상품", saved.single().productName)
+        assertEquals(6, saved.single().quantity)
+    }
+
+    @Test
+    fun missingOrDuplicateSourceLineFailsClosedWithoutChangingData() = runBlocking {
+        val storeFile = temporaryFolder.newFile("duplicate_cart.preferences_pb")
+        val dataStore = createDataStore(storeFile)
+        val duplicate = line(quantity = 2)
+        dataStore.edit { preferences ->
+            preferences[stringPreferencesKey("cart_lines")] = encodeCartLines(listOf(duplicate, duplicate.copy(quantity = 7)))
+        }
+        val cartStore = CartCountStore(dataStore)
+        val originalRaw = dataStore.data.first()[stringPreferencesKey("cart_lines")]
+
+        assertEquals(CartLineReplaceResult.SourceMissing, cartStore.replaceCartLine("helmet/size-l", line().copy(optionId = "size-xl")))
+        assertEquals(CartLineReplaceResult.SourceMissing, cartStore.replaceCartLine("missing/line", line().copy(optionId = "size-xl")))
+        assertEquals(originalRaw, dataStore.data.first()[stringPreferencesKey("cart_lines")])
+        assertEquals(listOf(2, 7), cartStore.cartLines.first().map { it.quantity })
+    }
+
+    @Test
+    fun failedDataStoreEditPreservesOriginalLine() = runBlocking {
+        val dataStore = SwitchableDataStore()
+        val cartStore = CartCountStore(dataStore)
+        cartStore.addCartLines(listOf(line(quantity = 3)))
+        dataStore.failWrites = true
+
+        // 쓰기 예외는 Failed로 돌려주고, 저장된 원본은 그대로 남는다.
+        assertEquals(CartLineReplaceResult.Failed, cartStore.replaceCartLine("helmet/size-l", line().copy(optionId = "size-xl")))
+
+        assertEquals(listOf("size-l"), cartStore.cartLines.first().map { it.optionId })
+        assertEquals(listOf(3), cartStore.cartLines.first().map { it.quantity })
     }
 
     @Test
@@ -149,4 +197,16 @@ class CartCountStoreTest {
     private fun createCartStore(): CartCountStore = CartCountStore(createDataStore(temporaryFolder.newFile("cart_test.preferences_pb")))
 
     private fun createDataStore(storeFile: File): DataStore<Preferences> = PreferenceDataStoreFactory.create(produceFile = { storeFile })
+
+    private class SwitchableDataStore : DataStore<Preferences> {
+        private val state = MutableStateFlow(emptyPreferences())
+        var failWrites = false
+
+        override val data: Flow<Preferences> = state
+
+        override suspend fun updateData(transform: suspend (Preferences) -> Preferences): Preferences {
+            if (failWrites) throw IOException("simulated DataStore write failure")
+            return transform(state.value).also { updated -> state.value = updated }
+        }
+    }
 }
