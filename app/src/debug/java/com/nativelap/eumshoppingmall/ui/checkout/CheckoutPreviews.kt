@@ -114,6 +114,7 @@ private fun CheckoutReceiptDocumentSectionPreview() {
             )
             CheckoutReceiptDetailsCard(
                 details = receiptDetails,
+                receiptType = CheckoutReceiptType.CashReceipt,
                 onEvent = {},
                 modifier = Modifier.padding(horizontal = EumSpacing.x20),
             )

@@ -96,6 +96,7 @@ import com.nativelap.eumshoppingmall.ui.support.OneToOneInquiryUiModel
  * 모든 빌드에서 초기값은 비로그인이다(debug는 mock 로그인으로 전환한다).
  */
 object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
+    override val enablesDebugCartFallback: Boolean = true
     private const val QUOTE_ONLY_PRODUCT_ID = "sample-belt"
 
     // 상위 카테고리(categoryId)와 세부 카테고리(subcategoryId)를 나눠 둔다. 목록 칩은 세부, 홈 베스트 탭은 상위를 쓴다.

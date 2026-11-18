@@ -77,27 +77,30 @@ fun QuoteCompleteScreen(
                         }
                     }
                     Text(
-                        stringResource(R.string.quote_received),
+                        stringResource(R.string.quote_preview_title),
                         modifier = Modifier.padding(top = EumSpacing.x8),
                         style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.eumColors.textPrimary,
                         textAlign = TextAlign.Center,
                     )
                     Text(
-                        stringResource(R.string.quote_inquiry_number, uiModel.inquiryNumber),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.eumColors.textSecondary,
-                        textAlign = TextAlign.Center,
-                    )
-                    Text(
-                        uiModel.responseTimeLabel,
+                        stringResource(R.string.quote_preview_notice),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.eumColors.textSecondary,
                         textAlign = TextAlign.Center,
                     )
                 }
             }
-            item {
+            if (uiModel.isPreviewUnavailable) {
+                item {
+                    Text(
+                        stringResource(R.string.quote_preview_unavailable),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.eumColors.textSecondary,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            } else item {
                 QuoteCard {
                     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
                         QuoteSummaryRow(stringResource(R.string.quote_inquiry_type), uiModel.requestTypeLabel)
@@ -105,37 +108,6 @@ fun QuoteCompleteScreen(
                         QuoteSummaryRow(stringResource(R.string.quote_summary_contact), uiModel.contactName)
                         QuoteSummaryRow(stringResource(R.string.quote_inquiry_item), uiModel.productsSummary)
                         QuoteSummaryRow(stringResource(R.string.quote_preferred_due_date), uiModel.preferredDeliveryDate)
-                    }
-                }
-            }
-            item {
-                val stepLabels = listOf(
-                    R.string.quote_progress_inquiry,
-                    R.string.quote_progress_consultation,
-                    R.string.quote_progress_estimate,
-                    R.string.quote_progress_complete,
-                )
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    stepLabels.forEachIndexed { index, labelRes ->
-                        if (index > 0) {
-                            Text(
-                                "→",
-                                Modifier.padding(horizontal = EumSpacing.x6),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.eumColors.textTertiary,
-                            )
-                        }
-                        val isCurrentStep = index == 0
-                        Text(
-                            stringResource(labelRes),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = if (isCurrentStep) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textTertiary,
-                            fontWeight = if (isCurrentStep) FontWeight.Bold else FontWeight.Normal,
-                        )
                     }
                 }
             }

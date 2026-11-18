@@ -38,6 +38,8 @@ fun QuoteDetailItemRow(name: String, quantityLabel: String, modifier: Modifier =
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Text(quantityLabel, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textPrimary)
+        if (quantityLabel.isNotBlank()) {
+            Text(quantityLabel, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textPrimary)
+        }
     }
 }

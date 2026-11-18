@@ -10,6 +10,7 @@ fun OrderCompleteRoute(
     onContinueShoppingClick: () -> Unit,
     onCloseClick: () -> Unit,
     onViewOrderDetailsClick: () -> Unit = {},
+    onUnavailableAction: () -> Unit,
 ) {
     OrderCompleteScreen(
         uiModel = uiModel,
@@ -21,8 +22,7 @@ fun OrderCompleteRoute(
 
                 OrderCompleteScreenEvent.ViewOrderDetailsClicked -> onViewOrderDetailsClick()
 
-                // 계좌 복사는 클립보드 연동 전이라 연결하지 않는다.
-                OrderCompleteScreenEvent.CopyAccountNumberClicked -> Unit
+                OrderCompleteScreenEvent.CopyAccountNumberClicked -> onUnavailableAction()
             }
         },
     )

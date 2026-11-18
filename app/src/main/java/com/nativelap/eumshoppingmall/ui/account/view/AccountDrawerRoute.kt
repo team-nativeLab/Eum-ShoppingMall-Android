@@ -12,6 +12,7 @@ fun AccountDrawerRoute(
     isLoggedIn: Boolean,
     onCloseClick: () -> Unit,
     onMenuClick: (menuId: String) -> Unit,
+    onUnavailableAction: () -> Unit,
 ) {
     // 드로어는 Dialog 창에 뜬다. Screen이 디자인 토큰 dim을 직접 그리므로 창 기본 dim은 끈다.
     DisableDialogWindowDim()
@@ -26,12 +27,12 @@ fun AccountDrawerRoute(
 
                 is AccountDrawerScreenEvent.MenuClicked -> onMenuClick(event.menuId)
 
-                // 알림(A-32)·내 정보(A-23)·설정(A-35)·로그아웃은 이번 범위가 아니다.
+                // 알림(A-32)·내 정보(A-23)·설정(A-35)·로그아웃 목적지는 아직 연결되어 있지 않다.
                 AccountDrawerScreenEvent.NotificationClicked,
                 AccountDrawerScreenEvent.ProfileClicked,
                 AccountDrawerScreenEvent.SettingsClicked,
                 AccountDrawerScreenEvent.LogoutClicked,
-                -> Unit
+                -> onUnavailableAction()
             }
         },
     )

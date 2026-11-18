@@ -31,9 +31,12 @@ import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
@@ -80,11 +83,7 @@ fun CatalogProductListScreen(
         },
         content = { contentModifier ->
             BoxWithConstraints(contentModifier) {
-                val columns = when {
-                    maxWidth >= 960.dp -> 4
-                    maxWidth >= 600.dp -> 3
-                    else -> 2
-                }
+                val columns = catalogProductColumnCount(maxWidth, LocalDensity.current.fontScale)
                 Column(Modifier.fillMaxSize()) {
                     guidanceText?.let { guidance ->
                         Text(
@@ -219,52 +218,117 @@ internal fun CatalogProductListControls(
     onFilterClick: () -> Unit,
     onLayoutClick: () -> Unit,
 ) {
-    Row(
+    BoxWithConstraints(
         modifier = Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
     ) {
-        Surface(
-            onClick = onSortClick,
-            shape = RoundedCornerShape(EumRadius.capsule),
-            color = MaterialTheme.eumColors.surface,
-            border = BorderStroke(1.dp, MaterialTheme.eumColors.textPrimary),
-        ) {
+        val useStackedControls = shouldStackCatalogControls(maxWidth, LocalDensity.current.fontScale)
+        val sortControl: @Composable (Modifier) -> Unit = { controlModifier ->
+            Surface(
+                onClick = onSortClick,
+                modifier = controlModifier,
+                shape = RoundedCornerShape(EumRadius.capsule),
+                color = MaterialTheme.eumColors.surface,
+                border = BorderStroke(1.dp, MaterialTheme.eumColors.textPrimary),
+            ) {
+                Row(
+                    modifier = Modifier.padding(
+                        start = EumSpacing.x14,
+                        top = EumSpacing.x6,
+                        end = EumSpacing.x10,
+                        bottom = EumSpacing.x6,
+                    ),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
+                ) {
+                    Text(
+                        sortLabel,
+                        modifier = Modifier.weight(1f, fill = false),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.eumColors.textPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Icon(painterResource(R.drawable.ic_chevron_down), null, modifier = Modifier.size(14.dp))
+                }
+            }
+        }
+        val filterControl: @Composable (Modifier) -> Unit = { controlModifier ->
             Row(
-                modifier = Modifier.padding(
-                    start = EumSpacing.x14,
-                    top = EumSpacing.x6,
-                    end = EumSpacing.x10,
-                    bottom = EumSpacing.x6,
-                ),
+                modifier = controlModifier
+                    .heightIn(min = 48.dp)
+                    .clickable(onClick = onFilterClick)
+                    .padding(horizontal = EumSpacing.x4),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
             ) {
-                Text(
-                    sortLabel,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.eumColors.textPrimary,
-                )
-                Icon(painterResource(R.drawable.ic_chevron_down), null, modifier = Modifier.size(14.dp))
+                Icon(painterResource(R.drawable.ic_sliders_horizontal), null, modifier = Modifier.size(20.dp))
+                Text(stringResource(R.string.common_filter), style = MaterialTheme.typography.labelMedium)
             }
         }
-        countLabel?.let {
-            Text(it, modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
-        } ?: Spacer(Modifier.weight(1f))
-        Row(
-            modifier = Modifier.heightIn(min = 48.dp).clickable(onClick = onFilterClick),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
-        ) {
-            Icon(painterResource(R.drawable.ic_sliders_horizontal), null, modifier = Modifier.size(20.dp))
-            Text(stringResource(R.string.common_filter), style = MaterialTheme.typography.labelMedium)
+        val layoutControl: @Composable () -> Unit = {
+            IconButton(onClick = onLayoutClick, modifier = Modifier.size(48.dp)) {
+                Icon(
+                    painterResource(if (isListLayout) R.drawable.ic_layout_list else R.drawable.ic_layout_grid),
+                    contentDescription = stringResource(R.string.catalog_toggle_layout),
+                    modifier = Modifier.size(24.dp),
+                )
+            }
         }
-        IconButton(onClick = onLayoutClick, modifier = Modifier.size(48.dp)) {
-            Icon(
-                painterResource(if (isListLayout) R.drawable.ic_layout_list else R.drawable.ic_layout_grid),
-                contentDescription = stringResource(R.string.catalog_toggle_layout),
-                modifier = Modifier.size(24.dp),
-            )
+
+        if (useStackedControls) {
+            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+                ) {
+                    countLabel?.let {
+                        Text(
+                            it,
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.eumColors.textTertiary,
+                            maxLines = 1,
+                        )
+                    } ?: Spacer(Modifier.weight(1f))
+                    sortControl(Modifier.weight(1f))
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+                ) {
+                    filterControl(Modifier.weight(1f))
+                    layoutControl()
+                }
+            }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+            ) {
+                sortControl(Modifier)
+                countLabel?.let {
+                    Text(
+                        it,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.eumColors.textTertiary,
+                    )
+                } ?: Spacer(Modifier.weight(1f))
+                filterControl(Modifier)
+                layoutControl()
+            }
         }
     }
 }
+
+internal fun catalogProductColumnCount(maxWidth: Dp, fontScale: Float): Int = when {
+    maxWidth >= 960.dp -> 4
+    maxWidth >= 600.dp -> 3
+    maxWidth < 360.dp || fontScale >= 1.35f -> 1
+    else -> 2
+}
+
+internal fun shouldStackCatalogControls(maxWidth: Dp, fontScale: Float): Boolean = maxWidth < 360.dp || fontScale >= 1.3f

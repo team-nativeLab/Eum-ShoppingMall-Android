@@ -19,6 +19,7 @@ fun OrderHistoryRoute(
     onTrackDeliveryClick: (orderId: String) -> Unit = {},
     onCancelClick: (orderId: String) -> Unit = {},
     onCancelReturnClick: () -> Unit = {},
+    onUnavailableAction: () -> Unit,
 ) {
     var selectedFilter by rememberSaveable { mutableStateOf(uiModel.filter) }
     var periodLabel by rememberSaveable { mutableStateOf(uiModel.periodLabel) }
@@ -55,8 +56,7 @@ fun OrderHistoryRoute(
 
                     OrderHistoryAction.Cancel -> onCancelClick(event.orderId)
 
-                    // 다시 구매할 상품 ID가 주문 항목에 없어 연결하지 않는다.
-                    OrderHistoryAction.BuyAgain -> Unit
+                    OrderHistoryAction.BuyAgain -> onUnavailableAction()
                 }
             }
         },

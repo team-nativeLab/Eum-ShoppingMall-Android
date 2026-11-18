@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptDetailsType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptDetailsUiModel
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptField
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptMode
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutScreenEvent
@@ -42,6 +43,7 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 @Composable
 fun CheckoutReceiptDetailsCard(
     details: CheckoutReceiptDetailsUiModel,
+    receiptType: CheckoutReceiptType,
     onEvent: (CheckoutScreenEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -56,7 +58,27 @@ fun CheckoutReceiptDetailsCard(
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
         ) {
             when (details.type) {
-                CheckoutReceiptDetailsType.None -> Unit
+                CheckoutReceiptDetailsType.None -> {
+                    val prompt = if (receiptType == CheckoutReceiptType.CashReceipt) {
+                        R.string.checkout_cash_receipt_details_prompt
+                    } else {
+                        R.string.checkout_tax_invoice_details_prompt
+                    }
+                    val action = if (receiptType == CheckoutReceiptType.CashReceipt) {
+                        R.string.checkout_cash_receipt_details_action
+                    } else {
+                        R.string.checkout_tax_invoice_details_action
+                    }
+                    val detailType = if (receiptType == CheckoutReceiptType.CashReceipt) {
+                        CheckoutReceiptDetailsType.CashReceiptPhone
+                    } else {
+                        CheckoutReceiptDetailsType.ManualBusinessInformation
+                    }
+                    Text(stringResource(prompt), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                    TextButton(onClick = { onEvent(CheckoutScreenEvent.ReceiptDetailsTypeSelected(detailType)) }) {
+                        Text(stringResource(action))
+                    }
+                }
 
                 CheckoutReceiptDetailsType.SavedBusinessInformation -> {
                     Row(Modifier.fillMaxWidth()) {

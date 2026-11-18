@@ -3,6 +3,8 @@ package com.nativelap.eumshoppingmall.ui.quote
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteDeliveryDateStatus
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestField
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.fieldErrors
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.isSubmittable
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.quoteDeliveryDateStatus
@@ -61,6 +63,18 @@ class QuoteRequestValidationTest {
     }
 
     @Test
+    fun submitRequiresAtLeastOneQuoteProductAndMarksTheField() {
+        val noProducts = completeModel(deliveryAddress = "서울", date = "2026-12-31").copy(products = emptyList())
+        val withProduct = noProducts.copy(
+            products = listOf(CatalogProductUiModel("p1", "안전모", CatalogPriceUiModel.QuoteRequired)),
+        )
+
+        assertFalse(noProducts.isSubmittable(today))
+        assertTrue(QuoteRequestField.Products in noProducts.fieldErrors(today))
+        assertTrue(withProduct.isSubmittable(today))
+    }
+
+    @Test
     fun invalidDateShowsFieldErrorButEmptyDateDoesNot() {
         assertEquals(setOf(QuoteRequestField.DeliveryDate), completeModel(deliveryAddress = "서울", date = "2026.12.31").fieldErrors(today))
         assertEquals(setOf(QuoteRequestField.DeliveryDate), completeModel(deliveryAddress = "서울", date = "2026-11-09").fieldErrors(today))
@@ -72,6 +86,7 @@ class QuoteRequestValidationTest {
         date: String,
         consent: Boolean = true,
     ): QuoteRequestUiModel = QuoteRequestUiModel(
+        products = listOf(CatalogProductUiModel("p1", "안전모", CatalogPriceUiModel.QuoteRequired)),
         companyName = "회사",
         contactName = "담당자",
         phoneNumber = "010-0000-0000",

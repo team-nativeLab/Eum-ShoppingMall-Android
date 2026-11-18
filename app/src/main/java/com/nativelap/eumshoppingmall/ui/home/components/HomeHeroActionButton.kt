@@ -23,12 +23,12 @@ import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
-fun HomeHeroActionButton(label: String, onClick: () -> Unit) {
+fun HomeHeroActionButton(label: String, onClick: () -> Unit, isPrimary: Boolean = false) {
     Surface(
         onClick = onClick,
         shape = CircleShape,
-        color = Color.Transparent,
-        border = BorderStroke(1.dp, MaterialTheme.eumColors.inverse),
+        color = if (isPrimary) MaterialTheme.eumColors.inverse else Color.Transparent,
+        border = if (isPrimary) null else BorderStroke(1.dp, MaterialTheme.eumColors.inverse),
     ) {
         Row(
             modifier = Modifier.heightIn(min = 36.dp).padding(horizontal = EumSpacing.x16),
@@ -38,12 +38,12 @@ fun HomeHeroActionButton(label: String, onClick: () -> Unit) {
             Text(
                 label,
                 style = EumTypographyTokens.bodySMedium,
-                color = MaterialTheme.eumColors.inverse,
+                color = if (isPrimary) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.inverse,
             )
             Icon(
                 painter = painterResource(R.drawable.ic_arrow_right),
                 contentDescription = null,
-                tint = MaterialTheme.eumColors.inverse,
+                tint = if (isPrimary) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.inverse,
                 modifier = Modifier.size(16.dp),
             )
         }

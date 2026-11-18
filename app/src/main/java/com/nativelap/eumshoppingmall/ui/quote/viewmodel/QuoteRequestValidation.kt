@@ -31,9 +31,10 @@ internal fun quoteDeliveryDateStatus(text: String, today: LocalDate): QuoteDeliv
 
 /**
  * 견적 접수에 필요한 입력이 모두 유효한지 판단한다.
- * 연락처 4개와 개인정보 동의, 납품 지역(자유 입력 1자 이상), 희망 납기(유효한 날짜)가 모두 필요하다.
+ * 상품 1개 이상, 연락처 4개와 개인정보 동의, 납품 지역(자유 입력 1자 이상), 희망 납기(유효한 날짜)가 필요하다.
  */
 internal fun QuoteRequestUiModel.isSubmittable(today: LocalDate): Boolean = companyName.isNotBlank() &&
+    products.isNotEmpty() &&
     contactName.isNotBlank() &&
     phoneNumber.isNotBlank() &&
     email.isNotBlank() &&
@@ -41,12 +42,13 @@ internal fun QuoteRequestUiModel.isSubmittable(today: LocalDate): Boolean = comp
     quoteDeliveryDateStatus(preferredDeliveryDate, today) == QuoteDeliveryDateStatus.Valid &&
     isPrivacyConsentChecked
 
-/** 입력된 값에 형식·날짜 오류가 있을 때만 해당 필드를 오류로 표시한다. 비어 있는 필수 항목은 제출 버튼으로만 막는다. */
+/** 날짜 형식과 상품 필수 여부를 필드 근처에 표시한다. */
 internal fun QuoteRequestUiModel.fieldErrors(today: LocalDate): Set<QuoteRequestField> {
     val deliveryDateStatus = quoteDeliveryDateStatus(preferredDeliveryDate, today)
-    return if (deliveryDateStatus == QuoteDeliveryDateStatus.InvalidFormat || deliveryDateStatus == QuoteDeliveryDateStatus.BeforeToday) {
-        setOf(QuoteRequestField.DeliveryDate)
-    } else {
-        emptySet()
+    return buildSet {
+        if (deliveryDateStatus == QuoteDeliveryDateStatus.InvalidFormat || deliveryDateStatus == QuoteDeliveryDateStatus.BeforeToday) {
+            add(QuoteRequestField.DeliveryDate)
+        }
+        if (products.isEmpty()) add(QuoteRequestField.Products)
     }
 }

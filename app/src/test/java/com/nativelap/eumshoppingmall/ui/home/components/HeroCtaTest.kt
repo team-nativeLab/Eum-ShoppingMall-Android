@@ -24,10 +24,13 @@ class HeroCtaTest {
     }
 
     @Test
-    fun heroPrimaryLabelFollowsItsAction() {
+    fun productBrowsingIsPrimaryOnEverySlideAndSecondaryActionIsContextual() {
+        assertEquals(HomeHeroActionId.BrowseProducts, homeHeroPrimaryActionId())
         assertEquals(R.string.home_hero_browse_products, homeHeroActionLabelResId(HomeHeroActionId.BrowseProducts))
         assertEquals(R.string.home_hero_quote_action, homeHeroActionLabelResId(HomeHeroActionId.RequestQuote))
         assertEquals(R.string.home_hero_company_action, homeHeroActionLabelResId(HomeHeroActionId.ViewCompany))
+        assertEquals(R.string.home_hero_quote_action, heroSecondaryActionLabelResId(HomeHeroActionId.RequestQuote))
+        assertEquals(R.string.home_hero_company_action, heroSecondaryActionLabelResId(HomeHeroActionId.ViewCompany))
     }
 
     @Test
@@ -44,8 +47,9 @@ class HeroCtaTest {
     }
 
     @Test
-    fun secondaryQuoteCtaHiddenOnSlideWhosePrimaryActionIsAlreadyQuote() {
-        assertFalse(showsHeroSecondaryQuoteCta(R.string.home_hero_quote_action))
-        assertTrue(showsHeroSecondaryQuoteCta(R.string.home_hero_browse_products))
+    fun quoteRemainsSecondaryActionAndCompanyLinkAppearsOnlyOnCompanySlide() {
+        assertTrue(showsHeroSecondaryQuoteCta(HomeHeroActionId.RequestQuote))
+        assertTrue(showsHeroSecondaryQuoteCta(HomeHeroActionId.BrowseProducts))
+        assertFalse(showsHeroSecondaryQuoteCta(HomeHeroActionId.ViewCompany))
     }
 }

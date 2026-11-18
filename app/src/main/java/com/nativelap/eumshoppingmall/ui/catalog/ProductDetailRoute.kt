@@ -26,8 +26,7 @@ import kotlinx.coroutines.withContext
 /**
  * 상품 상세(A-05)와 옵션 시트(A-05s).
  *
- * 옵션 시트는 아직 NavKey overlay가 아니라 이 Route의 상태로 연다(후속 작업에서 overlay로 옮길 수 있다).
- * 시트 닫힘은 Route가 맡는다. 시트를 hide()로 닫은 뒤에 상태를 false로 바꾸고, 담기·구매·견적 같은 후속 동작을 실행한다.
+ * 옵션 시트는 이 Route의 상태로 연다. 시트 닫힘은 Route가 맡아 후속 동작보다 먼저 완료한다.
  */
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,7 +34,7 @@ fun CatalogProductDetailRoute(
     uiModel: CatalogProductDetailUiModel,
     onBackClick: () -> Unit,
     onCartClick: () -> Unit,
-    onBuyNowClick: () -> Unit,
+    onBuyNowClick: (List<CartLine>) -> Unit,
     onQuoteRequestClick: (productId: String) -> Unit,
     onProductClick: (productId: String) -> Unit,
     isLoggedIn: Boolean,
@@ -53,6 +52,7 @@ fun CatalogProductDetailRoute(
     onCartAddOutcomeChange: (CartAddOutcome?) -> Unit,
     /** 편집 무효·저장 실패 안내는 상세 화면이 아니라 돌아갈 장바구니 화면에서 띄운다(C). */
     onCartEditNotice: (CartEditNotice) -> Unit = {},
+    onUnavailableAction: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val optionsSheetState = rememberModalBottomSheetState()
@@ -243,7 +243,7 @@ fun CatalogProductDetailRoute(
                     }
                 }
 
-                CatalogProductDetailEvent.BuyNowClicked -> closeOptionsSheet(afterClosed = { onBuyNowClick() })
+                CatalogProductDetailEvent.BuyNowClicked -> closeOptionsSheet(afterClosed = { onBuyNowClick(cartLinesForCurrentSelection()) })
 
                 CatalogProductDetailEvent.QuoteRequestClicked -> {
                     closeOptionsSheet(afterClosed = { onQuoteRequestClick(uiModel.product.id) })
@@ -309,8 +309,7 @@ fun CatalogProductDetailRoute(
 
                 CatalogProductDetailEvent.QuestionWriteClicked -> onQuestionWriteClick(uiModel.product.id)
 
-                // 공유는 이번 범위가 아니다.
-                CatalogProductDetailEvent.ShareClicked -> Unit
+                CatalogProductDetailEvent.ShareClicked -> onUnavailableAction()
             }
         },
         optionsSheetState = optionsSheetState,

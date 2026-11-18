@@ -11,6 +11,7 @@ sealed interface CheckoutScreenEvent {
     data object UseAllPointsClicked : CheckoutScreenEvent
     data class PaymentMethodSelected(val method: CheckoutPaymentMethod) : CheckoutScreenEvent
     data class ReceiptTypeSelected(val type: CheckoutReceiptType) : CheckoutScreenEvent
+    data class ReceiptDetailsTypeSelected(val type: CheckoutReceiptDetailsType) : CheckoutScreenEvent
     data class ReceiptModeSelected(val mode: CheckoutReceiptMode) : CheckoutScreenEvent
     data object ReceiptDetailsEditClicked : CheckoutScreenEvent
     data class ReceiptFieldChanged(val field: CheckoutReceiptField, val value: String) : CheckoutScreenEvent

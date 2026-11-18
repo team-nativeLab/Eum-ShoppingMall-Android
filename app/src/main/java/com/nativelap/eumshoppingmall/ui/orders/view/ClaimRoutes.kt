@@ -110,6 +110,7 @@ fun ClaimRequestFormRoute(
     uiModel: OrderRequestFormUiModel,
     onBackClick: () -> Unit,
     onSubmit: () -> Unit,
+    onUnavailableAction: () -> Unit,
 ) {
     var requestType by rememberSaveable { mutableStateOf(uiModel.type) }
     var selectedProductIds by rememberSaveable {
@@ -153,7 +154,7 @@ fun ClaimRequestFormRoute(
                 OrderRequestFormScreenEvent.PhotoAttachmentClicked,
                 OrderRequestFormScreenEvent.CollectionAddressChangeClicked,
                 OrderRequestFormScreenEvent.ExchangeOptionClicked,
-                -> Unit
+                -> onUnavailableAction()
             }
         },
     )

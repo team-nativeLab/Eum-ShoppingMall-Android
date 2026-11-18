@@ -8,6 +8,7 @@ data class QuoteCompleteUiModel(
     val contactName: String,
     val productsSummary: String,
     val preferredDeliveryDate: String,
+    val isPreviewUnavailable: Boolean = false,
 )
 
 sealed interface QuoteCompleteEvent {
