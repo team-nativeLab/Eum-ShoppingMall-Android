@@ -100,14 +100,16 @@ fun QuoteCompleteScreen(
                         textAlign = TextAlign.Center,
                     )
                 }
-            } else item {
-                QuoteCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                        QuoteSummaryRow(stringResource(R.string.quote_inquiry_type), uiModel.requestTypeLabel)
-                        QuoteSummaryRow(stringResource(R.string.quote_company_name), uiModel.companyName)
-                        QuoteSummaryRow(stringResource(R.string.quote_summary_contact), uiModel.contactName)
-                        QuoteSummaryRow(stringResource(R.string.quote_inquiry_item), uiModel.productsSummary)
-                        QuoteSummaryRow(stringResource(R.string.quote_preferred_due_date), uiModel.preferredDeliveryDate)
+            } else {
+                item {
+                    QuoteCard {
+                        Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                            QuoteSummaryRow(stringResource(R.string.quote_inquiry_type), uiModel.requestTypeLabel)
+                            QuoteSummaryRow(stringResource(R.string.quote_company_name), uiModel.companyName)
+                            QuoteSummaryRow(stringResource(R.string.quote_summary_contact), uiModel.contactName)
+                            QuoteSummaryRow(stringResource(R.string.quote_inquiry_item), uiModel.productsSummary)
+                            QuoteSummaryRow(stringResource(R.string.quote_preferred_due_date), uiModel.preferredDeliveryDate)
+                        }
                     }
                 }
             }

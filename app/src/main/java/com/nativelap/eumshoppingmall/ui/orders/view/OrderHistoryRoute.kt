@@ -53,9 +53,7 @@ fun OrderHistoryRoute(
 
                 is OrderHistoryScreenEvent.ActionClicked -> when (event.action) {
                     OrderHistoryAction.TrackDelivery -> onTrackDeliveryClick(event.orderId)
-
                     OrderHistoryAction.Cancel -> onCancelClick(event.orderId)
-
                     OrderHistoryAction.BuyAgain -> onUnavailableAction()
                 }
             }

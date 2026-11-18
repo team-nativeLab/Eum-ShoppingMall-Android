@@ -1,5 +1,9 @@
 package com.nativelap.eumshoppingmall.ui.quote.view
 
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -7,10 +11,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.ui.res.stringResource
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
@@ -141,11 +141,9 @@ internal fun String.toDatePickerUtcMillis(): Long? = runCatching {
     LocalDate.parse(this).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
 }.getOrNull()
 
-internal fun datePickerUtcMillisToIsoDate(millis: Long): String =
-    java.time.Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate().toString()
+internal fun datePickerUtcMillisToIsoDate(millis: Long): String = java.time.Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate().toString()
 
-internal fun datePickerResult(currentValue: String, selectedMillis: Long?, confirmed: Boolean): String =
-    if (confirmed && selectedMillis != null) datePickerUtcMillisToIsoDate(selectedMillis) else currentValue
+internal fun datePickerResult(currentValue: String, selectedMillis: Long?, confirmed: Boolean): String = if (confirmed && selectedMillis != null) datePickerUtcMillisToIsoDate(selectedMillis) else currentValue
 
 /** 이미 담긴 상품이면 그대로 두고, 아니면 맨 뒤에 더한다. */
 internal fun List<String>.withAddedQuoteProduct(productId: String): List<String> = if (productId in this) {

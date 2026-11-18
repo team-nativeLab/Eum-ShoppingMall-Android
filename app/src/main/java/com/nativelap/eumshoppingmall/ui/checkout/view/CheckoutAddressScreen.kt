@@ -54,8 +54,7 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 internal val CHECKOUT_CONTENT_MAX_WIDTH = 520.dp
 
-internal fun checkoutContentWidthForViewport(viewportWidth: androidx.compose.ui.unit.Dp) =
-    minOf(viewportWidth, CHECKOUT_CONTENT_MAX_WIDTH)
+internal fun checkoutContentWidthForViewport(viewportWidth: androidx.compose.ui.unit.Dp) = minOf(viewportWidth, CHECKOUT_CONTENT_MAX_WIDTH)
 
 @Composable
 fun CheckoutAddressScreen(

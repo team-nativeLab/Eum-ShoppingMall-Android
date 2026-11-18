@@ -46,11 +46,11 @@ import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutReceipt
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutReceiptTypeSelector
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutSectionHeader
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutStepIndicator
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutOrderSnapshot
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptDetailsType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutScreenEvent
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
-import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutOrderSnapshot
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.canCompleteCheckoutPayment
 import com.nativelap.eumshoppingmall.ui.common.EumPrimaryButton
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
@@ -211,10 +211,9 @@ internal fun checkoutPaymentBlockReason(uiModel: CheckoutUiModel): CheckoutPayme
     else -> null
 }
 
-internal fun checkoutPaymentCanComplete(snapshot: CheckoutOrderSnapshot?, uiModel: CheckoutUiModel): Boolean =
-    canCompleteCheckoutPayment(snapshot) &&
-        snapshot?.finalTotalWon == uiModel.paymentSummary.finalAmountWon &&
-        checkoutPaymentBlockReason(uiModel) == null
+internal fun checkoutPaymentCanComplete(snapshot: CheckoutOrderSnapshot?, uiModel: CheckoutUiModel): Boolean = canCompleteCheckoutPayment(snapshot) &&
+    snapshot?.finalTotalWon == uiModel.paymentSummary.finalAmountWon &&
+    checkoutPaymentBlockReason(uiModel) == null
 
 private fun isReceiptDetailsValid(uiModel: CheckoutUiModel): Boolean {
     val receiptDetails = uiModel.receiptDetails

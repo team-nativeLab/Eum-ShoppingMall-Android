@@ -17,11 +17,8 @@ fun OrderCompleteRoute(
         onEvent = { event ->
             when (event) {
                 OrderCompleteScreenEvent.ContinueShoppingClicked -> onContinueShoppingClick()
-
                 OrderCompleteScreenEvent.CloseClicked -> onCloseClick()
-
                 OrderCompleteScreenEvent.ViewOrderDetailsClicked -> onViewOrderDetailsClick()
-
                 OrderCompleteScreenEvent.CopyAccountNumberClicked -> onUnavailableAction()
             }
         },

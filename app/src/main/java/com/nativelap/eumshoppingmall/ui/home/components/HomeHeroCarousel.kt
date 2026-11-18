@@ -391,12 +391,10 @@ private fun HomeHeroCard(
 
 internal fun shouldStackHeroActions(maxWidth: Dp, fontScale: Float): Boolean = maxWidth < 280.dp || fontScale >= 1.3f
 
-internal fun heroActionContentWidth(maxWidth: Dp): Dp =
-    ((maxWidth - HERO_HORIZONTAL_MARGIN * 2).coerceAtMost(HOME_HERO_MAX_CARD_WIDTH) - HERO_CONTENT_START_PADDING - HERO_CONTENT_END_PADDING)
-        .coerceAtLeast(0.dp)
+internal fun heroActionContentWidth(maxWidth: Dp): Dp = ((maxWidth - HERO_HORIZONTAL_MARGIN * 2).coerceAtMost(HOME_HERO_MAX_CARD_WIDTH) - HERO_CONTENT_START_PADDING - HERO_CONTENT_END_PADDING)
+    .coerceAtLeast(0.dp)
 
-internal fun homeHeroHeight(shouldStackActions: Boolean, fontScale: Float): Dp =
-    (HOME_HERO_HEIGHT + if (shouldStackActions) HOME_HERO_COMPACT_EXTRA_HEIGHT else 0.dp) * fontScale
+internal fun homeHeroHeight(shouldStackActions: Boolean, fontScale: Float): Dp = (HOME_HERO_HEIGHT + if (shouldStackActions) HOME_HERO_COMPACT_EXTRA_HEIGHT else 0.dp) * fontScale
 
 @Composable
 private fun HeroAutoAdvanceToggle(isPaused: Boolean, onClick: () -> Unit) {
@@ -458,8 +456,7 @@ private class HeroInteraction {
 // 주 버튼이 이미 견적 문의인 슬라이드(커스텀 견적)에는 보조 견적 CTA를 두지 않는다.
 internal fun showsHeroSecondaryQuoteCta(slideActionId: HomeHeroActionId): Boolean = slideActionId != HomeHeroActionId.ViewCompany
 
-internal fun heroSecondaryActionLabelResId(slideActionId: HomeHeroActionId): Int =
-    if (showsHeroSecondaryQuoteCta(slideActionId)) R.string.home_hero_quote_action else R.string.home_hero_company_action
+internal fun heroSecondaryActionLabelResId(slideActionId: HomeHeroActionId): Int = if (showsHeroSecondaryQuoteCta(slideActionId)) R.string.home_hero_quote_action else R.string.home_hero_company_action
 
 // 점 중심 좌표와 탭 위치로 가장 가까운 점을 고른다. 중심 좌표가 없으면 null.
 internal fun nearestHeroIndicatorIndex(tapX: Float, centersX: List<Float>): Int? {

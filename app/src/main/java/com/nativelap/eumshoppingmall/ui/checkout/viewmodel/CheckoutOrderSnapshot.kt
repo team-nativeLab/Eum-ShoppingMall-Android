@@ -1,12 +1,12 @@
 package com.nativelap.eumshoppingmall.ui.checkout.viewmodel
 
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import com.nativelap.eumshoppingmall.data.local.CartLine
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemType
 import com.nativelap.eumshoppingmall.ui.cart.viewmodel.CartItemUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.cartShippingFeeWon
 import com.nativelap.eumshoppingmall.ui.catalog.formatWonLabel
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
 
 /** One in-memory order source shared by address and payment. It contains no address/payment data. */
 data class CheckoutOrderSnapshot(

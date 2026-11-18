@@ -106,12 +106,10 @@ data class CheckoutUiModel(
     val isOrderAgreementAccepted: Boolean = false,
 )
 
-internal fun CheckoutUiModel.withReceiptTypeSelection(type: CheckoutReceiptType): CheckoutUiModel =
-    if (receiptType == type) {
-        this
-    } else {
-        copy(receiptType = type, receiptDetails = CheckoutReceiptDetailsUiModel())
-    }
+internal fun CheckoutUiModel.withReceiptTypeSelection(type: CheckoutReceiptType): CheckoutUiModel = if (receiptType == type) {
+    this
+} else {
+    copy(receiptType = type, receiptDetails = CheckoutReceiptDetailsUiModel())
+}
 
-internal fun CheckoutUiModel.withReceiptDetailsTypeSelection(type: CheckoutReceiptDetailsType): CheckoutUiModel =
-    copy(receiptDetails = receiptDetails.copy(type = type))
+internal fun CheckoutUiModel.withReceiptDetailsTypeSelection(type: CheckoutReceiptDetailsType): CheckoutUiModel = copy(receiptDetails = receiptDetails.copy(type = type))

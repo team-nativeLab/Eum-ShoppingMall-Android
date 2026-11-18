@@ -22,13 +22,9 @@ fun QuoteHistoryRoute(
         onEvent = { event ->
             when (event) {
                 QuoteHistoryEvent.BackClicked -> onBackClick()
-
                 is QuoteHistoryEvent.FilterSelected -> selectedFilter = event.filter
-
                 is QuoteHistoryEvent.InquiryClicked -> onInquiryClick(event.inquiryId)
-
                 QuoteHistoryEvent.NewInquiryClicked -> onNewInquiryClick()
-
                 is QuoteHistoryEvent.EstimateClicked -> onUnavailableAction()
             }
         },

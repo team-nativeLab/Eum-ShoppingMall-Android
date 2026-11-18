@@ -1,10 +1,10 @@
 package com.nativelap.eumshoppingmall.ui.quote
 
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteDeliveryDateStatus
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestField
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
-import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
-import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.fieldErrors
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.isSubmittable
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.quoteDeliveryDateStatus

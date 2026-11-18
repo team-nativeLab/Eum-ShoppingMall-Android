@@ -42,7 +42,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
 import com.nativelap.eumshoppingmall.ui.theme.EumCapsuleShape
@@ -50,6 +49,7 @@ import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
+import kotlinx.coroutines.launch
 
 private val ANCHOR_STRIP_HEIGHT = 56.dp
 private val ANCHOR_CHIP_VISUAL_HEIGHT = 36.dp

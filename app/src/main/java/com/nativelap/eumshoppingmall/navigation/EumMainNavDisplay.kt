@@ -7,8 +7,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -26,14 +26,6 @@ import androidx.navigation3.ui.NavDisplay
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.data.local.CartLine
 import com.nativelap.eumshoppingmall.data.local.CartLineReplaceResult
-import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutOrderSnapshot
-import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutOrderSource
-import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
-import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.checkoutOrderSnapshot
-import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.checkoutOrderSnapshotFromCartItems
-import com.nativelap.eumshoppingmall.ui.checkout.view.checkoutPaymentCanComplete
-import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.resolveCheckoutOrderForSelection
-import com.nativelap.eumshoppingmall.ui.catalog.formatWonLabel
 import com.nativelap.eumshoppingmall.ui.account.view.AccountDrawerRoute
 import com.nativelap.eumshoppingmall.ui.account.view.MyPageRoute
 import com.nativelap.eumshoppingmall.ui.auth.createAccountService
@@ -53,13 +45,21 @@ import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchResultsRoute
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchRoute
 import com.nativelap.eumshoppingmall.ui.catalog.QuickCartGate
 import com.nativelap.eumshoppingmall.ui.catalog.clearedIfShown
+import com.nativelap.eumshoppingmall.ui.catalog.formatWonLabel
 import com.nativelap.eumshoppingmall.ui.catalog.resolveHomeQuickCartLine
 import com.nativelap.eumshoppingmall.ui.catalog.resolveQuickCartLine
 import com.nativelap.eumshoppingmall.ui.catalog.saveAddToCartLines
 import com.nativelap.eumshoppingmall.ui.checkout.view.CheckoutAddressRoute
 import com.nativelap.eumshoppingmall.ui.checkout.view.CheckoutPaymentRoute
-import com.nativelap.eumshoppingmall.ui.common.EumSnackbarHost
+import com.nativelap.eumshoppingmall.ui.checkout.view.checkoutPaymentCanComplete
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutOrderSnapshot
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutOrderSource
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.checkoutOrderSnapshot
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.checkoutOrderSnapshotFromCartItems
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.resolveCheckoutOrderForSelection
 import com.nativelap.eumshoppingmall.ui.common.DismissSnackbarOnNavigationChange
+import com.nativelap.eumshoppingmall.ui.common.EumSnackbarHost
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.company.CompanyIntroRoute
 import com.nativelap.eumshoppingmall.ui.events.EventListRoute
@@ -74,11 +74,11 @@ import com.nativelap.eumshoppingmall.ui.quote.view.QuoteCompleteRoute
 import com.nativelap.eumshoppingmall.ui.quote.view.QuoteHistoryRoute
 import com.nativelap.eumshoppingmall.ui.quote.view.QuoteInquiryDetailRoute
 import com.nativelap.eumshoppingmall.ui.quote.view.QuoteRequestRoute
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryStatus
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteDetailItemUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteHistoryUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryDetailUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteDetailItemUiModel
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryStatus
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.toQuoteCompletePreview
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.toQuoteHistoryPreview
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.unavailableQuoteCompletePreview
@@ -284,12 +284,17 @@ fun EumMainNavDisplay(
                         val savedLines = currentSavedCartLines
                         val snapshot = when {
                             savedLines == null -> null
+
                             savedLines.isEmpty() && screenDataProvider.enablesDebugCartFallback ->
                                 checkoutOrderSnapshotFromCartItems(selectedItems)
+
                             savedLines.isNotEmpty() -> resolveCheckoutOrderForSelection(savedLines, selectedIds)
+
                             else -> null
                         }
-                        if (snapshot == null) showUnavailableAction() else {
+                        if (snapshot == null) {
+                            showUnavailableAction()
+                        } else {
                             activeCheckoutOrder = snapshot
                             entryContext.open(EumDestination.CheckoutAddress(snapshot.cartLineIdsToRemove.toList()))
                         }
@@ -420,7 +425,9 @@ fun EumMainNavDisplay(
                     onCartClick = { navigator.navigateToTab(MainNavigationTab.Cart) },
                     onBuyNowClick = { lines ->
                         val snapshot = checkoutOrderSnapshot(lines, CheckoutOrderSource.BuyNow)
-                        if (snapshot == null) showUnavailableAction() else {
+                        if (snapshot == null) {
+                            showUnavailableAction()
+                        } else {
                             activeCheckoutOrder = snapshot
                             entryContext.open(EumDestination.CheckoutAddress())
                         }
@@ -450,8 +457,11 @@ fun EumMainNavDisplay(
                     },
                     onBackClick = { navigator.goBack() },
                     onNextClick = {
-                        if (activeCheckoutOrder == null) showUnavailableAction()
-                        else navigator.push(EumDestination.CheckoutPayment(destination.orderedCartLineIds))
+                        if (activeCheckoutOrder == null) {
+                            showUnavailableAction()
+                        } else {
+                            navigator.push(EumDestination.CheckoutPayment(destination.orderedCartLineIds))
+                        }
                     },
                     onAddressChangeClick = { navigator.push(EumDestination.AddressSearch) },
                     pickedAddressId = addressSelection.pendingAddressId,
@@ -561,12 +571,15 @@ fun EumMainNavDisplay(
                 val unavailablePreviewLabel = stringResource(R.string.quote_preview_unavailable)
                 val preview = quotePreviews.lastOrNull { it.first == latestQuotePreviewId }?.second
                 QuoteCompleteRoute(
-                    uiModel = preview?.toQuoteCompletePreview(when (preview.requestType) {
+                    uiModel = preview?.toQuoteCompletePreview(
+                        when (preview.requestType) {
                             com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType.CustomManufacturing -> stringResource(R.string.quote_custom_manufacturing)
                             com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType.BulkPurchase -> stringResource(R.string.quote_bulk_purchase)
                             com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType.RegularDelivery -> stringResource(R.string.quote_regular_delivery)
                             com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType.Other -> stringResource(R.string.quote_other)
-                        }, noProductsLabel = stringResource(R.string.quote_product_empty))
+                        },
+                        noProductsLabel = stringResource(R.string.quote_product_empty),
+                    )
                         ?: unavailableQuoteCompletePreview(unavailablePreviewLabel),
                     onCloseClick = { navigator.goBack() },
                     onContinueShoppingClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home) },

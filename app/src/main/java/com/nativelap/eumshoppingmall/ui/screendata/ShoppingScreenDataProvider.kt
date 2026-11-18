@@ -68,6 +68,7 @@ interface ShoppingScreenDataProvider {
     /** True only when the debug provider intentionally offers local sample cart rows for an empty store. */
     val enablesDebugCartFallback: Boolean
         get() = false
+
     // 로그인 성공 경로가 아직 없으므로 기본은 비로그인이다.
     val isLoggedIn: Boolean
         get() = false

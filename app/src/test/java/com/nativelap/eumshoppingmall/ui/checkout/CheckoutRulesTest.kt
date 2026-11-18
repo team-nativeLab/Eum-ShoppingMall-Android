@@ -1,28 +1,28 @@
 package com.nativelap.eumshoppingmall.ui.checkout
 
+import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.ui.checkout.view.CheckoutPaymentBlockReason
 import com.nativelap.eumshoppingmall.ui.checkout.view.checkoutContentWidthForViewport
 import com.nativelap.eumshoppingmall.ui.checkout.view.checkoutPaymentBlockReason
 import com.nativelap.eumshoppingmall.ui.checkout.view.checkoutPaymentCanComplete
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutAddressUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutOrderLine
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutOrderSnapshot
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutOrderSource
-import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutAddressUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutPaymentMethod
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutPaymentSummaryUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptDetailsType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptDetailsUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.shippingFeeText
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.withReceiptDetailsTypeSelection
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.withReceiptTypeSelection
-import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.shippingFeeText
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import androidx.compose.ui.unit.dp
 
 class CheckoutRulesTest {
     @Test
@@ -204,25 +204,40 @@ class CheckoutRulesTest {
         )
 
         assertTrue(checkoutPaymentCanComplete(confirmedSnapshot, validUiModel))
-        assertFalse(checkoutPaymentCanComplete(confirmedSnapshot, validUiModel.copy(
-            paymentSummary = validUiModel.paymentSummary.copy(finalAmountWon = 20_000L),
-        )))
+        assertFalse(
+            checkoutPaymentCanComplete(
+                confirmedSnapshot,
+                validUiModel.copy(
+                    paymentSummary = validUiModel.paymentSummary.copy(finalAmountWon = 20_000L),
+                ),
+            ),
+        )
         assertFalse(checkoutPaymentCanComplete(confirmedSnapshot, validUiModel.copy(paymentMethod = null)))
         assertFalse(checkoutPaymentCanComplete(confirmedSnapshot, validUiModel.copy(isOrderAgreementAccepted = false)))
-        assertFalse(checkoutPaymentCanComplete(confirmedSnapshot, validUiModel.copy(
-            receiptType = CheckoutReceiptType.CashReceipt,
-            receiptDetails = CheckoutReceiptDetailsUiModel(
-                type = CheckoutReceiptDetailsType.CashReceiptPhone,
-                phoneNumber = "invalid",
+        assertFalse(
+            checkoutPaymentCanComplete(
+                confirmedSnapshot,
+                validUiModel.copy(
+                    receiptType = CheckoutReceiptType.CashReceipt,
+                    receiptDetails = CheckoutReceiptDetailsUiModel(
+                        type = CheckoutReceiptDetailsType.CashReceiptPhone,
+                        phoneNumber = "invalid",
+                    ),
+                ),
             ),
-        )))
-        assertTrue(checkoutPaymentCanComplete(confirmedSnapshot, validUiModel.copy(
-            receiptType = CheckoutReceiptType.CashReceipt,
-            receiptDetails = CheckoutReceiptDetailsUiModel(
-                type = CheckoutReceiptDetailsType.CashReceiptPhone,
-                phoneNumber = "010-1234-5678",
+        )
+        assertTrue(
+            checkoutPaymentCanComplete(
+                confirmedSnapshot,
+                validUiModel.copy(
+                    receiptType = CheckoutReceiptType.CashReceipt,
+                    receiptDetails = CheckoutReceiptDetailsUiModel(
+                        type = CheckoutReceiptDetailsType.CashReceiptPhone,
+                        phoneNumber = "010-1234-5678",
+                    ),
+                ),
             ),
-        )))
+        )
     }
 
     @Test
