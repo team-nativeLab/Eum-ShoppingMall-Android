@@ -78,17 +78,21 @@ fun OrderRequestFormScreen(uiModel: OrderRequestFormUiModel, onEvent: (OrderRequ
             contentPadding = PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x24),
         ) {
-            item { RequestTypeSegmentedControl(uiModel.type) { onEvent(OrderRequestFormScreenEvent.TypeSelected(it)) } }
-            item { ProductSelectionSection(uiModel.products, onEvent) }
-            item { ReasonSection(uiModel, onEvent) }
-            item { PhotoSection(uiModel, onEvent) }
-            if (uiModel.type == OrderRequestType.Exchange) {
-                item { ExchangeOptionCard(uiModel.exchangeOptionLabel) { onEvent(OrderRequestFormScreenEvent.ExchangeOptionClicked) } }
+            if (!uiModel.isOrderValid) {
+                item { Text(stringResource(R.string.request_invalid_order_notice), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary) }
+            } else {
+                item { RequestTypeSegmentedControl(uiModel.type) { onEvent(OrderRequestFormScreenEvent.TypeSelected(it)) } }
+                item { ProductSelectionSection(uiModel.products, onEvent) }
+                item { ReasonSection(uiModel, onEvent) }
+                item { PhotoSection(uiModel, onEvent) }
+                if (uiModel.type == OrderRequestType.Exchange) {
+                    item { ExchangeOptionCard(uiModel.exchangeOptionLabel) { onEvent(OrderRequestFormScreenEvent.ExchangeOptionClicked) } }
+                }
+                if (uiModel.type != OrderRequestType.Cancel) {
+                    item { CollectionSection(uiModel, onEvent) }
+                }
+                item { CostSection(uiModel) }
             }
-            if (uiModel.type != OrderRequestType.Cancel) {
-                item { CollectionSection(uiModel, onEvent) }
-            }
-            item { CostSection(uiModel) }
         }
     }
 }
@@ -144,7 +148,8 @@ private fun FormProductRow(product: OrderRequestProductUiModel, onToggle: () -> 
             if (product.isSelected) {
                 QuantityStepper(
                     quantityLabel = product.quantityLabel,
-                    isEnabled = product.isSelectable,
+                    canDecrease = product.isSelectable && product.quantity > 1,
+                    canIncrease = product.isSelectable && product.quantity < product.orderQuantity,
                     onQuantityChange = onQuantityChange,
                     modifier = Modifier.align(Alignment.End),
                 )
@@ -176,7 +181,7 @@ private fun ProductCheckbox(isChecked: Boolean, isEnabled: Boolean, onToggle: ()
 }
 
 @Composable
-private fun QuantityStepper(quantityLabel: String, isEnabled: Boolean, onQuantityChange: (Int) -> Unit, modifier: Modifier = Modifier) {
+private fun QuantityStepper(quantityLabel: String, canDecrease: Boolean, canIncrease: Boolean, onQuantityChange: (Int) -> Unit, modifier: Modifier = Modifier) {
     val borderColor = MaterialTheme.eumColors.lineStrong
     val density = LocalDensity.current
     val decreaseLabel = stringResource(R.string.catalog_quantity_decrease)
@@ -196,9 +201,9 @@ private fun QuantityStepper(quantityLabel: String, isEnabled: Boolean, onQuantit
         },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        StepperButton("−", decreaseLabel, isEnabled) { onQuantityChange(-1) }
+        StepperButton("−", decreaseLabel, canDecrease) { onQuantityChange(-1) }
         Text(quantityLabel, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = EumSpacing.x4))
-        StepperButton("+", increaseLabel, isEnabled) { onQuantityChange(1) }
+        StepperButton("+", increaseLabel, canIncrease) { onQuantityChange(1) }
     }
 }
 

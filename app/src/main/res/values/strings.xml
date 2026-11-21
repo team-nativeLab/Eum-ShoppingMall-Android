@@ -293,6 +293,10 @@
     <string name="checkout_agreement_required_notice">필수 약관에 동의하면 결제할 수 있습니다.</string>
     <string name="checkout_required_field_label">%1$s *</string>
     <string name="checkout_order_complete">주문이 완료되었습니다</string>
+    <string name="checkout_demo_order_notice">데모 화면입니다. 실제 결제나 주문 전송은 진행되지 않았습니다.</string>
+    <string name="request_invalid_order_notice">주문 정보를 확인할 수 없습니다. 주문 내역에서 다시 선택해 주세요.</string>
+    <string name="request_mock_submission_format">데모 신청입니다. 실제 저장이나 서버 전송은 되지 않았습니다. 신청 품목: %1$s</string>
+    <string name="request_mock_result_restored_notice">데모 결과 상세 정보를 복원하지 못했습니다. 실제 신청이 저장되거나 서버로 전송된 것은 아닙니다.</string>
     <string name="checkout_payment_card">신용카드</string>
     <string name="checkout_delivery_address">배송지</string>
     <string name="checkout_order_number">주문번호 %1$s</string>

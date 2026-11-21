@@ -121,6 +121,15 @@ fun OrderCompleteScreen(
                         color = MaterialTheme.eumColors.textSecondary,
                     )
 
+                    Spacer(Modifier.height(EumSpacing.x8))
+
+                    Text(
+                        stringResource(R.string.checkout_demo_order_notice),
+                        modifier = Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surfaceSecondary, MaterialTheme.shapes.small).padding(EumSpacing.x12),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.eumColors.textSecondary,
+                    )
+
                     Spacer(Modifier.height(EumSpacing.x32))
 
                     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {

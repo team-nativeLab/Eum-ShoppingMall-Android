@@ -21,9 +21,13 @@ import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestRejectionSc
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestRejectionUiModel
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestResultScreenEvent
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestResultUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestSubmissionUiModel
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestType
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestWithdrawalScreenEvent
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderStatus
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.createOrderRequestSubmission
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.selectedClaimAmount
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.updatedClaimQuantity
 
 /** 취소·반품·교환 허브(A-19). */
 @Composable
@@ -109,24 +113,45 @@ internal fun defaultClaimType(status: OrderStatus?): OrderRequestType = when (st
 fun ClaimRequestFormRoute(
     uiModel: OrderRequestFormUiModel,
     onBackClick: () -> Unit,
-    onSubmit: () -> Unit,
+    onSubmit: (OrderRequestSubmissionUiModel) -> Unit,
     onUnavailableAction: () -> Unit,
 ) {
     var requestType by rememberSaveable { mutableStateOf(uiModel.type) }
     var selectedProductIds by rememberSaveable {
         mutableStateOf(uiModel.products.filter { product -> product.isSelected }.map { product -> product.id }.toSet())
     }
+    var quantities by rememberSaveable(uiModel.products.map { product -> product.id }) {
+        mutableStateOf(uiModel.products.associate { product -> product.id to product.quantity })
+    }
+    val products = uiModel.products.map { product -> product.copy(quantity = quantities[product.id] ?: product.quantity) }
     var selectedReason by rememberSaveable { mutableStateOf<OrderRequestReason?>(uiModel.selectedReason) }
     var reasonDetails by rememberSaveable { mutableStateOf(uiModel.reasonDetails) }
     var collectionMethod by rememberSaveable { mutableStateOf(uiModel.collectionMethod) }
     OrderRequestFormScreen(
         uiModel = uiModel.copy(
             type = requestType,
-            products = uiModel.products.map { product -> product.copy(isSelected = product.id in selectedProductIds) },
+            products = products.map { product ->
+                product.copy(
+                    isSelected = product.id in selectedProductIds,
+                    quantityLabel = "${product.quantity}개",
+                    priceAndQuantityLabel = if (product.unitPriceWon > 0) "₩${"%,d".format(product.unitPriceWon * product.quantity)} · ${product.quantity}개" else product.priceAndQuantityLabel,
+                )
+            },
+            productAmountLabel = formatClaimAmount(
+                selectedClaimAmount(products, selectedProductIds),
+                uiModel.productAmountLabel,
+                products.any { it.unitPriceWon > 0 },
+            ),
+            expectedAmountLabel = formatClaimAmount(
+                selectedClaimAmount(products, selectedProductIds),
+                uiModel.expectedAmountLabel,
+                products.any { it.unitPriceWon > 0 },
+            ),
             selectedReason = selectedReason,
             reasonDetails = reasonDetails,
             collectionMethod = collectionMethod,
-            canSubmit = selectedProductIds.isNotEmpty() && selectedReason != null,
+            canSubmit = uiModel.isOrderValid && selectedProductIds.isNotEmpty() && selectedReason != null,
+            isOrderValid = uiModel.isOrderValid,
         ),
         onEvent = { event ->
             when (event) {
@@ -148,9 +173,15 @@ fun ClaimRequestFormRoute(
 
                 is OrderRequestFormScreenEvent.CollectionMethodSelected -> collectionMethod = event.method
 
-                OrderRequestFormScreenEvent.SubmitClicked -> if (selectedProductIds.isNotEmpty() && selectedReason != null) onSubmit()
+                OrderRequestFormScreenEvent.SubmitClicked -> createOrderRequestSubmission(requestType, products, selectedProductIds, selectedReason)?.let(onSubmit)
 
-                is OrderRequestFormScreenEvent.ProductQuantityChanged,
+                is OrderRequestFormScreenEvent.ProductQuantityChanged -> {
+                    quantities = products.associate { product ->
+                        val updated = if (product.id == event.productId && product.isSelectable) updatedClaimQuantity(product, event.quantityDelta) else product
+                        updated.id to updated.quantity
+                    }
+                }
+
                 OrderRequestFormScreenEvent.PhotoAttachmentClicked,
                 OrderRequestFormScreenEvent.CollectionAddressChangeClicked,
                 OrderRequestFormScreenEvent.ExchangeOptionClicked,
@@ -159,6 +190,8 @@ fun ClaimRequestFormRoute(
         },
     )
 }
+
+private fun formatClaimAmount(amount: Long, fallback: String, hasNumericPrice: Boolean): String = if (hasNumericPrice) "₩${"%,d".format(amount)}" else fallback
 
 /** 신청 완료(A-50). */
 @Composable
