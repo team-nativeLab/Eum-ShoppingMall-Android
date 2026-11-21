@@ -10,13 +10,14 @@ import com.nativelap.eumshoppingmall.ui.orders.viewmodel.DeliveryTrackingUiModel
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderDetailScreenEvent
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderDetailUiModel
 
-/** 주문 상세(A-17). 명세서·영수증 내려받기는 파일 연동 전이라 연결하지 않는다. */
+/** 주문 상세(A-17). 파일 작업은 지원 안내를 표시한다. */
 @Composable
 fun OrderDetailRoute(
     uiModel: OrderDetailUiModel,
     onBackClick: () -> Unit,
     onTrackDeliveryClick: () -> Unit,
     onExchangeReturnClick: () -> Unit,
+    onUnavailableAction: () -> Unit,
 ) {
     var isProductsExpanded by rememberSaveable { mutableStateOf(uiModel.isProductsExpanded) }
     OrderDetailScreen(
@@ -33,24 +34,25 @@ fun OrderDetailRoute(
 
                 OrderDetailScreenEvent.StatementDownloadClicked,
                 OrderDetailScreenEvent.ReceiptViewClicked,
-                -> Unit
+                -> onUnavailableAction()
             }
         },
     )
 }
 
-/** 배송 조회(A-18). 운송장 번호 복사는 클립보드 연동 전이라 연결하지 않는다. */
+/** 배송 조회(A-18). 운송장 복사 기능은 지원 안내를 표시한다. */
 @Composable
 fun DeliveryTrackingRoute(
     uiModel: DeliveryTrackingUiModel,
     onBackClick: () -> Unit,
+    onUnavailableAction: () -> Unit,
 ) {
     DeliveryTrackingScreen(
         uiModel = uiModel,
         onEvent = { event ->
             when (event) {
                 DeliveryTrackingScreenEvent.BackClicked -> onBackClick()
-                DeliveryTrackingScreenEvent.TrackingNumberCopyClicked -> Unit
+                DeliveryTrackingScreenEvent.TrackingNumberCopyClicked -> onUnavailableAction()
             }
         },
     )

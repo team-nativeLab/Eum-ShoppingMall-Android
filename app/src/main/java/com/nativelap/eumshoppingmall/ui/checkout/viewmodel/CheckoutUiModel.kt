@@ -25,6 +25,7 @@ data class CheckoutPaymentSummaryUiModel(
     val finalAmountLabel: String,
     // 배송비 금액(원). 있으면 표시 문구를 금액에서 만든다(0원이면 무료). 없으면 shippingFeeLabel을 그대로 쓴다.
     val shippingFeeWon: Long? = null,
+    val finalAmountWon: Long? = null,
 )
 
 /**
@@ -99,8 +100,16 @@ data class CheckoutUiModel(
     val pointsAvailableLabel: String = "",
     val isUsingAllPoints: Boolean = false,
     val paymentMethod: CheckoutPaymentMethod? = null,
-    val receiptType: CheckoutReceiptType = CheckoutReceiptType.CashReceipt,
+    val receiptType: CheckoutReceiptType = CheckoutReceiptType.None,
     val receiptDetails: CheckoutReceiptDetailsUiModel = CheckoutReceiptDetailsUiModel(),
     val paymentSummary: CheckoutPaymentSummaryUiModel,
     val isOrderAgreementAccepted: Boolean = false,
 )
+
+internal fun CheckoutUiModel.withReceiptTypeSelection(type: CheckoutReceiptType): CheckoutUiModel = if (receiptType == type) {
+    this
+} else {
+    copy(receiptType = type, receiptDetails = CheckoutReceiptDetailsUiModel())
+}
+
+internal fun CheckoutUiModel.withReceiptDetailsTypeSelection(type: CheckoutReceiptDetailsType): CheckoutUiModel = copy(receiptDetails = receiptDetails.copy(type = type))

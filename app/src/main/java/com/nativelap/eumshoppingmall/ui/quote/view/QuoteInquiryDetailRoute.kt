@@ -9,6 +9,7 @@ fun QuoteInquiryDetailRoute(
     uiModel: QuoteInquiryDetailUiModel,
     onBackClick: () -> Unit,
     onRequestAgainClick: () -> Unit,
+    onUnavailableAction: () -> Unit,
 ) {
     QuoteInquiryDetailScreen(
         uiModel = uiModel,
@@ -18,11 +19,10 @@ fun QuoteInquiryDetailRoute(
 
                 QuoteInquiryDetailEvent.RequestAgainClicked -> onRequestAgainClick()
 
-                // 담당자 연락·파일 다운로드는 시스템 앱 연동이 필요해 이번 범위가 아니다.
                 QuoteInquiryDetailEvent.ContactManagerClicked,
                 QuoteInquiryDetailEvent.EstimateDownloadClicked,
                 is QuoteInquiryDetailEvent.RequestAttachmentClicked,
-                -> Unit
+                -> onUnavailableAction()
             }
         },
     )

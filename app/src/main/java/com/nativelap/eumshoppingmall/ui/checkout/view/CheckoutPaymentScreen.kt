@@ -46,10 +46,12 @@ import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutReceipt
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutReceiptTypeSelector
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutSectionHeader
 import com.nativelap.eumshoppingmall.ui.checkout.view.components.CheckoutStepIndicator
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutOrderSnapshot
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptDetailsType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutScreenEvent
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.canCompleteCheckoutPayment
 import com.nativelap.eumshoppingmall.ui.common.EumPrimaryButton
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
@@ -143,13 +145,18 @@ fun CheckoutPaymentScreen(
                         onTypeSelected = { onEvent(CheckoutScreenEvent.ReceiptTypeSelected(it)) },
                         modifier = Modifier.padding(horizontal = EumSpacing.x20),
                     )
+                    Text(
+                        stringResource(R.string.checkout_receipt_change_notice),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.eumColors.textTertiary,
+                    )
                 }
-                // 현금영수증 소득공제·지출증빙 전환은 증빙 상세 카드 안에 둔다(Figma A-09c).
-                // 상세 유형이 없으면 빈 카드를 그리지 않는다.
-                if (uiModel.receiptType != CheckoutReceiptType.None && uiModel.receiptDetails.type != CheckoutReceiptDetailsType.None) {
+                if (uiModel.receiptType != CheckoutReceiptType.None) {
                     item {
                         CheckoutReceiptDetailsCard(
                             details = uiModel.receiptDetails,
+                            receiptType = uiModel.receiptType,
                             onEvent = onEvent,
                             modifier = Modifier.padding(horizontal = EumSpacing.x20),
                         )
@@ -190,17 +197,23 @@ fun CheckoutPaymentScreen(
 /** 결제 버튼을 막는 이유. 여러 개 해당하면 위에서부터 하나만 보여 준다. */
 internal enum class CheckoutPaymentBlockReason(@param:StringRes val messageResId: Int) {
     NoPaymentMethod(R.string.checkout_payment_block_method),
+    UnconfirmedOrderAmount(R.string.checkout_payment_block_amount),
     AgreementNotAccepted(R.string.checkout_payment_block_agreement),
     InvalidReceiptDetails(R.string.checkout_payment_block_receipt),
 }
 
 /** 결제 버튼이 비활성인 이유. null이면 결제할 수 있다. */
 internal fun checkoutPaymentBlockReason(uiModel: CheckoutUiModel): CheckoutPaymentBlockReason? = when {
+    uiModel.paymentSummary.finalAmountWon == null -> CheckoutPaymentBlockReason.UnconfirmedOrderAmount
     uiModel.paymentMethod == null -> CheckoutPaymentBlockReason.NoPaymentMethod
     !uiModel.isOrderAgreementAccepted -> CheckoutPaymentBlockReason.AgreementNotAccepted
     !isReceiptDetailsValid(uiModel) -> CheckoutPaymentBlockReason.InvalidReceiptDetails
     else -> null
 }
+
+internal fun checkoutPaymentCanComplete(snapshot: CheckoutOrderSnapshot?, uiModel: CheckoutUiModel): Boolean = canCompleteCheckoutPayment(snapshot) &&
+    snapshot?.finalTotalWon == uiModel.paymentSummary.finalAmountWon &&
+    checkoutPaymentBlockReason(uiModel) == null
 
 private fun isReceiptDetailsValid(uiModel: CheckoutUiModel): Boolean {
     val receiptDetails = uiModel.receiptDetails
@@ -209,7 +222,7 @@ private fun isReceiptDetailsValid(uiModel: CheckoutUiModel): Boolean {
 
         CheckoutReceiptType.CashReceipt -> when (receiptDetails.type) {
             CheckoutReceiptDetailsType.CashReceiptPhone -> receiptDetails.phoneNumber.hasValidKoreanPhoneNumber()
-            else -> true
+            else -> false
         }
 
         CheckoutReceiptType.TaxInvoice -> when (receiptDetails.type) {
@@ -229,7 +242,28 @@ private fun String.isValidReceiptEmail(): Boolean = android.util.Patterns.EMAIL_
 
 private fun String.hasValidBusinessRegistrationNumber(): Boolean = hasOnlyNumericSeparators() && count(Char::isDigit) == 10
 
-private fun String.hasValidKoreanPhoneNumber(): Boolean = hasOnlyNumericSeparators() && count(Char::isDigit) in 10..11
+private fun String.hasValidKoreanPhoneNumber(): Boolean {
+    if (isEmpty()) return false
+    if (all { character -> character in '0'..'9' }) return hasValidKoreanMobileDigits(this)
+
+    val groups = when {
+        contains('-') && none(Char::isWhitespace) -> split('-')
+        !contains('-') && contains(' ') && all { character -> character in '0'..'9' || character == ' ' } -> split(' ')
+        else -> return false
+    }
+    if (groups.size != 3 || groups.any { group -> group.isEmpty() || group.any { it !in '0'..'9' } }) return false
+
+    val normalizedNumber = groups.joinToString(separator = "")
+    if (!hasValidKoreanMobileDigits(normalizedNumber)) return false
+    val expectedGroupLengths = if (normalizedNumber.length == 10) listOf(3, 3, 4) else listOf(3, 4, 4)
+    return groups.map(String::length) == expectedGroupLengths
+}
+
+private fun hasValidKoreanMobileDigits(number: String): Boolean = when {
+    number.startsWith("010") -> number.length == 11
+    listOf("011", "016", "017", "018", "019").any(number::startsWith) -> number.length in 10..11
+    else -> false
+}
 
 private fun String.hasOnlyNumericSeparators(): Boolean = isNotBlank() && all { it in '0'..'9' || it == '-' || it.isWhitespace() }
 

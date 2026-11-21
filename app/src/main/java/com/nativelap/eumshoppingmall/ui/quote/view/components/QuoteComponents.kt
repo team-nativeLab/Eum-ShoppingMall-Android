@@ -173,6 +173,7 @@ private class QuoteChipStyle(val labelRes: Int, val foreground: Color, val backg
 @Composable
 fun QuoteStatusChip(status: QuoteInquiryStatus) {
     val style = when (status) {
+        QuoteInquiryStatus.Preview -> QuoteChipStyle(R.string.quote_preview_badge, MaterialTheme.eumColors.textSecondary, Color.Transparent, hasBorder = true)
         QuoteInquiryStatus.Received -> QuoteChipStyle(R.string.quote_status_received, MaterialTheme.eumColors.warning, MaterialTheme.eumColors.warningTint, hasBorder = false)
         QuoteInquiryStatus.Consulting -> QuoteChipStyle(R.string.quote_status_consulting, MaterialTheme.eumColors.textSecondary, Color.Transparent, hasBorder = true)
         QuoteInquiryStatus.EstimateSent -> QuoteChipStyle(R.string.quote_status_sent, MaterialTheme.eumColors.warning, MaterialTheme.eumColors.warningTint, hasBorder = false)

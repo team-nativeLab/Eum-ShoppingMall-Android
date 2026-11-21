@@ -163,6 +163,7 @@ class ProductDetailCartOptionEditSemanticsTest {
             onCartEditNotice = onCartEditNotice,
             cartAddOutcome = null,
             onCartAddOutcomeChange = {},
+            onUnavailableAction = {},
         )
     }
 }

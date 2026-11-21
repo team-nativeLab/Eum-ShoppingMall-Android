@@ -14,6 +14,7 @@ fun MyPageRoute(
     onDrawerClick: () -> Unit,
     onShortcutClick: (shortcutId: String) -> Unit,
     onMenuRowClick: (rowId: String) -> Unit,
+    onUnavailableAction: () -> Unit,
 ) {
     MyPageScreen(
         uiModel = uiModel,
@@ -30,10 +31,10 @@ fun MyPageRoute(
 
                 is MyPageScreenEvent.BottomNavigationClicked -> onTabSelected(event.tab)
 
-                // 내 정보 관리(A-23)와 설정(A-35)은 이번 범위가 아니다.
+                // 내 정보 관리(A-23)와 설정(A-35)은 아직 앱 목적지와 연결되지 않았다.
                 MyPageScreenEvent.ProfileClicked,
                 MyPageScreenEvent.SettingsClicked,
-                -> Unit
+                -> onUnavailableAction()
             }
         },
     )

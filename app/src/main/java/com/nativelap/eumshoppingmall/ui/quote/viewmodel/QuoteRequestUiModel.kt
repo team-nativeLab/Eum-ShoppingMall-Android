@@ -10,6 +10,7 @@ enum class QuoteRequestType {
 }
 
 enum class QuoteRequestField {
+    Products,
     Company,
     ContactName,
     Phone,

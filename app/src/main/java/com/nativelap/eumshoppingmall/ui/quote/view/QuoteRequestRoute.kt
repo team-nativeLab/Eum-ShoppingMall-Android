@@ -1,5 +1,9 @@
 package com.nativelap.eumshoppingmall.ui.quote.view
 
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -7,6 +11,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestEvent
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestField
@@ -14,6 +20,7 @@ import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.fieldErrors
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.isSubmittable
 import java.time.LocalDate
+import java.time.ZoneOffset
 
 /**
  * 견적 문의(A-15). 서버 전송 없이 완료 화면으로 넘어간다.
@@ -30,7 +37,8 @@ fun QuoteRequestRoute(
     onBackClick: () -> Unit,
     onAddProductClick: () -> Unit,
     onPickedProductConsumed: () -> Unit,
-    onSubmit: () -> Unit,
+    onSubmit: (QuoteRequestUiModel) -> Unit,
+    onUnavailableAction: () -> Unit,
 ) {
     var productIds by rememberSaveable { mutableStateOf(uiModel.products.map { product -> product.id }) }
     var requestType by rememberSaveable { mutableStateOf(uiModel.requestType) }
@@ -43,6 +51,7 @@ fun QuoteRequestRoute(
     var requestDetails by rememberSaveable { mutableStateOf(uiModel.requestDetails) }
     var removedAttachmentIds by rememberSaveable { mutableStateOf(emptyList<String>()) }
     var isPrivacyConsentChecked by rememberSaveable { mutableStateOf(uiModel.isPrivacyConsentChecked) }
+    var isDatePickerVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(pickedProductId) {
         if (pickedProductId != null) {
@@ -84,6 +93,7 @@ fun QuoteRequestRoute(
                 }
 
                 is QuoteRequestEvent.FieldChanged -> when (event.field) {
+                    QuoteRequestField.Products -> Unit
                     QuoteRequestField.Company -> companyName = event.value
                     QuoteRequestField.ContactName -> contactName = event.value
                     QuoteRequestField.Phone -> phoneNumber = event.value
@@ -99,17 +109,41 @@ fun QuoteRequestRoute(
 
                 is QuoteRequestEvent.PrivacyConsentChanged -> isPrivacyConsentChecked = event.checked
 
-                QuoteRequestEvent.SubmitClicked -> onSubmit()
+                QuoteRequestEvent.SubmitClicked -> if (quoteUiModel.isSubmittable(today)) onSubmit(quoteUiModel)
 
-                // 날짜 선택·첨부·약관 보기는 시스템 picker나 별도 화면이 필요해 후속 작업에서 연결한다.
-                QuoteRequestEvent.DatePickerClicked,
+                QuoteRequestEvent.DatePickerClicked -> isDatePickerVisible = true
+
                 QuoteRequestEvent.AddAttachmentClicked,
                 QuoteRequestEvent.PrivacyDetailsClicked,
-                -> Unit
+                -> onUnavailableAction()
             }
         },
     )
+    if (isDatePickerVisible) {
+        val initialMillis = preferredDeliveryDate.toDatePickerUtcMillis()
+        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
+        DatePickerDialog(
+            onDismissRequest = { isDatePickerVisible = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    preferredDeliveryDate = datePickerResult(preferredDeliveryDate, datePickerState.selectedDateMillis, confirmed = true)
+                    isDatePickerVisible = false
+                }) { androidx.compose.material3.Text(stringResource(R.string.common_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { isDatePickerVisible = false }) { androidx.compose.material3.Text(stringResource(R.string.common_cancel)) }
+            },
+        ) { DatePicker(state = datePickerState) }
+    }
 }
+
+internal fun String.toDatePickerUtcMillis(): Long? = runCatching {
+    LocalDate.parse(this).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+}.getOrNull()
+
+internal fun datePickerUtcMillisToIsoDate(millis: Long): String = java.time.Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate().toString()
+
+internal fun datePickerResult(currentValue: String, selectedMillis: Long?, confirmed: Boolean): String = if (confirmed && selectedMillis != null) datePickerUtcMillisToIsoDate(selectedMillis) else currentValue
 
 /** 이미 담긴 상품이면 그대로 두고, 아니면 맨 뒤에 더한다. */
 internal fun List<String>.withAddedQuoteProduct(productId: String): List<String> = if (productId in this) {

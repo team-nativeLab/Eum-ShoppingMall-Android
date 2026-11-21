@@ -37,6 +37,7 @@ internal class EumEntryContext(
     val navigator: EumMainNavigator,
     val loginSession: EumLoginSession,
     val screenDataProvider: ShoppingScreenDataProvider,
+    val onUnavailableAction: () -> Unit,
 ) {
     // 로그인이 필요한 목적지는 비로그인이면 보류 목적지를 담은 Login으로 바꿔 쌓는다.
     fun open(destination: EumDestination) {
@@ -66,6 +67,7 @@ internal fun EntryProviderScope<NavKey>.addAuthEntries(
             accountService = accountService,
             onSignupSuccess = onSignupCompleted,
             onBackClick = { navigator.goBack() },
+            onConsentDetailsClick = context.onUnavailableAction,
         )
     }
     entry<EumDestination.AccountRecovery> { destination ->
@@ -101,12 +103,14 @@ internal fun EntryProviderScope<NavKey>.addOrderEntries(
             onExchangeReturnClick = {
                 context.open(EumDestination.ClaimRequest(destination.orderId, OrderRequestType.Return.name))
             },
+            onUnavailableAction = context.onUnavailableAction,
         )
     }
     entry<EumDestination.DeliveryTracking> { destination ->
         DeliveryTrackingRoute(
             uiModel = remember(destination) { provider.deliveryTracking(destination.orderId) },
             onBackClick = { navigator.goBack() },
+            onUnavailableAction = context.onUnavailableAction,
         )
     }
     entry<EumDestination.ClaimHub> {
@@ -134,6 +138,7 @@ internal fun EntryProviderScope<NavKey>.addOrderEntries(
         ClaimRequestFormRoute(
             uiModel = remember(destination) { provider.claimForm(destination.orderId, requestType) },
             onBackClick = { navigator.goBack() },
+            onUnavailableAction = context.onUnavailableAction,
             onSubmit = {
                 // 서버 연동 전이라 신청 ID가 없어 주문 ID를 임시 신청 ID로 쓴다. 완료 뒤 뒤로가기로 폼에 다시 들어가지 않게 걷어 낸다.
                 navigator.popWhileAndPushIfTop(
@@ -207,6 +212,7 @@ internal fun EntryProviderScope<NavKey>.addSupportEntries(context: EumEntryConte
         InquiryDetailRoute(
             uiModel = remember(destination) { provider.inquiryDetail(destination.inquiryId) },
             onBackClick = { navigator.goBack() },
+            onUnavailableAction = context.onUnavailableAction,
         )
     }
     entry<EumDestination.InquiryWrite> {
@@ -214,6 +220,7 @@ internal fun EntryProviderScope<NavKey>.addSupportEntries(context: EumEntryConte
             uiModel = remember { provider.inquiryForm() },
             onBackClick = { navigator.goBack() },
             onSubmitted = { navigator.popIfTop(EumDestination.InquiryWrite) },
+            onUnavailableAction = context.onUnavailableAction,
         )
     }
     entry<EumDestination.NoticeDetail> { destination ->
@@ -244,6 +251,7 @@ internal fun EntryProviderScope<NavKey>.addCatalogDetailEntries(context: EumEntr
             onViewAllBrandsClick = { navigator.navigateToTab(MainNavigationTab.Categories) },
             isLoggedIn = context.loginSession.isLoggedIn,
             onLoginRequired = context::openLogin,
+            onUnavailableAction = context.onUnavailableAction,
         )
     }
     entry<EumDestination.ProductReviews> { destination ->
@@ -259,6 +267,7 @@ internal fun EntryProviderScope<NavKey>.addCatalogDetailEntries(context: EumEntr
             onBackClick = { navigator.goBack() },
             onSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
             onSubmitted = { navigator.popIfTop(destination) },
+            onUnavailableAction = context.onUnavailableAction,
         )
     }
     entry<EumDestination.ProductInquiryWrite> { destination ->

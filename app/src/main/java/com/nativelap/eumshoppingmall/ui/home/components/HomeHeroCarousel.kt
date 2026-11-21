@@ -113,7 +113,9 @@ private val homeHeroSlides = listOf(
 /** 슬라이드 순서대로 주 CTA 행동. 테스트가 슬라이드와 행동의 매핑을 확인한다. */
 internal fun homeHeroSlideActionIds(): List<HomeHeroActionId> = homeHeroSlides.map { slide -> slide.actionId }
 
-/** 주 CTA 문구는 행동에서 파생한다. 슬라이드마다 따로 적지 않아 행동과 문구가 어긋나지 않는다. */
+/** 홈 히어로의 우선 행동은 모든 슬라이드에서 상품 탐색이다. */
+internal fun homeHeroPrimaryActionId(): HomeHeroActionId = HomeHeroActionId.BrowseProducts
+
 internal fun homeHeroActionLabelResId(actionId: HomeHeroActionId): Int = when (actionId) {
     HomeHeroActionId.BrowseProducts -> R.string.home_hero_browse_products
     HomeHeroActionId.RequestQuote -> R.string.home_hero_quote_action
@@ -167,15 +169,16 @@ fun HomeHeroCarousel(
 
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val fontScale = LocalDensity.current.fontScale
-        val horizontalMargin = 20.dp
+        val horizontalMargin = HERO_HORIZONTAL_MARGIN
         val cardWidth = (maxWidth - horizontalMargin * 2).coerceAtMost(HOME_HERO_MAX_CARD_WIDTH)
         val contentSidePadding = ((maxWidth - cardWidth) / 2).coerceAtLeast(horizontalMargin)
+        val shouldStackActions = shouldStackHeroActions(heroActionContentWidth(maxWidth), fontScale)
 
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(HOME_HERO_HEIGHT * fontScale)
+                .height(homeHeroHeight(shouldStackActions, fontScale))
                 .pointerInput(Unit) {
                     // 누름만 관찰하고 소비하지 않는다. 버튼 탭과 스와이프는 그대로 전달된다.
                     awaitPointerEventScope {
@@ -196,7 +199,9 @@ fun HomeHeroCarousel(
                 pageIndex = page,
                 pageCount = homeHeroSlides.size,
                 isCurrentPage = pagerState.currentPage == page,
-                onActionClick = { onActionClick(slide.actionId) },
+                shouldStackActions = shouldStackActions,
+                onActionClick = { onActionClick(homeHeroPrimaryActionId()) },
+                onCompanyClick = { onActionClick(HomeHeroActionId.ViewCompany) },
                 onQuoteClick = onQuoteClick,
                 onIndicatorClick = { targetPage ->
                     onUserInteraction()
@@ -216,7 +221,9 @@ private fun HomeHeroCard(
     pageIndex: Int,
     pageCount: Int,
     isCurrentPage: Boolean,
+    shouldStackActions: Boolean,
     onActionClick: () -> Unit,
+    onCompanyClick: () -> Unit,
     onQuoteClick: () -> Unit,
     onIndicatorClick: (Int) -> Unit,
     isAutoAdvancePaused: Boolean,
@@ -251,7 +258,7 @@ private fun HomeHeroCard(
         Column(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(start = EumSpacing.x24, top = EumSpacing.x16, end = EumSpacing.x16),
+                .padding(start = HERO_CONTENT_START_PADDING, top = EumSpacing.x16, end = HERO_CONTENT_END_PADDING),
         ) {
             Text(
                 text = stringResource(slide.eyebrowResId),
@@ -272,29 +279,41 @@ private fun HomeHeroCard(
                 maxLines = 2,
             )
             Spacer(Modifier.height(EumSpacing.x8))
-            val actionResId = homeHeroActionLabelResId(slide.actionId)
-            // 제품 둘러보기 옆에 보조 CTA를 둔다. 커스텀 견적 슬라이드는 주 버튼이 이미 견적이라 보조 CTA를 숨긴다.
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
-            ) {
-                HomeHeroActionButton(stringResource(actionResId), onActionClick)
-                if (showsHeroSecondaryQuoteCta(actionResId)) {
+            val actionResId = homeHeroActionLabelResId(homeHeroPrimaryActionId())
+            val secondaryLabelResId = heroSecondaryActionLabelResId(slide.actionId)
+            val secondaryAction: @Composable () -> Unit = {
+                if (showsHeroSecondaryQuoteCta(slide.actionId)) {
+                    HomeHeroActionButton(stringResource(secondaryLabelResId), onQuoteClick)
+                } else {
                     Box(
                         modifier = Modifier
                             .heightIn(min = 48.dp)
-                            .clickable(role = Role.Button, onClick = onQuoteClick)
+                            .clickable(role = Role.Button, onClick = onCompanyClick)
                             .padding(horizontal = EumSpacing.x4),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            stringResource(R.string.home_quote_action),
-                            style = MaterialTheme.typography.labelLarge.copy(textDecoration = TextDecoration.Underline),
-                            color = MaterialTheme.eumColors.inverse,
+                            stringResource(secondaryLabelResId),
+                            style = MaterialTheme.typography.labelSmall.copy(textDecoration = TextDecoration.Underline),
+                            color = MaterialTheme.eumColors.inverseSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
+                }
+            }
+            if (shouldStackActions) {
+                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+                    HomeHeroActionButton(stringResource(actionResId), onActionClick, isPrimary = true)
+                    secondaryAction()
+                }
+            } else {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+                ) {
+                    HomeHeroActionButton(stringResource(actionResId), onActionClick, isPrimary = true)
+                    secondaryAction()
                 }
             }
             // 점은 버튼 바로 아래에 둔다. 버튼 하단과 점 상단 사이는 HERO_INDICATOR_TOP_GAP이다.
@@ -370,6 +389,13 @@ private fun HomeHeroCard(
     }
 }
 
+internal fun shouldStackHeroActions(maxWidth: Dp, fontScale: Float): Boolean = maxWidth < 280.dp || fontScale >= 1.3f
+
+internal fun heroActionContentWidth(maxWidth: Dp): Dp = ((maxWidth - HERO_HORIZONTAL_MARGIN * 2).coerceAtMost(HOME_HERO_MAX_CARD_WIDTH) - HERO_CONTENT_START_PADDING - HERO_CONTENT_END_PADDING)
+    .coerceAtLeast(0.dp)
+
+internal fun homeHeroHeight(shouldStackActions: Boolean, fontScale: Float): Dp = (HOME_HERO_HEIGHT + if (shouldStackActions) HOME_HERO_COMPACT_EXTRA_HEIGHT else 0.dp) * fontScale
+
 @Composable
 private fun HeroAutoAdvanceToggle(isPaused: Boolean, onClick: () -> Unit) {
     val label = stringResource(if (isPaused) R.string.home_hero_auto_advance_play else R.string.home_hero_auto_advance_pause)
@@ -395,6 +421,10 @@ private fun HeroAutoAdvanceToggle(isPaused: Boolean, onClick: () -> Unit) {
 internal fun heroAutoAdvanceEnabled(isResumed: Boolean, isDragged: Boolean, isUserPaused: Boolean, isReducedMotion: Boolean): Boolean = isResumed && !isDragged && !isUserPaused && !isReducedMotion
 
 private val HOME_HERO_HEIGHT: Dp = 224.dp
+private val HOME_HERO_COMPACT_EXTRA_HEIGHT: Dp = 48.dp
+private val HERO_HORIZONTAL_MARGIN: Dp = 20.dp
+private val HERO_CONTENT_START_PADDING: Dp = 24.dp
+private val HERO_CONTENT_END_PADDING: Dp = 16.dp
 
 // 버튼 하단과 점 상단 사이 간격(요청값 3dp). 토큰 목록에 3dp가 없어 이 파일 상수로 둔다.
 private val HERO_INDICATOR_TOP_GAP: Dp = 3.dp
@@ -424,7 +454,9 @@ private class HeroInteraction {
 }
 
 // 주 버튼이 이미 견적 문의인 슬라이드(커스텀 견적)에는 보조 견적 CTA를 두지 않는다.
-internal fun showsHeroSecondaryQuoteCta(primaryActionResId: Int): Boolean = primaryActionResId != R.string.home_hero_quote_action
+internal fun showsHeroSecondaryQuoteCta(slideActionId: HomeHeroActionId): Boolean = slideActionId != HomeHeroActionId.ViewCompany
+
+internal fun heroSecondaryActionLabelResId(slideActionId: HomeHeroActionId): Int = if (showsHeroSecondaryQuoteCta(slideActionId)) R.string.home_hero_quote_action else R.string.home_hero_company_action
 
 // 점 중심 좌표와 탭 위치로 가장 가까운 점을 고른다. 중심 좌표가 없으면 null.
 internal fun nearestHeroIndicatorIndex(tapX: Float, centersX: List<Float>): Int? {

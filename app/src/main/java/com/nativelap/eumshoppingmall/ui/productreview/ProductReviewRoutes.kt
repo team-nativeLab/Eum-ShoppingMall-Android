@@ -26,7 +26,7 @@ fun ProductReviewRoute(
 
 /**
  * 리뷰 작성. 서버 연동 전이라 제출은 별점과 내용이 채워졌을 때 [onSubmitted]만 부르고 내용은 저장하지 않는다.
- * 사진 첨부는 선택기 연동 전이라 연결하지 않는다.
+ * 사진 선택기는 아직 연결되지 않아 준비 안내를 표시한다.
  */
 @Composable
 fun ProductReviewWriteRoute(
@@ -34,6 +34,7 @@ fun ProductReviewWriteRoute(
     onBackClick: () -> Unit,
     onSearchClick: () -> Unit,
     onSubmitted: () -> Unit,
+    onUnavailableAction: () -> Unit,
 ) {
     var rating by rememberSaveable { mutableStateOf(uiModel.rating) }
     var content by rememberSaveable { mutableStateOf(uiModel.content) }
@@ -47,7 +48,7 @@ fun ProductReviewWriteRoute(
                 is ProductReviewWriteEvent.RatingSelected -> rating = event.value
                 is ProductReviewWriteEvent.ContentChanged -> content = event.value
                 ProductReviewWriteEvent.SubmitClicked -> if (canSubmit) onSubmitted()
-                ProductReviewWriteEvent.PhotoClicked -> Unit
+                ProductReviewWriteEvent.PhotoClicked -> onUnavailableAction()
             }
         },
     )

@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,12 +47,14 @@ import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutScreenEvent
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.shippingFeeText
 import com.nativelap.eumshoppingmall.ui.common.EumPrimaryButton
-import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
-import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
+
+internal val CHECKOUT_CONTENT_MAX_WIDTH = 520.dp
+
+internal fun checkoutContentWidthForViewport(viewportWidth: androidx.compose.ui.unit.Dp) = minOf(viewportWidth, CHECKOUT_CONTENT_MAX_WIDTH)
 
 @Composable
 fun CheckoutAddressScreen(
@@ -58,17 +62,18 @@ fun CheckoutAddressScreen(
     onEvent: (CheckoutScreenEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            Column(Modifier.statusBarsPadding()) {
-                CatalogTopBar(title = stringResource(R.string.checkout_title), onBackClick = { onEvent(CheckoutScreenEvent.BackClicked) })
-            }
-        },
-        bottomBar = {
-            // 배경은 전폭, 버튼만 폭 컨테이너 안에 둔다. 구분선은 Figma 미확인이라 넣지 않는다.
-            Box(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface)) {
-                ResponsiveWidthContainer {
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        val checkoutContentWidth = checkoutContentWidthForViewport(maxWidth)
+        Scaffold(
+            modifier = Modifier.width(checkoutContentWidth).fillMaxSize().align(Alignment.TopCenter),
+            topBar = {
+                Column(Modifier.statusBarsPadding()) {
+                    CatalogTopBar(title = stringResource(R.string.checkout_title), onBackClick = { onEvent(CheckoutScreenEvent.BackClicked) })
+                }
+            },
+            bottomBar = {
+                // 배경은 전폭, 버튼만 폭 컨테이너 안에 둔다. 구분선은 Figma 미확인이라 넣지 않는다.
+                Box(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface)) {
                     EumPrimaryButton(
                         onClick = { onEvent(CheckoutScreenEvent.NextClicked) },
                         modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
@@ -76,12 +81,10 @@ fun CheckoutAddressScreen(
                         Text(stringResource(R.string.checkout_next))
                     }
                 }
-            }
-        },
-        containerColor = MaterialTheme.eumColors.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-    ) { contentPadding ->
-        ResponsiveContentContainer(Modifier.fillMaxSize()) {
+            },
+            containerColor = MaterialTheme.eumColors.background,
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        ) { contentPadding ->
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(contentPadding),
                 contentPadding = PaddingValues(bottom = EumSpacing.x20),

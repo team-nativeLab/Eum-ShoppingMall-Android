@@ -33,6 +33,7 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 @Composable
 fun QuoteProgressStepper(status: QuoteInquiryStatus, modifier: Modifier = Modifier) {
     val currentStep = when (status) {
+        QuoteInquiryStatus.Preview -> -1
         QuoteInquiryStatus.Received -> 0
         QuoteInquiryStatus.Consulting -> 1
         QuoteInquiryStatus.EstimateSent -> 2

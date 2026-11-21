@@ -45,6 +45,7 @@ import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteHistoryEvent
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteHistoryFilter
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteHistoryUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryListItemUiModel
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryStatus
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -169,7 +170,7 @@ private fun QuoteInquiryCard(inquiry: QuoteInquiryListItemUiModel, onEvent: (Quo
                     color = MaterialTheme.eumColors.textPrimary,
                 )
                 Text(
-                    stringResource(R.string.quote_inquiry_number, inquiry.inquiryNumber),
+                    if (inquiry.status == QuoteInquiryStatus.Preview) inquiry.inquiryNumber else stringResource(R.string.quote_inquiry_number, inquiry.inquiryNumber),
                     Modifier.weight(1f).padding(horizontal = EumSpacing.x8),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.eumColors.textTertiary,

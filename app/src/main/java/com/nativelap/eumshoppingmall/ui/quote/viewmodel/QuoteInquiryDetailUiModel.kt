@@ -26,6 +26,7 @@ data class QuoteInquiryDetailUiModel(
     val preferredDeliveryDate: String? = null,
     val deliveryAddress: String? = null,
     val requestDetails: String? = null,
+    val isPreviewUnavailable: Boolean = false,
 )
 
 sealed interface QuoteInquiryDetailEvent {

@@ -52,7 +52,7 @@ fun CartRoute(
     cartItemCount: Int,
     onTabSelected: (MainNavigationTab) -> Unit,
     onSearchClick: () -> Unit,
-    onCheckoutClick: (orderedLineIds: List<String>) -> Unit,
+    onCheckoutClick: (selectedItems: List<CartItemUiModel>) -> Unit,
     onLoginClick: () -> Unit,
     onQuoteRequestClick: () -> Unit,
     onOptionChangeClick: (line: CartLine) -> Unit = {},
@@ -248,8 +248,8 @@ fun CartRoute(
 
                 CartScreenEvent.CheckoutClicked -> {
                     // 주문 대상은 화면에서 선택된 주문 가능한 줄이다. 선택이 없으면 이동하지 않는다.
-                    val orderedLineIds = orderedCartLineIds(items)
-                    if (orderedLineIds.isNotEmpty()) onCheckoutClick(orderedLineIds)
+                    val selectedItems = items.filter { item -> isSelectable(item) && item.isSelected }
+                    if (selectedItems.isNotEmpty()) onCheckoutClick(selectedItems)
                 }
 
                 CartScreenEvent.LoginClicked -> onLoginClick()

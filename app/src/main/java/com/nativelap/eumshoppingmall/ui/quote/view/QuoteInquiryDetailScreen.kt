@@ -88,13 +88,33 @@ fun QuoteInquiryDetailScreen(
                     QuoteStatusChip(uiModel.status)
                     Text(uiModel.title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.eumColors.textPrimary)
                     Text(
-                        "${uiModel.dateLabel} · ${stringResource(R.string.quote_inquiry_number, uiModel.inquiryNumber)}",
+                        if (uiModel.status == QuoteInquiryStatus.Preview) {
+                            "${uiModel.dateLabel} · ${uiModel.inquiryNumber}"
+                        } else {
+                            "${uiModel.dateLabel} · ${stringResource(R.string.quote_inquiry_number, uiModel.inquiryNumber)}"
+                        },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.eumColors.textTertiary,
                     )
                 }
             }
-            if (uiModel.status == QuoteInquiryStatus.Cancelled) {
+            if (uiModel.isPreviewUnavailable) {
+                item {
+                    Text(
+                        stringResource(R.string.quote_preview_unavailable),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.eumColors.textSecondary,
+                    )
+                }
+            } else if (uiModel.status == QuoteInquiryStatus.Preview) {
+                item {
+                    Text(
+                        stringResource(R.string.quote_preview_notice),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.eumColors.textSecondary,
+                    )
+                }
+            } else if (uiModel.status == QuoteInquiryStatus.Cancelled) {
                 item {
                     Text(
                         stringResource(R.string.quote_detail_cancelled_notice),
@@ -109,82 +129,84 @@ fun QuoteInquiryDetailScreen(
                     }
                 }
             }
-            uiModel.managerReply?.let { reply ->
-                item {
-                    QuoteCard {
-                        Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                            Text(stringResource(R.string.quote_reply), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.eumColors.textPrimary)
-                            Text(reply, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textPrimary)
-                            HorizontalDivider(Modifier.padding(vertical = EumSpacing.x4), color = MaterialTheme.eumColors.line)
-                            uiModel.amountLabel?.let { amount ->
-                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                    Text(stringResource(R.string.quote_amount), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.eumColors.textPrimary)
-                                    Text(
-                                        amount,
-                                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                                        color = MaterialTheme.eumColors.textPrimary,
+            if (!uiModel.isPreviewUnavailable) {
+                uiModel.managerReply?.let { reply ->
+                    item {
+                        QuoteCard {
+                            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                                Text(stringResource(R.string.quote_reply), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.eumColors.textPrimary)
+                                Text(reply, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textPrimary)
+                                HorizontalDivider(Modifier.padding(vertical = EumSpacing.x4), color = MaterialTheme.eumColors.line)
+                                uiModel.amountLabel?.let { amount ->
+                                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                        Text(stringResource(R.string.quote_amount), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.eumColors.textPrimary)
+                                        Text(
+                                            amount,
+                                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                            color = MaterialTheme.eumColors.textPrimary,
+                                        )
+                                        Text(
+                                            stringResource(R.string.quote_vat_excluded),
+                                            Modifier.padding(start = EumSpacing.x4),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.eumColors.textTertiary,
+                                        )
+                                    }
+                                }
+                                uiModel.validityLabel?.let { QuoteSummaryRow(stringResource(R.string.quote_valid_until), it) }
+                                if (uiModel.managerName != null || uiModel.managerPhone != null) {
+                                    QuoteSummaryRow(
+                                        stringResource(R.string.quote_manager),
+                                        listOfNotNull(uiModel.managerName, uiModel.managerPhone).joinToString(" · "),
                                     )
-                                    Text(
-                                        stringResource(R.string.quote_vat_excluded),
-                                        Modifier.padding(start = EumSpacing.x4),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.eumColors.textTertiary,
+                                }
+                                uiModel.estimateFile?.let { attachment ->
+                                    QuoteFileDownloadRow(
+                                        fileName = attachment.fileName,
+                                        downloadDescription = stringResource(R.string.quote_estimate_download),
+                                        onDownload = { onEvent(QuoteInquiryDetailEvent.EstimateDownloadClicked) },
                                     )
                                 }
                             }
-                            uiModel.validityLabel?.let { QuoteSummaryRow(stringResource(R.string.quote_valid_until), it) }
-                            if (uiModel.managerName != null || uiModel.managerPhone != null) {
-                                QuoteSummaryRow(
-                                    stringResource(R.string.quote_manager),
-                                    listOfNotNull(uiModel.managerName, uiModel.managerPhone).joinToString(" · "),
-                                )
+                        }
+                    }
+                }
+                item {
+                    QuoteCard {
+                        Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                            Text(stringResource(R.string.quote_requester_information), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.eumColors.textPrimary)
+                            QuoteSummaryRow(stringResource(R.string.quote_company_name), uiModel.companyName)
+                            QuoteSummaryRow(stringResource(R.string.quote_summary_contact), uiModel.contactName)
+                            QuoteSummaryRow(stringResource(R.string.quote_phone_number), uiModel.contactPhone)
+                            QuoteSummaryRow(stringResource(R.string.quote_email_address), uiModel.contactEmail)
+                        }
+                    }
+                }
+                item {
+                    QuoteCard {
+                        Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+                            Text(stringResource(R.string.quote_requested_products), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.eumColors.textPrimary)
+                            uiModel.items.forEachIndexed { index, item ->
+                                if (index > 0) HorizontalDivider(color = MaterialTheme.eumColors.line)
+                                QuoteDetailItemRow(item.name, item.quantityLabel)
                             }
-                            uiModel.estimateFile?.let { attachment ->
+                        }
+                    }
+                }
+                item {
+                    QuoteCard {
+                        Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                            Text(stringResource(R.string.quote_request_details), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.eumColors.textPrimary)
+                            uiModel.preferredDeliveryDate?.let { QuoteSummaryRow(stringResource(R.string.quote_preferred_delivery_date), it) }
+                            uiModel.deliveryAddress?.let { QuoteSummaryRow(stringResource(R.string.quote_delivery_address), it) }
+                            uiModel.requestDetails?.let { QuoteSummaryRow(stringResource(R.string.quote_detail_content_label), it) }
+                            uiModel.requestAttachments.forEach { attachment ->
                                 QuoteFileDownloadRow(
                                     fileName = attachment.fileName,
-                                    downloadDescription = stringResource(R.string.quote_estimate_download),
-                                    onDownload = { onEvent(QuoteInquiryDetailEvent.EstimateDownloadClicked) },
+                                    downloadDescription = stringResource(R.string.quote_file_download),
+                                    onDownload = { onEvent(QuoteInquiryDetailEvent.RequestAttachmentClicked(attachment.id)) },
                                 )
                             }
-                        }
-                    }
-                }
-            }
-            item {
-                QuoteCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                        Text(stringResource(R.string.quote_requester_information), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.eumColors.textPrimary)
-                        QuoteSummaryRow(stringResource(R.string.quote_company_name), uiModel.companyName)
-                        QuoteSummaryRow(stringResource(R.string.quote_summary_contact), uiModel.contactName)
-                        QuoteSummaryRow(stringResource(R.string.quote_phone_number), uiModel.contactPhone)
-                        QuoteSummaryRow(stringResource(R.string.quote_email_address), uiModel.contactEmail)
-                    }
-                }
-            }
-            item {
-                QuoteCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
-                        Text(stringResource(R.string.quote_requested_products), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.eumColors.textPrimary)
-                        uiModel.items.forEachIndexed { index, item ->
-                            if (index > 0) HorizontalDivider(color = MaterialTheme.eumColors.line)
-                            QuoteDetailItemRow(item.name, item.quantityLabel)
-                        }
-                    }
-                }
-            }
-            item {
-                QuoteCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                        Text(stringResource(R.string.quote_request_details), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.eumColors.textPrimary)
-                        uiModel.preferredDeliveryDate?.let { QuoteSummaryRow(stringResource(R.string.quote_preferred_delivery_date), it) }
-                        uiModel.deliveryAddress?.let { QuoteSummaryRow(stringResource(R.string.quote_delivery_address), it) }
-                        uiModel.requestDetails?.let { QuoteSummaryRow(stringResource(R.string.quote_detail_content_label), it) }
-                        uiModel.requestAttachments.forEach { attachment ->
-                            QuoteFileDownloadRow(
-                                fileName = attachment.fileName,
-                                downloadDescription = stringResource(R.string.quote_file_download),
-                                onDownload = { onEvent(QuoteInquiryDetailEvent.RequestAttachmentClicked(attachment.id)) },
-                            )
                         }
                     }
                 }

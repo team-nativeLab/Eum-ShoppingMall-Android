@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,11 +45,20 @@ import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchResultsRoute
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchRoute
 import com.nativelap.eumshoppingmall.ui.catalog.QuickCartGate
 import com.nativelap.eumshoppingmall.ui.catalog.clearedIfShown
+import com.nativelap.eumshoppingmall.ui.catalog.formatWonLabel
 import com.nativelap.eumshoppingmall.ui.catalog.resolveHomeQuickCartLine
 import com.nativelap.eumshoppingmall.ui.catalog.resolveQuickCartLine
 import com.nativelap.eumshoppingmall.ui.catalog.saveAddToCartLines
 import com.nativelap.eumshoppingmall.ui.checkout.view.CheckoutAddressRoute
 import com.nativelap.eumshoppingmall.ui.checkout.view.CheckoutPaymentRoute
+import com.nativelap.eumshoppingmall.ui.checkout.view.checkoutPaymentCanComplete
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutOrderSnapshot
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutOrderSource
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.checkoutOrderSnapshot
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.checkoutOrderSnapshotFromCartItems
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.resolveCheckoutOrderForSelection
+import com.nativelap.eumshoppingmall.ui.common.DismissSnackbarOnNavigationChange
 import com.nativelap.eumshoppingmall.ui.common.EumSnackbarHost
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.company.CompanyIntroRoute
@@ -63,6 +74,15 @@ import com.nativelap.eumshoppingmall.ui.quote.view.QuoteCompleteRoute
 import com.nativelap.eumshoppingmall.ui.quote.view.QuoteHistoryRoute
 import com.nativelap.eumshoppingmall.ui.quote.view.QuoteInquiryDetailRoute
 import com.nativelap.eumshoppingmall.ui.quote.view.QuoteRequestRoute
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteDetailItemUiModel
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteHistoryUiModel
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryDetailUiModel
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryStatus
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.toQuoteCompletePreview
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.toQuoteHistoryPreview
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.unavailableQuoteCompletePreview
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.unavailableQuoteInquiryDetailPreview
 import com.nativelap.eumshoppingmall.ui.recent.RecentProductsRoute
 import com.nativelap.eumshoppingmall.ui.screendata.ShoppingScreenDataProvider
 import com.nativelap.eumshoppingmall.ui.splash.SplashOverlay
@@ -101,13 +121,28 @@ fun EumMainNavDisplay(
     val loginAuthenticator = remember { createLoginAuthenticator() }
     val accountService = remember { createAccountService() }
     val addressSelection = rememberEumAddressSelection()
-    val entryContext = remember(navigator, loginSession, screenDataProvider) {
-        EumEntryContext(navigator, loginSession, screenDataProvider)
-    }
     val snackbarHostState = remember { SnackbarHostState() }
     val signupWelcomeMessage = stringResource(R.string.flow_signup_welcome)
+    val unavailableActionMessage = stringResource(R.string.flow_feature_unavailable)
+    val signedInFallbackName = stringResource(R.string.account_member_fallback)
+    val checkoutUnavailableLabel = stringResource(R.string.checkout_order_information_unavailable)
     // 결제 직후 장바구니 제거는 결제 화면이 사라져도 끝나야 하므로 화면 밖 scope에서 실행한다.
     val orderScope = rememberCoroutineScope()
+    val showUnavailableAction: () -> Unit = remember(snackbarHostState, orderScope, unavailableActionMessage) {
+        {
+            orderScope.launch {
+                snackbarHostState.currentSnackbarData?.dismiss()
+                snackbarHostState.showSnackbar(
+                    message = unavailableActionMessage,
+                    duration = SnackbarDuration.Short,
+                )
+            }
+        }
+    }
+    val entryContext = remember(navigator, loginSession, screenDataProvider, showUnavailableAction) {
+        EumEntryContext(navigator, loginSession, screenDataProvider, showUnavailableAction)
+    }
+    DismissSnackbarOnNavigationChange(snackbarHostState, navigationState.currentBackStack.lastOrNull())
     val currentOnCartItemsRemoved by rememberUpdatedState(onCartItemsRemoved)
     val currentCartItemCount by rememberUpdatedState(cartItemCount)
     val currentSavedCartLines by rememberUpdatedState(savedCartLines)
@@ -117,6 +152,16 @@ fun EumMainNavDisplay(
     var cartEditOutcome by rememberSaveable(stateSaver = CartEditOutcome.Saver) { mutableStateOf<CartEditOutcome?>(null) }
     // 홈 검색창과 검색 결과가 같은 검색어를 쓴다. 결과에서 지우면 여기서도 비운다.
     var homeSearchQuery by rememberSaveable { mutableStateOf("") }
+    var activeCheckoutOrder by rememberSaveable(stateSaver = CheckoutOrderSnapshot.Saver) { mutableStateOf<CheckoutOrderSnapshot?>(null) }
+    val quotePreviews = remember { mutableStateListOf<Pair<String, QuoteRequestUiModel>>() }
+    var latestQuotePreviewId by remember { mutableStateOf<String?>(null) }
+    var quotePreviewSerial by remember { mutableStateOf(0) }
+    LaunchedEffect(navigationState.currentBackStack.lastOrNull(), activeCheckoutOrder) {
+        val destination = navigationState.currentBackStack.lastOrNull()
+        if ((destination is EumDestination.CheckoutAddress || destination is EumDestination.CheckoutPayment) && activeCheckoutOrder == null) {
+            showUnavailableAction()
+        }
+    }
     val currentCartAddOutcome by rememberUpdatedState(cartAddOutcome)
     // 카드 담기는 상세의 옵션 없는 담기와 같은 줄 형식을 쓴다. 결과는 상세와 같은 cartAddOutcome에 남겨 Route가 안내한다.
     val defaultOptionLabel = stringResource(R.string.catalog_option_default_label)
@@ -157,7 +202,7 @@ fun EumMainNavDisplay(
         destinationForCategoryIfAvailable(categoryId, screenDataProvider.productList(categoryId))
             ?.let { destination -> navigator.push(destination) }
     }
-    val entryProvider = remember(navigationState, navigator, screenDataProvider, quoteProductSelection, addressSelection, entryContext, loginSession, loginAuthenticator, accountService, onAddToCart) {
+    val entryProvider = remember(navigationState, navigator, screenDataProvider, quoteProductSelection, addressSelection, entryContext, loginSession, loginAuthenticator, accountService, onAddToCart, showUnavailableAction, signedInFallbackName) {
         entryProvider<NavKey> {
             entry<EumDestination.Home> {
                 HomeRoute(
@@ -169,6 +214,7 @@ fun EumMainNavDisplay(
                     companyIntro = remember { screenDataProvider.homeCompanyIntro() },
                     cartItemCount = currentCartItemCount,
                     selectedTab = MainNavigationTab.Home,
+                    onNotificationClick = showUnavailableAction,
                     onSearch = { query ->
                         if (query.isBlank()) {
                             navigator.navigateToTab(MainNavigationTab.Search)
@@ -233,8 +279,25 @@ fun EumMainNavDisplay(
                     cartItemCount = currentCartItemCount,
                     onTabSelected = navigator::navigateToTab,
                     onSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
-                    onCheckoutClick = { orderedLineIds ->
-                        entryContext.open(EumDestination.CheckoutAddress(orderedLineIds))
+                    onCheckoutClick = { selectedItems ->
+                        val selectedIds = selectedItems.map { item -> item.id }
+                        val savedLines = currentSavedCartLines
+                        val snapshot = when {
+                            savedLines == null -> null
+
+                            savedLines.isEmpty() && screenDataProvider.enablesDebugCartFallback ->
+                                checkoutOrderSnapshotFromCartItems(selectedItems)
+
+                            savedLines.isNotEmpty() -> resolveCheckoutOrderForSelection(savedLines, selectedIds)
+
+                            else -> null
+                        }
+                        if (snapshot == null) {
+                            showUnavailableAction()
+                        } else {
+                            activeCheckoutOrder = snapshot
+                            entryContext.open(EumDestination.CheckoutAddress(snapshot.cartLineIdsToRemove.toList()))
+                        }
                     },
                     // 배너에서는 돌아갈 곳이 지금 장바구니이므로 보류 목적지 없이 로그인만 연다.
                     onLoginClick = { navigator.push(EumDestination.Login()) },
@@ -244,7 +307,18 @@ fun EumMainNavDisplay(
             }
             entry<EumDestination.MyPage> {
                 MyPageRoute(
-                    uiModel = remember { screenDataProvider.myPage() },
+                    uiModel = remember(screenDataProvider, loginSession.isLoggedIn, signedInFallbackName) {
+                        val myPageUiModel = screenDataProvider.myPage()
+                        val profile = if (loginSession.isLoggedIn && myPageUiModel.profile.name.isBlank()) {
+                            myPageUiModel.profile.copy(name = signedInFallbackName)
+                        } else {
+                            myPageUiModel.profile
+                        }
+                        myPageUiModel.copy(
+                            isLoggedIn = loginSession.isLoggedIn,
+                            profile = profile,
+                        )
+                    },
                     cartItemCount = currentCartItemCount,
                     onTabSelected = navigator::navigateToTab,
                     onLoginClick = { navigator.push(EumDestination.Login()) },
@@ -253,8 +327,14 @@ fun EumMainNavDisplay(
                         EumMenuDestinations.myPageShortcut(shortcutId)?.let(entryContext::open)
                     },
                     onMenuRowClick = { rowId ->
-                        EumMenuDestinations.myPageMenuRow(rowId)?.let(entryContext::open)
+                        val destination = EumMenuDestinations.myPageMenuRow(rowId)
+                        if (destination == null) {
+                            showUnavailableAction()
+                        } else {
+                            entryContext.open(destination)
+                        }
                     },
+                    onUnavailableAction = showUnavailableAction,
                 )
             }
             entry<EumDestination.Drawer>(
@@ -266,11 +346,28 @@ fun EumMainNavDisplay(
                 ),
             ) {
                 AccountDrawerRoute(
-                    profile = remember { screenDataProvider.drawerProfile() },
-                    isLoggedIn = screenDataProvider.isLoggedIn,
+                    profile = remember(screenDataProvider, loginSession.isLoggedIn, signedInFallbackName) {
+                        val accountProfile = screenDataProvider.drawerProfile()
+                        if (loginSession.isLoggedIn && accountProfile.name.isBlank()) {
+                            accountProfile.copy(name = signedInFallbackName)
+                        } else {
+                            accountProfile
+                        }
+                    },
+                    isLoggedIn = loginSession.isLoggedIn,
                     onCloseClick = { navigator.goBack() },
                     onMenuClick = { menuId ->
-                        EumMenuDestinations.drawerMenu(menuId)?.let(navigator::replaceTop)
+                        val destination = EumMenuDestinations.drawerMenu(menuId)
+                        if (destination == null) {
+                            navigator.goBack()
+                            showUnavailableAction()
+                        } else {
+                            navigator.replaceTop(destination)
+                        }
+                    },
+                    onUnavailableAction = {
+                        navigator.goBack()
+                        showUnavailableAction()
                     },
                 )
             }
@@ -326,8 +423,14 @@ fun EumMainNavDisplay(
                     uiModel = remember(destination) { screenDataProvider.productDetail(destination.productId) },
                     onBackClick = { navigator.goBack() },
                     onCartClick = { navigator.navigateToTab(MainNavigationTab.Cart) },
-                    onBuyNowClick = {
-                        entryContext.open(EumDestination.CheckoutAddress())
+                    onBuyNowClick = { lines ->
+                        val snapshot = checkoutOrderSnapshot(lines, CheckoutOrderSource.BuyNow)
+                        if (snapshot == null) {
+                            showUnavailableAction()
+                        } else {
+                            activeCheckoutOrder = snapshot
+                            entryContext.open(EumDestination.CheckoutAddress())
+                        }
                     },
                     onQuoteRequestClick = { productId -> navigator.push(EumDestination.QuoteRequest(productId)) },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
@@ -344,14 +447,21 @@ fun EumMainNavDisplay(
                     onCartEditNotice = { notice -> cartEditOutcome = CartEditOutcome(serial = System.nanoTime(), notice = notice) },
                     cartAddOutcome = currentCartAddOutcome,
                     onCartAddOutcomeChange = { outcome -> cartAddOutcome = outcome },
+                    onUnavailableAction = showUnavailableAction,
                 )
             }
             entry<EumDestination.CheckoutAddress> { destination ->
                 CheckoutAddressRoute(
-                    uiModel = remember { screenDataProvider.checkout() },
+                    uiModel = remember(destination, activeCheckoutOrder) {
+                        checkoutUiModelForOrder(activeCheckoutOrder, screenDataProvider.checkout(), checkoutUnavailableLabel)
+                    },
                     onBackClick = { navigator.goBack() },
                     onNextClick = {
-                        navigator.push(EumDestination.CheckoutPayment(destination.orderedCartLineIds))
+                        if (activeCheckoutOrder == null) {
+                            showUnavailableAction()
+                        } else {
+                            navigator.push(EumDestination.CheckoutPayment(destination.orderedCartLineIds))
+                        }
                     },
                     onAddressChangeClick = { navigator.push(EumDestination.AddressSearch) },
                     pickedAddressId = addressSelection.pendingAddressId,
@@ -361,30 +471,38 @@ fun EumMainNavDisplay(
             }
             entry<EumDestination.CheckoutPayment> { destination ->
                 CheckoutPaymentRoute(
-                    uiModel = remember { screenDataProvider.checkout() },
+                    uiModel = remember(destination, activeCheckoutOrder) {
+                        checkoutUiModelForOrder(activeCheckoutOrder, screenDataProvider.checkout(), checkoutUnavailableLabel)
+                    },
                     onBackClick = { navigator.goBack() },
-                    onPaymentClick = {
-                        // 주문 완료 뒤 뒤로가기로 결제 단계에 다시 들어가지 않도록 A-08·A-09를 걷어 낸다.
-                        val isPaymentCompleted = navigator.popWhileAndPushIfTop(
-                            topDestination = destination,
-                            destination = EumDestination.OrderComplete,
-                        ) { navKey ->
-                            navKey is EumDestination.CheckoutAddress || navKey is EumDestination.CheckoutPayment
-                        }
-                        // 이동은 제거 완료를 기다리지 않는다. 연타된 두 번째 결제는 맨 위가 달라 여기에 오지 않는다.
-                        if (isPaymentCompleted && destination.orderedCartLineIds.isNotEmpty()) {
-                            val orderedLineIds = destination.orderedCartLineIds.toSet()
-                            orderScope.launch {
-                                try {
-                                    currentOnCartItemsRemoved(orderedLineIds)
-                                } catch (exception: CancellationException) {
-                                    throw exception
-                                } catch (exception: Exception) {
-                                    // 저장 실패는 주문 완료를 되돌리지 않는다. 장바구니에 남은 줄은 사용자가 직접 지울 수 있다.
+                    onPaymentClick = { paymentUiModel ->
+                        val checkoutOrder = activeCheckoutOrder
+                        if (checkoutOrder == null || !checkoutPaymentCanComplete(checkoutOrder, paymentUiModel)) {
+                            showUnavailableAction()
+                        } else {
+                            // 주문 완료 뒤 뒤로가기로 결제 단계에 다시 들어가지 않도록 A-08·A-09를 걷어 낸다.
+                            val isPaymentCompleted = navigator.popWhileAndPushIfTop(
+                                topDestination = destination,
+                                destination = EumDestination.OrderComplete,
+                            ) { navKey ->
+                                navKey is EumDestination.CheckoutAddress || navKey is EumDestination.CheckoutPayment
+                            }
+                            // 이동은 제거 완료를 기다리지 않는다. 연타된 두 번째 결제는 맨 위가 달라 여기에 오지 않는다.
+                            val orderToRemove = checkoutOrder.cartLineIdsToRemove
+                            if (isPaymentCompleted && orderToRemove.isNotEmpty()) {
+                                orderScope.launch {
+                                    try {
+                                        currentOnCartItemsRemoved(orderToRemove)
+                                    } catch (exception: CancellationException) {
+                                        throw exception
+                                    } catch (exception: Exception) {
+                                        // 저장 실패는 주문 완료를 되돌리지 않는다. 장바구니에 남은 줄은 사용자가 직접 지울 수 있다.
+                                    }
                                 }
                             }
                         }
                     },
+                    onUnavailableAction = showUnavailableAction,
                 )
             }
             entry<EumDestination.OrderComplete> {
@@ -393,7 +511,10 @@ fun EumMainNavDisplay(
                     navigator.closeTopAndOpenTabRootIfTop(EumDestination.OrderComplete, MainNavigationTab.Home)
                 }
 
-                val orderCompleteUiModel = remember { screenDataProvider.orderComplete() }
+                val orderCompleteUiModel = remember(activeCheckoutOrder) {
+                    val base = screenDataProvider.orderComplete()
+                    base.copy(paymentAmountLabel = activeCheckoutOrder?.finalTotalWon?.let(::formatWonLabel) ?: "주문 시 확인")
+                }
                 OrderCompleteRoute(
                     uiModel = orderCompleteUiModel,
                     onContinueShoppingClick = ::closeOrderComplete,
@@ -402,6 +523,7 @@ fun EumMainNavDisplay(
                     onViewOrderDetailsClick = {
                         entryContext.open(EumDestination.OrderDetail(orderCompleteUiModel.orderNumber))
                     },
+                    onUnavailableAction = showUnavailableAction,
                 )
             }
             entry<EumDestination.QuoteRequest> { destination ->
@@ -412,12 +534,17 @@ fun EumMainNavDisplay(
                     onBackClick = { navigator.goBack() },
                     onAddProductClick = { navigator.push(EumDestination.QuoteProductPicker) },
                     onPickedProductConsumed = quoteProductSelection::consume,
-                    onSubmit = {
+                    onSubmit = { submitted ->
+                        quotePreviewSerial += 1
+                        val previewId = "preview-$quotePreviewSerial"
+                        quotePreviews.add(previewId to submitted)
+                        latestQuotePreviewId = previewId
                         // 완료 뒤 뒤로가기로 작성 폼에 다시 들어가지 않도록 A-15를 걷어 낸다.
                         navigator.popWhileAndPush(EumDestination.QuoteComplete) { navKey ->
                             navKey is EumDestination.QuoteRequest
                         }
                     },
+                    onUnavailableAction = showUnavailableAction,
                 )
             }
             entry<EumDestination.QuoteProductPicker> {
@@ -441,26 +568,63 @@ fun EumMainNavDisplay(
                 )
             }
             entry<EumDestination.QuoteComplete> {
+                val unavailablePreviewLabel = stringResource(R.string.quote_preview_unavailable)
+                val preview = quotePreviews.lastOrNull { it.first == latestQuotePreviewId }?.second
                 QuoteCompleteRoute(
-                    uiModel = remember { screenDataProvider.quoteComplete() },
+                    uiModel = preview?.toQuoteCompletePreview(
+                        when (preview.requestType) {
+                            com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType.CustomManufacturing -> stringResource(R.string.quote_custom_manufacturing)
+                            com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType.BulkPurchase -> stringResource(R.string.quote_bulk_purchase)
+                            com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType.RegularDelivery -> stringResource(R.string.quote_regular_delivery)
+                            com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType.Other -> stringResource(R.string.quote_other)
+                        },
+                        noProductsLabel = stringResource(R.string.quote_product_empty),
+                    )
+                        ?: unavailableQuoteCompletePreview(unavailablePreviewLabel),
                     onCloseClick = { navigator.goBack() },
                     onContinueShoppingClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home) },
                     onViewInquiriesClick = { navigator.replaceTop(gateIfProtected(EumDestination.QuoteHistory, loginSession.isLoggedIn)) },
                 )
             }
             entry<EumDestination.QuoteHistory> {
+                val previewSessionLabel = stringResource(R.string.quote_preview_session)
+                val previewBadgeLabel = stringResource(R.string.quote_preview_badge)
+                val noProductsLabel = stringResource(R.string.quote_product_empty)
+                val dueDateLabel = stringResource(R.string.quote_preferred_due_date)
+                val previewItems = quotePreviews.map { (id, preview) -> preview.toQuoteHistoryPreview(id, previewSessionLabel, previewBadgeLabel, noProductsLabel, dueDateLabel) }
                 QuoteHistoryRoute(
-                    uiModel = remember { screenDataProvider.quoteHistory() },
+                    uiModel = QuoteHistoryUiModel(inquiries = previewItems),
                     onBackClick = { navigator.goBack() },
                     onInquiryClick = { inquiryId -> entryContext.open(EumDestination.QuoteInquiryDetail(inquiryId)) },
                     onNewInquiryClick = { navigator.push(EumDestination.QuoteRequest()) },
+                    onUnavailableAction = showUnavailableAction,
                 )
             }
             entry<EumDestination.QuoteInquiryDetail> { destination ->
+                val unavailablePreviewLabel = stringResource(R.string.quote_preview_unavailable)
+                val preview = quotePreviews.firstOrNull { entry -> entry.first == destination.inquiryId }?.second
                 QuoteInquiryDetailRoute(
-                    uiModel = remember(destination) { screenDataProvider.quoteInquiryDetail(destination.inquiryId) },
+                    uiModel = preview?.let { request ->
+                        QuoteInquiryDetailUiModel(
+                            title = request.companyName,
+                            dateLabel = stringResource(R.string.quote_preview_session),
+                            inquiryNumber = stringResource(R.string.quote_preview_badge),
+                            status = QuoteInquiryStatus.Preview,
+                            companyName = request.companyName,
+                            contactName = request.contactName,
+                            contactPhone = request.phoneNumber,
+                            contactEmail = request.email,
+                            items = request.products.map { product -> QuoteDetailItemUiModel(product.id, product.name, "") },
+                            preferredDeliveryDate = request.preferredDeliveryDate,
+                            deliveryAddress = request.deliveryAddress,
+                            requestDetails = request.requestDetails,
+                        )
+                    } ?: remember(destination) {
+                        unavailableQuoteInquiryDetailPreview(unavailablePreviewLabel)
+                    },
                     onBackClick = { navigator.goBack() },
                     onRequestAgainClick = { navigator.push(EumDestination.QuoteRequest()) },
+                    onUnavailableAction = showUnavailableAction,
                 )
             }
             entry<EumDestination.OrderHistory> {
@@ -474,6 +638,7 @@ fun EumMainNavDisplay(
                         entryContext.open(EumDestination.ClaimRequest(orderId, OrderRequestType.Cancel.name))
                     },
                     onCancelReturnClick = { entryContext.open(EumDestination.ClaimHub) },
+                    onUnavailableAction = showUnavailableAction,
                 )
             }
             entry<EumDestination.Favorites> {
@@ -482,6 +647,7 @@ fun EumMainNavDisplay(
                     onBackClick = { navigator.goBack() },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
                     onBrowseProductsClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home) },
+                    onUnavailableAction = showUnavailableAction,
                 )
             }
             entry<EumDestination.RecentProducts> {
@@ -490,6 +656,7 @@ fun EumMainNavDisplay(
                     onBackClick = { navigator.goBack() },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
                     onBrowseProductsClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home) },
+                    onUnavailableAction = showUnavailableAction,
                 )
             }
             entry<EumDestination.Coupons> {
@@ -498,6 +665,7 @@ fun EumMainNavDisplay(
                     onBackClick = { navigator.goBack() },
                     onBrowseProductsClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home) },
                     onPointsClick = { entryContext.open(EumDestination.Points) },
+                    onUnavailableAction = showUnavailableAction,
                 )
             }
             entry<EumDestination.Points> {
@@ -540,6 +708,7 @@ fun EumMainNavDisplay(
                 CompanyIntroRoute(
                     uiModel = remember { screenDataProvider.companyIntro() },
                     onBackClick = { navigator.goBack() },
+                    onUnavailableAction = showUnavailableAction,
                 )
             }
             entry<EumDestination.Login> { destination ->
@@ -592,3 +761,23 @@ fun EumMainNavDisplay(
         SplashOverlay()
     }
 }
+
+private fun checkoutUiModelForOrder(
+    snapshot: CheckoutOrderSnapshot?,
+    base: CheckoutUiModel,
+    unavailableLabel: String,
+): CheckoutUiModel = snapshot?.toCheckoutUiModel(base) ?: base.copy(
+    address = base.address.copy(recipientName = "", contactLabel = "", addressLabel = "", isDefaultAddress = false),
+    deliveryMethodLabel = "",
+    products = emptyList(),
+    couponCount = 0,
+    pointsAvailableLabel = "",
+    paymentSummary = base.paymentSummary.copy(
+        productAmountLabel = unavailableLabel,
+        shippingFeeLabel = unavailableLabel,
+        discountLabel = unavailableLabel,
+        finalAmountLabel = unavailableLabel,
+        shippingFeeWon = null,
+        finalAmountWon = null,
+    ),
+)

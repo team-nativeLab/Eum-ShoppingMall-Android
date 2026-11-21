@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="flow_signup_welcome">가입이 완료되었어요. 환영합니다!</string>
+    <string name="flow_feature_unavailable">이 기능은 현재 사용할 수 없습니다.</string>
     <string name="flow_service_preparing">서비스를 준비 중입니다. 잠시 후 다시 시도해 주세요.</string>
     <string name="flow_social_login_preparing">간편 로그인은 준비 중입니다. 이메일로 로그인해 주세요.</string>
     <string name="flow_signup_email_invalid">이메일 형식을 확인해 주세요.</string>

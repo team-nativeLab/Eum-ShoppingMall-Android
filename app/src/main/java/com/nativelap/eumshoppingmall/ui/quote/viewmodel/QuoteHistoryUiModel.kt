@@ -10,6 +10,7 @@ enum class QuoteHistoryFilter {
 }
 
 enum class QuoteInquiryStatus {
+    Preview,
     Received,
     Consulting,
     EstimateSent,

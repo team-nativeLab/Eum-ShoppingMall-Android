@@ -138,6 +138,14 @@ fun QuoteRequestScreen(
                         uiModel.products.forEach { product -> QuoteProductRow(product) { onEvent(QuoteRequestEvent.ProductRemoved(product.id)) } }
                     }
                 }
+                if (QuoteRequestField.Products in uiModel.errors) {
+                    Text(
+                        stringResource(R.string.quote_product_required_error),
+                        modifier = Modifier.fillMaxWidth().padding(top = EumSpacing.x6),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.eumColors.danger,
+                    )
+                }
             }
             item {
                 QuoteSectionTitle(stringResource(R.string.quote_inquiry_type), required = true)

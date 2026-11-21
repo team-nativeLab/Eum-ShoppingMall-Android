@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import com.nativelap.eumshoppingmall.ui.common.rememberFavoriteToggles
 
 /**
- * 브랜드 상세(A-34). 공유·브랜드 웹사이트·정렬은 외부 앱·정렬 UI 연동 전이라 연결하지 않는다.
+ * 브랜드 상세(A-34). 지원되지 않는 외부 앱·정렬 동작은 준비 안내를 표시한다.
  * 찜은 로그인이 필요하므로 비로그인이면 [onLoginRequired]를 부른다.
  */
 @Composable
@@ -20,6 +20,7 @@ fun CatalogBrandDetailRoute(
     onViewAllBrandsClick: () -> Unit,
     isLoggedIn: Boolean,
     onLoginRequired: () -> Unit,
+    onUnavailableAction: () -> Unit,
 ) {
     var selectedCategory by rememberSaveable { mutableStateOf(uiModel.selectedCategory) }
     val favoriteToggles = rememberFavoriteToggles(
@@ -49,7 +50,7 @@ fun CatalogBrandDetailRoute(
                 CatalogBrandDetailEvent.ShareClicked,
                 CatalogBrandDetailEvent.WebsiteClicked,
                 CatalogBrandDetailEvent.SortClicked,
-                -> Unit
+                -> onUnavailableAction()
             }
         },
     )

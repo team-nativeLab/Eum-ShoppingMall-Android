@@ -14,6 +14,7 @@ fun QuoteHistoryRoute(
     onBackClick: () -> Unit,
     onInquiryClick: (inquiryId: String) -> Unit,
     onNewInquiryClick: () -> Unit,
+    onUnavailableAction: () -> Unit,
 ) {
     var selectedFilter by rememberSaveable { mutableStateOf(uiModel.selectedFilter) }
     QuoteHistoryScreen(
@@ -21,15 +22,10 @@ fun QuoteHistoryRoute(
         onEvent = { event ->
             when (event) {
                 QuoteHistoryEvent.BackClicked -> onBackClick()
-
                 is QuoteHistoryEvent.FilterSelected -> selectedFilter = event.filter
-
                 is QuoteHistoryEvent.InquiryClicked -> onInquiryClick(event.inquiryId)
-
                 QuoteHistoryEvent.NewInquiryClicked -> onNewInquiryClick()
-
-                // 견적서 파일 열기는 이번 범위가 아니다.
-                is QuoteHistoryEvent.EstimateClicked -> Unit
+                is QuoteHistoryEvent.EstimateClicked -> onUnavailableAction()
             }
         },
     )

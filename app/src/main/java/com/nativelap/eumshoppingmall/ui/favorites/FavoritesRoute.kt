@@ -12,6 +12,7 @@ fun FavoritesRoute(
     onBackClick: () -> Unit,
     onProductClick: (productId: String) -> Unit,
     onBrowseProductsClick: () -> Unit,
+    onUnavailableAction: () -> Unit,
 ) {
     var isEditing by rememberSaveable { mutableStateOf(uiModel.isEditing) }
     FavoritesScreen(
@@ -26,10 +27,9 @@ fun FavoritesRoute(
 
                 is FavoritesEvent.ProductClicked -> onProductClick(event.productId)
 
-                // 정렬과 찜 해제 저장은 데이터 계층이 생긴 뒤 연결한다.
                 FavoritesEvent.SortClicked,
                 is FavoritesEvent.FavoriteToggled,
-                -> Unit
+                -> onUnavailableAction()
             }
         },
     )
