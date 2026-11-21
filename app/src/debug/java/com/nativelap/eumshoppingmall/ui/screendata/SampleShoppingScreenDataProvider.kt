@@ -271,16 +271,45 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
         AddressSearchResultUiModel("addr-2", "경기도 샘플시 샘플대로 2", "샘플동 2-2"),
     )
 
-    private val sampleClaimProducts = listOf(
-        OrderRequestProductUiModel(
-            id = "claim-product-1",
-            name = "경량 안전화 4인치",
-            optionLabel = "사이즈 270",
-            priceAndQuantityLabel = "₩54,000 · 1개",
-            quantityLabel = "1개",
-            isSelected = true,
+    private data class SampleOrder(
+        val id: String,
+        val orderNumber: String,
+        val status: OrderStatus,
+        val product: OrderRequestProductUiModel,
+    )
+
+    private data class SampleClaim(
+        val requestId: String,
+        val requestNumber: String,
+        val orderId: String,
+        val requestType: OrderRequestType,
+        val status: OrderRequestStatus,
+        val reasonLabel: String,
+        val canWithdraw: Boolean = false,
+        val hasRejectionReason: Boolean = false,
+    )
+
+    private val sampleOrders = listOf(
+        SampleOrder(
+            id = "order-1",
+            orderNumber = "SAMPLE-0001",
+            status = OrderStatus.Shipping,
+            product = OrderRequestProductUiModel("helmet", "세이프가드 ABS 안전모", "사이즈 L", "₩18,000 · 1개", "1개", true, orderQuantity = 1, quantity = 1, unitPriceWon = 18_000),
+        ),
+        SampleOrder(
+            id = "order-2",
+            orderNumber = "SAMPLE-0002",
+            status = OrderStatus.PaymentComplete,
+            product = OrderRequestProductUiModel("boots", "경량 안전화 4인치", "사이즈 270", "₩108,000 · 2개", "2개", true, orderQuantity = 2, quantity = 2, unitPriceWon = 54_000),
         ),
     )
+
+    private val sampleClaims = listOf(
+        SampleClaim("request-1", "REQ-0001", "order-1", OrderRequestType.Return, OrderRequestStatus.Requested, "단순 변심", canWithdraw = true),
+        SampleClaim("request-2", "REQ-0002", "order-2", OrderRequestType.Exchange, OrderRequestStatus.Rejected, "단순 변심", hasRejectionReason = true),
+    )
+
+    private fun sampleOrder(orderId: String): SampleOrder? = sampleOrders.firstOrNull { it.id == orderId || it.orderNumber == orderId }
 
     private val sampleProfile = AccountProfileUiModel(
         name = "샘플 사용자",
@@ -512,30 +541,23 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
 
     override fun orderHistory(): OrderHistoryUiModel = OrderHistoryUiModel(
         periodLabel = "최근 3개월",
-        orders = listOf(
+        orders = sampleOrders.map { order ->
             OrderHistoryItemUiModel(
-                id = "order-1",
+                id = order.id,
                 orderDateLabel = "샘플 일자",
-                orderNumber = "SAMPLE-0001",
-                status = OrderStatus.Shipping,
+                orderNumber = order.orderNumber,
+                status = order.status,
                 product = OrderHistoryProductUiModel(
-                    name = "세이프가드 ABS 안전모",
-                    priceAndQuantityLabel = "₩18,000 · 1개",
+                    name = order.product.name,
+                    priceAndQuantityLabel = "₩${"%,d".format(order.product.unitPriceWon * order.product.quantity)} · ${order.product.quantity}개",
                 ),
-                actions = listOf(OrderHistoryAction.TrackDelivery),
-            ),
-            OrderHistoryItemUiModel(
-                id = "order-2",
-                orderDateLabel = "샘플 일자",
-                orderNumber = "SAMPLE-0002",
-                status = OrderStatus.PaymentComplete,
-                product = OrderHistoryProductUiModel(
-                    name = "경량 안전화 4인치",
-                    priceAndQuantityLabel = "₩54,000 · 1개",
-                ),
-                actions = listOf(OrderHistoryAction.Cancel),
-            ),
-        ),
+                actions = when (order.status) {
+                    OrderStatus.Shipping -> listOf(OrderHistoryAction.TrackDelivery)
+                    OrderStatus.PaymentComplete -> listOf(OrderHistoryAction.Cancel)
+                    else -> emptyList()
+                },
+            )
+        },
     )
 
     override fun favorites(): FavoritesUiModel = FavoritesUiModel(
@@ -653,25 +675,18 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
         attachmentLabel = "파일 첨부",
     )
 
-    // TODO: 서버 연동 시 주문 ID 체계를 통일한다. 지금은 주문 완료가 주문 번호를 ID로 넘기므로 번호와 ID를 모두 받는다.
-    override fun orderDetail(orderId: String): OrderDetailUiModel = if (orderId !in knownOrderIds) {
-        super.orderDetail(orderId)
-    } else {
-        sampleOrderDetail()
-    }
+    override fun orderDetail(orderId: String): OrderDetailUiModel = sampleOrder(orderId)?.let(::sampleOrderDetail) ?: super.orderDetail(orderId)
 
-    private val knownOrderIds = setOf("order-1", "order-2", "SAMPLE-0001", "SAMPLE-0002")
-
-    private fun sampleOrderDetail(): OrderDetailUiModel = OrderDetailUiModel(
+    private fun sampleOrderDetail(order: SampleOrder): OrderDetailUiModel = OrderDetailUiModel(
         orderDateLabel = "샘플 일자",
-        orderNumber = "SAMPLE-0001",
+        orderNumber = order.orderNumber,
         products = listOf(
             OrderDetailProductUiModel(
-                id = "detail-product-1",
-                name = "세이프가드 ABS 안전모",
-                optionLabel = "사이즈 L",
-                priceAndQuantityLabel = "₩18,000 · 1개",
-                status = OrderStatus.Shipping,
+                id = order.product.id,
+                name = order.product.name,
+                optionLabel = order.product.optionLabel,
+                priceAndQuantityLabel = "₩${"%,d".format(order.product.unitPriceWon * order.product.quantity)} · ${order.product.quantity}개",
+                status = order.status,
             ),
         ),
         address = OrderDetailAddressUiModel(
@@ -681,24 +696,20 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             requestLabel = "문 앞에 놓아 주세요",
         ),
         payment = OrderPaymentBreakdownUiModel(
-            productAmountLabel = "₩18,000",
+            productAmountLabel = "₩${"%,d".format(order.product.unitPriceWon * order.product.quantity)}",
             shippingFeeLabel = "₩3,000",
             couponDiscountLabel = "-₩0",
             pointsUsedLabel = "-₩0",
-            totalAmountLabel = "₩21,000",
+            totalAmountLabel = "₩${"%,d".format(order.product.unitPriceWon * order.product.quantity + 3_000)}",
             paymentMethodLabel = "신용카드",
         ),
-        expectedPointsLabel = "180P",
+        expectedPointsLabel = "${order.product.unitPriceWon / 100}P",
     )
 
-    override fun deliveryTracking(orderId: String): DeliveryTrackingUiModel = if (orderId !in knownOrderIds) {
-        super.deliveryTracking(orderId)
-    } else {
-        sampleDeliveryTracking()
-    }
+    override fun deliveryTracking(orderId: String): DeliveryTrackingUiModel = sampleOrder(orderId)?.let(::sampleDeliveryTracking) ?: super.deliveryTracking(orderId)
 
-    private fun sampleDeliveryTracking(): DeliveryTrackingUiModel = DeliveryTrackingUiModel(
-        status = OrderStatus.Shipping,
+    private fun sampleDeliveryTracking(order: SampleOrder): DeliveryTrackingUiModel = DeliveryTrackingUiModel(
+        status = order.status,
         expectedArrivalLabel = "샘플 도착 예정일",
         carrierName = "샘플 택배",
         trackingNumber = "0000-0000-0000",
@@ -707,49 +718,39 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             DeliveryTimelineItemUiModel("배송 중", "샘플 터미널 · 샘플 시각", isCurrent = true),
             DeliveryTimelineItemUiModel("집하 완료", "샘플 지점 · 샘플 시각"),
         ),
-        productsSummaryLabel = "세이프가드 ABS 안전모 1개",
+        productsSummaryLabel = "${order.product.name} ${order.product.quantity}개",
         noticeLabel = "샘플 배송 안내입니다.",
     )
 
     override fun claimOrders(): OrderRequestOrderSelectionUiModel = OrderRequestOrderSelectionUiModel(
         periods = listOf("최근 3개월", "최근 6개월"),
         periodLabel = "최근 3개월",
-        orders = listOf(
-            RequestableOrderUiModel(
-                id = "order-1",
-                orderDateLabel = "샘플 일자",
-                orderNumber = "SAMPLE-0001",
-                status = OrderStatus.Shipping,
-                products = sampleClaimProducts,
-                canSelectForRequest = true,
-            ),
-            RequestableOrderUiModel(
-                id = "order-2",
-                orderDateLabel = "샘플 일자",
-                orderNumber = "SAMPLE-0002",
-                status = OrderStatus.PaymentComplete,
-                products = sampleClaimProducts,
-                canSelectForRequest = true,
-            ),
-        ),
+        orders = sampleOrders.map { order ->
+            RequestableOrderUiModel(order.id, "샘플 일자", order.orderNumber, order.status, listOf(order.product), canSelectForRequest = true)
+        },
     )
 
-    override fun claimForm(orderId: String, requestType: OrderRequestType): OrderRequestFormUiModel = OrderRequestFormUiModel(
-        type = requestType,
-        products = sampleClaimProducts,
-        reasons = listOf(
-            OrderRequestReason.ChangedMind,
-            OrderRequestReason.ProductDefective,
-            OrderRequestReason.WrongProduct,
-            OrderRequestReason.Other,
-        ),
-        collectionAddressLabel = "서울특별시 샘플구 샘플로 1",
-        collectionContactLabel = "010-0000-0000",
-        productAmountLabel = "₩54,000",
-        feeLabel = "₩0",
-        expectedAmountLabel = "₩54,000",
-        paymentMethodLabel = "신용카드",
-    )
+    override fun claimForm(orderId: String, requestType: OrderRequestType): OrderRequestFormUiModel {
+        val order = sampleOrder(orderId)
+        val amountLabel = order?.let { "₩${"%,d".format(it.product.unitPriceWon * it.product.quantity)}" }.orEmpty()
+        return OrderRequestFormUiModel(
+            type = requestType,
+            products = order?.let { listOf(it.product) } ?: emptyList(),
+            reasons = listOf(
+                OrderRequestReason.ChangedMind,
+                OrderRequestReason.ProductDefective,
+                OrderRequestReason.WrongProduct,
+                OrderRequestReason.Other,
+            ),
+            collectionAddressLabel = if (order != null) "서울특별시 샘플구 샘플로 1" else "",
+            collectionContactLabel = if (order != null) "010-0000-0000" else "",
+            productAmountLabel = amountLabel,
+            feeLabel = if (order != null) "₩0" else "",
+            expectedAmountLabel = amountLabel,
+            paymentMethodLabel = if (order != null) "신용카드" else "",
+            isOrderValid = order != null,
+        )
+    }
 
     override fun claimResult(requestId: String): OrderRequestResultUiModel = if (requestId !in knownRequestIds) {
         super.claimResult(requestId)
@@ -770,50 +771,46 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
     )
 
     override fun claimHistory(): OrderRequestHistoryUiModel = OrderRequestHistoryUiModel(
-        items = listOf(
-            OrderRequestHistoryItemUiModel(
-                id = "request-1",
-                requestDateLabel = "샘플 일자",
-                requestType = OrderRequestType.Return,
-                orderNumber = "SAMPLE-0001",
-                productName = "경량 안전화 4인치",
-                priceAndQuantityLabel = "₩54,000 · 1개",
-                status = OrderRequestStatus.Requested,
-                canWithdraw = true,
-            ),
-            OrderRequestHistoryItemUiModel(
-                id = "request-2",
-                requestDateLabel = "샘플 일자",
-                requestType = OrderRequestType.Exchange,
-                orderNumber = "SAMPLE-0002",
-                productName = "세이프가드 ABS 안전모",
-                priceAndQuantityLabel = "₩18,000 · 1개",
-                status = OrderRequestStatus.Rejected,
-                hasRejectionReason = true,
-            ),
-        ),
+        items = sampleClaims.map(::sampleClaimHistoryItem),
     )
 
-    // TODO: 신청 ID 체계를 통일한다. 신청 제출은 서버가 없어 주문 ID를 임시 신청 ID로 넘기므로 주문 ID도 받는다.
-    override fun claimDetail(requestId: String): OrderRequestDetailUiModel = if (requestId !in knownRequestIds) {
-        super.claimDetail(requestId)
-    } else {
-        sampleClaimDetail()
+    private fun sampleClaimHistoryItem(claim: SampleClaim): OrderRequestHistoryItemUiModel {
+        val order = requireNotNull(sampleOrder(claim.orderId))
+        val product = order.product
+        return OrderRequestHistoryItemUiModel(
+            id = claim.requestId,
+            requestDateLabel = "샘플 일자",
+            requestType = claim.requestType,
+            orderNumber = order.orderNumber,
+            productName = product.name,
+            priceAndQuantityLabel = "₩${"%,d".format(product.unitPriceWon * product.quantity)} · ${product.quantity}개",
+            status = claim.status,
+            canWithdraw = claim.canWithdraw,
+            hasRejectionReason = claim.hasRejectionReason,
+            orderId = order.id,
+            productOptionLabel = product.optionLabel,
+        )
     }
 
-    private val knownRequestIds = setOf("request-1", "request-2", "order-1", "order-2")
+    // TODO: 신청 ID 체계를 통일한다. 신청 제출은 서버가 없어 주문 ID를 임시 신청 ID로 넘기므로 주문 ID도 받는다.
+    override fun claimDetail(requestId: String): OrderRequestDetailUiModel {
+        val claim = sampleClaims.firstOrNull { it.requestId == requestId || it.orderId == requestId } ?: return super.claimDetail(requestId)
+        val order = requireNotNull(sampleOrder(claim.orderId))
+        val product = order.product
+        return OrderRequestDetailUiModel(
+            requestNumber = claim.requestNumber,
+            requestType = claim.requestType,
+            requestDateLabel = "샘플 일자",
+            status = claim.status,
+            statusDescription = if (claim.status == OrderRequestStatus.Rejected) "샘플 신청이 반려되었습니다." else "샘플 신청이 접수되었습니다.",
+            productSummaryLabel = "${product.name} · ${product.optionLabel} ${product.quantity}개",
+            reasonSummaryLabel = claim.reasonLabel,
+            collectionAddressLabel = "서울특별시 샘플구 샘플로 1",
+            canWithdraw = claim.canWithdraw,
+        )
+    }
 
-    private fun sampleClaimDetail(): OrderRequestDetailUiModel = OrderRequestDetailUiModel(
-        requestNumber = "REQ-0001",
-        requestType = OrderRequestType.Return,
-        requestDateLabel = "샘플 일자",
-        status = OrderRequestStatus.Requested,
-        statusDescription = "샘플 신청이 접수되었습니다.",
-        productSummaryLabel = "경량 안전화 4인치 1개",
-        reasonSummaryLabel = "단순 변심",
-        collectionAddressLabel = "서울특별시 샘플구 샘플로 1",
-        canWithdraw = true,
-    )
+    private val knownRequestIds = sampleClaims.flatMap { claim -> listOf(claim.requestId, claim.orderId) }.toSet()
 
     override fun claimRejection(requestId: String): OrderRequestRejectionUiModel = OrderRequestRejectionUiModel(
         requestNumber = "REQ-0002",

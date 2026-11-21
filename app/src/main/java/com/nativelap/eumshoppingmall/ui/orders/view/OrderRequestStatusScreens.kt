@@ -46,7 +46,7 @@ fun OrderRequestResultScreen(uiModel: OrderRequestResultUiModel, onEvent: (Order
     RequestScaffold(uiModel.statusLabel, { onEvent(OrderRequestResultScreenEvent.BackClicked) }, modifier, bottomContent = {
         Button(onClick = { onEvent(OrderRequestResultScreenEvent.RequestHistoryClicked) }, Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(EumRadius.x10), colors = darkButtonColors()) { Text(stringResource(R.string.request_view_history)) }
     }) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).padding(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x24)) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x24)) {
             Text(stringResource(R.string.request_result_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
             RequestLabeledField(stringResource(R.string.request_result_number_label), uiModel.requestNumber)
             RequestLabeledField(stringResource(R.string.request_result_notice_label), uiModel.statusDescription)

@@ -170,6 +170,9 @@ private fun HistoryRequestCard(item: OrderRequestHistoryItemUiModel, onEvent: (O
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
                 HistoryListStatusChip(item.requestType, item.status)
                 Text(item.productName, style = MaterialTheme.typography.bodyMedium)
+                item.productOptionLabel?.takeIf(String::isNotBlank)?.let { option ->
+                    Text(option, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                }
                 Text(item.priceAndQuantityLabel, style = MaterialTheme.typography.labelLarge)
             }
         }

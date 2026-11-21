@@ -1,8 +1,10 @@
 package com.nativelap.eumshoppingmall.navigation
 
 import androidx.compose.runtime.remember
+import androidx.compose.ui.res.stringResource
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.addresssearch.AddressSearchRoute
 import com.nativelap.eumshoppingmall.ui.auth.AccountService
 import com.nativelap.eumshoppingmall.ui.auth.view.AccountRecoveryRoute
@@ -21,6 +23,8 @@ import com.nativelap.eumshoppingmall.ui.orders.view.ClaimWithdrawalRoute
 import com.nativelap.eumshoppingmall.ui.orders.view.DeliveryTrackingRoute
 import com.nativelap.eumshoppingmall.ui.orders.view.OrderDetailRoute
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestType
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.localClaimResultUiModel
+import com.nativelap.eumshoppingmall.ui.orders.viewmodel.orderRequestSubmissionSummary
 import com.nativelap.eumshoppingmall.ui.productinquiry.ProductInquiryCompleteRoute
 import com.nativelap.eumshoppingmall.ui.productinquiry.ProductInquiryRoute
 import com.nativelap.eumshoppingmall.ui.productreview.ProductReviewRoute
@@ -38,6 +42,9 @@ internal class EumEntryContext(
     val loginSession: EumLoginSession,
     val screenDataProvider: ShoppingScreenDataProvider,
     val onUnavailableAction: () -> Unit,
+    val claimSubmissionDescriptions: Map<String, String>,
+    val saveClaimSubmissionDescription: (String, String) -> Unit,
+    val claimMockSubmissionDescriptionFormat: String,
 ) {
     // 로그인이 필요한 목적지는 비로그인이면 보류 목적지를 담은 Login으로 바꿔 쌓는다.
     fun open(destination: EumDestination) {
@@ -139,8 +146,11 @@ internal fun EntryProviderScope<NavKey>.addOrderEntries(
             uiModel = remember(destination) { provider.claimForm(destination.orderId, requestType) },
             onBackClick = { navigator.goBack() },
             onUnavailableAction = context.onUnavailableAction,
-            onSubmit = {
+            onSubmit = { submission ->
                 // 서버 연동 전이라 신청 ID가 없어 주문 ID를 임시 신청 ID로 쓴다. 완료 뒤 뒤로가기로 폼에 다시 들어가지 않게 걷어 낸다.
+                val submittedItems = orderRequestSubmissionSummary(submission)
+                val submissionDescription = context.claimMockSubmissionDescriptionFormat.replace("%1\$s", submittedItems)
+                context.saveClaimSubmissionDescription(destination.orderId, submissionDescription)
                 navigator.popWhileAndPushIfTop(
                     topDestination = destination,
                     destination = EumDestination.ClaimResult(destination.orderId),
@@ -150,8 +160,12 @@ internal fun EntryProviderScope<NavKey>.addOrderEntries(
         )
     }
     entry<EumDestination.ClaimResult> { destination ->
+        val submittedDescription = context.claimSubmissionDescriptions[destination.requestId]
+        val restoredDemoNotice = stringResource(R.string.request_mock_result_restored_notice)
         ClaimResultRoute(
-            uiModel = remember(destination) { provider.claimResult(destination.requestId) },
+            uiModel = remember(destination, submittedDescription, restoredDemoNotice) {
+                localClaimResultUiModel(submittedDescription, restoredDemoNotice)
+            },
             onBackClick = { navigator.goBack() },
             onRequestHistoryClick = ::showClaimHistory,
         )
