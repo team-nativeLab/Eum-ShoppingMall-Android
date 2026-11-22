@@ -6,11 +6,13 @@ name: Format Check
 on:
   pull_request:
     branches: [dev, main]
+  merge_group:
+    types: [checks_requested]
 
 # 같은 PR 에 새 커밋이 올라오면 이전 실행을 취소한다.
 concurrency:
-  group: format-check-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  group: format-check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # 최소 권한: 코드 읽기만 허용한다.
 permissions:
