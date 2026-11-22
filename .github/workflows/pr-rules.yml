@@ -13,10 +13,12 @@ on:
   pull_request:
     branches: [dev, main]
     types: [opened, edited, synchronize, reopened, ready_for_review]
+  merge_group:
+    types: [checks_requested]
 
 concurrency:
-  group: pr-rules-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  group: pr-rules-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # 읽기 전용. PR 제목·본문·브랜치명은 외부 입력이므로 셸에 넣지 않고 github-script 의 객체로만 다룬다.
 permissions:
@@ -35,6 +37,11 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            if (context.eventName !== "pull_request") {
+              core.info("PR 규칙은 개별 pull_request 이벤트에서 검사합니다. Merge group 실행은 통과 처리합니다.");
+              return;
+            }
+
             const pullRequest = context.payload.pull_request;
             const baseBranch = pullRequest.base.ref;
             const headBranch = pullRequest.head.ref;

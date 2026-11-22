@@ -45,7 +45,47 @@ data class OrderRequestProductUiModel(
     val quantityLabel: String,
     val isSelected: Boolean,
     val isSelectable: Boolean = true,
+    val orderQuantity: Int = 1,
+    val quantity: Int = 1,
+    val unitPriceWon: Long = 0L,
     @param:DrawableRes val imageResId: Int? = null,
+)
+
+internal fun updatedClaimQuantity(product: OrderRequestProductUiModel, delta: Int): OrderRequestProductUiModel = product.copy(quantity = (product.quantity + delta).coerceIn(1, maxOf(1, product.orderQuantity)))
+
+internal fun updatedClaimSelection(selectedProductIds: Set<String>, productId: String, isSelected: Boolean): Set<String> = if (isSelected) selectedProductIds + productId else selectedProductIds - productId
+
+internal fun selectedClaimAmount(products: List<OrderRequestProductUiModel>, selectedProductIds: Set<String>): Long = products.filter { it.id in selectedProductIds && it.isSelectable }.sumOf { it.unitPriceWon * it.quantity }
+
+data class OrderRequestSubmissionUiModel(
+    val requestType: OrderRequestType,
+    val products: List<OrderRequestProductUiModel>,
+    val reason: OrderRequestReason,
+    val amountWon: Long,
+)
+
+internal fun createOrderRequestSubmission(
+    type: OrderRequestType,
+    products: List<OrderRequestProductUiModel>,
+    selectedProductIds: Set<String>,
+    reason: OrderRequestReason?,
+): OrderRequestSubmissionUiModel? {
+    val selectedProducts = products.filter { it.id in selectedProductIds && it.isSelectable }
+    if (selectedProducts.isEmpty() || reason == null) return null
+    return OrderRequestSubmissionUiModel(
+        requestType = type,
+        products = selectedProducts,
+        reason = reason,
+        amountWon = selectedProducts.sumOf { it.unitPriceWon * it.quantity },
+    )
+}
+
+internal fun orderRequestSubmissionSummary(submission: OrderRequestSubmissionUiModel): String = submission.products.joinToString(", ") { product -> "${product.name} ${product.quantity}개" }
+
+internal fun localClaimResultUiModel(submissionDescription: String?, restoredDemoNotice: String): OrderRequestResultUiModel = OrderRequestResultUiModel(
+    requestNumber = "LOCAL-MOCK",
+    statusLabel = "데모 신청",
+    statusDescription = submissionDescription ?: restoredDemoNotice,
 )
 
 data class RequestableOrderUiModel(
@@ -83,6 +123,7 @@ data class OrderRequestFormUiModel(
     val feeLabel: String,
     val expectedAmountLabel: String,
     val paymentMethodLabel: String,
+    val isOrderValid: Boolean = true,
     val canSubmit: Boolean = false,
 )
 
@@ -98,6 +139,8 @@ data class OrderRequestHistoryItemUiModel(
     val canWithdraw: Boolean = false,
     val hasRejectionReason: Boolean = false,
     @param:DrawableRes val imageResId: Int? = null,
+    val orderId: String? = null,
+    val productOptionLabel: String? = null,
 )
 
 data class OrderRequestHistoryUiModel(

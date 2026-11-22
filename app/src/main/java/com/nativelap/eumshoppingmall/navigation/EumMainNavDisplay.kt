@@ -6,12 +6,14 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -92,6 +94,14 @@ import com.nativelap.eumshoppingmall.ui.support.NoticeListRoute
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
+private val ClaimSubmissionDescriptionsSaver = listSaver<Map<String, String>, String>(
+    save = { descriptions -> descriptions.entries.flatMap { entry -> listOf(entry.key, entry.value) } },
+    restore = { values -> values.chunked(2).filter { pair -> pair.size == 2 }.associate { pair -> pair[0] to pair[1] } },
+)
+
+@Composable
+internal fun rememberClaimSubmissionDescriptions(): MutableState<Map<String, String>> = rememberSaveable(stateSaver = ClaimSubmissionDescriptionsSaver) { mutableStateOf(emptyMap()) }
+
 /**
  * 앱의 단일 NavDisplay. 하단 탭 5개가 각자 back stack을 갖고, 드로어는 Dialog scene으로 띄운다.
  *
@@ -124,6 +134,11 @@ fun EumMainNavDisplay(
     val snackbarHostState = remember { SnackbarHostState() }
     val signupWelcomeMessage = stringResource(R.string.flow_signup_welcome)
     val unavailableActionMessage = stringResource(R.string.flow_feature_unavailable)
+    val claimMockSubmissionDescriptionFormat = stringResource(R.string.request_mock_submission_format)
+    val claimSubmissionDescriptions = rememberClaimSubmissionDescriptions()
+    val saveClaimSubmissionDescription: (String, String) -> Unit = { orderId, description ->
+        claimSubmissionDescriptions.value = claimSubmissionDescriptions.value + (orderId to description)
+    }
     val signedInFallbackName = stringResource(R.string.account_member_fallback)
     val checkoutUnavailableLabel = stringResource(R.string.checkout_order_information_unavailable)
     // 결제 직후 장바구니 제거는 결제 화면이 사라져도 끝나야 하므로 화면 밖 scope에서 실행한다.
@@ -139,8 +154,16 @@ fun EumMainNavDisplay(
             }
         }
     }
-    val entryContext = remember(navigator, loginSession, screenDataProvider, showUnavailableAction) {
-        EumEntryContext(navigator, loginSession, screenDataProvider, showUnavailableAction)
+    val entryContext = remember(navigator, loginSession, screenDataProvider, showUnavailableAction, claimSubmissionDescriptions.value, saveClaimSubmissionDescription, claimMockSubmissionDescriptionFormat) {
+        EumEntryContext(
+            navigator,
+            loginSession,
+            screenDataProvider,
+            showUnavailableAction,
+            claimSubmissionDescriptions.value,
+            saveClaimSubmissionDescription,
+            claimMockSubmissionDescriptionFormat,
+        )
     }
     DismissSnackbarOnNavigationChange(snackbarHostState, navigationState.currentBackStack.lastOrNull())
     val currentOnCartItemsRemoved by rememberUpdatedState(onCartItemsRemoved)

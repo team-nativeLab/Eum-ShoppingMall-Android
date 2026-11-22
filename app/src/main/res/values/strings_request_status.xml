@@ -16,7 +16,7 @@
     <string name="request_date_label">신청일</string>
     <string name="request_collection_address_label">회수 주소</string>
     <string name="request_progress_status_label">진행 상태</string>
-    <string name="request_result_description">신청 내역에서 진행 상태를 확인할 수 있습니다.</string>
+    <string name="request_result_description">데모 결과는 현재 화면에서만 확인할 수 있으며 신청 내역에 저장되지 않습니다.</string>
     <string name="request_result_number_label">접수 번호</string>
     <string name="request_result_notice_label">안내</string>
     <string name="request_withdraw_confirm_title">신청 철회 확인</string>
