@@ -44,9 +44,11 @@ fun CatalogProductListRoute(
     // 칩 라벨은 표시용이고, 선택은 id로 비교한다. 필터 시트의 라벨 목록은 여기서 id와 맞춘다.
     val categoryLabels = uiModel.categoryChips.map { chip -> chip.label }
     val selectedCategoryLabel = uiModel.categoryChips.firstOrNull { chip -> chip.id == selectedCategoryId }?.label
-    val shownProducts = filterState.apply(
+    val filteredProducts = filterState.apply(
         filterCatalogProductsBySubcategory(uiModel.products, selectedCategoryId),
-    ).map { product ->
+    )
+    // 결과 수는 필터 후 전체 개수이고, 목록에는 현재 페이지 분량만 보여 준다.
+    val shownProducts = filterState.visibleProducts(filteredProducts).map { product ->
         product.copy(isFavorite = favoriteToggles.isFavorite(product.id))
     }
     ProductFilterHost(
@@ -58,16 +60,18 @@ fun CatalogProductListRoute(
                 selectedCategoryId = chip.id
             }
         },
+        sourceProducts = uiModel.products,
     ) {
         CatalogProductListScreen(
             uiModel = uiModel.copy(
                 title = screenTitle,
                 selectedCategoryId = selectedCategoryId,
-                resultCountLabel = stringResource(R.string.catalog_product_result_count, shownProducts.size),
+                resultCountLabel = stringResource(R.string.catalog_product_result_count, filteredProducts.size),
                 isListLayout = isListLayout,
-                sortLabel = productSortLabel(filterState.sort, uiModel.sortLabel),
+                sortLabel = productSortLabel(filterState.criteria.sort, uiModel.sortLabel),
                 products = shownProducts,
             ),
+            hasMoreProducts = filteredProducts.size > shownProducts.size,
             selectedBottomItem = selectedTab,
             onBottomItemSelected = onTabSelected,
             cartItemCount = cartItemCount,
@@ -82,7 +86,12 @@ fun CatalogProductListRoute(
 
                     CatalogProductListEvent.SearchClicked -> onSearchClick()
 
-                    is CatalogProductListEvent.CategorySelected -> selectedCategoryId = event.categoryId
+                    is CatalogProductListEvent.CategorySelected -> {
+                        selectedCategoryId = event.categoryId
+                        filterState.resetVisibleCount()
+                    }
+
+                    CatalogProductListEvent.LoadMoreClicked -> filterState.loadMore()
 
                     CatalogProductListEvent.LayoutToggled -> isListLayout = !isListLayout
 

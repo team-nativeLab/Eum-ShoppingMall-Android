@@ -55,6 +55,7 @@ fun CartRoute(
     onCheckoutClick: (selectedItems: List<CartItemUiModel>) -> Unit,
     onLoginClick: () -> Unit,
     onQuoteRequestClick: () -> Unit,
+    onBrowseProductsClick: () -> Unit,
     onOptionChangeClick: (line: CartLine) -> Unit = {},
     onQuantityChanged: suspend (itemId: String, quantity: Int) -> Unit,
     onItemsRemoved: suspend (itemIds: Set<String>) -> Unit,
@@ -245,6 +246,8 @@ fun CartRoute(
                 is CartScreenEvent.QuantityChanged -> changeQuantity(event.itemId, event.quantity)
 
                 CartScreenEvent.QuoteRequestClicked -> onQuoteRequestClick()
+
+                CartScreenEvent.BrowseProductsClicked -> onBrowseProductsClick()
 
                 CartScreenEvent.CheckoutClicked -> {
                     // 주문 대상은 화면에서 선택된 주문 가능한 줄이다. 선택이 없으면 이동하지 않는다.

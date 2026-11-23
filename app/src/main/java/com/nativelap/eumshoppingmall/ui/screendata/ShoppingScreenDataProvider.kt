@@ -16,6 +16,8 @@ import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductListUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchResultsUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSearchUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.ProductListPreset
+import com.nativelap.eumshoppingmall.ui.catalog.titleResId
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutAddressUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutPaymentSummaryUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
@@ -79,15 +81,28 @@ interface ShoppingScreenDataProvider {
 
     fun homeBestSellerProducts(): List<HomeProductUiModel> = emptyList()
 
+    fun homeDiscountProducts(): List<HomeProductUiModel> = emptyList()
+
     fun homeCompanyIntro(): HomeCompanyInfoUiModel = HomeCompanyInfoUiModel()
 
     fun categoryScreen(): CatalogCategoryScreenUiModel = CatalogCategoryScreenUiModel(
         categories = CatalogCategoryDefinitions.all,
     )
 
-    fun productList(categoryId: String?): CatalogProductListUiModel = CatalogProductListUiModel(
+    /**
+     * preset이 고른 기본 상품 원본. 홈 섹션과 같은 상품을 같은 순서로 준다. All은 카테고리 전체 상품이다.
+     * 기본 구현은 빈 목록이며, release 빌드에서는 목록이 비어 빈 상태 문구가 나온다.
+     */
+    fun presetProducts(preset: ProductListPreset): List<CatalogProductUiModel> = emptyList()
+
+    fun productList(
+        categoryId: String?,
+        preset: ProductListPreset = ProductListPreset.All,
+    ): CatalogProductListUiModel = CatalogProductListUiModel(
         title = "",
+        titleResId = preset.titleResId(),
         sortLabel = "",
+        products = productListSourceFor(preset, categoryId, this),
     )
 
     fun searchScreen(): CatalogSearchUiModel = CatalogSearchUiModel()
@@ -220,10 +235,12 @@ interface ShoppingScreenDataProvider {
     )
 
     fun inquiryForm(): OneToOneInquiryUiModel = OneToOneInquiryUiModel(
-        inquiryType = "",
+        selectedType = null,
+        orderOptions = emptyList(),
+        selectedOrderId = null,
         title = "",
         content = "",
-        attachmentLabel = "",
+        isReplyNotificationOn = false,
     )
 
     fun orderDetail(orderId: String): OrderDetailUiModel = OrderDetailUiModel(

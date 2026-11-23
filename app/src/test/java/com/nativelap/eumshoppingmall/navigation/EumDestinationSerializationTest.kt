@@ -1,5 +1,6 @@
 package com.nativelap.eumshoppingmall.navigation
 
+import com.nativelap.eumshoppingmall.ui.catalog.ProductListPreset
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationStrategy
@@ -34,6 +35,8 @@ class EumDestinationSerializationTest {
         EumDestination.Drawer,
         EumDestination.ProductList(),
         EumDestination.ProductList(categoryId = "protective"),
+        EumDestination.ProductList(preset = ProductListPreset.Best),
+        EumDestination.ProductList(categoryId = "protective", preset = ProductListPreset.Discount),
         EumDestination.SearchResults(query = "안전모"),
         EumDestination.ProductDetail(productId = "p1"),
         EumDestination.ProductDetail(productId = "p1", editSourceLineId = "p1/option-1"),
@@ -81,6 +84,9 @@ class EumDestinationSerializationTest {
         EumDestination.InquiryWrite,
         EumDestination.NoticeDetail(noticeId = "notice-1"),
         EumDestination.EventDetail(eventId = "event-1"),
+        EumDestination.Terms,
+        EumDestination.PrivacyPolicy,
+        EumDestination.UsageGuide,
         EumDestination.Login(),
         nestedLoginDestination,
         EumDestination.Login(pendingDestination = EumDestination.Login(pendingDestination = EumDestination.Coupons)),

@@ -28,33 +28,77 @@ class CatalogProductSlotsTest {
         assertNull(resolveCatalogProductBadge(bestRank = -1, badgeLabel = null))
     }
 
+    // 품절은 가격 슬롯의 입력이 아니다. 판매가가 있으면 품절이어도 가격 줄을 그대로 쓰고, 품절 표시는 "품절" 배지가 맡는다.
     @Test
-    fun soldOutProductShowsUnavailableAndHidesPriceLines() {
+    fun soldOutProductKeepsPriceLinesBecauseSoldOutIsNotAPriceInput() {
         assertEquals(
-            CatalogPriceSlot(CatalogPriceKind.Unavailable, originalLabel = null, discountLabel = null, currentLabel = null),
+            CatalogPriceSlot(CatalogPriceKind.Price, originalLabel = "₩22,000", discountLabel = "18%", currentLabel = "₩18,000"),
             resolveCatalogPriceSlot(
                 currentLabel = "₩18,000",
                 originalLabel = "₩22,000",
                 discountLabel = "18%",
-                isInquiry = false,
-                isSoldOut = true,
+                isQuoteTarget = false,
+                isPurchaseUnavailable = false,
             ),
         )
     }
 
+    // 견적 대상(금액 미표시)은 가격 줄을 비우고 "금액 미표시" 종류를 쓴다.
     @Test
-    fun quoteProductShowsInquiryKind() {
+    fun quoteTargetShowsUndisclosedAndHidesPriceLines() {
         assertEquals(
-            CatalogPriceKind.Inquiry,
-            resolveCatalogPriceSlot(currentLabel = null, originalLabel = null, discountLabel = null, isInquiry = true, isSoldOut = false).kind,
+            CatalogPriceSlot(CatalogPriceKind.Undisclosed, originalLabel = null, discountLabel = null, currentLabel = null),
+            resolveCatalogPriceSlot(
+                currentLabel = null,
+                originalLabel = null,
+                discountLabel = null,
+                isQuoteTarget = true,
+                isPurchaseUnavailable = false,
+            ),
+        )
+    }
+
+    // 가격 없이 장바구니가 막힌 상품은 "구매 불가" 종류를 쓰고 가격 줄을 비운다.
+    @Test
+    fun purchaseUnavailableProductShowsUnavailableAndHidesPriceLines() {
+        assertEquals(
+            CatalogPriceSlot(CatalogPriceKind.Unavailable, originalLabel = null, discountLabel = null, currentLabel = null),
+            resolveCatalogPriceSlot(
+                currentLabel = null,
+                originalLabel = null,
+                discountLabel = null,
+                isQuoteTarget = false,
+                isPurchaseUnavailable = true,
+            ),
+        )
+    }
+
+    // 견적 대상이면서 구매 불가 플래그가 함께 와도 견적 흐름(금액 미표시)이 우선이다.
+    @Test
+    fun quoteTargetWinsOverPurchaseUnavailable() {
+        assertEquals(
+            CatalogPriceKind.Undisclosed,
+            resolveCatalogPriceSlot(
+                currentLabel = null,
+                originalLabel = null,
+                discountLabel = null,
+                isQuoteTarget = true,
+                isPurchaseUnavailable = true,
+            ).kind,
         )
     }
 
     @Test
-    fun missingCurrentLabelFallsBackToInquiry() {
+    fun missingCurrentLabelFallsBackToUndisclosed() {
         assertEquals(
-            CatalogPriceKind.Inquiry,
-            resolveCatalogPriceSlot(currentLabel = " ", originalLabel = null, discountLabel = null, isInquiry = false, isSoldOut = false).kind,
+            CatalogPriceKind.Undisclosed,
+            resolveCatalogPriceSlot(
+                currentLabel = " ",
+                originalLabel = null,
+                discountLabel = null,
+                isQuoteTarget = false,
+                isPurchaseUnavailable = false,
+            ).kind,
         )
     }
 
@@ -66,8 +110,8 @@ class CatalogProductSlotsTest {
                 currentLabel = "₩18,000",
                 originalLabel = "₩22,000",
                 discountLabel = "18%",
-                isInquiry = false,
-                isSoldOut = false,
+                isQuoteTarget = false,
+                isPurchaseUnavailable = false,
             ),
         )
     }
@@ -76,7 +120,13 @@ class CatalogProductSlotsTest {
     fun plainPriceHasNoOriginalOrDiscountLine() {
         assertEquals(
             CatalogPriceSlot(CatalogPriceKind.Price, originalLabel = null, discountLabel = null, currentLabel = "₩54,000"),
-            resolveCatalogPriceSlot(currentLabel = "₩54,000", originalLabel = null, discountLabel = null, isInquiry = false, isSoldOut = false),
+            resolveCatalogPriceSlot(
+                currentLabel = "₩54,000",
+                originalLabel = null,
+                discountLabel = null,
+                isQuoteTarget = false,
+                isPurchaseUnavailable = false,
+            ),
         )
     }
 
@@ -86,8 +136,8 @@ class CatalogProductSlotsTest {
             currentLabel = "₩54,000",
             originalLabel = "₩60,000",
             discountLabel = " ",
-            isInquiry = false,
-            isSoldOut = false,
+            isQuoteTarget = false,
+            isPurchaseUnavailable = false,
         )
 
         assertEquals("₩60,000", slot.originalLabel)
@@ -100,8 +150,8 @@ class CatalogProductSlotsTest {
             currentLabel = "₩54,000",
             originalLabel = "₩54,000",
             discountLabel = "0%",
-            isInquiry = false,
-            isSoldOut = false,
+            isQuoteTarget = false,
+            isPurchaseUnavailable = false,
         )
 
         assertNull(slot.discountLabel)
@@ -113,8 +163,8 @@ class CatalogProductSlotsTest {
             currentLabel = "₩18,000",
             originalLabel = "₩22,000",
             discountLabel = "18%",
-            isInquiry = false,
-            isSoldOut = false,
+            isQuoteTarget = false,
+            isPurchaseUnavailable = false,
         )
 
         assertEquals("18%", slot.discountLabel)

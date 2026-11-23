@@ -39,7 +39,9 @@ fun AuthSignupRoute(
     accountService: AccountService,
     onSignupSuccess: () -> Unit,
     onBackClick: () -> Unit,
-    onConsentDetailsClick: () -> Unit = {},
+    onTermsDetailsClick: () -> Unit = {},
+    onPrivacyDetailsClick: () -> Unit = {},
+    onMarketingDetailsClick: () -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -277,7 +279,11 @@ fun AuthSignupRoute(
                         "marketing" -> isMarketingChecked = event.checked
                     }
 
-                    AuthScreenEvent.SignupConsentDetailsClicked -> onConsentDetailsClick()
+                    AuthScreenEvent.SignupTermsDetailsClicked -> onTermsDetailsClick()
+
+                    AuthScreenEvent.SignupPrivacyDetailsClicked -> onPrivacyDetailsClick()
+
+                    AuthScreenEvent.SignupMarketingDetailsClicked -> onMarketingDetailsClick()
 
                     // 사업자 인증·등록증 파일 선택은 서버·파일 선택 연동 전이라 안내만 한다.
                     AuthScreenEvent.SignupBusinessVerificationClicked,

@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogLoadMoreButton
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductRow
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogScreenScaffold
@@ -65,6 +66,8 @@ fun CatalogProductListScreen(
     showFavorite: Boolean = true,
     // 사유 칩(품절·옵션 필요)은 담기 동작이 있는 목록에서만 보인다. 견적 선택 화면은 숨긴다.
     showBlockReason: Boolean = true,
+    // 페이지 분량만 보여 줄 때 true면 목록 끝에 "더 보기" 버튼을 둔다.
+    hasMoreProducts: Boolean = false,
 ) {
     CatalogScreenScaffold(
         selectedBottomItem = selectedBottomItem,
@@ -174,6 +177,11 @@ fun CatalogProductListScreen(
                                     }
                                     repeat(columns - rowProducts.size) { Spacer(Modifier.weight(1f)) }
                                 }
+                            }
+                        }
+                        if (hasMoreProducts) {
+                            item {
+                                CatalogLoadMoreButton(onClick = { onEvent(CatalogProductListEvent.LoadMoreClicked) })
                             }
                         }
                     }

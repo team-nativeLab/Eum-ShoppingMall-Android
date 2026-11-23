@@ -58,13 +58,13 @@ fun HomeProductCard(
     val cardShape = RoundedCornerShape(EumRadius.x8)
     // 순위 배지가 있으면 견적 라벨은 가린다(resolveCatalogProductBadge 규칙).
     val badge = resolveCatalogProductBadge(bestRank = product.bestRank, badgeLabel = product.badgeLabel)
-    // 가격 문의 상품과 가격 정보가 없는 상품은 상세와 같은 "가격 문의" 문구를 쓴다(F6).
+    // 견적 대상은 "금액 미표시", 가격 없이 장바구니가 막힌 상품은 "구매 불가"를 보여 준다. 품절은 가격 자리를 바꾸지 않는다(웹 기준).
     val priceSlot = resolveCatalogPriceSlot(
         currentLabel = product.priceLabel,
         originalLabel = product.originalPriceLabel,
         discountLabel = product.discountRateLabel,
-        isInquiry = product.isPurchaseUnavailable || product.priceLabel == null,
-        isSoldOut = product.isSoldOut,
+        isQuoteTarget = product.isQuoteTarget,
+        isPurchaseUnavailable = product.isPurchaseUnavailable,
     )
     Column(
         modifier.pressScale().clip(cardShape)
@@ -159,10 +159,7 @@ fun HomeProductCard(
                 ratingText = product.ratingLabel,
                 reviewCountText = null,
             )
-            ProductPriceSlot(
-                slot = priceSlot,
-                inquiryLabel = stringResource(R.string.home_product_purchase_unavailable),
-            )
+            ProductPriceSlot(slot = priceSlot)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,

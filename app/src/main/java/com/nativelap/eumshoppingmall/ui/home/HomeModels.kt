@@ -2,6 +2,7 @@ package com.nativelap.eumshoppingmall.ui.home
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import com.nativelap.eumshoppingmall.ui.catalog.ProductListPreset
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 
 data class HomeProductUiModel(
@@ -16,6 +17,8 @@ data class HomeProductUiModel(
     val imageDescription: String? = null,
     val isSoldOut: Boolean = false,
     val isPurchaseUnavailable: Boolean = false,
+    // 견적 대상 상품(금액을 보여 주지 않고 견적 문의로 연결). 가격 문구를 "금액 미표시"로 고르는 기준이다.
+    val isQuoteTarget: Boolean = false,
     // 베스트 섹션의 표시 순서 순위(withSectionRanks로만 채운다). 상품 속성이 아니므로 다른 섹션에는 붙지 않는다.
     val bestRank: Int? = null,
     val specLabel: String? = null,
@@ -106,11 +109,16 @@ sealed interface HomeScreenEvent {
     data object QuoteClicked : HomeScreenEvent
     data object MenuClicked : HomeScreenEvent
     data object NotificationsClicked : HomeScreenEvent
-    data object SeeAllProductsClicked : HomeScreenEvent
-    data object SeeRecommendedProductsClicked : HomeScreenEvent
+
+    // 섹션의 "전체 보기"(베스트·할인·오늘·추천)와 하단 전체 상품 보기가 모두 이 이벤트로 목록 preset을 넘긴다.
+    data class SeeProductsClicked(val preset: ProductListPreset) : HomeScreenEvent
     data class FavoriteClicked(val product: HomeProductUiModel) : HomeScreenEvent
     data class NavigationSelected(val item: MainNavigationTab) : HomeScreenEvent
+    data class FooterLinkClicked(val link: HomeFooterLink) : HomeScreenEvent
 }
+
+/** 홈 푸터의 정책·지원 링크. 웹 푸터 항목과 같은 순서다. */
+enum class HomeFooterLink { Terms, PrivacyPolicy, UsageGuide, Events, CustomerSupport }
 
 // 검색 결과에서 다시 검색하면 그 검색어를 홈 검색창 공유 상태로 옮긴다. 공백은 다듬는다.
 fun homeQueryForSearchQuery(searchQuery: String): String = searchQuery.trim()

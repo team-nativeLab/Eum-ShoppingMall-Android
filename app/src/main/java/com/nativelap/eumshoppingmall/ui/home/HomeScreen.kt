@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.CartAddOutcome
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogSelectionChip
+import com.nativelap.eumshoppingmall.ui.catalog.ProductListPreset
 import com.nativelap.eumshoppingmall.ui.catalog.QuickCartDecision
 import com.nativelap.eumshoppingmall.ui.catalog.decideQuickCart
 import com.nativelap.eumshoppingmall.ui.catalog.rememberCartAddSnackbarHostState
@@ -63,6 +64,7 @@ fun HomeRoute(
     categories: List<HomeCategoryUiModel> = emptyList(),
     recommendedProducts: List<HomeProductUiModel> = emptyList(),
     todayProducts: List<HomeProductUiModel> = emptyList(),
+    discountProducts: List<HomeProductUiModel> = emptyList(),
     bestSellerProducts: List<HomeProductUiModel> = emptyList(),
     companyIntro: HomeCompanyInfoUiModel = HomeCompanyInfoUiModel(),
     cartItemCount: Int = 0,
@@ -74,12 +76,13 @@ fun HomeRoute(
     onQuoteClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
-    onSeeAllProductsClick: () -> Unit = {},
-    onSeeRecommendedProductsClick: () -> Unit = {},
+    // 섹션 전체 보기와 하단 전체 상품 보기가 고른 목록 preset을 넘긴다.
+    onSeeProductsClick: (ProductListPreset) -> Unit,
     onFavoriteClick: (HomeProductUiModel) -> Unit = {},
     isFavoriteAllowed: Boolean = true,
     onFavoriteBlocked: () -> Unit = {},
     onNavigationSelected: (MainNavigationTab) -> Unit = {},
+    onFooterLinkClick: (HomeFooterLink) -> Unit,
     isLoggedIn: Boolean = false,
     onLoginRequired: () -> Unit = {},
     onQuickAddToCart: ((HomeProductUiModel) -> Unit)? = null,
@@ -102,6 +105,7 @@ fun HomeRoute(
         query = currentQuery,
         recommendedProducts = recommendedProducts,
         todayProducts = todayProducts,
+        discountProducts = discountProducts,
         bestSellerProducts = bestSellerProducts.filterByBestCategory(selectedBestCategoryId),
         categories = categories,
         bestCategories = categories.withBestProducts(bestSellerProducts),
@@ -140,9 +144,7 @@ fun HomeRoute(
 
                 HomeScreenEvent.NotificationsClicked -> onNotificationClick()
 
-                HomeScreenEvent.SeeAllProductsClicked -> onSeeAllProductsClick()
-
-                HomeScreenEvent.SeeRecommendedProductsClicked -> onSeeRecommendedProductsClick()
+                is HomeScreenEvent.SeeProductsClicked -> onSeeProductsClick(event.preset)
 
                 is HomeScreenEvent.FavoriteClicked -> if (!isFavoriteAllowed) {
                     onFavoriteBlocked()
@@ -157,6 +159,8 @@ fun HomeRoute(
                 }
 
                 is HomeScreenEvent.NavigationSelected -> onNavigationSelected(event.item)
+
+                is HomeScreenEvent.FooterLinkClicked -> onFooterLinkClick(event.link)
             }
         },
     )
@@ -167,6 +171,7 @@ private fun HomeScreen(
     query: String,
     recommendedProducts: List<HomeProductUiModel>,
     todayProducts: List<HomeProductUiModel>,
+    discountProducts: List<HomeProductUiModel>,
     bestSellerProducts: List<HomeProductUiModel>,
     categories: List<HomeCategoryUiModel>,
     bestCategories: List<HomeCategoryUiModel>,
@@ -291,7 +296,7 @@ private fun HomeScreen(
                                     favoriteProductIds = favoriteProductIds,
                                     onProductClick = { onEvent(HomeScreenEvent.ProductClicked(it)) },
                                     onFavoriteClick = { onEvent(HomeScreenEvent.FavoriteClicked(it)) },
-                                    onSeeAllClick = { onEvent(HomeScreenEvent.SeeRecommendedProductsClicked) },
+                                    onSeeAllClick = { onEvent(HomeScreenEvent.SeeProductsClicked(ProductListPreset.Recommended)) },
                                 )
                             }
                             item { Spacer(Modifier.height(EumSpacing.x40)) }
@@ -304,7 +309,7 @@ private fun HomeScreen(
                                         favoriteProductIds = favoriteProductIds,
                                         onProductClick = { onEvent(HomeScreenEvent.ProductClicked(it)) },
                                         onFavoriteClick = { onEvent(HomeScreenEvent.FavoriteClicked(it)) },
-                                        onSeeAllClick = { onEvent(HomeScreenEvent.SeeAllProductsClicked) },
+                                        onSeeAllClick = { onEvent(HomeScreenEvent.SeeProductsClicked(ProductListPreset.Today)) },
                                     )
                                 }
                                 item { Spacer(Modifier.height(EumSpacing.x40)) }
@@ -313,7 +318,7 @@ private fun HomeScreen(
                                 HomeSectionHeader(
                                     title = stringResource(R.string.home_best_sellers),
                                     modifier = Modifier.padding(horizontal = EumSpacing.x20),
-                                    onSeeAllClick = { onEvent(HomeScreenEvent.SeeAllProductsClicked) },
+                                    onSeeAllClick = { onEvent(HomeScreenEvent.SeeProductsClicked(ProductListPreset.Best)) },
                                 )
                             }
                             item(key = "home-best-category-tabs") {
@@ -356,24 +361,40 @@ private fun HomeScreen(
                             item { Spacer(Modifier.height(EumSpacing.x16)) }
                             item {
                                 HomeSeeAllProductsButton(
-                                    { onEvent(HomeScreenEvent.SeeAllProductsClicked) },
+                                    { onEvent(HomeScreenEvent.SeeProductsClicked(ProductListPreset.All)) },
                                     Modifier.padding(horizontal = EumSpacing.x20),
                                 )
                             }
                             item { Spacer(Modifier.height(EumSpacing.x40)) }
+                            // 할인 섹션은 베스트 섹션 뒤에 두고, 상품이 없으면 숨긴다.
+                            if (discountProducts.isNotEmpty()) {
+                                item(key = "home-discount-products") {
+                                    HomeProductSection(
+                                        title = stringResource(R.string.home_discount_products),
+                                        products = discountProducts,
+                                        quickCartAction = quickCartAction,
+                                        favoriteProductIds = favoriteProductIds,
+                                        onProductClick = { onEvent(HomeScreenEvent.ProductClicked(it)) },
+                                        onFavoriteClick = { onEvent(HomeScreenEvent.FavoriteClicked(it)) },
+                                        onSeeAllClick = { onEvent(HomeScreenEvent.SeeProductsClicked(ProductListPreset.Discount)) },
+                                    )
+                                }
+                                item { Spacer(Modifier.height(EumSpacing.x40)) }
+                            }
                             item {
                                 HomeQuoteBanner(
                                     onClick = { onEvent(HomeScreenEvent.QuoteClicked) },
                                     modifier = Modifier.padding(horizontal = EumSpacing.x20),
                                 )
                             }
-                            // 사업자 정보 값이 하나도 없으면 푸터 섹션 전체를 그리지 않는다.
+                            // 정책·지원 링크는 사업자 정보가 없어도 보여야 하므로 푸터는 항상 그린다. 사업자 정보 행은 값이 있을 때만 보인다.
                             val companyInfoRows = companyIntro.visibleInfoRows()
-                            if (companyInfoRows.isNotEmpty()) {
-                                item { Spacer(Modifier.height(EumSpacing.x40)) }
-                                item(key = "home-company-info") {
-                                    HomeCompanyInfoFooter(rows = companyInfoRows)
-                                }
+                            item { Spacer(Modifier.height(EumSpacing.x40)) }
+                            item(key = "home-company-info") {
+                                HomeCompanyInfoFooter(
+                                    rows = companyInfoRows,
+                                    onLinkClick = { link -> onEvent(HomeScreenEvent.FooterLinkClicked(link)) },
+                                )
                             }
                         }
                     }

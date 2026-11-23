@@ -56,7 +56,12 @@ fun CatalogSearchResultsRoute(
 
             CatalogSearchResultsEvent.SearchSubmitted -> if (editingQuery.isNotBlank()) onSearch(editingQuery.trim())
 
-            is CatalogSearchResultsEvent.FilterSelected -> selectedFilter = event.filter
+            is CatalogSearchResultsEvent.FilterSelected -> {
+                selectedFilter = event.filter
+                filterState.resetVisibleCount()
+            }
+
+            CatalogSearchResultsEvent.LoadMoreClicked -> filterState.loadMore()
 
             CatalogSearchResultsEvent.LayoutToggled -> isListLayout = !isListLayout
 
@@ -96,17 +101,23 @@ fun CatalogSearchResultsRoute(
             categories = uiModel.filters,
             selectedCategory = selectedFilter,
             onCategorySelected = { filter -> selectedFilter = filter },
+            sourceProducts = uiModel.products,
         ) {
+            // 결과 수는 필터 후 전체 개수이고, 목록에는 현재 페이지 분량만 보여 준다.
+            val filteredProducts = filterState.apply(uiModel.products)
+            val shownProducts = filterState.visibleProducts(filteredProducts).map { product ->
+                product.copy(isFavorite = favoriteToggles.isFavorite(product.id))
+            }
             CatalogSearchResultsScreen(
                 uiModel = uiModel.copy(
                     query = editingQuery,
                     selectedFilter = selectedFilter,
                     isListLayout = isListLayout,
-                    sortLabel = productSortLabel(filterState.sort, uiModel.sortLabel),
-                    products = filterState.apply(uiModel.products).map { product ->
-                        product.copy(isFavorite = favoriteToggles.isFavorite(product.id))
-                    },
+                    resultCount = filteredProducts.size,
+                    sortLabel = productSortLabel(filterState.criteria.sort, uiModel.sortLabel),
+                    products = shownProducts,
                 ),
+                hasMoreProducts = filteredProducts.size > shownProducts.size,
                 onEvent = onEvent,
                 snackbarHostState = snackbarHostState,
                 showQuickCart = onQuickAddToCart != null,

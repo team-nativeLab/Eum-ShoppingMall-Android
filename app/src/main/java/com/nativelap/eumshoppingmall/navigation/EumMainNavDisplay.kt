@@ -233,6 +233,7 @@ fun EumMainNavDisplay(
                     categories = remember { CatalogCategoryDefinitions.homeItems() },
                     recommendedProducts = remember { screenDataProvider.homeRecommendedProducts() },
                     todayProducts = remember { screenDataProvider.homeTodayProducts() },
+                    discountProducts = remember { screenDataProvider.homeDiscountProducts() },
                     bestSellerProducts = remember { screenDataProvider.homeBestSellerProducts() },
                     companyIntro = remember { screenDataProvider.homeCompanyIntro() },
                     cartItemCount = currentCartItemCount,
@@ -250,10 +251,10 @@ fun EumMainNavDisplay(
                     onHeroAction = { action -> navigator.push(destinationForHomeHeroAction(action)) },
                     onQuoteClick = { navigator.push(EumDestination.QuoteRequest()) },
                     onMenuClick = { navigator.push(EumDestination.Drawer) },
-                    onSeeAllProductsClick = { navigator.push(EumDestination.ProductList()) },
-                    onSeeRecommendedProductsClick = { navigator.push(EumDestination.ProductList()) },
+                    onSeeProductsClick = { preset -> navigator.push(EumDestination.ProductList(preset = preset)) },
                     isFavoriteAllowed = loginSession.isLoggedIn,
                     onFavoriteBlocked = entryContext::openLogin,
+                    onFooterLinkClick = { link -> navigator.push(destinationForHomeFooterLink(link)) },
                     onNavigationSelected = navigator::navigateToTab,
                     isLoggedIn = loginSession.isLoggedIn,
                     onLoginRequired = entryContext::openLogin,
@@ -325,6 +326,11 @@ fun EumMainNavDisplay(
                     // 배너에서는 돌아갈 곳이 지금 장바구니이므로 보류 목적지 없이 로그인만 연다.
                     onLoginClick = { navigator.push(EumDestination.Login()) },
                     onQuoteRequestClick = { navigator.push(EumDestination.QuoteRequest()) },
+                    // 빈 장바구니의 상품 둘러보기는 홈 탭 루트로 돌아간 뒤 전체 상품 목록을 연다(장바구니 기록은 남기지 않는다).
+                    onBrowseProductsClick = {
+                        navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home)
+                        navigator.push(EumDestination.ProductList())
+                    },
                     onOptionChangeClick = { line -> navigator.push(EumDestination.ProductDetail(line.productId, line.lineId())) },
                 )
             }
@@ -396,7 +402,7 @@ fun EumMainNavDisplay(
             }
             entry<EumDestination.ProductList> { destination ->
                 CatalogProductListRoute(
-                    uiModel = remember(destination) { screenDataProvider.productList(destination.categoryId) },
+                    uiModel = remember(destination) { screenDataProvider.productList(destination.categoryId, destination.preset) },
                     selectedTab = LocalEumOwnerTab.current,
                     cartItemCount = currentCartItemCount,
                     onTabSelected = navigator::navigateToTab,
@@ -758,6 +764,7 @@ fun EumMainNavDisplay(
             }
             addOrderEntries(entryContext, addressSelection)
             addSupportEntries(entryContext)
+            addPolicyEntries(entryContext)
             addCatalogDetailEntries(entryContext)
         }
     }

@@ -128,7 +128,9 @@ sealed interface AuthScreenEvent {
     data class SignupVerificationCodeChanged(val value: CharArray) : AuthScreenEvent
     data object SignupVerificationConfirmClicked : AuthScreenEvent
     data class SignupConsentChanged(val consentId: String, val checked: Boolean) : AuthScreenEvent
-    data object SignupConsentDetailsClicked : AuthScreenEvent
+    data object SignupTermsDetailsClicked : AuthScreenEvent
+    data object SignupPrivacyDetailsClicked : AuthScreenEvent
+    data object SignupMarketingDetailsClicked : AuthScreenEvent
     data object BusinessRegistrationFileClicked : AuthScreenEvent
     data object SignupSubmitted : AuthScreenEvent
     data class RecoveryModeChanged(val mode: AccountRecoveryMode) : AuthScreenEvent

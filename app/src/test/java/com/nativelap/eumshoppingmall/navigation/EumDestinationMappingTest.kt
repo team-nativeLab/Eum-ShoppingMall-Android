@@ -58,9 +58,9 @@ class EumDestinationMappingTest {
         assertEquals(EumDestination.CustomerSupport, EumMenuDestinations.myPageMenuRow("customer"))
         assertEquals(EumDestination.NoticeList, EumMenuDestinations.myPageMenuRow("notices"))
         assertEquals(EumDestination.InquiryHistory, EumMenuDestinations.myPageMenuRow("inquiries"))
-        // 아래 ID는 연결할 화면 흐름이 이번 범위 밖이다(docs/APP_FLOW.md 제외 표).
+        assertEquals(EumDestination.ClaimHub, EumMenuDestinations.myPageMenuRow("returns"))
+        // 내 정보 관리와 배송지 관리는 저장 경로가 없어 목적지가 없다. 호출부가 "준비 중" 안내만 보여 준다.
         assertNull(EumMenuDestinations.myPageMenuRow("profile"))
         assertNull(EumMenuDestinations.myPageMenuRow("addresses"))
-        assertNull(EumMenuDestinations.myPageMenuRow("returns"))
     }
 }

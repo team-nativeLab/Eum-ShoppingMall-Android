@@ -8,10 +8,10 @@ import com.nativelap.eumshoppingmall.ui.company.CompanyIntroScreen
 import com.nativelap.eumshoppingmall.ui.company.CompanyIntroUiModel
 import com.nativelap.eumshoppingmall.ui.policy.PolicyDocumentScreen
 import com.nativelap.eumshoppingmall.ui.policy.PolicyDocumentSectionUiModel
-import com.nativelap.eumshoppingmall.ui.policy.PolicyDocumentStepUiModel
 import com.nativelap.eumshoppingmall.ui.policy.PolicyDocumentUiModel
 import com.nativelap.eumshoppingmall.ui.policy.PrivacyConsentDetailScreen
 import com.nativelap.eumshoppingmall.ui.policy.PrivacyConsentUiModel
+import com.nativelap.eumshoppingmall.ui.policy.rememberUsageGuideDocument
 import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
@@ -212,31 +212,6 @@ private val previewPrivacySections = listOf(
     PolicyDocumentSectionUiModel("12. 개인정보 처리방침의 변경", listOf(PREVIEW_CLAUSE)),
 )
 
-private val previewGuideSections = listOf(
-    PolicyDocumentSectionUiModel("1. 회원가입 안내", listOf("안내 내용이 들어갑니다.", PREVIEW_CLAUSE_FIRST_ITEM, PREVIEW_CLAUSE_SECOND_ITEM)),
-    PolicyDocumentSectionUiModel(
-        "2. 주문·결제 안내",
-        listOf("안내 내용이 들어갑니다."),
-        steps = listOf(
-            PolicyDocumentStepUiModel("상품 선택", "상품과 옵션을 골라 장바구니에 담습니다."),
-            PolicyDocumentStepUiModel("주문서 작성", "배송지와 결제수단을 입력합니다."),
-            PolicyDocumentStepUiModel("결제 완료", "결제하면 주문이 접수됩니다."),
-        ),
-    ),
-    PolicyDocumentSectionUiModel(
-        "3. 가격 문의 상품과 견적 문의",
-        listOf("안내 내용이 들어갑니다."),
-        steps = listOf(
-            PolicyDocumentStepUiModel("견적 문의", "가격 문의 상품을 담아 견적을 요청합니다."),
-            PolicyDocumentStepUiModel("견적서 발급", "담당자가 확인한 뒤 견적서를 보내 드립니다."),
-            PolicyDocumentStepUiModel("주문 진행", "견적을 확인한 뒤 주문을 진행합니다."),
-        ),
-    ),
-    PolicyDocumentSectionUiModel("4. 배송 안내", listOf("안내 내용이 들어갑니다.")),
-    PolicyDocumentSectionUiModel("5. 교환·반품 안내", listOf("안내 내용이 들어갑니다.", PREVIEW_CLAUSE_FIRST_ITEM, PREVIEW_CLAUSE_SECOND_ITEM)),
-    PolicyDocumentSectionUiModel("6. 고객센터 안내", listOf("안내 내용이 들어갑니다.")),
-)
-
 @ResponsiveUiPreview
 @Composable
 private fun PolicyDocumentPreview() = EumShoppingMallTheme {
@@ -332,7 +307,7 @@ private fun PrivacyConsentDetailPreview() = EumShoppingMallTheme {
 @ResponsiveUiPreview
 @Composable
 private fun UsageGuidePreview() = EumShoppingMallTheme {
-    PolicyDocumentScreen(PolicyDocumentUiModel("이용안내", "0000.00.00", false, previewGuideSections), onEvent = {})
+    PolicyDocumentScreen(rememberUsageGuideDocument(), onEvent = {})
 }
 
 @ResponsiveUiPreview
