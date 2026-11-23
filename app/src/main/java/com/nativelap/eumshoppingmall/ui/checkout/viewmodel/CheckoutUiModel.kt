@@ -104,7 +104,15 @@ data class CheckoutUiModel(
     val receiptDetails: CheckoutReceiptDetailsUiModel = CheckoutReceiptDetailsUiModel(),
     val paymentSummary: CheckoutPaymentSummaryUiModel,
     val isOrderAgreementAccepted: Boolean = false,
+    // 사용 가능한 적립금(원). null이면 값을 알 수 없어 '전액 사용'을 비활성으로 둔다.
+    val pointsAvailableWon: Long? = null,
 )
+
+/** '전액 사용' 버튼을 누를 수 있는지. 적립금이 0원이면 이미 사용 중일 때만 취소할 수 있다. */
+internal fun canUseAllPoints(
+    pointsAvailableWon: Long?,
+    isUsingAllPoints: Boolean,
+): Boolean = isUsingAllPoints || (pointsAvailableWon ?: 0L) > 0L
 
 internal fun CheckoutUiModel.withReceiptTypeSelection(type: CheckoutReceiptType): CheckoutUiModel = if (receiptType == type) {
     this

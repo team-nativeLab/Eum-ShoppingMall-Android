@@ -192,17 +192,33 @@ fun QuoteStatusChip(status: QuoteInquiryStatus) {
     )
 }
 
+/**
+ * 견적 주 버튼. [inactiveLook]이 true면 비활성처럼 보이되 탭은 받는다(onClick에서 안내를 띄울 수 있다). 기존 EumPrimaryButton의 inactiveLook과 같은 방식이다.
+ */
 @Composable
-fun QuotePrimaryButton(label: String, onClick: () -> Unit, enabled: Boolean = true, modifier: Modifier = Modifier) {
+fun QuotePrimaryButton(
+    label: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    inactiveLook: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
     Button(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier.fillMaxWidth().heightIn(min = 48.dp),
         shape = RoundedCornerShape(8.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.eumColors.textPrimary,
-            contentColor = MaterialTheme.eumColors.inverse,
-        ),
+        colors = if (inactiveLook) {
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.eumColors.surfaceSecondary,
+                contentColor = MaterialTheme.eumColors.textTertiary,
+            )
+        } else {
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.eumColors.textPrimary,
+                contentColor = MaterialTheme.eumColors.inverse,
+            )
+        },
     ) { Text(label, style = MaterialTheme.typography.labelLarge) }
 }
 

@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +21,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
@@ -30,9 +33,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -52,12 +63,14 @@ import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutScreenEvent
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.canCompleteCheckoutPayment
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.canUseAllPoints
 import com.nativelap.eumshoppingmall.ui.common.EumPrimaryButton
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
+import kotlinx.coroutines.launch
 
 @Composable
 fun CheckoutPaymentScreen(
@@ -65,6 +78,20 @@ fun CheckoutPaymentScreen(
     onEvent: (CheckoutScreenEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    val agreementFocusRequester = remember { FocusRequester() }
+    // 값을 올리면 동의 행으로 포커스를 옮긴다. 스크롤이 끝나 행이 붙은 뒤 요청하려고 증가 토큰으로 전달한다.
+    var agreementFocusToken by remember { mutableIntStateOf(0) }
+    LaunchedEffect(agreementFocusToken) {
+        if (agreementFocusToken == 0) return@LaunchedEffect
+        try {
+            agreementFocusRequester.requestFocus()
+        } catch (exception: IllegalStateException) {
+            // 노드가 아직 붙지 않은 경우 포커스 요청만 건너뛴다. 스크롤 위치는 그대로 유지된다.
+        }
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -85,9 +112,29 @@ fun CheckoutPaymentScreen(
                     ) {
                         // 버튼이 비활성인 이유를 버튼 위에 보여 준다(U-03). 활성이면 문구를 숨긴다.
                         if (blockReason != null) {
+                            // 약관 미동의만 동의 항목으로 이동한다. 나머지 사유는 안내 문구로만 둔다.
+                            val isAgreementBlock = blockReason == CheckoutPaymentBlockReason.AgreementNotAccepted
                             Text(
                                 stringResource(blockReason.messageResId),
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().then(
+                                    if (isAgreementBlock) {
+                                        Modifier
+                                            .heightIn(min = 48.dp)
+                                            .wrapContentHeight(Alignment.CenterVertically)
+                                            .clickable(
+                                                role = Role.Button,
+                                                onClickLabel = stringResource(R.string.checkout_block_reason_go_to_agreement),
+                                                onClick = {
+                                                    coroutineScope.launch {
+                                                        listState.animateScrollToItem(checkoutAgreementItemIndex(uiModel.receiptType))
+                                                        agreementFocusToken++
+                                                    }
+                                                },
+                                            )
+                                    } else {
+                                        Modifier
+                                    },
+                                ),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.eumColors.danger,
                             )
@@ -112,7 +159,10 @@ fun CheckoutPaymentScreen(
     ) { contentPadding ->
         ResponsiveContentContainer(Modifier.fillMaxSize()) {
             // 흰 카드 없이 배경 위 전폭 섹션을 1dp 구분선으로 나눈다(Figma A-09).
-            LazyColumn(modifier = Modifier.fillMaxSize().padding(contentPadding)) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(contentPadding),
+                state = listState,
+            ) {
                 item { CheckoutStepIndicator(currentStep = 2) }
                 item { CheckoutSectionHeader(R.string.checkout_discount) }
                 item {
@@ -124,6 +174,7 @@ fun CheckoutPaymentScreen(
                         PointsRow(
                             pointsLabel = uiModel.pointsAvailableLabel.ifBlank { stringResource(R.string.checkout_zero_points) },
                             actionLabel = stringResource(if (uiModel.isUsingAllPoints) R.string.common_cancel else R.string.checkout_use_all_points),
+                            actionEnabled = canUseAllPoints(uiModel.pointsAvailableWon, uiModel.isUsingAllPoints),
                             onActionClick = { onEvent(CheckoutScreenEvent.UseAllPointsClicked) },
                         )
                     }
@@ -181,6 +232,7 @@ fun CheckoutPaymentScreen(
                         isAccepted = uiModel.isOrderAgreementAccepted,
                         onAcceptedChange = { onEvent(CheckoutScreenEvent.OrderAgreementChanged(it)) },
                         onDetailsClick = { onEvent(CheckoutScreenEvent.AgreementDetailsClicked) },
+                        focusRequester = agreementFocusRequester,
                     )
                     Text(
                         stringResource(R.string.checkout_agreement_required_notice),
@@ -214,6 +266,16 @@ internal fun checkoutPaymentBlockReason(uiModel: CheckoutUiModel): CheckoutPayme
 internal fun checkoutPaymentCanComplete(snapshot: CheckoutOrderSnapshot?, uiModel: CheckoutUiModel): Boolean = canCompleteCheckoutPayment(snapshot) &&
     snapshot?.finalTotalWon == uiModel.paymentSummary.finalAmountWon &&
     checkoutPaymentBlockReason(uiModel) == null
+
+/**
+ * 동의 행의 LazyColumn 항목 인덱스. 영수증 상세 카드는 영수증 유형이 None이 아닐 때만 항목으로 추가된다.
+ * 항목 순서(StepIndicator, 할인 헤더, 쿠폰·적립금, 결제수단 헤더·선택, 영수증 헤더·유형, [상세 카드], 구분선, 요약 헤더·카드, 동의)를 바꾸면 함께 바꾼다.
+ */
+internal fun checkoutAgreementItemIndex(receiptType: CheckoutReceiptType): Int = if (receiptType == CheckoutReceiptType.None) {
+    10
+} else {
+    11
+}
 
 private fun isReceiptDetailsValid(uiModel: CheckoutUiModel): Boolean {
     val receiptDetails = uiModel.receiptDetails
@@ -299,6 +361,7 @@ private fun CouponRow(
 private fun PointsRow(
     pointsLabel: String,
     actionLabel: String,
+    actionEnabled: Boolean,
     onActionClick: () -> Unit,
 ) {
     Row(
@@ -315,7 +378,12 @@ private fun PointsRow(
 
         Spacer(Modifier.width(EumSpacing.x8))
 
-        CheckoutOutlineActionButton(label = actionLabel, onClick = onActionClick, minWidth = 81.dp)
+        CheckoutOutlineActionButton(
+            label = actionLabel,
+            onClick = onActionClick,
+            minWidth = 81.dp,
+            enabled = actionEnabled,
+        )
     }
 }
 
@@ -325,6 +393,7 @@ private fun OrderAgreementRow(
     isAccepted: Boolean,
     onAcceptedChange: (Boolean) -> Unit,
     onDetailsClick: () -> Unit,
+    focusRequester: FocusRequester,
 ) {
     val checkShape = RoundedCornerShape(EumRadius.x4)
     Row(
@@ -333,7 +402,9 @@ private fun OrderAgreementRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(
-            Modifier.weight(1f).heightIn(min = 56.dp).toggleable(value = isAccepted, role = Role.Checkbox, onValueChange = onAcceptedChange),
+            Modifier.weight(1f).heightIn(min = 56.dp).focusRequester(focusRequester)
+                .focusable()
+                .toggleable(value = isAccepted, role = Role.Checkbox, onValueChange = onAcceptedChange),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(

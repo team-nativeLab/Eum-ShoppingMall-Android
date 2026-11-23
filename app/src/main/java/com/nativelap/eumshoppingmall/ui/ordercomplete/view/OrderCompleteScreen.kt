@@ -42,6 +42,8 @@ import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveWidthContainer
 import com.nativelap.eumshoppingmall.ui.ordercomplete.viewmodel.OrderCompleteScreenEvent
 import com.nativelap.eumshoppingmall.ui.ordercomplete.viewmodel.OrderCompleteUiModel
+import com.nativelap.eumshoppingmall.ui.ordercomplete.viewmodel.isOrderDetailsAvailable
+import com.nativelap.eumshoppingmall.ui.ordercomplete.viewmodel.orderCompleteValueOrNull
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -52,6 +54,17 @@ fun OrderCompleteScreen(
     onEvent: (OrderCompleteScreenEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // 빈 값은 리소스 문구로 대체한다. 문구를 이어 붙이지 않고 값 하나를 고른다.
+    val orderNumberText = orderCompleteValueOrNull(uiModel.orderNumber)
+        ?.let { orderNumber -> stringResource(R.string.checkout_order_number, orderNumber) }
+        ?: stringResource(R.string.checkout_order_number_unavailable)
+    val paymentAmountText = orderCompleteValueOrNull(uiModel.paymentAmountLabel)
+        ?: stringResource(R.string.checkout_amount_unconfirmed)
+    val paymentMethodText = orderCompleteValueOrNull(uiModel.paymentMethodLabel)
+        ?: stringResource(R.string.checkout_order_value_unavailable)
+    val addressText = orderCompleteValueOrNull(uiModel.addressLabel)
+        ?: stringResource(R.string.checkout_order_value_unavailable)
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -74,6 +87,7 @@ fun OrderCompleteScreen(
                     }
                     EumPrimaryButton(
                         onClick = { onEvent(OrderCompleteScreenEvent.ViewOrderDetailsClicked) },
+                        enabled = isOrderDetailsAvailable(uiModel.orderNumber),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(stringResource(R.string.checkout_order_detail_button))
@@ -116,7 +130,7 @@ fun OrderCompleteScreen(
                     Spacer(Modifier.height(EumSpacing.x8))
 
                     Text(
-                        stringResource(R.string.checkout_order_number, uiModel.orderNumber),
+                        orderNumberText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.eumColors.textSecondary,
                     )
@@ -155,9 +169,9 @@ fun OrderCompleteScreen(
                         }
                         OrderInformationCard(
                             rows = listOf(
-                                OrderInformationRow(stringResource(R.string.checkout_payment_total_label), uiModel.paymentAmountLabel, isAmount = true),
-                                OrderInformationRow(stringResource(R.string.checkout_payment_method), uiModel.paymentMethodLabel),
-                                OrderInformationRow(stringResource(R.string.checkout_delivery_address), uiModel.addressLabel),
+                                OrderInformationRow(stringResource(R.string.checkout_payment_total_label), paymentAmountText, isAmount = true),
+                                OrderInformationRow(stringResource(R.string.checkout_payment_method), paymentMethodText),
+                                OrderInformationRow(stringResource(R.string.checkout_delivery_address), addressText),
                             ),
                             onCopyAccount = {},
                             isAccountCard = false,

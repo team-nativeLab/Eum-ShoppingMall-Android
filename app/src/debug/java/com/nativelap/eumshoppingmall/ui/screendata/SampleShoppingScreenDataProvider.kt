@@ -453,6 +453,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             ),
         ),
         pointsAvailableLabel = "0원",
+        pointsAvailableWon = 0L,
         paymentSummary = CheckoutPaymentSummaryUiModel(
             productAmountLabel = "₩18,000",
             shippingFeeLabel = "₩3,000",

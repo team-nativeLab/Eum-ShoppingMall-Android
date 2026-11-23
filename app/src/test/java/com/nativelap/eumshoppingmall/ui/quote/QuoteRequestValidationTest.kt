@@ -3,10 +3,13 @@ package com.nativelap.eumshoppingmall.ui.quote
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteDeliveryDateStatus
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestEvent
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestField
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.fieldErrors
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.isQuoteProductErrorVisible
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.isSubmittable
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.nextIsProductErrorRequested
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.quoteDeliveryDateStatus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -72,6 +75,50 @@ class QuoteRequestValidationTest {
         assertFalse(noProducts.isSubmittable(today))
         assertTrue(QuoteRequestField.Products in noProducts.fieldErrors(today))
         assertTrue(withProduct.isSubmittable(today))
+    }
+
+    @Test
+    fun productErrorIsHiddenWhenEmptyBeforeAnySubmitAttempt() {
+        assertFalse(isQuoteProductErrorVisible(isErrorRequested = false, productCount = 0))
+    }
+
+    @Test
+    fun productErrorShowsAfterSubmitAttemptWhenEmpty() {
+        assertTrue(isQuoteProductErrorVisible(isErrorRequested = true, productCount = 0))
+    }
+
+    @Test
+    fun productErrorHidesOnceAProductIsAdded() {
+        assertFalse(isQuoteProductErrorVisible(isErrorRequested = true, productCount = 1))
+    }
+
+    @Test
+    fun productEventsOtherThanSubmitDoNotSetTheAttemptFlag() {
+        assertFalse(nextIsProductErrorRequested(current = false, event = QuoteRequestEvent.AddProductClicked))
+        assertFalse(nextIsProductErrorRequested(current = false, event = QuoteRequestEvent.ProductRemoved("p1")))
+    }
+
+    @Test
+    fun productErrorFollowsAttemptAddAndRemoveAsRouteTransitions() {
+        var isErrorRequested = false
+        var productCount = 0
+
+        // 진입: 시도 전 빈 목록은 숨김
+        assertFalse(isQuoteProductErrorVisible(isErrorRequested, productCount))
+
+        // 비활성 영역 탭(SubmitClicked): 빈 목록이면 표시
+        isErrorRequested = nextIsProductErrorRequested(isErrorRequested, QuoteRequestEvent.SubmitClicked)
+        assertTrue(isQuoteProductErrorVisible(isErrorRequested, productCount))
+
+        // 상품 추가: 숨김
+        productCount = 1
+        isErrorRequested = nextIsProductErrorRequested(isErrorRequested, QuoteRequestEvent.AddProductClicked)
+        assertFalse(isQuoteProductErrorVisible(isErrorRequested, productCount))
+
+        // 마지막 상품 삭제: 시도 이력이 남아 있으므로 다시 표시
+        productCount = 0
+        isErrorRequested = nextIsProductErrorRequested(isErrorRequested, QuoteRequestEvent.ProductRemoved("p1"))
+        assertTrue(isQuoteProductErrorVisible(isErrorRequested, productCount))
     }
 
     @Test

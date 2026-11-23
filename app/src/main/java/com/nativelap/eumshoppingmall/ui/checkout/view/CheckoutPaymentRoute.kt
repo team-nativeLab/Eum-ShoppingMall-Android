@@ -9,6 +9,7 @@ import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptDetail
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptField
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutScreenEvent
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.canUseAllPoints
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.withReceiptDetailsTypeSelection
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.withReceiptTypeSelection
 
@@ -30,7 +31,10 @@ fun CheckoutPaymentRoute(
                 CheckoutScreenEvent.PaymentClicked -> onPaymentClick(checkoutUiModel)
 
                 CheckoutScreenEvent.UseAllPointsClicked -> {
-                    checkoutUiModel = checkoutUiModel.copy(isUsingAllPoints = !checkoutUiModel.isUsingAllPoints)
+                    // 비활성 상태(적립금 0원, 사용 중 아님)에서는 토글하지 않는다.
+                    if (canUseAllPoints(checkoutUiModel.pointsAvailableWon, checkoutUiModel.isUsingAllPoints)) {
+                        checkoutUiModel = checkoutUiModel.copy(isUsingAllPoints = !checkoutUiModel.isUsingAllPoints)
+                    }
                 }
 
                 is CheckoutScreenEvent.PaymentMethodSelected -> {

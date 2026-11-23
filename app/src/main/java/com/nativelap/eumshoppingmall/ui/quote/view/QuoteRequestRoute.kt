@@ -18,7 +18,9 @@ import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestEvent
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestField
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.fieldErrors
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.isQuoteProductErrorVisible
 import com.nativelap.eumshoppingmall.ui.quote.viewmodel.isSubmittable
+import com.nativelap.eumshoppingmall.ui.quote.viewmodel.nextIsProductErrorRequested
 import java.time.LocalDate
 import java.time.ZoneOffset
 
@@ -52,6 +54,8 @@ fun QuoteRequestRoute(
     var removedAttachmentIds by rememberSaveable { mutableStateOf(emptyList<String>()) }
     var isPrivacyConsentChecked by rememberSaveable { mutableStateOf(uiModel.isPrivacyConsentChecked) }
     var isDatePickerVisible by remember { mutableStateOf(false) }
+    // 제출을 시도(비활성 영역 탭 포함)했는지. 상품 오류는 이 값과 상품 0개가 함께일 때만 보인다.
+    var isProductErrorRequested by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(pickedProductId) {
         if (pickedProductId != null) {
@@ -75,12 +79,17 @@ fun QuoteRequestRoute(
         attachments = uiModel.attachments.filterNot { attachment -> attachment.id in removedAttachmentIds },
         isPrivacyConsentChecked = isPrivacyConsentChecked,
     )
+    val visibleErrors = quoteUiModel.fieldErrors(today).filterNot { field ->
+        field == QuoteRequestField.Products &&
+            !isQuoteProductErrorVisible(isErrorRequested = isProductErrorRequested, productCount = productIds.size)
+    }.toSet()
     QuoteRequestScreen(
         uiModel = quoteUiModel.copy(
-            errors = quoteUiModel.fieldErrors(today),
+            errors = visibleErrors,
             isSubmitEnabled = quoteUiModel.isSubmittable(today),
         ),
         onEvent = { event ->
+            isProductErrorRequested = nextIsProductErrorRequested(isProductErrorRequested, event)
             when (event) {
                 QuoteRequestEvent.BackClicked -> onBackClick()
 
@@ -109,6 +118,7 @@ fun QuoteRequestRoute(
 
                 is QuoteRequestEvent.PrivacyConsentChanged -> isPrivacyConsentChecked = event.checked
 
+                // 시도 플래그는 위에서 nextIsProductErrorRequested로 갱신한다. 제출 불가면 여기서 제출하지 않는다.
                 QuoteRequestEvent.SubmitClicked -> if (quoteUiModel.isSubmittable(today)) onSubmit(quoteUiModel)
 
                 QuoteRequestEvent.DatePickerClicked -> isDatePickerVisible = true

@@ -536,7 +536,8 @@ fun EumMainNavDisplay(
 
                 val orderCompleteUiModel = remember(activeCheckoutOrder) {
                     val base = screenDataProvider.orderComplete()
-                    base.copy(paymentAmountLabel = activeCheckoutOrder?.finalTotalWon?.let(::formatWonLabel) ?: "주문 시 확인")
+                    // 결제금액을 모르면 빈 값으로 넘기고, 화면이 리소스 문구로 대체한다.
+                    base.copy(paymentAmountLabel = activeCheckoutOrder?.finalTotalWon?.let(::formatWonLabel) ?: "")
                 }
                 OrderCompleteRoute(
                     uiModel = orderCompleteUiModel,
