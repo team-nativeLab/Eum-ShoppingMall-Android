@@ -29,6 +29,7 @@ fun CheckoutOutlineActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     minWidth: Dp = 52.dp,
+    enabled: Boolean = true,
 ) {
     val buttonShape = RoundedCornerShape(EumRadius.x8)
     Box(
@@ -39,14 +40,14 @@ fun CheckoutOutlineActionButton(
             .clip(buttonShape)
             .background(MaterialTheme.eumColors.surface)
             .border(1.dp, MaterialTheme.eumColors.lineStrong, buttonShape)
-            .clickable(role = Role.Button, onClick = onClick)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .padding(horizontal = EumSpacing.x12),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.eumColors.textPrimary,
+            color = if (enabled) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textDisabled,
         )
     }
 }

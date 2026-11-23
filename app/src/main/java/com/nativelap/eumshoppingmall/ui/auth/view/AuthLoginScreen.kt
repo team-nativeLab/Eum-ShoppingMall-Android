@@ -44,6 +44,9 @@ import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumCheckboxColors
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
+// 간편로그인 A/B는 출시 전 임시 항목이라 숨긴다. 이벤트·Route 분기·문자열은 그대로 두어 다시 켤 수 있게 한다.
+private const val SHOW_TEMPORARY_SOCIAL_LOGIN = false
+
 @Composable
 fun AuthLoginScreen(uiModel: AuthLoginUiModel, onEvent: (AuthScreenEvent) -> Unit) {
     Scaffold(
@@ -94,13 +97,15 @@ fun AuthLoginScreen(uiModel: AuthLoginUiModel, onEvent: (AuthScreenEvent) -> Uni
             AuthPrimaryAction(stringResource(R.string.account_login), uiModel.isSubmitEnabled) { onEvent(AuthScreenEvent.LoginSubmitted) }
             Column(Modifier.padding(top = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
                 AuthHelpLinks(onEvent)
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                    HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.eumColors.line)
-                    Text(stringResource(R.string.common_or), style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
-                    HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.eumColors.line)
+                if (SHOW_TEMPORARY_SOCIAL_LOGIN) {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                        HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.eumColors.line)
+                        Text(stringResource(R.string.common_or), style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
+                        HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.eumColors.line)
+                    }
+                    AuthSocialButton(stringResource(R.string.auth_social_login_a)) { onEvent(AuthScreenEvent.SocialLoginClicked("provider_a")) }
+                    AuthSocialButton(stringResource(R.string.auth_social_login_b)) { onEvent(AuthScreenEvent.SocialLoginClicked("provider_b")) }
                 }
-                AuthSocialButton(stringResource(R.string.auth_social_login_a)) { onEvent(AuthScreenEvent.SocialLoginClicked("provider_a")) }
-                AuthSocialButton(stringResource(R.string.auth_social_login_b)) { onEvent(AuthScreenEvent.SocialLoginClicked("provider_b")) }
             }
 
             Spacer(Modifier.height(EumSpacing.x24))

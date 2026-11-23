@@ -49,6 +49,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -84,10 +86,19 @@ fun QuoteRequestScreen(
         onBack = { onEvent(QuoteRequestEvent.BackClicked) },
         bottomBar = {
             QuoteBottomActions {
+                // 제출 불가 상태에서도 탭을 받아 SubmitClicked로 올린다. Route가 상품 오류 시도 상태만 켜고 제출은 하지 않는다.
+                val isSubmitBlocked = !uiModel.isSubmitEnabled
+                val submitBlockedNotice = stringResource(R.string.quote_submit_disabled_notice)
                 QuotePrimaryButton(
                     label = stringResource(R.string.quote_submit_label),
                     onClick = { onEvent(QuoteRequestEvent.SubmitClicked) },
-                    enabled = uiModel.isSubmitEnabled,
+                    inactiveLook = isSubmitBlocked,
+                    modifier = if (isSubmitBlocked) {
+                        // 버튼 노드 하나에만 상태 설명을 붙여 중복 노드를 만들지 않는다.
+                        Modifier.semantics { stateDescription = submitBlockedNotice }
+                    } else {
+                        Modifier
+                    },
                 )
             }
         },

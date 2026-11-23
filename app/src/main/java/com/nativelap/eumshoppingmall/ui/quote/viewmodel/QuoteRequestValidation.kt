@@ -42,6 +42,27 @@ internal fun QuoteRequestUiModel.isSubmittable(today: LocalDate): Boolean = comp
     quoteDeliveryDateStatus(preferredDeliveryDate, today) == QuoteDeliveryDateStatus.Valid &&
     isPrivacyConsentChecked
 
+/**
+ * 상품 필수 오류를 보일지. 사용자가 제출을 시도한 뒤 상품이 비어 있을 때만 보여 준다.
+ * 제출 전 빈 화면에서 바로 빨간 오류를 띄우지 않으려고, 시도 여부([isErrorRequested])를 따로 받는다.
+ */
+internal fun isQuoteProductErrorVisible(
+    isErrorRequested: Boolean,
+    productCount: Int,
+): Boolean = isErrorRequested && productCount == 0
+
+/**
+ * 상품 오류 시도 플래그의 다음 값. 제출 시도(비활성 영역 탭 포함)만 켠다.
+ * 상품 추가·삭제는 플래그를 바꾸지 않는다. 표시 여부는 [isQuoteProductErrorVisible]이 상품 수로 매번 계산한다.
+ */
+internal fun nextIsProductErrorRequested(
+    current: Boolean,
+    event: QuoteRequestEvent,
+): Boolean = when (event) {
+    QuoteRequestEvent.SubmitClicked -> true
+    else -> current
+}
+
 /** 날짜 형식과 상품 필수 여부를 필드 근처에 표시한다. */
 internal fun QuoteRequestUiModel.fieldErrors(today: LocalDate): Set<QuoteRequestField> {
     val deliveryDateStatus = quoteDeliveryDateStatus(preferredDeliveryDate, today)

@@ -26,6 +26,7 @@ private val previewCheckoutUiModel = CheckoutUiModel(
     ),
     couponCount = 2,
     pointsAvailableLabel = "0원",
+    pointsAvailableWon = 0L,
     paymentMethod = CheckoutPaymentMethod.CreditCard,
     receiptType = CheckoutReceiptType.None,
     paymentSummary = CheckoutPaymentSummaryUiModel(
@@ -58,5 +59,42 @@ private fun CheckoutPaymentScreenPreview() {
 private fun CheckoutPaymentAcceptedPreview() {
     EumShoppingMallTheme {
         CheckoutPaymentScreen(previewCheckoutUiModel.copy(isOrderAgreementAccepted = true), onEvent = {})
+    }
+}
+
+@Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "결제 · 적립금 있음(전액 사용 활성)")
+@Composable
+private fun CheckoutPaymentPointsAvailablePreview() {
+    EumShoppingMallTheme {
+        CheckoutPaymentScreen(
+            previewCheckoutUiModel.copy(pointsAvailableLabel = "5,000원", pointsAvailableWon = 5_000L),
+            onEvent = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "결제 · 적립금 0원(전액 사용 비활성)")
+@Composable
+private fun CheckoutPaymentPointsEmptyPreview() {
+    EumShoppingMallTheme {
+        CheckoutPaymentScreen(
+            previewCheckoutUiModel.copy(pointsAvailableLabel = "0원", pointsAvailableWon = 0L),
+            onEvent = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "결제 · 약관 미동의 블록 사유(동의 항목 이동)")
+@Composable
+private fun CheckoutPaymentAgreementNotAcceptedPreview() {
+    EumShoppingMallTheme {
+        CheckoutPaymentScreen(
+            previewCheckoutUiModel.copy(
+                receiptType = CheckoutReceiptType.TaxInvoice,
+                isOrderAgreementAccepted = false,
+                paymentSummary = previewCheckoutUiModel.paymentSummary.copy(finalAmountWon = 113_000L),
+            ),
+            onEvent = {},
+        )
     }
 }

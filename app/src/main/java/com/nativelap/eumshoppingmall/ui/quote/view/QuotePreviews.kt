@@ -115,6 +115,22 @@ private fun QuoteRequestPreview() {
     }
 }
 
+@ResponsiveUiPreview
+@Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "견적 문의 상품 0개 · 제출 시도 후 상품 오류")
+@Composable
+private fun QuoteRequestNoProductErrorPreview() {
+    EumShoppingMallTheme {
+        QuoteRequestScreen(
+            uiModel = previewQuoteRequest.copy(
+                products = emptyList(),
+                errors = setOf(QuoteRequestField.Products),
+                isSubmitEnabled = false,
+            ),
+            onEvent = {},
+        )
+    }
+}
+
 @Preview(
     showBackground = true,
     widthDp = 320,

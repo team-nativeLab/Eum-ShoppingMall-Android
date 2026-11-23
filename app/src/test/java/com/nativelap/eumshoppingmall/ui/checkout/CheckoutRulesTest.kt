@@ -2,6 +2,7 @@ package com.nativelap.eumshoppingmall.ui.checkout
 
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.ui.checkout.view.CheckoutPaymentBlockReason
+import com.nativelap.eumshoppingmall.ui.checkout.view.checkoutAgreementItemIndex
 import com.nativelap.eumshoppingmall.ui.checkout.view.checkoutContentWidthForViewport
 import com.nativelap.eumshoppingmall.ui.checkout.view.checkoutPaymentBlockReason
 import com.nativelap.eumshoppingmall.ui.checkout.view.checkoutPaymentCanComplete
@@ -15,6 +16,7 @@ import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptDetail
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptDetailsUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutReceiptType
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
+import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.canUseAllPoints
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.shippingFeeText
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.withReceiptDetailsTypeSelection
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.withReceiptTypeSelection
@@ -238,6 +240,34 @@ class CheckoutRulesTest {
                 ),
             ),
         )
+    }
+
+    @Test
+    fun agreementItemIsAtIndexTenWhenReceiptDetailsCardIsAbsent() {
+        assertEquals(10, checkoutAgreementItemIndex(CheckoutReceiptType.None))
+    }
+
+    @Test
+    fun agreementItemShiftsToIndexElevenWhenReceiptDetailsCardIsShown() {
+        assertEquals(11, checkoutAgreementItemIndex(CheckoutReceiptType.CashReceipt))
+        assertEquals(11, checkoutAgreementItemIndex(CheckoutReceiptType.TaxInvoice))
+    }
+
+    @Test
+    fun useAllPointsIsDisabledWhenPointsAreZeroOrUnknown() {
+        assertFalse(canUseAllPoints(pointsAvailableWon = 0L, isUsingAllPoints = false))
+        assertFalse(canUseAllPoints(pointsAvailableWon = null, isUsingAllPoints = false))
+        assertFalse(canUseAllPoints(pointsAvailableWon = -500L, isUsingAllPoints = false))
+    }
+
+    @Test
+    fun useAllPointsIsEnabledWhenPointsArePositive() {
+        assertTrue(canUseAllPoints(pointsAvailableWon = 1L, isUsingAllPoints = false))
+    }
+
+    @Test
+    fun cancelingAllPointsStaysEnabledEvenWhenPointsBecomeZero() {
+        assertTrue(canUseAllPoints(pointsAvailableWon = 0L, isUsingAllPoints = true))
     }
 
     @Test

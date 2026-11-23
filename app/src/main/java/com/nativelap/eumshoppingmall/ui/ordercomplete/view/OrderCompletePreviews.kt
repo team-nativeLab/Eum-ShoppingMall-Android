@@ -20,3 +20,20 @@ private fun OrderCompleteScreenPreview() {
         )
     }
 }
+
+// 주문번호·결제금액·결제수단·배송지가 모두 비었을 때: 상세 보기 비활성, 리소스 문구 대체.
+@ResponsiveUiPreview
+@Composable
+private fun OrderCompleteEmptyValuesPreview() {
+    EumShoppingMallTheme {
+        OrderCompleteScreen(
+            uiModel = OrderCompleteUiModel(
+                orderNumber = "",
+                paymentAmountLabel = "",
+                paymentMethodLabel = "",
+                addressLabel = "",
+            ),
+            onEvent = {},
+        )
+    }
+}
