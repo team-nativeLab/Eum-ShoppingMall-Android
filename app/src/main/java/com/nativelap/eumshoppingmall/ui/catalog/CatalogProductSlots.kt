@@ -19,8 +19,13 @@ fun resolveCatalogProductBadge(bestRank: Int?, badgeLabel: String?): CatalogProd
 }
 
 enum class CatalogPriceKind {
+    // 판매가를 보여 준다.
     Price,
-    Inquiry,
+
+    // 금액을 보여 주지 않는다. 견적 대상 상품이거나 가격 정보가 없는 상품이다("금액 미표시").
+    Undisclosed,
+
+    // 가격 없이 장바구니가 막힌 상품이다("구매 불가").
     Unavailable,
 }
 
@@ -31,25 +36,25 @@ data class CatalogPriceSlot(
     val currentLabel: String?,
 )
 
-// 가격 슬롯이 같은 높이를 유지하도록, 품절·가격 문의 상품은 원가·할인 줄을 비운다.
+// 가격 슬롯이 같은 높이를 유지하도록, 판매가가 없는 상품은 원가·할인 줄을 비운다.
+// 품절은 이 함수의 입력이 아니다. 품절 상품도 판매가를 그대로 보여 주고, 품절 표시는 "품절" 배지가 맡는다(웹 기준).
+// 견적 대상이면 구매 불가 플래그가 함께 와도 견적 흐름인 "금액 미표시"를 쓴다.
 fun resolveCatalogPriceSlot(
     currentLabel: String?,
     originalLabel: String?,
     discountLabel: String?,
-    isInquiry: Boolean,
-    isSoldOut: Boolean,
+    isQuoteTarget: Boolean,
+    isPurchaseUnavailable: Boolean,
 ): CatalogPriceSlot {
-    if (isSoldOut) {
-        return CatalogPriceSlot(
-            kind = CatalogPriceKind.Unavailable,
-            originalLabel = null,
-            discountLabel = null,
-            currentLabel = null,
-        )
+    val kind = when {
+        isQuoteTarget -> CatalogPriceKind.Undisclosed
+        isPurchaseUnavailable -> CatalogPriceKind.Unavailable
+        currentLabel.isNullOrBlank() -> CatalogPriceKind.Undisclosed
+        else -> CatalogPriceKind.Price
     }
-    if (isInquiry || currentLabel.isNullOrBlank()) {
+    if (kind != CatalogPriceKind.Price) {
         return CatalogPriceSlot(
-            kind = CatalogPriceKind.Inquiry,
+            kind = kind,
             originalLabel = null,
             discountLabel = null,
             currentLabel = null,

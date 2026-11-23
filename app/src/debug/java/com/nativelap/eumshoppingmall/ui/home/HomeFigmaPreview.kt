@@ -25,7 +25,7 @@ private val homePreviewRecommendedProducts = listOf(
     HomeProductUiModel(
         id = "recommended-belt",
         name = "전신 안전벨트",
-        priceLabel = "가격 문의",
+        isQuoteTarget = true,
         ratingLabel = "평점 없음",
     ),
 )
@@ -74,6 +74,8 @@ private fun HomeFigmaPreview() {
             recommendedProducts = homePreviewRecommendedProducts,
             bestSellerProducts = homePreviewBestSellerProducts,
             cartItemCount = 3,
+            onSeeProductsClick = {},
+            onFooterLinkClick = {},
         )
     }
 }

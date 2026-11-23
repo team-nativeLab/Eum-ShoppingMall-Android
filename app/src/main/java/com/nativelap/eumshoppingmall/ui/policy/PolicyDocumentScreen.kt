@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -57,7 +58,8 @@ data class PolicyDocumentSectionUiModel(
 
 data class PolicyDocumentUiModel(
     val title: String,
-    val dateLabel: String,
+    // 날짜를 아직 알 수 없으면 null로 두고, 날짜 줄과 목차를 그리지 않는다(자리표시자 날짜를 노출하지 않는다).
+    val dateLabel: String?,
     val isEffectiveDate: Boolean,
     val sections: List<PolicyDocumentSectionUiModel>,
     val tableOfContents: List<String> = sections.map { it.title },
@@ -67,6 +69,8 @@ data class PolicyDocumentUiModel(
     val selectedVersionIndex: Int = 0,
     val isVersionPickerVisible: Boolean = false,
     val isClauseDocument: Boolean = false,
+    // 이용안내처럼 항목 목차를 쓰는 문서. 목차 개수 문구가 "개 항목"이 된다.
+    val isItemDocument: Boolean = false,
     val upcomingVersionIndex: Int? = null,
 )
 
@@ -90,12 +94,16 @@ fun PolicyDocumentScreen(uiModel: PolicyDocumentUiModel, onEvent: (PolicyDocumen
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
                 ) {
-                    Text(
-                        stringResource(if (uiModel.isEffectiveDate) R.string.policy_effective_date else R.string.policy_last_updated, uiModel.dateLabel),
-                        modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.eumColors.textSecondary,
-                    )
+                    if (uiModel.dateLabel != null) {
+                        Text(
+                            stringResource(if (uiModel.isEffectiveDate) R.string.policy_effective_date else R.string.policy_last_updated, uiModel.dateLabel),
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.eumColors.textSecondary,
+                        )
+                    } else {
+                        Spacer(Modifier.weight(1f))
+                    }
                     if (uiModel.previousVersionLabel != null || uiModel.versionOptions.isNotEmpty()) {
                         // 바깥 48dp 박스가 터치를 맡고, 안쪽 36dp Surface가 시각 버튼을 그린다.
                         Box(
@@ -118,7 +126,7 @@ fun PolicyDocumentScreen(uiModel: PolicyDocumentUiModel, onEvent: (PolicyDocumen
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
                                 ) {
-                                    Text(uiModel.previousVersionLabel ?: uiModel.dateLabel, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textPrimary)
+                                    Text(uiModel.previousVersionLabel ?: uiModel.dateLabel.orEmpty(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.eumColors.textPrimary)
                                     Icon(painterResource(R.drawable.ic_chevron_down), null, Modifier.size(EumSpacing.x16))
                                 }
                             }
@@ -135,31 +143,33 @@ fun PolicyDocumentScreen(uiModel: PolicyDocumentUiModel, onEvent: (PolicyDocumen
                     }
                 }
             }
-            Surface(shape = RoundedCornerShape(EumRadius.x12), color = MaterialTheme.eumColors.surface, border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.line)) {
-                Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
-                    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { isTableOfContentsExpanded = !isTableOfContentsExpanded }, verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(R.string.policy_table_of_contents), style = MaterialTheme.typography.labelMedium)
-                        val tableOfContentsCount = uiModel.tableOfContents.size
-                        Text(
-                            if (uiModel.isClauseDocument) {
-                                stringResource(R.string.policy_clause_count, tableOfContentsCount)
-                            } else {
-                                stringResource(R.string.policy_version_count, tableOfContentsCount)
-                            },
-                            modifier = Modifier.weight(1f).padding(start = EumSpacing.x8),
-                            style = EumTypographyTokens.caption,
-                            color = MaterialTheme.eumColors.textSecondary,
-                        )
-                        Icon(painterResource(R.drawable.ic_chevron_down), null, Modifier.padding(start = EumSpacing.x8).size(PolicyTocIconSize))
-                    }
-                    if (isTableOfContentsExpanded) {
-                        uiModel.tableOfContents.forEachIndexed { index, title ->
-                            Box(
-                                Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                                    .clickable { onEvent(PolicyDocumentEvent.SectionSelected(index)) },
-                                contentAlignment = Alignment.CenterStart,
-                            ) {
-                                Text(title, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+            if (uiModel.tableOfContents.isNotEmpty()) {
+                Surface(shape = RoundedCornerShape(EumRadius.x12), color = MaterialTheme.eumColors.surface, border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.line)) {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { isTableOfContentsExpanded = !isTableOfContentsExpanded }, verticalAlignment = Alignment.CenterVertically) {
+                            Text(stringResource(R.string.policy_table_of_contents), style = MaterialTheme.typography.labelMedium)
+                            val tableOfContentsCount = uiModel.tableOfContents.size
+                            Text(
+                                when {
+                                    uiModel.isClauseDocument -> stringResource(R.string.policy_clause_count, tableOfContentsCount)
+                                    uiModel.isItemDocument -> stringResource(R.string.policy_item_count, tableOfContentsCount)
+                                    else -> stringResource(R.string.policy_version_count, tableOfContentsCount)
+                                },
+                                modifier = Modifier.weight(1f).padding(start = EumSpacing.x8),
+                                style = EumTypographyTokens.caption,
+                                color = MaterialTheme.eumColors.textSecondary,
+                            )
+                            Icon(painterResource(R.drawable.ic_chevron_down), null, Modifier.padding(start = EumSpacing.x8).size(PolicyTocIconSize))
+                        }
+                        if (isTableOfContentsExpanded) {
+                            uiModel.tableOfContents.forEachIndexed { index, title ->
+                                Box(
+                                    Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                                        .clickable { onEvent(PolicyDocumentEvent.SectionSelected(index)) },
+                                    contentAlignment = Alignment.CenterStart,
+                                ) {
+                                    Text(title, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
+                                }
                             }
                         }
                     }

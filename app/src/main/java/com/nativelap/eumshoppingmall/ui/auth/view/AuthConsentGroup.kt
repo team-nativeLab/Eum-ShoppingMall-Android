@@ -39,19 +39,19 @@ internal fun AuthConsentGroup(uiModel: AuthSignupUiModel, onEvent: (AuthScreenEv
             stringResource(R.string.consent_terms_required),
             uiModel.isTermsChecked,
             { onEvent(AuthScreenEvent.SignupConsentChanged("terms", it)) },
-            { onEvent(AuthScreenEvent.SignupConsentDetailsClicked) },
+            { onEvent(AuthScreenEvent.SignupTermsDetailsClicked) },
         )
         AuthConsentRow(
             stringResource(R.string.consent_privacy_required),
             uiModel.isPrivacyChecked,
             { onEvent(AuthScreenEvent.SignupConsentChanged("privacy", it)) },
-            { onEvent(AuthScreenEvent.SignupConsentDetailsClicked) },
+            { onEvent(AuthScreenEvent.SignupPrivacyDetailsClicked) },
         )
         AuthConsentRow(
             stringResource(R.string.consent_marketing_optional),
             uiModel.isMarketingChecked,
             { onEvent(AuthScreenEvent.SignupConsentChanged("marketing", it)) },
-            { onEvent(AuthScreenEvent.SignupConsentDetailsClicked) },
+            { onEvent(AuthScreenEvent.SignupMarketingDetailsClicked) },
         )
     }
 }

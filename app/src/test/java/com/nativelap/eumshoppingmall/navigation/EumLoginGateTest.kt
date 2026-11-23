@@ -90,6 +90,9 @@ class EumLoginGateTest {
             EumDestination.AccountRecovery(),
             EumDestination.CustomerSupport,
             EumDestination.RecentProducts,
+            EumDestination.Terms,
+            EumDestination.PrivacyPolicy,
+            EumDestination.UsageGuide,
         ).forEach { destination ->
             assertFalse(destination.toString(), requiresLogin(destination))
         }

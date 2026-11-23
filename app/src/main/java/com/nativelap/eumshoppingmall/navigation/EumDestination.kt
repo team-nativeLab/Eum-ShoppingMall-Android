@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.navigation
 
 import androidx.navigation3.runtime.NavKey
+import com.nativelap.eumshoppingmall.ui.catalog.ProductListPreset
 import kotlinx.serialization.Serializable
 
 /**
@@ -35,9 +36,15 @@ sealed interface EumDestination : NavKey {
     @Serializable
     data object Drawer : EumDestination
 
-    /** A-04 상품 목록. categoryId가 null이면 전체 상품이다. */
+    /**
+     * A-04 상품 목록. categoryId가 null이면 카테고리를 거르지 않는다.
+     * preset은 홈 전체 보기(베스트·할인·오늘·추천)가 고른 기본 목록 원본이며, 기본값 All은 기존 전체 상품이다.
+     */
     @Serializable
-    data class ProductList(val categoryId: String? = null) : EumDestination
+    data class ProductList(
+        val categoryId: String? = null,
+        val preset: ProductListPreset = ProductListPreset.All,
+    ) : EumDestination
 
     /** A-06b 검색 결과 / A-06z 검색 결과 0건. 같은 키에서 Route가 결과 유무로 화면을 고른다. */
     @Serializable
@@ -211,6 +218,18 @@ sealed interface EumDestination : NavKey {
     /** A-55 이벤트 상세. */
     @Serializable
     data class EventDetail(val eventId: String) : EumDestination
+
+    /** A-36 이용약관. 공개 화면이다. 원문이 아직 없어 준비 중 안내를 보여 준다. */
+    @Serializable
+    data object Terms : EumDestination
+
+    /** A-37 개인정보처리방침. 공개 화면이다. 원문이 아직 없어 준비 중 안내를 보여 준다. */
+    @Serializable
+    data object PrivacyPolicy : EumDestination
+
+    /** A-38 이용안내. 공개 화면이다. 웹 /guide의 3단계와 6개 항목을 정보 구조로 보여 준다. */
+    @Serializable
+    data object UsageGuide : EumDestination
 
     /**
      * A-13 로그인(F4).

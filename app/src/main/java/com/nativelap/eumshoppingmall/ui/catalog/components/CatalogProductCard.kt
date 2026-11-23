@@ -171,10 +171,7 @@ fun CatalogProductCard(
                 ratingText = ratingTextOf(product),
                 reviewCountText = product.reviewCountLabel,
             )
-            ProductPriceSlot(
-                slot = priceSlot,
-                inquiryLabel = stringResource(R.string.product_price_inquiry),
-            )
+            ProductPriceSlot(slot = priceSlot)
             ProductChipRow(
                 shippingLabel = product.shippingLabel,
                 benefitLabels = product.benefitLabels,
@@ -269,10 +266,7 @@ fun CatalogProductRow(
                 ratingText = ratingTextOf(product),
                 reviewCountText = product.reviewCountLabel,
             )
-            ProductPriceSlot(
-                slot = priceSlot,
-                inquiryLabel = stringResource(R.string.product_price_inquiry),
-            )
+            ProductPriceSlot(slot = priceSlot)
             ProductChipRow(
                 shippingLabel = product.shippingLabel,
                 benefitLabels = product.benefitLabels,
@@ -317,7 +311,8 @@ private fun catalogPriceSlotOf(product: CatalogProductUiModel): CatalogPriceSlot
         currentLabel = available?.currentLabel,
         originalLabel = available?.originalLabel,
         discountLabel = available?.discountLabel,
-        isInquiry = product.price is CatalogPriceUiModel.QuoteRequired,
-        isSoldOut = product.isSoldOut,
+        isQuoteTarget = product.price is CatalogPriceUiModel.QuoteRequired,
+        // 카탈로그 상품에는 장바구니 차단 플래그가 없다. 금액이 없으면 견적 대상과 같이 "금액 미표시"가 된다.
+        isPurchaseUnavailable = false,
     )
 }

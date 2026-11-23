@@ -14,4 +14,5 @@ sealed interface CartScreenEvent {
     data object QuoteRequestClicked : CartScreenEvent
     data object CheckoutClicked : CartScreenEvent
     data object LoginClicked : CartScreenEvent
+    data object BrowseProductsClicked : CartScreenEvent
 }

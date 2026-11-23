@@ -37,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogLoadMoreButton
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductRow
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogScreenScaffold
@@ -56,6 +57,8 @@ fun CatalogSearchResultsScreen(
     modifier: Modifier = Modifier,
     snackbarHostState: androidx.compose.material3.SnackbarHostState? = null,
     showQuickCart: Boolean = false,
+    // 페이지 분량만 보여 줄 때 true면 목록 끝에 "더 보기" 버튼을 둔다.
+    hasMoreProducts: Boolean = false,
 ) {
     CatalogScreenScaffold(
         selectedBottomItem = selectedBottomItem,
@@ -146,6 +149,11 @@ fun CatalogSearchResultsScreen(
                                     }
                                     if (row.size == 1) androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
                                 }
+                            }
+                        }
+                        if (hasMoreProducts) {
+                            item {
+                                CatalogLoadMoreButton(onClick = { onEvent(CatalogSearchResultsEvent.LoadMoreClicked) })
                             }
                         }
                     }

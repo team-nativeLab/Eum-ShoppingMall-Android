@@ -112,6 +112,18 @@ fun CartScreen(
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Text(stringResource(R.string.cart_empty), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary)
+                    Text(
+                        stringResource(R.string.cart_empty_description),
+                        modifier = Modifier.padding(top = EumSpacing.x8),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.eumColors.textTertiary,
+                    )
+                    EumPrimaryButton(
+                        onClick = { onEvent(CartScreenEvent.BrowseProductsClicked) },
+                        modifier = Modifier.padding(top = EumSpacing.x24),
+                    ) {
+                        Text(stringResource(R.string.cart_browse_products))
+                    }
                 }
             } else {
                 LazyColumn(

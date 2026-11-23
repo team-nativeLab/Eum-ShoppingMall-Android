@@ -74,7 +74,10 @@ internal fun EntryProviderScope<NavKey>.addAuthEntries(
             accountService = accountService,
             onSignupSuccess = onSignupCompleted,
             onBackClick = { navigator.goBack() },
-            onConsentDetailsClick = context.onUnavailableAction,
+            onTermsDetailsClick = { navigator.push(EumDestination.Terms) },
+            onPrivacyDetailsClick = { navigator.push(EumDestination.PrivacyPolicy) },
+            // 마케팅 동의 상세 문서는 아직 목적지가 없어 준비 중 안내를 유지한다.
+            onMarketingDetailsClick = context.onUnavailableAction,
         )
     }
     entry<EumDestination.AccountRecovery> { destination ->
@@ -233,7 +236,6 @@ internal fun EntryProviderScope<NavKey>.addSupportEntries(context: EumEntryConte
         InquiryWriteRoute(
             uiModel = remember { provider.inquiryForm() },
             onBackClick = { navigator.goBack() },
-            onSubmitted = { navigator.popIfTop(EumDestination.InquiryWrite) },
             onUnavailableAction = context.onUnavailableAction,
         )
     }
@@ -284,18 +286,14 @@ internal fun EntryProviderScope<NavKey>.addCatalogDetailEntries(context: EumEntr
             onUnavailableAction = context.onUnavailableAction,
         )
     }
-    entry<EumDestination.ProductInquiryWrite> { destination ->
+    // 제출은 서버 연동 전이라 저장·완료 이동 없이 준비 중 안내만 낸다(1:1 문의와 같은 방식).
+    entry<EumDestination.ProductInquiryWrite> {
         ProductInquiryRoute(
             onBackClick = { navigator.goBack() },
-            // 완료 뒤 뒤로가기로 작성 폼에 다시 들어가지 않도록 작성 화면을 완료 화면으로 바꾼다.
-            onSubmitted = {
-                navigator.popWhileAndPushIfTop(
-                    topDestination = destination,
-                    destination = EumDestination.ProductInquiryComplete(destination.productId),
-                ) { navKey -> navKey == destination }
-            },
+            onUnavailableAction = context.onUnavailableAction,
         )
     }
+    // 완료 목적지는 남겨 두었지만 앱 흐름에서 열리지 않는다(서버 연동 후 제출 완료 처리 때 다시 연결한다).
     entry<EumDestination.ProductInquiryComplete> { destination ->
         ProductInquiryCompleteRoute(
             onBackClick = { navigator.goBack() },

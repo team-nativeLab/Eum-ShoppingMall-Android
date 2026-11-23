@@ -51,6 +51,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun HomePreview() {
     EumShoppingMallTheme {
-        HomeRoute()
+        HomeRoute(
+            onSeeProductsClick = {},
+            onFooterLinkClick = {},
+        )
     }
 }

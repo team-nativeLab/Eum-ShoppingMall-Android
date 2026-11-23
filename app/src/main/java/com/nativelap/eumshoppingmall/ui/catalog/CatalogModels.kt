@@ -15,6 +15,13 @@ sealed interface CatalogPriceUiModel {
     data object QuoteRequired : CatalogPriceUiModel
 }
 
+// 상품이 받은 안전인증 종류. 한 상품이 여러 종류를 함께 가질 수 있다.
+enum class SafetyCertificationType {
+    KcSafety,
+    SelfSafetyCheck,
+    TypeApproval,
+}
+
 data class CatalogProductUiModel(
     val id: String,
     val name: String,
@@ -37,6 +44,13 @@ data class CatalogProductUiModel(
     val subcategoryId: String? = null,
     // 옵션 없음이 명시된 상품만 true. null(정보 없음)이면 카드에서 바로 담지 않는다(담기 불가가 기본).
     val hasOptions: Boolean? = null,
+    // 브랜드 id와 표시 이름. 브랜드 필터 목록은 두 값이 모두 있는 상품에서만 만든다.
+    val brandId: String? = null,
+    val brandName: String? = null,
+    // 상품이 받은 안전인증 종류. 비어 있으면 인증 없음이며, 안전인증 필터에 쓴다.
+    val safetyCertifications: Set<SafetyCertificationType> = emptySet(),
+    // 등록 순서. 값이 클수록 최근 상품이며 최신순 정렬에 쓴다.
+    val registeredOrder: Long = 0L,
 )
 
 data class CatalogCategoryUiModel(
@@ -140,6 +154,7 @@ sealed interface CatalogProductListEvent {
     data class ProductSelected(val productId: String) : CatalogProductListEvent
     data class FavoriteToggled(val productId: String) : CatalogProductListEvent
     data class QuickCartClicked(val productId: String) : CatalogProductListEvent
+    data object LoadMoreClicked : CatalogProductListEvent
 }
 
 data class CatalogSearchUiModel(
@@ -182,6 +197,7 @@ sealed interface CatalogSearchResultsEvent {
     data class QuickCartClicked(val productId: String) : CatalogSearchResultsEvent
     data object PopularSearchClicked : CatalogSearchResultsEvent
     data object QuoteRequestClicked : CatalogSearchResultsEvent
+    data object LoadMoreClicked : CatalogSearchResultsEvent
 }
 
 data class CatalogProductDetailUiModel(

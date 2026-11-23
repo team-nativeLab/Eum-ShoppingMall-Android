@@ -28,12 +28,11 @@ import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
-// 가격 슬롯은 항상 두 줄이다. 첫 줄은 원가·할인(없으면 빈 줄), 둘째 줄은 판매가 또는 문의·구매 불가 문구.
-// 문의 문구는 화면마다 다를 수 있어(카탈로그는 "가격 문의", 홈도 같은 뜻) 호출 측에서 받는다.
+// 가격 슬롯은 항상 두 줄이다. 첫 줄은 원가·할인(없으면 빈 줄), 둘째 줄은 판매가 또는 "금액 미표시"·"구매 불가" 문구.
+// 품절 표시는 이 슬롯이 아니라 이미지 위 "품절" 배지가 맡는다.
 @Composable
 internal fun ProductPriceSlot(
     slot: CatalogPriceSlot,
-    inquiryLabel: String,
     modifier: Modifier = Modifier,
 ) {
     val hasDiscount = slot.discountLabel != null
@@ -73,7 +72,7 @@ internal fun ProductPriceSlot(
         }
         val mainLabel = when (slot.kind) {
             CatalogPriceKind.Price -> slot.currentLabel.orEmpty()
-            CatalogPriceKind.Inquiry -> inquiryLabel
+            CatalogPriceKind.Undisclosed -> stringResource(R.string.product_price_undisclosed)
             CatalogPriceKind.Unavailable -> stringResource(R.string.product_purchase_unavailable)
         }
         val mainColor = when {
