@@ -30,7 +30,7 @@ fun AuthPasswordUpdatedScreen(onEvent: (AuthScreenEvent) -> Unit) {
     Scaffold(
         topBar = { AuthTopBar(stringResource(R.string.auth_password_reset_title), onBack = { onEvent(AuthScreenEvent.CloseClicked) }, isClose = true) },
         bottomBar = {
-            Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8)) {
+            Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x8)) {
                 AuthPrimaryAction(stringResource(R.string.account_login), true) { onEvent(AuthScreenEvent.RecoveryLoginClicked) }
             }
         },
@@ -38,7 +38,7 @@ fun AuthPasswordUpdatedScreen(onEvent: (AuthScreenEvent) -> Unit) {
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
         Column(
-            Modifier.fillMaxSize().padding(padding).padding(horizontal = EumSpacing.x20),
+            Modifier.fillMaxSize().padding(padding).padding(horizontal = EumSpacing.pageGutter),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x12, Alignment.CenterVertically),
         ) {

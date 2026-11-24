@@ -53,7 +53,6 @@ fun HomePreview() {
     EumShoppingMallTheme {
         HomeRoute(
             onSeeProductsClick = {},
-            onFooterLinkClick = {},
         )
     }
 }

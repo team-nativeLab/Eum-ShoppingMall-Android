@@ -29,7 +29,7 @@ internal fun AccountStickyPrimaryAction(
             .imePadding(),
     ) {
         HorizontalDivider(color = MaterialTheme.eumColors.line)
-        Column(Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8)) {
+        Column(Modifier.padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x8)) {
             AccountPrimaryButton(label, onClick, enabled, containerColor ?: MaterialTheme.eumColors.textPrimary)
         }
     }

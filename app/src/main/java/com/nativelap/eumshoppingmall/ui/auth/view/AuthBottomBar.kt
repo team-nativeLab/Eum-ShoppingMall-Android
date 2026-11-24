@@ -23,7 +23,7 @@ internal fun AuthBottomBar(modifier: Modifier = Modifier, content: @Composable C
     ) {
         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.eumColors.line)
         Column(
-            Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
+            Modifier.fillMaxWidth().padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x12),
             content = content,
         )
     }

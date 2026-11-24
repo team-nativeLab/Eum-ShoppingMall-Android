@@ -64,9 +64,6 @@
     <string name="home_service_free_shipping">%1$s 이상 무료배송</string>
     <string name="home_service_same_day">당일 출고</string>
     <string name="home_service_tax_invoice">세금계산서 발행</string>
-    <string name="home_company_info_title">사업자 정보</string>
-    <string name="home_company_mail_order_sales">통신판매업 신고번호</string>
-    <string name="home_company_customer_service">고객센터·운영시간</string>
     <string name="home_tab_home">홈</string>
     <string name="home_tab_categories">카테고리</string>
     <string name="home_tab_search">검색</string>
@@ -90,8 +87,10 @@
     <string name="home_hero_safe_description">안전용품과 현장 자재를 둘러보고 필요한 상품을 찾아보세요.</string>
     <string name="home_hero_browse_products">상품 둘러보기</string>
     <string name="home_hero_safe_image_description">현장의 안전을 강조하는 배너 이미지</string>
-    <string name="home_hero_auto_advance_pause">자동 넘김 정지</string>
-    <string name="home_hero_auto_advance_play">자동 넘김 재생</string>
+    <string name="home_hero_custom_eyebrow">CUSTOM SOLUTION</string>
+    <string name="home_hero_custom_title">현장에 꼭 맞는,\n맞춤 안전 솔루션.</string>
+    <string name="home_hero_custom_description">공간과 환경에 맞는 최적의 안전 솔루션을 제안합니다.</string>
+    <string name="home_hero_custom_image_description">공간 설계도를 활용한 맞춤 안전 솔루션 배너 이미지</string>
     <string name="home_hero_sustainable_eyebrow">SUSTAINABLE VALUE</string>
     <string name="home_hero_sustainable_title">지속 가능한\n안전의 가치.</string>
     <string name="home_hero_sustainable_description">제조부터 현장까지, 안전의 기준을 지킵니다.</string>
@@ -824,9 +823,4 @@
     <string name="usage_guide_return_body">교환·반품 신청 전 상품 상태와 신청 가능 기간을 배송·교환 정책에서 확인해 주십시오. 상품과 주문에 따라 접수 방법이 다를 수 있습니다.</string>
     <string name="usage_guide_support_title">고객센터 안내</string>
     <string name="usage_guide_support_body">주문과 서비스 이용 문의는 고객지원의 FAQ 또는 1:1 문의를 이용해 주십시오.</string>
-    <string name="home_footer_terms">이용약관</string>
-    <string name="home_footer_privacy">개인정보처리방침</string>
-    <string name="home_footer_guide">이용안내</string>
-    <string name="home_footer_event">이벤트</string>
-    <string name="home_footer_customer">고객센터</string>
 </resources>

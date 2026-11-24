@@ -46,7 +46,7 @@ fun OrderRequestResultScreen(uiModel: OrderRequestResultUiModel, onEvent: (Order
     RequestScaffold(uiModel.statusLabel, { onEvent(OrderRequestResultScreenEvent.BackClicked) }, modifier, bottomContent = {
         Button(onClick = { onEvent(OrderRequestResultScreenEvent.RequestHistoryClicked) }, Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(EumRadius.x10), colors = darkButtonColors()) { Text(stringResource(R.string.request_view_history)) }
     }) { padding ->
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x24)) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x24)) {
             Text(stringResource(R.string.request_result_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
             RequestLabeledField(stringResource(R.string.request_result_number_label), uiModel.requestNumber)
             RequestLabeledField(stringResource(R.string.request_result_notice_label), uiModel.statusDescription)
@@ -87,7 +87,7 @@ fun OrderRequestWithdrawalConfirmScreen(
             Button(onClick = { onEvent(OrderRequestWithdrawalScreenEvent.WithdrawalConfirmed) }, modifier = Modifier.weight(1f).heightIn(min = 56.dp), shape = RoundedCornerShape(EumRadius.x8), colors = darkButtonColors()) { Text(stringResource(R.string.request_withdraw_action)) }
         }
     }) { padding ->
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
             Surface(shape = RoundedCornerShape(EumRadius.x12), color = MaterialTheme.eumColors.dangerTint, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(horizontal = EumSpacing.x16, vertical = WithdrawalNoticeVerticalPadding)) {
                     Text(stringResource(R.string.request_withdraw_question), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.eumColors.danger)
@@ -128,7 +128,7 @@ fun OrderRequestWithdrawalCompleteScreen(
     RequestScaffold(stringResource(R.string.request_withdraw_complete_title), { onEvent(OrderRequestWithdrawalScreenEvent.BackClicked) }, modifier, bottomContent = {
         Button(onClick = { onEvent(OrderRequestWithdrawalScreenEvent.RequestHistoryClicked) }, Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(EumRadius.x8), colors = darkButtonColors()) { Text(stringResource(R.string.request_view_history)) }
     }) { padding ->
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Surface(shape = CircleShape, color = MaterialTheme.eumColors.textPrimary, modifier = Modifier.size(64.dp)) {
                     Box(contentAlignment = Alignment.Center) {
@@ -153,7 +153,7 @@ fun OrderRequestRejectionScreen(uiModel: OrderRequestRejectionUiModel, onEvent: 
     RequestScaffold(stringResource(R.string.request_rejected_screen_title), { onEvent(OrderRequestRejectionScreenEvent.BackClicked) }, modifier, bottomContent = {
         Button(onClick = { onEvent(OrderRequestRejectionScreenEvent.RequestHistoryClicked) }, Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(EumRadius.x8), colors = darkButtonColors()) { Text(stringResource(R.string.request_view_history)) }
     }) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
             item {
                 Text(stringResource(R.string.request_rejection_result_subtitle), Modifier.padding(bottom = EumSpacing.x24), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textSecondary)
             }

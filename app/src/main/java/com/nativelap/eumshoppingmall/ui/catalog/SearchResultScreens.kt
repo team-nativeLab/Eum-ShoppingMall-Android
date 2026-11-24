@@ -73,8 +73,6 @@ fun CatalogSearchResultsScreen(
                 onQueryChanged = { onEvent(CatalogSearchResultsEvent.QueryChanged(it)) },
                 onSubmit = { onEvent(CatalogSearchResultsEvent.SearchSubmitted) },
                 onCancel = { onEvent(CatalogSearchResultsEvent.Cancelled) },
-                // 결과 화면은 뒤로(←)만 둔다. 취소와 뒤로가 같은 동작이라 중복을 뺀다.
-                showCancelText = false,
                 modifier = Modifier.statusBarsPadding(),
             )
         },
@@ -88,7 +86,7 @@ fun CatalogSearchResultsScreen(
                 Column(Modifier.fillMaxSize()) {
                     // Figma(180:1511)처럼 칩 줄은 가로로 스크롤되어 넘치는 칩이 잘려 보이게 한다.
                     LazyRow(
-                        contentPadding = PaddingValues(horizontal = EumSpacing.x20),
+                        contentPadding = PaddingValues(horizontal = EumSpacing.pageGutter),
                         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
                     ) {
                         items(uiModel.filters) { filter ->
@@ -110,7 +108,7 @@ fun CatalogSearchResultsScreen(
                     )
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x8),
+                        contentPadding = PaddingValues(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x8),
                         verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
                     ) {
                         if (uiModel.isListLayout) {
@@ -177,7 +175,7 @@ private fun CatalogSearchResultHeader(
     onLayoutClick: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(start = EumSpacing.x20, top = EumSpacing.x20, end = EumSpacing.x20),
+        modifier = Modifier.fillMaxWidth().padding(start = EumSpacing.pageGutter, top = EumSpacing.x20, end = EumSpacing.pageGutter),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -238,7 +236,7 @@ fun CatalogSearchEmptyScreen(
         },
         content = { contentModifier ->
             Column(
-                modifier = contentModifier.fillMaxSize().padding(horizontal = EumSpacing.x20),
+                modifier = contentModifier.fillMaxSize().padding(horizontal = EumSpacing.pageGutter),
             ) {
                 Column(
                     modifier = Modifier.weight(1f).fillMaxWidth(),

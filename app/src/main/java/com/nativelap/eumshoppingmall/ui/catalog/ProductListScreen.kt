@@ -87,7 +87,7 @@ fun CatalogProductListScreen(
                 val columns = catalogProductColumnCount(maxWidth, LocalDensity.current.fontScale)
                 Column(Modifier.fillMaxSize()) {
                     LazyRow(
-                        contentPadding = PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x8),
+                        contentPadding = PaddingValues(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x8),
                         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
                     ) {
                         items(uiModel.categoryChips, key = { chip -> chip.id }) { chip ->
@@ -251,7 +251,7 @@ internal fun CatalogProductListControls(
                 border = BorderStroke(1.dp, MaterialTheme.eumColors.textPrimary),
             ) {
                 Row(
-                    modifier = Modifier.padding(
+                    modifier = Modifier.fillMaxWidth().padding(
                         start = EumSpacing.x14,
                         top = EumSpacing.x10,
                         end = EumSpacing.x10,
@@ -260,9 +260,10 @@ internal fun CatalogProductListControls(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
                 ) {
+                    // 텍스트가 남은 폭을 채워 화살표는 알약의 오른쪽 끝에 붙는다(EumSelectField와 같은 배치).
                     Text(
                         sortLabel,
-                        modifier = Modifier.weight(1f, fill = false),
+                        modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.eumColors.textPrimary,
                         maxLines = 1,
@@ -328,7 +329,7 @@ internal fun CatalogProductListControls(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
             ) {
-                sortControl(Modifier)
+                sortControl(Modifier.weight(1f))
                 countLabel?.let {
                     Text(
                         it,

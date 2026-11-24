@@ -75,7 +75,7 @@ fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSetti
             ResponsiveContentContainer(Modifier.fillMaxSize().padding(padding)) {
                 LazyColumn(
                     Modifier.fillMaxSize().navigationBarsPadding(),
-                    contentPadding = PaddingValues(start = EumSpacing.x20, top = EumSpacing.x24, end = EumSpacing.x20, bottom = EumSpacing.x40),
+                    contentPadding = PaddingValues(start = EumSpacing.pageGutter, top = EumSpacing.x24, end = EumSpacing.pageGutter, bottom = EumSpacing.x40),
                     verticalArrangement = Arrangement.spacedBy(EumSpacing.x32),
                 ) {
                     if (!uiModel.areTogglesAvailable) {
@@ -194,7 +194,7 @@ fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSetti
         }
         if (uiModel.isMarketingToastVisible) {
             Snackbar(
-                Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
+                Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x16),
                 shape = RoundedCornerShape(EumRadius.x8),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {

@@ -56,7 +56,7 @@ fun PointsScreen(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-                contentPadding = PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
+                contentPadding = PaddingValues(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x16),
                 verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
             ) {
                 item {

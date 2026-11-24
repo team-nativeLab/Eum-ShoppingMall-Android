@@ -70,7 +70,7 @@ fun CheckoutAddressScreen(
                 Box(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface)) {
                     EumPrimaryButton(
                         onClick = { onEvent(CheckoutScreenEvent.NextClicked) },
-                        modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
+                        modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x12),
                     ) {
                         Text(stringResource(R.string.checkout_next))
                     }

@@ -39,7 +39,7 @@ fun AuthPhoneNumberChangeScreen(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
         Column(
-            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
+            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x16),
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                 Text(stringResource(R.string.account_phone_verification_instruction), style = MaterialTheme.typography.headlineSmall)

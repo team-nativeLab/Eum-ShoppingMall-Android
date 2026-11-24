@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.common.EumPrimaryButton
+import com.nativelap.eumshoppingmall.ui.common.EumTopBarBackButton
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -150,10 +151,8 @@ fun ProductReviewWriteScreen(
 
 @Composable
 private fun ReviewWriteTopBar(onEvent: (ProductReviewWriteEvent) -> Unit) {
-    Row(Modifier.fillMaxWidth().statusBarsPadding().heightIn(min = 56.dp).padding(horizontal = EumSpacing.x8), verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = { onEvent(ProductReviewWriteEvent.BackClicked) }, modifier = Modifier.size(48.dp)) {
-            Icon(painterResource(R.drawable.ic_arrow_left), stringResource(R.string.common_back))
-        }
+    Row(Modifier.fillMaxWidth().statusBarsPadding().heightIn(min = 56.dp).padding(horizontal = EumSpacing.topBarInset), verticalAlignment = Alignment.CenterVertically) {
+        EumTopBarBackButton(onClick = { onEvent(ProductReviewWriteEvent.BackClicked) }, contentDescription = stringResource(R.string.common_back))
         Text(stringResource(R.string.review_write_title), Modifier.weight(1f), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.eumColors.textPrimary, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
         IconButton(onClick = { onEvent(ProductReviewWriteEvent.SearchClicked) }, modifier = Modifier.size(48.dp)) {
             Icon(painterResource(R.drawable.ic_search), stringResource(R.string.common_search))

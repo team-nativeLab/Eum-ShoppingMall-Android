@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.EumTopBarBackButton
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -48,22 +49,17 @@ fun CatalogTopBar(
 ) {
     // 좌우 슬롯을 실제 측정 폭의 최댓값으로 맞춰 제목이 항상 가운데에 오게 한다.
     Layout(
-        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = EumSpacing.x8),
+        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = EumSpacing.topBarInset),
         content = {
             Box(contentAlignment = Alignment.CenterStart) {
                 if (onBackClick != null) {
-                    IconButton(onClick = onBackClick, modifier = Modifier.size(48.dp)) {
-                        Icon(
-                            painterResource(
-                                if (isCloseAction) R.drawable.ic_close else R.drawable.ic_arrow_left,
-                            ),
-                            contentDescription = stringResource(
-                                if (isCloseAction) R.string.common_close else R.string.common_back,
-                            ),
-                            tint = MaterialTheme.eumColors.textPrimary,
-                            modifier = Modifier.size(24.dp),
-                        )
-                    }
+                    EumTopBarBackButton(
+                        onClick = onBackClick,
+                        contentDescription = stringResource(
+                            if (isCloseAction) R.string.common_close else R.string.common_back,
+                        ),
+                        iconResId = if (isCloseAction) R.drawable.ic_close else R.drawable.ic_arrow_left,
+                    )
                 } else if (leadingAction != null) {
                     IconButton(onClick = onLeadingActionClick, modifier = Modifier.size(48.dp)) {
                         Icon(

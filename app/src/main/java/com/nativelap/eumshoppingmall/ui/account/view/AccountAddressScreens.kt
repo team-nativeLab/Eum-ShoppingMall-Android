@@ -97,7 +97,7 @@ fun AccountAddressListScreen(uiModel: AccountAddressListUiModel, onEvent: (Accou
                     )
                 }
             } else {
-                LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = androidx.compose.foundation.layout.PaddingValues(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
                     items(uiModel.addresses, key = { it.id }) { address -> AddressCard(address, onEvent) }
                     item {
                         Text(stringResource(R.string.address_limit_notice, uiModel.maximumAddressCount), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
@@ -183,7 +183,7 @@ fun AccountAddressFormScreen(uiModel: AccountAddressFormUiModel, onEvent: (Accou
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
         ResponsiveContentContainer(Modifier.fillMaxSize()) {
-            LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+            LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
                 item { AddressInput(stringResource(R.string.delivery_address_name), uiModel.address.label, stringResource(R.string.address_label_placeholder), { onEvent(AccountAddressFormScreenEvent.LabelChanged(it)) }) }
                 item { AddressInput(stringResource(R.string.address_recipient), uiModel.address.recipient, stringResource(R.string.address_recipient_placeholder), { onEvent(AccountAddressFormScreenEvent.RecipientChanged(it)) }) }
                 item { AddressInput(stringResource(R.string.account_phone_number), uiModel.address.phoneNumber, stringResource(R.string.account_phone_placeholder), { onEvent(AccountAddressFormScreenEvent.PhoneChanged(it)) }, keyboardType = KeyboardType.Phone, isError = uiModel.isPhoneInvalid, errorMessage = if (uiModel.isPhoneInvalid) stringResource(R.string.address_phone_invalid) else null) }

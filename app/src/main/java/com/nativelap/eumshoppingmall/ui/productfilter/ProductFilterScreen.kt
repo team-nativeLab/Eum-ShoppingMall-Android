@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -42,6 +44,7 @@ import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
+import com.nativelap.eumshoppingmall.ui.theme.eumCheckboxColors
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 enum class ProductFilterPriceRange {
@@ -327,7 +330,12 @@ private fun FilterCheckboxRow(
         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
     ) {
         // 행 전체가 토글을 받으므로 Checkbox 자체의 클릭 처리는 끈다.
-        Checkbox(checked = checked, onCheckedChange = null)
+        Checkbox(
+            checked = checked,
+            onCheckedChange = null,
+            modifier = Modifier.size(20.dp),
+            colors = eumCheckboxColors(),
+        )
         Text(
             text = label,
             modifier = Modifier.weight(1f),
@@ -367,7 +375,7 @@ private fun PriceDirectInputSection(
             OutlinedTextField(
                 value = minDraft,
                 onValueChange = { text -> onDraftChanged(ProductFilterPriceBound.Min, text) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).height(48.dp),
                 label = { Text(stringResource(R.string.ui_audit_price_min)) },
                 suffix = { Text(stringResource(R.string.ui_audit_price_unit)) },
                 singleLine = true,
@@ -377,7 +385,7 @@ private fun PriceDirectInputSection(
             OutlinedTextField(
                 value = maxDraft,
                 onValueChange = { text -> onDraftChanged(ProductFilterPriceBound.Max, text) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).height(48.dp),
                 label = { Text(stringResource(R.string.ui_audit_price_max)) },
                 suffix = { Text(stringResource(R.string.ui_audit_price_unit)) },
                 singleLine = true,
@@ -389,12 +397,17 @@ private fun PriceDirectInputSection(
                 shape = RoundedCornerShape(EumRadius.x8),
                 color = MaterialTheme.eumColors.textPrimary,
             ) {
-                Text(
-                    stringResource(R.string.ui_audit_price_apply),
-                    modifier = Modifier.padding(horizontal = EumSpacing.x14, vertical = EumSpacing.x12),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.eumColors.inverse,
-                )
+                // 버튼 높이 48을 채우고 글자를 세로·가로 가운데에 둔다.
+                Box(
+                    modifier = Modifier.heightIn(min = 48.dp).padding(horizontal = EumSpacing.x14),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        stringResource(R.string.ui_audit_price_apply),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.eumColors.inverse,
+                    )
+                }
             }
         }
         // 적용 중인 직접 입력 조건을 화면에 보이고, 해제하면 조건과 입력 칸을 함께 비운다.
@@ -417,12 +430,16 @@ private fun PriceDirectInputSection(
                     color = MaterialTheme.eumColors.surface,
                     border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.lineNeutral),
                 ) {
-                    Text(
-                        stringResource(R.string.ui_audit_price_direct_clear),
-                        modifier = Modifier.padding(horizontal = EumSpacing.x14, vertical = EumSpacing.x12),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.eumColors.textPrimary,
-                    )
+                    Box(
+                        modifier = Modifier.heightIn(min = 48.dp).padding(horizontal = EumSpacing.x14),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            stringResource(R.string.ui_audit_price_direct_clear),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.eumColors.textPrimary,
+                        )
+                    }
                 }
             }
         }

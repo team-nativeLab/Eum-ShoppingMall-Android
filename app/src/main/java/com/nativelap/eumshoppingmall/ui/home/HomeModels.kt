@@ -59,44 +59,6 @@ data class HomeCategoryUiModel(
     @param:StringRes val descriptionResId: Int? = null,
 )
 
-// 사업자 정보 푸터 값. 실제 값이 없으면 전부 null이며, 그때 푸터 섹션은 숨겨진다.
-data class HomeCompanyInfoUiModel(
-    val companyName: String? = null,
-    val representativeName: String? = null,
-    val businessRegistrationNumber: String? = null,
-    val mailOrderSalesNumber: String? = null,
-    val address: String? = null,
-    val email: String? = null,
-    val customerServiceHours: String? = null,
-)
-
-enum class HomeCompanyInfoField {
-    CompanyName,
-    RepresentativeName,
-    BusinessRegistrationNumber,
-    MailOrderSalesNumber,
-    Address,
-    Email,
-    CustomerServiceHours,
-}
-
-data class HomeCompanyInfoRow(
-    val field: HomeCompanyInfoField,
-    val value: String,
-)
-
-// 값이 비어 있는 줄은 숨기고, 남은 줄은 푸터에 정의된 순서를 따른다.
-fun HomeCompanyInfoUiModel.visibleInfoRows(): List<HomeCompanyInfoRow> = listOf(
-    HomeCompanyInfoField.CompanyName to companyName,
-    HomeCompanyInfoField.RepresentativeName to representativeName,
-    HomeCompanyInfoField.BusinessRegistrationNumber to businessRegistrationNumber,
-    HomeCompanyInfoField.MailOrderSalesNumber to mailOrderSalesNumber,
-    HomeCompanyInfoField.Address to address,
-    HomeCompanyInfoField.Email to email,
-    HomeCompanyInfoField.CustomerServiceHours to customerServiceHours,
-).mapNotNull { (field, value) ->
-    value?.trim()?.takeIf { it.isNotEmpty() }?.let { HomeCompanyInfoRow(field, it) }
-}
 
 sealed interface HomeScreenEvent {
     data class QueryChanged(val query: String) : HomeScreenEvent
@@ -112,11 +74,7 @@ sealed interface HomeScreenEvent {
     data class SeeProductsClicked(val preset: ProductListPreset) : HomeScreenEvent
     data class FavoriteClicked(val product: HomeProductUiModel) : HomeScreenEvent
     data class NavigationSelected(val item: MainNavigationTab) : HomeScreenEvent
-    data class FooterLinkClicked(val link: HomeFooterLink) : HomeScreenEvent
 }
-
-/** 홈 푸터의 정책·지원 링크. 웹 푸터 항목과 같은 순서다. */
-enum class HomeFooterLink { Terms, PrivacyPolicy, UsageGuide, Events, CustomerSupport }
 
 // 검색 결과에서 다시 검색하면 그 검색어를 홈 검색창 공유 상태로 옮긴다. 공백은 다듬는다.
 fun homeQueryForSearchQuery(searchQuery: String): String = searchQuery.trim()

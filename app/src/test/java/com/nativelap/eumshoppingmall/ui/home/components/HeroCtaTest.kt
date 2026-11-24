@@ -11,7 +11,7 @@ class HeroCtaTest {
     @Test
     fun heroSlidesOpenApprovedActionsInSlideOrder() {
         assertEquals(
-            listOf(HomeHeroActionId.BrowseProducts, HomeHeroActionId.ViewCompany),
+            listOf(HomeHeroActionId.BrowseProducts, HomeHeroActionId.BrowseProducts, HomeHeroActionId.BrowseProducts),
             homeHeroSlideActionIds(),
         )
     }
@@ -24,21 +24,11 @@ class HeroCtaTest {
     }
 
     @Test
-    fun userPausedHeroDoesNotAutoAdvanceEvenWhenResumed() {
-        assertFalse(heroAutoAdvanceEnabled(isResumed = true, isDragged = false, isUserPaused = true, isReducedMotion = false))
-    }
-
-    @Test
     fun resumedHeroAutoAdvancesUnlessDraggedBackgroundedOrReducedMotion() {
-        assertTrue(heroAutoAdvanceEnabled(isResumed = true, isDragged = false, isUserPaused = false, isReducedMotion = false))
-        assertFalse(heroAutoAdvanceEnabled(isResumed = false, isDragged = false, isUserPaused = false, isReducedMotion = false))
-        assertFalse(heroAutoAdvanceEnabled(isResumed = true, isDragged = true, isUserPaused = false, isReducedMotion = false))
-        assertFalse(heroAutoAdvanceEnabled(isResumed = true, isDragged = false, isUserPaused = false, isReducedMotion = true))
+        assertTrue(heroAutoAdvanceEnabled(isResumed = true, isDragged = false, isReducedMotion = false))
+        assertFalse(heroAutoAdvanceEnabled(isResumed = false, isDragged = false, isReducedMotion = false))
+        assertFalse(heroAutoAdvanceEnabled(isResumed = true, isDragged = true, isReducedMotion = false))
+        assertFalse(heroAutoAdvanceEnabled(isResumed = true, isDragged = false, isReducedMotion = true))
     }
 
-    @Test
-    fun companyLinkAppearsOnlyOnCompanySlide() {
-        assertTrue(showsHeroCompanyLink(HomeHeroActionId.ViewCompany))
-        assertFalse(showsHeroCompanyLink(HomeHeroActionId.BrowseProducts))
-    }
 }

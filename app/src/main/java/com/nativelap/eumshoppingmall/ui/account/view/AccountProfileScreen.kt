@@ -75,7 +75,7 @@ fun AccountProfileScreen(
         ResponsiveContentContainer(Modifier.fillMaxSize().padding(contentPadding)) {
             if (isPasswordVerification) {
                 Column(
-                    Modifier.fillMaxSize().padding(horizontal = EumSpacing.x20),
+                    Modifier.fillMaxSize().padding(horizontal = EumSpacing.pageGutter),
                     verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
                 ) {
                     Column(
@@ -114,7 +114,7 @@ fun AccountProfileScreen(
             } else {
                 LazyColumn(
                     Modifier.fillMaxSize(),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x16),
                     verticalArrangement = Arrangement.spacedBy(EumSpacing.x24),
                 ) {
                     item {
