@@ -30,5 +30,4 @@ class HeroCtaTest {
         assertFalse(heroAutoAdvanceEnabled(isResumed = true, isDragged = true, isReducedMotion = false))
         assertFalse(heroAutoAdvanceEnabled(isResumed = true, isDragged = false, isReducedMotion = true))
     }
-
 }

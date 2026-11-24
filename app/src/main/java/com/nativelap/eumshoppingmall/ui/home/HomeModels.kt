@@ -59,7 +59,6 @@ data class HomeCategoryUiModel(
     @param:StringRes val descriptionResId: Int? = null,
 )
 
-
 sealed interface HomeScreenEvent {
     data class QueryChanged(val query: String) : HomeScreenEvent
     data object SearchSubmitted : HomeScreenEvent
