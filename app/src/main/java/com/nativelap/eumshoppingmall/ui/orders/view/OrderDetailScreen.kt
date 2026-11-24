@@ -99,7 +99,7 @@ fun OrderDetailScreen(
         ResponsiveContentContainer(Modifier.fillMaxSize()) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(contentPadding),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x16),
                 verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
             ) {
                 item {

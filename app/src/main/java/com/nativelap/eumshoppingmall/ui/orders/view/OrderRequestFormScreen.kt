@@ -76,7 +76,7 @@ fun OrderRequestFormScreen(uiModel: OrderRequestFormUiModel, onEvent: (OrderRequ
     }) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
+            contentPadding = PaddingValues(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x16),
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x24),
         ) {
             if (!uiModel.isOrderValid) {

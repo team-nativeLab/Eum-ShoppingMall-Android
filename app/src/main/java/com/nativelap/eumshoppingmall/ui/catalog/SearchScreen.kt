@@ -9,13 +9,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -36,11 +35,13 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogScreenScaffold
+import com.nativelap.eumshoppingmall.ui.common.EumTopBarBackButton
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -74,7 +75,7 @@ fun CatalogSearchScreen(
         content = { contentModifier ->
             LazyColumn(
                 modifier = contentModifier,
-                contentPadding = PaddingValues(start = EumSpacing.x20, top = EumSpacing.x16, end = EumSpacing.x20, bottom = EumSpacing.x24),
+                contentPadding = PaddingValues(start = EumSpacing.pageGutter, top = EumSpacing.x16, end = EumSpacing.pageGutter, bottom = EumSpacing.x24),
                 verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
             ) {
                 item {
@@ -142,30 +143,32 @@ fun CatalogSearchScreen(
                         if (uiModel.popularTerms.isEmpty()) {
                             SearchEmptyHint(stringResource(R.string.search_popular_empty))
                         } else {
-                            // Figma는 인기 검색어를 왼쪽 열 1~5위, 오른쪽 열 6~10위로 세로 순서대로 배치한다.
-                            val indexedPopularTerms = uiModel.popularTerms.withIndex().toList()
-                            val leftColumnSize = (indexedPopularTerms.size + 1) / 2
-                            Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
-                                listOf(indexedPopularTerms.take(leftColumnSize), indexedPopularTerms.drop(leftColumnSize)).forEach { columnTerms ->
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        columnTerms.forEach { (index, term) ->
-                                            Row(
-                                                // 행 높이는 Figma 40이지만 터치 영역 48을 우선한다.
-                                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                                                    .clickable(role = Role.Button) { onEvent(CatalogSearchEvent.PopularTermSelected(term)) },
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
-                                            ) {
-                                                PopularRankBadge(rank = index + 1)
-                                                Text(
-                                                    term,
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    color = MaterialTheme.eumColors.textPrimary,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis,
-                                                )
-                                            }
-                                        }
+                            // 인기 검색어는 1~10위를 세로 목록으로 보여 준다. 변동(▲·NEW) 표시는 데이터가 없어 두지 않는다.
+                            Column {
+                                uiModel.popularTerms.forEachIndexed { index, term ->
+                                    val isTopRank = index < 3
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                                            .clickable(role = Role.Button) { onEvent(CatalogSearchEvent.PopularTermSelected(term)) },
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
+                                    ) {
+                                        Text(
+                                            (index + 1).toString(),
+                                            modifier = Modifier.width(24.dp),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = if (isTopRank) FontWeight.Bold else FontWeight.Normal,
+                                            color = if (isTopRank) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.textTertiary,
+                                            softWrap = false,
+                                        )
+                                        Text(
+                                            term,
+                                            modifier = Modifier.weight(1f),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.eumColors.textPrimary,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
                                     }
                                 }
                             }
@@ -213,25 +216,6 @@ private fun SearchEmptyHint(text: String) {
     )
 }
 
-// 순위 배지. 1~3위는 채운 원, 나머지는 숫자만 보인다.
-@Composable
-private fun PopularRankBadge(rank: Int) {
-    val isTopRank = rank <= 3
-    Box(
-        modifier = Modifier.defaultMinSize(minWidth = 20.dp, minHeight = 20.dp).then(
-            if (isTopRank) Modifier.background(MaterialTheme.eumColors.textPrimary, RoundedCornerShape(EumRadius.capsule)) else Modifier,
-        ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            rank.toString(),
-            softWrap = false,
-            style = EumTypographyTokens.labelM,
-            color = if (isTopRank) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textTertiary,
-        )
-    }
-}
-
 @Composable
 internal fun CatalogSearchHeader(
     query: String,
@@ -239,14 +223,13 @@ internal fun CatalogSearchHeader(
     onSubmit: () -> Unit,
     onCancel: () -> Unit,
     modifier: Modifier = Modifier,
-    showCancelText: Boolean = true,
     // 탭 루트에서는 뒤로 버튼 자리에 햄버거를 둔다. null이면 뒤로 버튼이다.
     onMenuClick: (() -> Unit)? = null,
 ) {
     var isFocused by remember { mutableStateOf(false) }
     Row(
         modifier = modifier.fillMaxWidth().background(MaterialTheme.eumColors.background)
-            .padding(start = EumSpacing.x8, end = EumSpacing.x12, top = EumSpacing.x4, bottom = EumSpacing.x4),
+            .padding(start = EumSpacing.topBarInset, end = EumSpacing.x12, top = EumSpacing.x4, bottom = EumSpacing.x4),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
     ) {
@@ -256,9 +239,7 @@ internal fun CatalogSearchHeader(
                 Icon(painterResource(R.drawable.ic_menu), stringResource(R.string.account_drawer_open), tint = MaterialTheme.eumColors.textPrimary)
             }
         } else {
-            IconButton(onClick = onCancel, modifier = Modifier.size(48.dp)) {
-                Icon(painterResource(R.drawable.ic_arrow_left), stringResource(R.string.common_back), tint = MaterialTheme.eumColors.textPrimary)
-            }
+            EumTopBarBackButton(onClick = onCancel, contentDescription = stringResource(R.string.common_back))
         }
         Row(
             modifier = Modifier.weight(1f).heightIn(min = 44.dp)
@@ -298,18 +279,6 @@ internal fun CatalogSearchHeader(
                 IconButton(onClick = { onQueryChanged("") }, modifier = Modifier.size(48.dp)) {
                     Icon(painterResource(R.drawable.ic_circle_x), stringResource(R.string.search_clear_query), tint = MaterialTheme.eumColors.textTertiary)
                 }
-            }
-        }
-        if (showCancelText) {
-            Box(
-                modifier = Modifier.widthIn(min = 48.dp).heightIn(min = 48.dp).clickable(role = Role.Button, onClick = onCancel),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    stringResource(R.string.catalog_cancel),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.eumColors.textPrimary,
-                )
             }
         }
     }

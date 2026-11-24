@@ -424,7 +424,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
 
     override fun searchScreen(): CatalogSearchUiModel = CatalogSearchUiModel(
         recentTerms = listOf("안전모", "안전화"),
-        popularTerms = listOf("안전모", "소화기", "안전벨트", "안전장갑"),
+        popularTerms = listOf("안전모", "소화기", "안전벨트", "안전장갑", "안전화", "안전고리", "보안경", "방염복", "귀마개", "안전조끼"),
         popularUpdatedAtLabel = "11.17 09:00",
     )
 

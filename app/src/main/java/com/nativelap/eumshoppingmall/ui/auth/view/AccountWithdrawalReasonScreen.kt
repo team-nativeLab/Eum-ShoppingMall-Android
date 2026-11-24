@@ -42,7 +42,7 @@ fun AccountWithdrawalReasonScreen(uiModel: AccountWithdrawalReasonUiModel, onEve
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
         ) { padding ->
             Column(
-                Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
+                Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x12),
                 verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {

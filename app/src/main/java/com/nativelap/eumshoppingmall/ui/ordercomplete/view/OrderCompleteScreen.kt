@@ -78,7 +78,7 @@ fun OrderCompleteScreen(
         },
         bottomBar = {
             ResponsiveWidthContainer {
-                Column(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface).navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+                Column(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface).navigationBarsPadding().padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x12), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                     EumOutlinedButton(
                         onClick = { onEvent(OrderCompleteScreenEvent.ContinueShoppingClicked) },
                         modifier = Modifier.fillMaxWidth(),

@@ -4,20 +4,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.EumTopBarBackButton
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -42,19 +39,11 @@ fun UiAuditTopBar(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
-        IconButton(
+        EumTopBarBackButton(
             onClick = onBackClick,
-            modifier = Modifier.align(Alignment.CenterStart).semantics {
-                contentDescription = backActionDescription
-            },
-        ) {
-            Icon(
-                painter = painterResource(
-                    if (isCloseAction) R.drawable.ic_close else R.drawable.ic_arrow_left,
-                ),
-                contentDescription = null,
-                tint = MaterialTheme.eumColors.textPrimary,
-            )
-        }
+            contentDescription = backActionDescription,
+            modifier = Modifier.align(Alignment.CenterStart).padding(start = EumSpacing.topBarInset),
+            iconResId = if (isCloseAction) R.drawable.ic_close else R.drawable.ic_arrow_left,
+        )
     }
 }

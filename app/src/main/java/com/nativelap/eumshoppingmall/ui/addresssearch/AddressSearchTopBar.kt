@@ -6,18 +6,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -26,12 +22,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.EumTopBarBackButton
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
-private val AddressSearchBackButtonSize = 44.dp
-
-// 뒤로가기 영역(좌측 패딩 8 + 44dp)과 같은 폭을 오른쪽에 비워 제목을 가운데 맞춘다.
+// 뒤로가기 영역(좌측 인셋 4dp + 48dp)과 같은 폭을 오른쪽에 비워 제목을 가운데 맞춘다.
 private val AddressSearchTopBarSideSlotWidth = 52.dp
 
 @Composable
@@ -48,18 +43,11 @@ internal fun AddressSearchTopBar(
                 .heightIn(min = EumSpacing.x56),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(
+            EumTopBarBackButton(
                 onClick = onBackClick,
-                modifier = Modifier.padding(start = EumSpacing.x8)
-                    .size(AddressSearchBackButtonSize)
-                    .semantics { contentDescription = backActionDescription },
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_arrow_left),
-                    contentDescription = null,
-                    tint = MaterialTheme.eumColors.textPrimary,
-                )
-            }
+                contentDescription = backActionDescription,
+                modifier = Modifier.padding(start = EumSpacing.topBarInset),
+            )
             Text(
                 text = title,
                 modifier = Modifier.weight(1f).semantics { heading() },

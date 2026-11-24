@@ -80,7 +80,7 @@ fun UiAuditScreenScaffold(
                     .fillMaxSize()
                     .align(Alignment.TopCenter),
             ) {
-                content(PaddingValues(horizontal = EumSpacing.x20))
+                content(PaddingValues(horizontal = EumSpacing.pageGutter))
             }
         }
     }

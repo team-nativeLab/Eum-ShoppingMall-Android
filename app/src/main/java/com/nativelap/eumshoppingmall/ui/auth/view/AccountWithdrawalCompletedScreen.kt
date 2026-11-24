@@ -38,7 +38,7 @@ fun AccountWithdrawalCompletedScreen(uiModel: AccountWithdrawalCompletedUiModel,
     Scaffold(
         topBar = { AuthTopBar(stringResource(R.string.account_leave_title), onBack = { onEvent(AuthScreenEvent.CloseClicked) }, isClose = true) },
         bottomBar = {
-            Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8)) {
+            Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x8)) {
                 AuthPrimaryAction(stringResource(R.string.auth_withdrawal_home), true) { onEvent(AuthScreenEvent.WithdrawalCompletedHomeClicked) }
             }
         },
@@ -46,7 +46,7 @@ fun AccountWithdrawalCompletedScreen(uiModel: AccountWithdrawalCompletedUiModel,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
         Column(
-            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x24),
+            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x24),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
         ) {

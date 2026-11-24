@@ -224,7 +224,6 @@ fun EumMainNavDisplay(
                     todayProducts = remember { screenDataProvider.homeTodayProducts() },
                     discountProducts = remember { screenDataProvider.homeDiscountProducts() },
                     bestSellerProducts = remember { screenDataProvider.homeBestSellerProducts() },
-                    companyIntro = remember { screenDataProvider.homeCompanyIntro() },
                     cartItemCount = currentCartItemCount,
                     selectedTab = MainNavigationTab.Home,
                     onSearch = { query ->
@@ -241,7 +240,6 @@ fun EumMainNavDisplay(
                     onSeeProductsClick = { preset -> navigator.push(EumDestination.ProductList(preset = preset)) },
                     isFavoriteAllowed = loginSession.isLoggedIn,
                     onFavoriteBlocked = entryContext::openLogin,
-                    onFooterLinkClick = { link -> navigator.push(destinationForHomeFooterLink(link)) },
                     onNavigationSelected = navigator::navigateToTab,
                     isLoggedIn = loginSession.isLoggedIn,
                     onLoginRequired = entryContext::openLogin,

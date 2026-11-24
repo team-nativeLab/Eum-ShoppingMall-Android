@@ -57,7 +57,7 @@ fun AuthLoginScreen(uiModel: AuthLoginUiModel, onEvent: (AuthScreenEvent) -> Uni
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
         Column(
-            Modifier.fillMaxSize().padding(padding).imePadding().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20),
+            Modifier.fillMaxSize().padding(padding).imePadding().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.pageGutter),
         ) {
             Spacer(Modifier.height(EumSpacing.x24))
 

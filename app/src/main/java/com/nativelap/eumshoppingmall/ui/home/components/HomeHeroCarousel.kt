@@ -26,10 +26,8 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -37,7 +35,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,7 +54,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -93,7 +89,15 @@ private val homeHeroSlides = listOf(
         imageDescriptionResId = R.string.home_hero_safe_image_description,
     ),
     HomeHeroSlide(
-        actionId = HomeHeroActionId.ViewCompany,
+        actionId = HomeHeroActionId.BrowseProducts,
+        imageResId = R.drawable.figma_home_hero_custom_solution,
+        eyebrowResId = R.string.home_hero_custom_eyebrow,
+        titleResId = R.string.home_hero_custom_title,
+        descriptionResId = R.string.home_hero_custom_description,
+        imageDescriptionResId = R.string.home_hero_custom_image_description,
+    ),
+    HomeHeroSlide(
+        actionId = HomeHeroActionId.BrowseProducts,
         imageResId = R.drawable.figma_home_hero_sustainable_value,
         eyebrowResId = R.string.home_hero_sustainable_eyebrow,
         titleResId = R.string.home_hero_sustainable_title,
@@ -121,18 +125,12 @@ fun HomeHeroCarousel(
     val pagerState = rememberPagerState(pageCount = { homeHeroSlides.size })
     val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
     var autoAdvanceResetKey by remember { mutableIntStateOf(0) }
-    // 사용자가 직접 정지한 상태. 터치 뒤 일시 정지와 별개이며 재생을 눌러야 다시 돈다(F3, WCAG 2.2.2).
-    var isAutoAdvancePaused by rememberSaveable { mutableStateOf(false) }
+    // 접근성 결정 기록: docs/WEB_FORMAT_AUDIT.md '접근성 결정 기록 (히어로 자동 넘김, WCAG 2.2.2)'. 정지 수단을 바꾸기 전에 확인한다.
     // 사용자가 누르거나 스와이프·점 탭을 하면 자동 넘김을 멈추고, 마지막 조작 뒤 HERO_INTERACTION_PAUSE_MILLIS 뒤에 재개한다.
     val lastInteraction = remember { HeroInteraction() }
     fun onUserInteraction() {
         lastInteraction.atMillis = System.currentTimeMillis()
         autoAdvanceResetKey += 1
-    }
-    fun toggleAutoAdvance() {
-        isAutoAdvancePaused = !isAutoAdvancePaused
-        // 재생으로 바꾸면 터치 뒤 일시 정지 시간을 지워, 누른 즉시 다시 넘어가게 한다.
-        if (!isAutoAdvancePaused) lastInteraction.atMillis = null
     }
     val lifecycleOwner = LocalView.current.findViewTreeLifecycleOwner()
     var isResumed by remember(lifecycleOwner) {
@@ -149,8 +147,8 @@ fun HomeHeroCarousel(
     }
 
     // 치환 전후 차이 없음: 기존처럼 자동 넘김을 재개할 때마다 줄이기 설정을 다시 읽는다.
-    LaunchedEffect(isResumed, isDragged, autoAdvanceResetKey, isAutoAdvancePaused) {
-        if (!heroAutoAdvanceEnabled(isResumed, isDragged, isAutoAdvancePaused, isReducedMotion(ValueAnimator.areAnimatorsEnabled()))) return@LaunchedEffect
+    LaunchedEffect(isResumed, isDragged, autoAdvanceResetKey) {
+        if (!heroAutoAdvanceEnabled(isResumed, isDragged, isReducedMotion(ValueAnimator.areAnimatorsEnabled()))) return@LaunchedEffect
         while (true) {
             delay(heroAutoAdvanceDelayMillis(lastInteraction.atMillis, System.currentTimeMillis(), HOME_HERO_AUTO_ADVANCE_MILLIS))
             pagerState.animateScrollToPage((pagerState.currentPage + 1) % homeHeroSlides.size)
@@ -191,13 +189,10 @@ fun HomeHeroCarousel(
                 isCurrentPage = pagerState.currentPage == page,
                 shouldStackActions = shouldStackActions,
                 onActionClick = { onActionClick(homeHeroPrimaryActionId()) },
-                onCompanyClick = { onActionClick(HomeHeroActionId.ViewCompany) },
                 onIndicatorClick = { targetPage ->
                     onUserInteraction()
                     pagerState.requestScrollToPage(targetPage)
                 },
-                isAutoAdvancePaused = isAutoAdvancePaused,
-                onAutoAdvanceToggle = { toggleAutoAdvance() },
                 modifier = Modifier.fillMaxSize(),
             )
         }
@@ -212,10 +207,7 @@ private fun HomeHeroCard(
     isCurrentPage: Boolean,
     shouldStackActions: Boolean,
     onActionClick: () -> Unit,
-    onCompanyClick: () -> Unit,
     onIndicatorClick: (Int) -> Unit,
-    isAutoAdvancePaused: Boolean,
-    onAutoAdvanceToggle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val imageDescription = stringResource(slide.imageDescriptionResId)
@@ -268,38 +260,13 @@ private fun HomeHeroCard(
             )
             Spacer(Modifier.height(EumSpacing.x8))
             val actionResId = homeHeroActionLabelResId(homeHeroPrimaryActionId())
-            val secondaryLabelResId = R.string.home_hero_company_action
-            val secondaryAction: @Composable () -> Unit = {
-                if (showsHeroCompanyLink(slide.actionId)) {
-                    Box(
-                        modifier = Modifier
-                            .heightIn(min = 48.dp)
-                            .clickable(role = Role.Button, onClick = onCompanyClick)
-                            .padding(horizontal = EumSpacing.x4),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            stringResource(secondaryLabelResId),
-                            style = MaterialTheme.typography.labelSmall.copy(textDecoration = TextDecoration.Underline),
-                            color = MaterialTheme.eumColors.inverseSecondary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
-            }
             if (shouldStackActions) {
                 Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
                     HomeHeroActionButton(stringResource(actionResId), onActionClick, isPrimary = true)
-                    secondaryAction()
                 }
             } else {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     HomeHeroActionButton(stringResource(actionResId), onActionClick, isPrimary = true)
-                    secondaryAction()
                 }
             }
             // 점은 버튼 바로 아래에 둔다. 버튼 하단과 점 상단 사이는 HERO_INDICATOR_TOP_GAP이다.
@@ -368,8 +335,6 @@ private fun HomeHeroCard(
                             },
                     )
                 }
-                Spacer(Modifier.width(EumSpacing.x8))
-                HeroAutoAdvanceToggle(isPaused = isAutoAdvancePaused, onClick = onAutoAdvanceToggle)
             }
         }
     }
@@ -382,29 +347,8 @@ internal fun heroActionContentWidth(maxWidth: Dp): Dp = ((maxWidth - HERO_HORIZO
 
 internal fun homeHeroHeight(shouldStackActions: Boolean, fontScale: Float): Dp = (HOME_HERO_HEIGHT + if (shouldStackActions) HOME_HERO_COMPACT_EXTRA_HEIGHT else 0.dp) * fontScale
 
-@Composable
-private fun HeroAutoAdvanceToggle(isPaused: Boolean, onClick: () -> Unit) {
-    val label = stringResource(if (isPaused) R.string.home_hero_auto_advance_play else R.string.home_hero_auto_advance_pause)
-    Box(
-        modifier = Modifier
-            .size(24.dp)
-            .minimumInteractiveComponentSize()
-            .clip(CircleShape)
-            .clickable(role = Role.Button, onClick = onClick)
-            .semantics { contentDescription = label },
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            painter = painterResource(if (isPaused) R.drawable.ic_play else R.drawable.ic_pause),
-            contentDescription = null,
-            modifier = Modifier.size(16.dp),
-            tint = MaterialTheme.eumColors.inverse,
-        )
-    }
-}
-
-/** 히어로 자동 넘김을 돌릴지 판정한다. 사용자가 정지를 눌렀으면 터치 뒤 재개 시간과 무관하게 멈춘다. */
-internal fun heroAutoAdvanceEnabled(isResumed: Boolean, isDragged: Boolean, isUserPaused: Boolean, isReducedMotion: Boolean): Boolean = isResumed && !isDragged && !isUserPaused && !isReducedMotion
+/** 히어로 자동 넘김을 돌릴지 판정한다. 화면이 보이고, 드래그 중이 아니며, 줄이기 설정이 꺼져 있을 때만 돈다. */
+internal fun heroAutoAdvanceEnabled(isResumed: Boolean, isDragged: Boolean, isReducedMotion: Boolean): Boolean = isResumed && !isDragged && !isReducedMotion
 
 private val HOME_HERO_HEIGHT: Dp = 224.dp
 private val HOME_HERO_COMPACT_EXTRA_HEIGHT: Dp = 48.dp
@@ -438,9 +382,6 @@ internal fun heroAutoAdvanceDelayMillis(lastInteractionAtMillis: Long?, nowMilli
 private class HeroInteraction {
     var atMillis: Long? = null
 }
-
-// 회사 소개 링크는 회사 소개 슬라이드에만 둔다.
-internal fun showsHeroCompanyLink(slideActionId: HomeHeroActionId): Boolean = slideActionId == HomeHeroActionId.ViewCompany
 
 // 점 중심 좌표와 탭 위치로 가장 가까운 점을 고른다. 중심 좌표가 없으면 null.
 internal fun nearestHeroIndicatorIndex(tapX: Float, centersX: List<Float>): Int? {

@@ -25,7 +25,6 @@ import com.nativelap.eumshoppingmall.ui.company.CompanyIntroUiModel
 import com.nativelap.eumshoppingmall.ui.events.EventDetailUiModel
 import com.nativelap.eumshoppingmall.ui.events.EventUiModel
 import com.nativelap.eumshoppingmall.ui.favorites.FavoritesUiModel
-import com.nativelap.eumshoppingmall.ui.home.HomeCompanyInfoUiModel
 import com.nativelap.eumshoppingmall.ui.home.HomeProductUiModel
 import com.nativelap.eumshoppingmall.ui.ordercomplete.viewmodel.OrderCompleteUiModel
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.DeliveryProgressStage
@@ -77,8 +76,6 @@ interface ShoppingScreenDataProvider {
     fun homeBestSellerProducts(): List<HomeProductUiModel> = emptyList()
 
     fun homeDiscountProducts(): List<HomeProductUiModel> = emptyList()
-
-    fun homeCompanyIntro(): HomeCompanyInfoUiModel = HomeCompanyInfoUiModel()
 
     fun categoryScreen(): CatalogCategoryScreenUiModel = CatalogCategoryScreenUiModel(
         categories = CatalogCategoryDefinitions.all,

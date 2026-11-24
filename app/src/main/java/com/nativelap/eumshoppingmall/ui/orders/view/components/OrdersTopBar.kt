@@ -5,22 +5,19 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.EumTopBarBackButton
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -32,20 +29,18 @@ fun OrdersTopBar(
     actionLabel: String? = null,
     onActionClick: () -> Unit = {},
 ) {
-    // 제목을 가운데에 두려면 좌우 슬롯 폭이 같아야 한다. 액션 라벨이 있으면 왼쪽 슬롯도 함께 넓힌다.
-    val sideSlotWidth = if (actionLabel != null) 96.dp else 48.dp
+    // 제목을 가운데에 두려면 좌우 슬롯 폭이 같아야 한다. 뒤로가기는 시작 인셋 4dp + 48dp 터치 영역(52dp)을 쓴다.
+    val sideSlotWidth = if (actionLabel != null) 96.dp else 52.dp
     Row(
-        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = EumSpacing.x8),
+        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = EumSpacing.topBarInset),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.width(sideSlotWidth), contentAlignment = Alignment.CenterStart) {
-            IconButton(onClick = onBackClick, modifier = Modifier.size(48.dp)) {
-                Icon(
-                    painterResource(R.drawable.ic_chevron_left),
-                    contentDescription = stringResource(R.string.common_back),
-                    tint = MaterialTheme.eumColors.textPrimary,
-                )
-            }
+            EumTopBarBackButton(
+                onClick = onBackClick,
+                contentDescription = stringResource(R.string.common_back),
+                iconResId = R.drawable.ic_chevron_left,
+            )
         }
         Text(
             text = title,

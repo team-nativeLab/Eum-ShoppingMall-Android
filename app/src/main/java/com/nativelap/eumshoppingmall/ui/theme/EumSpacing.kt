@@ -24,4 +24,10 @@ object EumSpacing {
     val x100 = 100.dp
     val x150 = 150.dp
     val x160 = 160.dp
+
+    /** 페이지 좌우 거터(16dp). 화면 루트의 horizontal 패딩은 이 토큰을 쓴다. */
+    val pageGutter = 16.dp
+
+    /** 상단 바 Row의 시작 인셋(4dp). 뒤로가기 48dp 터치 영역 안 아이콘이 pageGutter에 맞는다. */
+    val topBarInset = 4.dp
 }

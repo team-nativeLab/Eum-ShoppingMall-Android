@@ -46,7 +46,6 @@ import com.nativelap.eumshoppingmall.ui.common.EumSnackbarHost
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.home.components.HomeBottomNavigation
 import com.nativelap.eumshoppingmall.ui.home.components.HomeCategoryRow
-import com.nativelap.eumshoppingmall.ui.home.components.HomeCompanyInfoFooter
 import com.nativelap.eumshoppingmall.ui.home.components.HomeHeroCarousel
 import com.nativelap.eumshoppingmall.ui.home.components.HomeNavigationRail
 import com.nativelap.eumshoppingmall.ui.home.components.HomeProductCard
@@ -65,7 +64,6 @@ fun HomeRoute(
     todayProducts: List<HomeProductUiModel> = emptyList(),
     discountProducts: List<HomeProductUiModel> = emptyList(),
     bestSellerProducts: List<HomeProductUiModel> = emptyList(),
-    companyIntro: HomeCompanyInfoUiModel = HomeCompanyInfoUiModel(),
     cartItemCount: Int = 0,
     selectedTab: MainNavigationTab = MainNavigationTab.Home,
     onSearch: (String) -> Unit = {},
@@ -79,7 +77,6 @@ fun HomeRoute(
     isFavoriteAllowed: Boolean = true,
     onFavoriteBlocked: () -> Unit = {},
     onNavigationSelected: (MainNavigationTab) -> Unit = {},
-    onFooterLinkClick: (HomeFooterLink) -> Unit,
     isLoggedIn: Boolean = false,
     onLoginRequired: () -> Unit = {},
     onQuickAddToCart: ((HomeProductUiModel) -> Unit)? = null,
@@ -109,7 +106,6 @@ fun HomeRoute(
         showQuickCart = onQuickAddToCart != null,
         snackbarHostState = snackbarHostState,
         selectedBestCategoryId = selectedBestCategoryId,
-        companyIntro = companyIntro,
         cartItemCount = cartItemCount,
         selectedNavigation = selectedTab,
         favoriteProductIds = favoriteProductIds,
@@ -152,8 +148,6 @@ fun HomeRoute(
                 }
 
                 is HomeScreenEvent.NavigationSelected -> onNavigationSelected(event.item)
-
-                is HomeScreenEvent.FooterLinkClicked -> onFooterLinkClick(event.link)
             }
         },
     )
@@ -171,7 +165,6 @@ private fun HomeScreen(
     showQuickCart: Boolean,
     snackbarHostState: SnackbarHostState,
     selectedBestCategoryId: String?,
-    companyIntro: HomeCompanyInfoUiModel,
     cartItemCount: Int,
     selectedNavigation: MainNavigationTab,
     favoriteProductIds: Set<String>,
@@ -223,7 +216,7 @@ private fun HomeScreen(
                             onMenuClick = {},
                             modifier = Modifier.statusBarsPadding(),
                             showMenu = false,
-                            horizontalPadding = EumSpacing.x20,
+                            horizontalPadding = EumSpacing.topBarInset,
                         )
                     }
                     BoxWithConstraints(
@@ -370,14 +363,6 @@ private fun HomeScreen(
                                 }
                                 item { Spacer(Modifier.height(EumSpacing.x40)) }
                             }
-                            // 정책·지원 링크는 사업자 정보가 없어도 보여야 하므로 푸터는 항상 그린다. 사업자 정보 행은 값이 있을 때만 보인다.
-                            val companyInfoRows = companyIntro.visibleInfoRows()
-                            item(key = "home-company-info") {
-                                HomeCompanyInfoFooter(
-                                    rows = companyInfoRows,
-                                    onLinkClick = { link -> onEvent(HomeScreenEvent.FooterLinkClicked(link)) },
-                                )
-                            }
                         }
                     }
                 }
@@ -432,7 +417,7 @@ private fun HomeBestCategoryTabs(
     onCategorySelected: (String?) -> Unit,
 ) {
     LazyRow(
-        contentPadding = PaddingValues(horizontal = EumSpacing.x20),
+        contentPadding = PaddingValues(horizontal = EumSpacing.pageGutter),
         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
     ) {
         item(key = "best-tab-all") {

@@ -75,7 +75,6 @@ private fun HomeFigmaPreview() {
             bestSellerProducts = homePreviewBestSellerProducts,
             cartItemCount = 3,
             onSeeProductsClick = {},
-            onFooterLinkClick = {},
         )
     }
 }

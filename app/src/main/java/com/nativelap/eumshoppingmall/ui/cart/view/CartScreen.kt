@@ -225,7 +225,7 @@ fun CartScreen(
 private fun CartSectionLabel(label: String) {
     Text(
         text = label,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x12),
         style = MaterialTheme.typography.titleSmall,
         color = MaterialTheme.eumColors.textPrimary,
     )
@@ -241,7 +241,7 @@ private fun CartBottomActionBar(
         Modifier.fillMaxWidth()
             .heightIn(min = EumBottomBarMetrics.CartOrderBarMinHeight)
             .background(MaterialTheme.eumColors.surface)
-            .padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
+            .padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x12),
     ) {
         // 주문하기는 주문 가능한 줄을 골랐을 때만 활성이다.
         EumPrimaryButton(

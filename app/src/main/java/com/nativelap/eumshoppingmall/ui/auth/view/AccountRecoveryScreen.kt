@@ -64,7 +64,7 @@ private fun AccountRecoveryFormScreen(uiModel: AccountRecoveryUiModel, onEvent: 
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
         Column(
-            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(start = EumSpacing.x20, end = EumSpacing.x20, top = EumSpacing.x16, bottom = EumSpacing.x16),
+            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(start = EumSpacing.pageGutter, end = EumSpacing.pageGutter, top = EumSpacing.x16, bottom = EumSpacing.x16),
         ) {
             EumSegmentedControl(
                 labels = listOf(stringResource(R.string.account_find_email), stringResource(R.string.account_find_password)),
@@ -133,7 +133,7 @@ private fun AccountRecoveryResultScreen(uiModel: AccountRecoveryUiModel, onEvent
     Scaffold(
         topBar = { AuthTopBar(stringResource(R.string.auth_find_account), onBack = { onEvent(AuthScreenEvent.CloseClicked) }, isClose = true) },
         bottomBar = {
-            Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x8), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+            Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = EumSpacing.pageGutter, vertical = EumSpacing.x8), horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                 AuthPrimaryAction(
                     stringResource(if (found) R.string.account_login else R.string.account_find_email),
                     true,
@@ -149,7 +149,7 @@ private fun AccountRecoveryResultScreen(uiModel: AccountRecoveryUiModel, onEvent
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
         Column(
-            Modifier.fillMaxSize().padding(padding).padding(horizontal = EumSpacing.x20),
+            Modifier.fillMaxSize().padding(padding).padding(horizontal = EumSpacing.pageGutter),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

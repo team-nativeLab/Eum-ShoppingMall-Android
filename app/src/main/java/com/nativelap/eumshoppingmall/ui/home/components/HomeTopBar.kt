@@ -17,7 +17,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
-import com.nativelap.eumshoppingmall.ui.common.EumBrandLogo
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -26,7 +25,7 @@ fun HomeTopBar(
     onMenuClick: () -> Unit,
     modifier: Modifier = Modifier,
     showMenu: Boolean = true,
-    horizontalPadding: Dp = EumSpacing.x8,
+    horizontalPadding: Dp = EumSpacing.topBarInset,
 ) {
     Row(
         modifier = modifier
@@ -50,8 +49,6 @@ fun HomeTopBar(
                     )
                 }
             }
-            // 앱 이름 텍스트 대신 안전맛집 로고를 상단바 높이 안에 둔다.
-            EumBrandLogo(size = 36.dp)
         }
     }
 }
