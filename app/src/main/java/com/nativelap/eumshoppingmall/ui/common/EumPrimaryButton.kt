@@ -69,7 +69,7 @@ private fun EumPrimaryButtonPreview() {
 @Composable
 private fun EumPrimaryButtonLargeFontPreview() {
     EumShoppingMallTheme {
-        EumPrimaryButton(onClick = {}, modifier = Modifier) { Text("견적 문의 접수") }
+        EumPrimaryButton(onClick = {}, modifier = Modifier) { Text("문의 접수") }
     }
 }
 

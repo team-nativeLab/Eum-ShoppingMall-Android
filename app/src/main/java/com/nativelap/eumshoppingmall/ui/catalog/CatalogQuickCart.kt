@@ -14,7 +14,7 @@ fun canQuickAddToCart(product: CatalogProductUiModel): Boolean {
     return isPurchasable && !product.isSoldOut && hasNoOptions
 }
 
-// 카드 담기 버튼은 호출 측이 담기 동작을 넘긴 경우에만 보인다(쿼트 선택 화면 등은 넘기지 않는다).
+// 카드 담기 버튼은 호출 측이 담기 동작을 넘긴 경우에만 보인다(담기 동작이 없는 화면은 넘기지 않는다).
 fun quickCartButtonVisible(product: CatalogProductUiModel, hasQuickCartAction: Boolean): Boolean = hasQuickCartAction && canQuickAddToCart(product)
 
 // 로그인 여부는 호출 측(Route)이 확인한다. 이 함수는 담을 줄 한 개만 만든다.
@@ -29,7 +29,7 @@ fun resolveQuickCartLine(product: CatalogProductUiModel, defaultOptionLabel: Str
         quantity = 1,
         optionExtraWon = 0L,
         productPriceLabel = price.currentLabel,
-        isQuoteRequired = false,
+        isPriceUndisclosed = false,
         productUnitPriceWon = price.unitPriceWon,
     )
 }
@@ -53,7 +53,7 @@ internal class QuickCartGate {
 // 홈 카드 담기 가능 여부. 목록 카드와 같은 조건이다: 가격 확정, 품절 아님, 옵션 없음이 명시됨.
 fun canQuickAddToHomeProduct(product: HomeProductUiModel): Boolean = !product.isPurchaseUnavailable && product.priceLabel != null && !product.isSoldOut && product.hasOptions == false
 
-// 홈 카드 담기 버튼은 담기 동작을 넘긴 경우에만 보인다. 홈에서는 쿼트 선택 화면 같은 예외가 없다.
+// 홈 카드 담기 버튼은 담기 동작을 넘긴 경우에만 보인다.
 fun homeQuickCartButtonVisible(product: HomeProductUiModel, hasQuickCartAction: Boolean): Boolean = hasQuickCartAction && canQuickAddToHomeProduct(product)
 
 // 홈 카드에서 담을 줄 한 개. 가격 확정 조건을 통과한 상품만 만든다.
@@ -68,7 +68,7 @@ fun resolveHomeQuickCartLine(product: HomeProductUiModel, defaultOptionLabel: St
         quantity = 1,
         optionExtraWon = 0L,
         productPriceLabel = priceLabel,
-        isQuoteRequired = false,
+        isPriceUndisclosed = false,
         productUnitPriceWon = product.unitPriceWon,
     )
 }
@@ -81,7 +81,7 @@ enum class QuickCartDecision {
 
 fun decideQuickCart(isLoggedIn: Boolean): QuickCartDecision = if (isLoggedIn) QuickCartDecision.Add else QuickCartDecision.RequireLogin
 
-// 담을 수 없는 일반 상품의 사유. 견적 상품은 사유 칩 없이 버튼만 없다.
+// 담을 수 없는 일반 상품의 사유. 가격 미표시 상품은 사유 칩 없이 버튼만 없다.
 enum class QuickCartBlockReason {
     SoldOut,
     OptionRequired,

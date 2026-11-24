@@ -8,7 +8,6 @@ import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AccountWithdrawalComplete
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AccountWithdrawalGuideUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AccountWithdrawalReasonUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthLoginUiModel
-import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthMemberType
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthPasswordChangeUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthPasswordResetUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthPhoneVerificationUiModel
@@ -40,30 +39,41 @@ private fun AuthLoginErrorPreview() {
 }
 
 @ResponsiveUiPreview
-@Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "개인 회원가입")
+@Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "회원가입 1단계")
 @Composable
 private fun AuthSignupPersonalPreview() {
     EumShoppingMallTheme {
+        AuthSignupScreen(AuthSignupUiModel(step = 0, isStepValid = false), {})
+    }
+}
+
+@ResponsiveUiPreview
+@Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "회원가입 2단계")
+@Composable
+private fun AuthSignupPasswordStepPreview() {
+    EumShoppingMallTheme {
+        AuthSignupScreen(AuthSignupUiModel(step = 1, isStepValid = true), {})
+    }
+}
+
+@ResponsiveUiPreview
+@Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "회원가입 3단계")
+@Composable
+private fun AuthSignupPhoneStepPreview() {
+    EumShoppingMallTheme {
         AuthSignupScreen(
-            AuthSignupUiModel(phone = AuthPhoneVerificationUiModel(phoneNumber = "010-0000-0000", isCodeRequested = true)),
+            AuthSignupUiModel(step = 2, phone = AuthPhoneVerificationUiModel(phoneNumber = "010-0000-0000", isCodeRequested = true)),
             {},
         )
     }
 }
 
 @ResponsiveUiPreview
-@Preview(showBackground = true, widthDp = 320, heightDp = 800, fontScale = 1.1f, name = "사업자 회원가입 · 좁은 화면")
+@Preview(showBackground = true, widthDp = 390, heightDp = 844, name = "회원가입 4단계")
 @Composable
-private fun AuthSignupBusinessPreview() {
+private fun AuthSignupConsentStepPreview() {
     EumShoppingMallTheme {
-        AuthSignupScreen(
-            AuthSignupUiModel(
-                memberType = AuthMemberType.BUSINESS,
-                phone = AuthPhoneVerificationUiModel(phoneNumber = "010-0000-0000", isCodeRequested = true),
-                businessRegistrationNumber = "000-00-00000",
-            ),
-            {},
-        )
+        AuthSignupScreen(AuthSignupUiModel(step = 3, isSubmitEnabled = true), {})
     }
 }
 
@@ -82,7 +92,7 @@ private fun AccountRecoveryEmailPreview() {
 private fun AccountRecoveryFoundPreview() {
     EumShoppingMallTheme {
         AccountRecoveryScreen(
-            AccountRecoveryUiModel(isResultVisible = true, name = "홍길동", maskedEmail = "ex***@email.com", joinedAt = "0000.00.00", memberType = AuthMemberType.PERSONAL),
+            AccountRecoveryUiModel(isResultVisible = true, name = "홍길동", maskedEmail = "ex***@email.com", joinedAt = "0000.00.00"),
             {},
         )
     }

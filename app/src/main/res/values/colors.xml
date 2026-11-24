@@ -29,4 +29,6 @@
     <color name="hf_heart_active">#FFE5484D</color>
     <color name="hf_chart_base">#FF8F8F8F</color>
     <color name="hf_chart_up">#FFCC2E2E</color>
+    <!-- 어댑티브 런처 아이콘 배경. 안전맛집 로고의 검정과 같다. -->
+    <color name="ic_launcher_background">#000000</color>
 </resources>

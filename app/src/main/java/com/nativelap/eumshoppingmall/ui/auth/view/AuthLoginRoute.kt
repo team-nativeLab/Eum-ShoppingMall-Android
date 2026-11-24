@@ -1,6 +1,7 @@
 package com.nativelap.eumshoppingmall.ui.auth.view
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -151,7 +152,7 @@ fun AuthLoginRoute(
         )
         EumSnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().imePadding(),
         )
     }
 }

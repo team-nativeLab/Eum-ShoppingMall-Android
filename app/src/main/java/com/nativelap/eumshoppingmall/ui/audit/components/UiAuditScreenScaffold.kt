@@ -30,6 +30,7 @@ fun UiAuditScreenScaffold(
     isCloseAction: Boolean = false,
     bottomActionLabel: String? = null,
     onBottomActionClick: () -> Unit = {},
+    isBottomActionEnabled: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -62,6 +63,7 @@ fun UiAuditScreenScaffold(
                             UiAuditPrimaryButton(
                                 label = bottomActionLabel,
                                 onClick = onBottomActionClick,
+                                enabled = isBottomActionEnabled,
                             )
                         }
                     }

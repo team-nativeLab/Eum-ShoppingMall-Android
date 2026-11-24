@@ -33,10 +33,10 @@ class HomeResponsiveLayoutRulesTest {
 
     @Test
     fun serviceBandUsesTwoRowsOnNarrowScreensAndLargeText() {
-        assertTrue(shouldUseTwoRowHomeServiceBand(359.dp, 1f))
-        assertFalse(shouldUseTwoRowHomeServiceBand(360.dp, 1f))
-        assertFalse(shouldUseTwoRowHomeServiceBand(390.dp, 1.29f))
-        assertTrue(shouldUseTwoRowHomeServiceBand(390.dp, 1.3f))
-        assertFalse(shouldUseTwoRowHomeServiceBand(390.dp, 1f))
+        assertTrue(shouldStackHomeServiceBand(359.dp, 1f))
+        assertFalse(shouldStackHomeServiceBand(360.dp, 1f))
+        assertFalse(shouldStackHomeServiceBand(390.dp, 1.29f))
+        assertTrue(shouldStackHomeServiceBand(390.dp, 1.3f))
+        assertFalse(shouldStackHomeServiceBand(390.dp, 1f))
     }
 }

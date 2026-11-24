@@ -3,12 +3,11 @@ package com.nativelap.eumshoppingmall.ui.cart.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -38,7 +37,7 @@ import com.nativelap.eumshoppingmall.ui.cart.viewmodel.selectableItems
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogBottomNavigation
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBarAction
-import com.nativelap.eumshoppingmall.ui.common.EumOutlinedButton
+import com.nativelap.eumshoppingmall.ui.common.EumBottomBarMetrics
 import com.nativelap.eumshoppingmall.ui.common.EumPrimaryButton
 import com.nativelap.eumshoppingmall.ui.common.EumSnackbarHost
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
@@ -62,7 +61,7 @@ fun CartScreen(
     val selectableItems = uiModel.items.selectableItems()
     val isAllSelected = selectableItems.isNotEmpty() && selectableItems.all { it.isSelected }
     val selectedCount = selectableItems.count { it.isSelected }
-    val quoteItems = uiModel.items.filter { it.type == CartItemType.QuoteRequired }
+    val undisclosedItems = uiModel.items.filter { it.type == CartItemType.PriceUndisclosed }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -74,6 +73,8 @@ fun CartScreen(
                     title = stringResource(R.string.common_cart),
                     actions = listOf(CatalogTopBarAction("search", R.drawable.ic_search, stringResource(R.string.common_search))),
                     onActionClick = { onEvent(CartScreenEvent.SearchClicked) },
+                    leadingAction = CatalogTopBarAction("drawer", R.drawable.ic_menu, stringResource(R.string.account_drawer_open)),
+                    onLeadingActionClick = { onEvent(CartScreenEvent.MenuClicked) },
                     modifier = Modifier.statusBarsPadding(),
                 )
                 if (!isLoggedIn) {
@@ -90,7 +91,6 @@ fun CartScreen(
                     CartBottomActionBar(
                         uiModel = uiModel,
                         selectedCount = selectedCount,
-                        onQuoteClicked = { onEvent(CartScreenEvent.QuoteRequestClicked) },
                         onCheckoutClicked = { onEvent(CartScreenEvent.CheckoutClicked) },
                     )
                 }
@@ -149,7 +149,10 @@ fun CartScreen(
                             TextButton(
                                 onClick = { onEvent(CartScreenEvent.DeleteSelectedClicked) },
                                 enabled = selectedCount > 0,
-                                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.eumColors.textSecondary),
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = MaterialTheme.eumColors.danger,
+                                    disabledContentColor = MaterialTheme.eumColors.textDisabled,
+                                ),
                             ) {
                                 Text(stringResource(R.string.common_delete_selected))
                             }
@@ -158,7 +161,7 @@ fun CartScreen(
                     }
                     if (orderableItems.isNotEmpty()) {
                         // 주문 가능·불가 구역이 함께 있을 때만 구역 제목을 보여 준다(Figma A-07 대비 A-07h).
-                        if (quoteItems.isNotEmpty()) {
+                        if (undisclosedItems.isNotEmpty()) {
                             item { CartSectionLabel(stringResource(R.string.cart_orderable_products, selectableItems.size)) }
                         }
                         items(orderableItems, key = { it.id }) { item ->
@@ -175,26 +178,15 @@ fun CartScreen(
                             }
                         }
                     }
-                    if (quoteItems.isNotEmpty()) {
+                    if (undisclosedItems.isNotEmpty()) {
                         item {
-                            Row(
-                                Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text(
-                                    stringResource(R.string.cart_quote_products, quoteItems.size),
-                                    modifier = Modifier.weight(1f),
-                                    style = MaterialTheme.typography.titleSmall,
-                                )
-                                TextButton(
-                                    onClick = { onEvent(CartScreenEvent.QuoteRequestClicked) },
-                                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
-                                ) {
-                                    Text(stringResource(R.string.cart_request_all_quotes), textDecoration = TextDecoration.Underline)
-                                }
-                            }
+                            Text(
+                                stringResource(R.string.cart_price_undisclosed_products, undisclosedItems.size),
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
+                                style = MaterialTheme.typography.titleSmall,
+                            )
                         }
-                        items(quoteItems, key = { it.id }) { item ->
+                        items(undisclosedItems, key = { it.id }) { item ->
                             Column(Modifier.padding(horizontal = EumSpacing.x20)) {
                                 CartProductRow(
                                     item = item,
@@ -204,6 +196,15 @@ fun CartScreen(
                                     onRemoveClicked = { onEvent(CartScreenEvent.ItemRemoved(item.id)) },
                                     isQuantityLocked = item.id in quantityLockedItemIds,
                                 )
+                                // 가격이 표시되지 않은 줄은 주문할 수 없으므로 상품명을 채운 1:1 문의로 안내한다.
+                                TextButton(
+                                    onClick = { onEvent(CartScreenEvent.PriceInquiryClicked(item.id)) },
+                                    // 기본 좌우 여백 12dp를 빼 위 줄(상품 행)의 시작선과 맞춘다.
+                                    contentPadding = PaddingValues(horizontal = 0.dp),
+                                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
+                                ) {
+                                    Text(stringResource(R.string.cart_price_inquiry_action), textDecoration = TextDecoration.Underline)
+                                }
                                 HorizontalDivider(color = MaterialTheme.eumColors.line)
                             }
                         }
@@ -234,11 +235,15 @@ private fun CartSectionLabel(label: String) {
 private fun CartBottomActionBar(
     uiModel: CartUiModel,
     selectedCount: Int,
-    onQuoteClicked: () -> Unit,
     onCheckoutClicked: () -> Unit,
 ) {
-    Column(Modifier.fillMaxWidth().background(MaterialTheme.eumColors.surface).padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12)) {
-        // 주문하기는 주문 가능한 줄을 골랐을 때만 활성이다. 견적 문의는 상품 없이도 폼을 열 수 있어 항상 활성이다.
+    Column(
+        Modifier.fillMaxWidth()
+            .heightIn(min = EumBottomBarMetrics.CartOrderBarMinHeight)
+            .background(MaterialTheme.eumColors.surface)
+            .padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
+    ) {
+        // 주문하기는 주문 가능한 줄을 골랐을 때만 활성이다.
         EumPrimaryButton(
             onClick = onCheckoutClicked,
             enabled = selectedCount > 0,
@@ -254,10 +259,6 @@ private fun CartBottomActionBar(
                     stringResource(R.string.cart_order_empty)
                 },
             )
-        }
-        Spacer(Modifier.height(EumSpacing.x8))
-        EumOutlinedButton(onClick = onQuoteClicked, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.cart_quote_request))
         }
     }
 }

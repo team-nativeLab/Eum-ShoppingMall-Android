@@ -25,7 +25,7 @@ class HomeQuickCartTest {
     }
 
     @Test
-    fun unknownOptionOptionProductQuoteSoldOutAndMissingPriceCannotBeAdded() {
+    fun unknownOptionOptionProductPriceUndisclosedSoldOutAndMissingPriceCannotBeAdded() {
         assertFalse(canQuickAddToHomeProduct(plain.copy(hasOptions = null)))
         assertFalse(canQuickAddToHomeProduct(plain.copy(hasOptions = true)))
         assertFalse(canQuickAddToHomeProduct(plain.copy(isPurchaseUnavailable = true)))

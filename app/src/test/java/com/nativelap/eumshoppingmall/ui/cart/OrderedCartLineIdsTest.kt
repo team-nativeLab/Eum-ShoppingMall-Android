@@ -22,10 +22,10 @@ class OrderedCartLineIdsTest {
     }
 
     @Test
-    fun soldOutAndQuoteItemsAreExcludedEvenWhenSelected() {
+    fun soldOutAndUndisclosedItemsAreExcludedEvenWhenSelected() {
         val items = listOf(
             lineOf("sold-out", isSelected = true, isSoldOut = true),
-            lineOf("quote", isSelected = true, type = CartItemType.QuoteRequired),
+            lineOf("undisclosed", isSelected = true, type = CartItemType.PriceUndisclosed),
             lineOf("normal", isSelected = true),
         )
 

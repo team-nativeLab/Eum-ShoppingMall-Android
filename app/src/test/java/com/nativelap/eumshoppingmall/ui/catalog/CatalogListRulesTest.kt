@@ -36,25 +36,13 @@ class CatalogListRulesTest {
     private fun product(id: String, categoryId: String, subcategoryId: String) = CatalogProductUiModel(
         id = id,
         name = id,
-        price = CatalogPriceUiModel.QuoteRequired,
+        price = CatalogPriceUiModel.Undisclosed,
         categoryId = categoryId,
         subcategoryId = subcategoryId,
     )
-
-    @Test
-    fun quotePickerHidesFavoriteToggleButOtherListsKeepIt() {
-        assertFalse(showsFavoriteToggle(isQuotePicker = true))
-        assertTrue(showsFavoriteToggle(isQuotePicker = false))
-    }
 }
 
 class CatalogListRulesCartTest {
-    @Test
-    fun quotePickerHidesBlockReasonChipsButCartListsKeepThem() {
-        assertFalse(showsBlockReasonChip(isQuotePicker = true))
-        assertTrue(showsBlockReasonChip(isQuotePicker = false))
-    }
-
     @Test
     fun listRowCartButtonNeedsEligibleProductAndCallerAction() {
         val eligible = CatalogProductUiModel(

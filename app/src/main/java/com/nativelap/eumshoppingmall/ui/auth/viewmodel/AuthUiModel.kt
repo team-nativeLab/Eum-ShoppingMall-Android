@@ -11,10 +11,11 @@ data class AuthLoginUiModel(
     val isSubmitEnabled: Boolean = false,
 )
 
-enum class AuthMemberType { PERSONAL, BUSINESS }
-
 data class AuthSignupUiModel(
-    val memberType: AuthMemberType = AuthMemberType.PERSONAL,
+    // 가입 단계(0부터). 입력값과 같은 생존 범위로 Route가 보관한다.
+    val step: Int = 0,
+    // 현재 단계의 입력이 검증을 통과해 다음으로 갈 수 있는지.
+    val isStepValid: Boolean = false,
     val email: String = "",
     val isEmailAvailable: Boolean = false,
     val password: CharArray = charArrayOf(),
@@ -27,12 +28,6 @@ data class AuthSignupUiModel(
     val isTermsChecked: Boolean = false,
     val isPrivacyChecked: Boolean = false,
     val isMarketingChecked: Boolean = false,
-    val businessRegistrationNumber: String = "",
-    val companyName: String = "",
-    val representativeName: String = "",
-    val industry: String = "",
-    val taxEmail: String = "",
-    val isRegistrationFileSelected: Boolean = false,
     val isSubmitEnabled: Boolean = false,
 )
 
@@ -56,7 +51,6 @@ data class AccountRecoveryUiModel(
     val email: String = "",
     val maskedEmail: String = "",
     val joinedAt: String = "0000.00.00",
-    val memberType: AuthMemberType? = null,
     val phone: AuthPhoneVerificationUiModel = AuthPhoneVerificationUiModel(),
     val isSubmitEnabled: Boolean = false,
 )
@@ -118,11 +112,9 @@ sealed interface AuthScreenEvent {
     data object LoginSubmitted : AuthScreenEvent
     data class LoginHelpClicked(val id: String) : AuthScreenEvent
     data class SocialLoginClicked(val providerId: String) : AuthScreenEvent
-    data class SignupMemberTypeChanged(val value: AuthMemberType) : AuthScreenEvent
     data class SignupFieldChanged(val fieldId: String, val value: String) : AuthScreenEvent
     data class SignupSecretChanged(val fieldId: String, val value: CharArray) : AuthScreenEvent
     data class SignupPasswordVisibilityChanged(val fieldId: String) : AuthScreenEvent
-    data object SignupBusinessVerificationClicked : AuthScreenEvent
     data object EmailDuplicateCheckClicked : AuthScreenEvent
     data object SignupPhoneResendClicked : AuthScreenEvent
     data class SignupVerificationCodeChanged(val value: CharArray) : AuthScreenEvent
@@ -131,7 +123,7 @@ sealed interface AuthScreenEvent {
     data object SignupTermsDetailsClicked : AuthScreenEvent
     data object SignupPrivacyDetailsClicked : AuthScreenEvent
     data object SignupMarketingDetailsClicked : AuthScreenEvent
-    data object BusinessRegistrationFileClicked : AuthScreenEvent
+    data object SignupNextClicked : AuthScreenEvent
     data object SignupSubmitted : AuthScreenEvent
     data class RecoveryModeChanged(val mode: AccountRecoveryMode) : AuthScreenEvent
     data class RecoveryNameChanged(val value: String) : AuthScreenEvent

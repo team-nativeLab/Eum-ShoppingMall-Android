@@ -1,37 +1,47 @@
 package com.nativelap.eumshoppingmall.ui.support
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditTextField
+import com.nativelap.eumshoppingmall.ui.common.EumSelectField
 import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.support.INQUIRY_FIELD_GAP
 import com.nativelap.eumshoppingmall.ui.support.INQUIRY_LABEL_FONT_SIZE
 import com.nativelap.eumshoppingmall.ui.support.INQUIRY_LABEL_GAP
 import com.nativelap.eumshoppingmall.ui.support.INQUIRY_LABEL_LINE_HEIGHT
+import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -73,6 +83,7 @@ sealed interface OneToOneInquiryFormEvent {
     data class ContentChanged(val content: String) : OneToOneInquiryFormEvent
     data object AttachmentClicked : OneToOneInquiryFormEvent
     data object SubmitClicked : OneToOneInquiryFormEvent
+    data object CustomerSupportClicked : OneToOneInquiryFormEvent
 }
 
 /** 문의 내용의 최대 글자 수. 입력이 넘으면 이 길이에서 자른다. */
@@ -81,17 +92,13 @@ const val ONE_TO_ONE_INQUIRY_CONTENT_MAX_LENGTH = 1_000
 /** 문의 내용을 최대 글자 수 안으로 자른다. */
 fun limitOneToOneInquiryContent(content: String): String = content.take(ONE_TO_ONE_INQUIRY_CONTENT_MAX_LENGTH)
 
-/** 제출의 결과. 서버 연동 전이라 저장 없이 준비 중 안내만 낸다. 화면은 닫지 않는다. */
-enum class OneToOneInquirySubmitOutcome { UnavailableNotice, }
-
-/** 제출 동작을 정한다. 저장하지 않으므로 어떤 입력이든 준비 중 안내로 끝난다. */
-fun resolveOneToOneInquirySubmit(): OneToOneInquirySubmitOutcome = OneToOneInquirySubmitOutcome.UnavailableNotice
-
 @Composable
 fun OneToOneInquiryFormScreen(
     uiModel: OneToOneInquiryUiModel,
     onEvent: (OneToOneInquiryFormEvent) -> Unit,
     modifier: Modifier = Modifier,
+    // false면 제출 결과가 항상 "준비 중"이므로 입력 전에 안내하고 제출 버튼을 비활성으로 둔다.
+    isSubmissionAvailable: Boolean = true,
 ) {
     UiAuditScreenScaffold(
         title = stringResource(R.string.ui_audit_one_to_one_inquiry_title),
@@ -99,23 +106,54 @@ fun OneToOneInquiryFormScreen(
         modifier = modifier,
         bottomActionLabel = stringResource(R.string.ui_audit_register_inquiry),
         onBottomActionClick = { onEvent(OneToOneInquiryFormEvent.SubmitClicked) },
+        isBottomActionEnabled = isSubmissionAvailable,
     ) { contentPadding ->
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(contentPadding).padding(top = EumSpacing.x20),
             verticalArrangement = Arrangement.spacedBy(INQUIRY_FIELD_GAP),
         ) {
-            Text(
-                text = stringResource(R.string.ui_audit_one_to_one_inquiry_helper),
-                modifier = Modifier.padding(bottom = EumSpacing.x24),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.eumColors.textTertiary,
-            )
+            if (!isSubmissionAvailable) {
+                // 접수가 준비 중이면 안내와 함께 앱의 고객센터 화면으로 가는 경로를 보여 준다.
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                        .background(MaterialTheme.eumColors.surfaceSecondary, RoundedCornerShape(EumRadius.x8))
+                        .padding(EumSpacing.x12),
+                    verticalArrangement = Arrangement.spacedBy(EumSpacing.x4),
+                ) {
+                    Text(
+                        text = stringResource(R.string.inquiry_submission_unavailable),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.eumColors.textSecondary,
+                    )
+                    Box(
+                        Modifier.heightIn(min = InquiryChoiceMinHeight)
+                            .clickable(role = Role.Button) { onEvent(OneToOneInquiryFormEvent.CustomerSupportClicked) },
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.inquiry_open_customer_support),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.eumColors.textPrimary,
+                            textDecoration = TextDecoration.Underline,
+                        )
+                    }
+                }
+            }
+            if (isSubmissionAvailable) {
+                Text(
+                    text = stringResource(R.string.ui_audit_one_to_one_inquiry_helper),
+                    modifier = Modifier.padding(bottom = EumSpacing.x24),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.eumColors.textTertiary,
+                )
+            }
             InquiryChoiceField(
                 label = stringResource(R.string.ui_audit_inquiry_type),
                 placeholder = stringResource(R.string.ui_audit_inquiry_type_placeholder),
                 selectedLabel = uiModel.selectedType?.let { stringResource(it.labelRes) },
                 choices = OneToOneInquiryType.entries.map { type -> InquiryChoice(type.name, stringResource(type.labelRes)) },
+                selectedId = uiModel.selectedType?.name,
                 isExpanded = uiModel.isTypeListExpanded,
                 onFieldClick = { onEvent(OneToOneInquiryFormEvent.TypeFieldClicked) },
                 onSelect = { id ->
@@ -128,6 +166,7 @@ fun OneToOneInquiryFormScreen(
                 selectedLabel = uiModel.orderOptions.firstOrNull { it.orderId == uiModel.selectedOrderId }?.label,
                 choices = listOf(InquiryChoice(NO_ORDER_CHOICE_ID, stringResource(R.string.inquiry_order_none))) +
                     uiModel.orderOptions.map { option -> InquiryChoice(option.orderId, option.label) },
+                selectedId = uiModel.selectedOrderId,
                 isExpanded = uiModel.isOrderListExpanded,
                 onFieldClick = { onEvent(OneToOneInquiryFormEvent.OrderFieldClicked) },
                 onSelect = { id -> onEvent(OneToOneInquiryFormEvent.OrderSelected(id.takeUnless { it == NO_ORDER_CHOICE_ID })) },
@@ -160,7 +199,10 @@ fun OneToOneInquiryFormScreen(
                 placeholder = stringResource(R.string.inquiry_attachment_unavailable),
                 onClick = { onEvent(OneToOneInquiryFormEvent.AttachmentClicked) },
             )
-            InquiryReplyNotificationRow(isOn = uiModel.isReplyNotificationOn)
+            // 답변 알림은 저장되지 않는 기능이고 접수도 준비 중이라 접수 가능할 때만 보인다.
+            if (isSubmissionAvailable) {
+                InquiryReplyNotificationRow(isOn = uiModel.isReplyNotificationOn)
+            }
         }
     }
 }
@@ -171,33 +213,49 @@ private const val NO_ORDER_CHOICE_ID = "__no_order__"
 private data class InquiryChoice(val id: String, val label: String)
 
 // 선택 목록은 필드를 누르면 아래로 펼친다. 펼침 상태는 Route가 보관하며, 항목을 고르면 Route가 닫는다.
+// 선택 칸은 공통 EumSelectField 규칙(오른쪽 화살표)을 따르고, 펼친 목록은 현재 선택 항목에 체크를 보인다.
 @Composable
 private fun InquiryChoiceField(
     label: String,
     placeholder: String,
     selectedLabel: String?,
+    selectedId: String?,
     choices: List<InquiryChoice>,
     isExpanded: Boolean,
     onFieldClick: () -> Unit,
     onSelect: (String) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(INQUIRY_LABEL_GAP)) {
-        InquiryFormField(
-            label = label,
-            value = selectedLabel.orEmpty(),
-            placeholder = placeholder,
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium.copy(
+                fontSize = INQUIRY_LABEL_FONT_SIZE,
+                lineHeight = INQUIRY_LABEL_LINE_HEIGHT,
+                fontWeight = FontWeight.SemiBold,
+            ),
+            color = MaterialTheme.eumColors.textPrimary,
+        )
+        EumSelectField(
+            text = selectedLabel ?: placeholder,
             onClick = onFieldClick,
+            isPlaceholder = selectedLabel == null,
+            label = label,
+            isExpanded = isExpanded,
         )
         if (isExpanded) {
             Column(Modifier.fillMaxWidth()) {
                 choices.forEach { choice ->
+                    val isSelected = choice.id == selectedId
                     Row(
                         Modifier.fillMaxWidth().heightIn(min = InquiryChoiceMinHeight)
-                            .clickable(role = Role.Button) { onSelect(choice.id) }
+                            .selectable(selected = isSelected, role = Role.RadioButton) { onSelect(choice.id) }
                             .padding(horizontal = EumSpacing.x12),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(choice.label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textPrimary)
+                        Text(choice.label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textPrimary)
+                        if (isSelected) {
+                            Icon(painterResource(R.drawable.ic_check), contentDescription = null, tint = MaterialTheme.eumColors.textPrimary, modifier = Modifier.size(20.dp))
+                        }
                     }
                 }
             }

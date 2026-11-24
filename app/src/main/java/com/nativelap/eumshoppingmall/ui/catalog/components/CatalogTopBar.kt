@@ -42,6 +42,9 @@ fun CatalogTopBar(
     onActionClick: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     isCloseAction: Boolean = false,
+    // 탭 루트의 햄버거처럼 뒤로가기 대신 앞쪽에 두는 액션. onBackClick이 있으면 뒤로가기가 우선한다.
+    leadingAction: CatalogTopBarAction? = null,
+    onLeadingActionClick: () -> Unit = {},
 ) {
     // 좌우 슬롯을 실제 측정 폭의 최댓값으로 맞춰 제목이 항상 가운데에 오게 한다.
     Layout(
@@ -57,6 +60,15 @@ fun CatalogTopBar(
                             contentDescription = stringResource(
                                 if (isCloseAction) R.string.common_close else R.string.common_back,
                             ),
+                            tint = MaterialTheme.eumColors.textPrimary,
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
+                } else if (leadingAction != null) {
+                    IconButton(onClick = onLeadingActionClick, modifier = Modifier.size(48.dp)) {
+                        Icon(
+                            painterResource(leadingAction.iconResId),
+                            contentDescription = leadingAction.contentDescription,
                             tint = MaterialTheme.eumColors.textPrimary,
                             modifier = Modifier.size(24.dp),
                         )

@@ -25,16 +25,9 @@ private val previewProfile = AccountProfileUiModel(
     name = "홍길동",
     email = "example@email.com",
     phoneNumber = "010-0000-0000",
-    companyName = "회사명",
-    businessRegistrationNumber = "000-00-00000",
-    department = "안전관리팀",
-    isBusinessMember = true,
     isSmsConsentEnabled = true,
     isEmailConsentEnabled = false,
 )
-
-// Figma 357:3977 편집 상태: 사업자 등록번호와 담당 부서는 비어 있는 입력칸으로 표시한다.
-private val previewEditProfile = previewProfile.copy(businessRegistrationNumber = "", department = "")
 
 private val previewAddress = AccountAddressUiModel(
     id = "address-1",
@@ -105,7 +98,7 @@ private fun MyPageMemberPreview() {
                     AccountOrderStatusUiModel("배송중", "0"),
                     AccountOrderStatusUiModel("배송완료", "0"),
                 ),
-                orderRows = listOf(AccountMenuRowUiModel("returns", "취소·반품·교환"), AccountMenuRowUiModel("quotes", "견적 문의 내역")),
+                orderRows = listOf(AccountMenuRowUiModel("returns", "취소·반품·교환")),
                 supportRows = listOf(AccountMenuRowUiModel("inquiries", "1:1 문의 내역"), AccountMenuRowUiModel("customer", "고객센터"), AccountMenuRowUiModel("notices", "공지사항")),
                 recentProducts = emptyList(),
             ),
@@ -148,7 +141,7 @@ private fun AccountPasswordErrorPreview() {
 @Composable
 private fun AccountProfileEditPreview() {
     EumShoppingMallTheme {
-        AccountProfileScreen(AccountProfileEditUiModel(previewEditProfile), false, {})
+        AccountProfileScreen(AccountProfileEditUiModel(previewProfile), false, {})
     }
 }
 

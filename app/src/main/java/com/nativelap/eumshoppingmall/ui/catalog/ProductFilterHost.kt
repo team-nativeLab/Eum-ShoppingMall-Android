@@ -144,6 +144,13 @@ internal class ProductFilterState(
     /** 필터 후 목록에서 현재 페이지 분량만 돌려준다. 결과 수는 이 함수 전의 개수를 쓴다. */
     fun visibleProducts(filteredProducts: List<CatalogProductUiModel>): List<CatalogProductUiModel> = filteredProducts.take(visibleCount)
 
+    /** 적용된 필터와 입력 중인 가격을 모두 기본값으로 되돌리고 첫 페이지로 돌아간다. 정렬도 기본(추천순)으로 돌아간다. */
+    fun reset() {
+        minPriceDraftState.value = ""
+        maxPriceDraftState.value = ""
+        updateCriteria(ProductFilterCriteria())
+    }
+
     private fun updateCriteria(nextCriteria: ProductFilterCriteria) {
         criteriaState.value = nextCriteria
         resetVisibleCount()

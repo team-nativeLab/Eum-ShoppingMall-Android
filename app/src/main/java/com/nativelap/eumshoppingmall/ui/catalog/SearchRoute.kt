@@ -15,6 +15,7 @@ fun CatalogSearchRoute(
     onTabSelected: (MainNavigationTab) -> Unit,
     onSearch: (query: String) -> Unit,
     onCancel: () -> Unit,
+    onMenuClick: () -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf(uiModel.query) }
     var isRecentTermsCleared by rememberSaveable { mutableStateOf(false) }
@@ -31,6 +32,7 @@ fun CatalogSearchRoute(
                 is CatalogSearchEvent.QueryChanged -> query = event.query
                 CatalogSearchEvent.SearchSubmitted -> if (query.isNotBlank()) onSearch(query.trim())
                 CatalogSearchEvent.Cancelled -> onCancel()
+                CatalogSearchEvent.MenuClicked -> onMenuClick()
                 CatalogSearchEvent.ClearRecentTerms -> isRecentTermsCleared = true
                 is CatalogSearchEvent.RecentTermSelected -> onSearch(event.term)
                 is CatalogSearchEvent.PopularTermSelected -> onSearch(event.term)

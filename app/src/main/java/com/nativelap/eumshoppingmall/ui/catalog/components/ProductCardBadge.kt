@@ -22,7 +22,7 @@ import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
-// 이미지 좌상단 배지. 순위는 굵게, 라벨(견적 등)은 보통 굵기로 그린다.
+// 이미지 좌상단 배지. 순위는 굵게, 라벨은 보통 굵기로 그린다.
 @Composable
 internal fun ProductCardBadge(
     badge: CatalogProductBadge,

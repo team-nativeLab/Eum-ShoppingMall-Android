@@ -5,15 +5,15 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class CatalogProductSlotsTest {
-    // 순위 배지가 있으면 견적 등 라벨 배지는 같은 자리에서 가린다.
+    // 순위 배지가 있으면 라벨 배지는 같은 자리에서 가린다.
     @Test
     fun bestRankWinsOverBadgeLabel() {
-        assertEquals(CatalogProductBadge.BestRank(1), resolveCatalogProductBadge(bestRank = 1, badgeLabel = "견적 상품"))
+        assertEquals(CatalogProductBadge.BestRank(1), resolveCatalogProductBadge(bestRank = 1, badgeLabel = "가격 미표시"))
     }
 
     @Test
     fun badgeLabelIsUsedWhenThereIsNoRank() {
-        assertEquals(CatalogProductBadge.Label("견적 상품"), resolveCatalogProductBadge(bestRank = null, badgeLabel = "견적 상품"))
+        assertEquals(CatalogProductBadge.Label("가격 미표시"), resolveCatalogProductBadge(bestRank = null, badgeLabel = "가격 미표시"))
     }
 
     @Test
@@ -24,7 +24,7 @@ class CatalogProductSlotsTest {
 
     @Test
     fun nonPositiveRankIsIgnored() {
-        assertEquals(CatalogProductBadge.Label("견적 상품"), resolveCatalogProductBadge(bestRank = 0, badgeLabel = "견적 상품"))
+        assertEquals(CatalogProductBadge.Label("가격 미표시"), resolveCatalogProductBadge(bestRank = 0, badgeLabel = "가격 미표시"))
         assertNull(resolveCatalogProductBadge(bestRank = -1, badgeLabel = null))
     }
 
@@ -37,22 +37,22 @@ class CatalogProductSlotsTest {
                 currentLabel = "₩18,000",
                 originalLabel = "₩22,000",
                 discountLabel = "18%",
-                isQuoteTarget = false,
+                isPriceUndisclosed = false,
                 isPurchaseUnavailable = false,
             ),
         )
     }
 
-    // 견적 대상(금액 미표시)은 가격 줄을 비우고 "금액 미표시" 종류를 쓴다.
+    // 가격 미표시 상품(금액 미표시)은 가격 줄을 비우고 "금액 미표시" 종류를 쓴다.
     @Test
-    fun quoteTargetShowsUndisclosedAndHidesPriceLines() {
+    fun undisclosedProductShowsUndisclosedAndHidesPriceLines() {
         assertEquals(
             CatalogPriceSlot(CatalogPriceKind.Undisclosed, originalLabel = null, discountLabel = null, currentLabel = null),
             resolveCatalogPriceSlot(
                 currentLabel = null,
                 originalLabel = null,
                 discountLabel = null,
-                isQuoteTarget = true,
+                isPriceUndisclosed = true,
                 isPurchaseUnavailable = false,
             ),
         )
@@ -67,22 +67,22 @@ class CatalogProductSlotsTest {
                 currentLabel = null,
                 originalLabel = null,
                 discountLabel = null,
-                isQuoteTarget = false,
+                isPriceUndisclosed = false,
                 isPurchaseUnavailable = true,
             ),
         )
     }
 
-    // 견적 대상이면서 구매 불가 플래그가 함께 와도 견적 흐름(금액 미표시)이 우선이다.
+    // 가격 미표시 상품이면서 구매 불가 플래그가 함께 와도 문의 연결(금액 미표시)이 우선이다.
     @Test
-    fun quoteTargetWinsOverPurchaseUnavailable() {
+    fun undisclosedProductWinsOverPurchaseUnavailable() {
         assertEquals(
             CatalogPriceKind.Undisclosed,
             resolveCatalogPriceSlot(
                 currentLabel = null,
                 originalLabel = null,
                 discountLabel = null,
-                isQuoteTarget = true,
+                isPriceUndisclosed = true,
                 isPurchaseUnavailable = true,
             ).kind,
         )
@@ -96,7 +96,7 @@ class CatalogProductSlotsTest {
                 currentLabel = " ",
                 originalLabel = null,
                 discountLabel = null,
-                isQuoteTarget = false,
+                isPriceUndisclosed = false,
                 isPurchaseUnavailable = false,
             ).kind,
         )
@@ -110,7 +110,7 @@ class CatalogProductSlotsTest {
                 currentLabel = "₩18,000",
                 originalLabel = "₩22,000",
                 discountLabel = "18%",
-                isQuoteTarget = false,
+                isPriceUndisclosed = false,
                 isPurchaseUnavailable = false,
             ),
         )
@@ -124,7 +124,7 @@ class CatalogProductSlotsTest {
                 currentLabel = "₩54,000",
                 originalLabel = null,
                 discountLabel = null,
-                isQuoteTarget = false,
+                isPriceUndisclosed = false,
                 isPurchaseUnavailable = false,
             ),
         )
@@ -136,7 +136,7 @@ class CatalogProductSlotsTest {
             currentLabel = "₩54,000",
             originalLabel = "₩60,000",
             discountLabel = " ",
-            isQuoteTarget = false,
+            isPriceUndisclosed = false,
             isPurchaseUnavailable = false,
         )
 
@@ -150,7 +150,7 @@ class CatalogProductSlotsTest {
             currentLabel = "₩54,000",
             originalLabel = "₩54,000",
             discountLabel = "0%",
-            isQuoteTarget = false,
+            isPriceUndisclosed = false,
             isPurchaseUnavailable = false,
         )
 
@@ -163,7 +163,7 @@ class CatalogProductSlotsTest {
             currentLabel = "₩18,000",
             originalLabel = "₩22,000",
             discountLabel = "18%",
-            isQuoteTarget = false,
+            isPriceUndisclosed = false,
             isPurchaseUnavailable = false,
         )
 

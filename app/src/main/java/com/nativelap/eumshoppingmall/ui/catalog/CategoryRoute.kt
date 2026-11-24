@@ -14,6 +14,7 @@ fun CatalogCategoryRoute(
     cartItemCount: Int,
     onTabSelected: (MainNavigationTab) -> Unit,
     onSearchClick: () -> Unit,
+    onMenuClick: () -> Unit,
     onCategoryClick: (categoryId: String?) -> Unit,
     onBrandClick: (brandId: String) -> Unit = {},
 ) {
@@ -25,6 +26,7 @@ fun CatalogCategoryRoute(
         cartItemCount = cartItemCount,
         onEvent = { event ->
             when (event) {
+                CatalogCategoryEvent.MenuClicked -> onMenuClick()
                 CatalogCategoryEvent.SearchClicked -> onSearchClick()
                 CatalogCategoryEvent.ViewAllClicked -> onCategoryClick(null)
                 is CatalogCategoryEvent.ModeSelected -> isBrandModeSelected = event.brandMode

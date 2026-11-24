@@ -31,10 +31,8 @@ fun MyPageRoute(
 
                 is MyPageScreenEvent.BottomNavigationClicked -> onTabSelected(event.tab)
 
-                // 내 정보 관리(A-23)와 설정(A-35)은 아직 앱 목적지와 연결되지 않았다.
-                MyPageScreenEvent.ProfileClicked,
-                MyPageScreenEvent.SettingsClicked,
-                -> onUnavailableAction()
+                // 내 정보 관리(A-23)는 아직 앱 목적지와 연결되지 않았다.
+                MyPageScreenEvent.ProfileClicked -> onUnavailableAction()
             }
         },
     )

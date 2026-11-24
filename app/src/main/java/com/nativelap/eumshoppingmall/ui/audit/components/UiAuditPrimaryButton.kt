@@ -21,13 +21,17 @@ fun UiAuditPrimaryButton(
     label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.fillMaxWidth().heightIn(min = EumCtaButtonHeight),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.eumColors.textPrimary,
             contentColor = MaterialTheme.eumColors.inverse,
+            disabledContainerColor = MaterialTheme.eumColors.line,
+            disabledContentColor = MaterialTheme.eumColors.textDisabled,
         ),
         shape = RoundedCornerShape(EumRadius.x10),
     ) {

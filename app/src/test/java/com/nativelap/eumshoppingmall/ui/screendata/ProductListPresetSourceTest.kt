@@ -80,7 +80,7 @@ class ProductListPresetSourceTest {
     private fun product(id: String, categoryId: String) = CatalogProductUiModel(
         id = id,
         name = id,
-        price = CatalogPriceUiModel.QuoteRequired,
+        price = CatalogPriceUiModel.Undisclosed,
         categoryId = categoryId,
     )
 

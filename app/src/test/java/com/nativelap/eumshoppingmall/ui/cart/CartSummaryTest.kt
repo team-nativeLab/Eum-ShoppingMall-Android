@@ -31,10 +31,10 @@ class CartSummaryTest {
     }
 
     @Test
-    fun soldOutAndQuoteLinesDoNotCountAsOrderable() {
+    fun soldOutAndUndisclosedLinesDoNotCountAsOrderable() {
         val items = listOf(
             item(id = "sold", lineTotalWon = 9_000L, isSoldOut = true),
-            item(id = "quote", type = CartItemType.QuoteRequired, lineTotalWon = null, isSelected = true),
+            item(id = "undisclosed", type = CartItemType.PriceUndisclosed, lineTotalWon = null, isSelected = true),
         )
 
         assertEquals(0L, cartProductAmountWon(items))

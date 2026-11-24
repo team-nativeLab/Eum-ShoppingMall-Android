@@ -24,7 +24,6 @@ class HomeDiscoveryDestinationTest {
     @Test
     fun heroActionsResolveToApprovedDestinations() {
         assertEquals(EumDestination.ProductList(null), destinationForHomeHeroAction(HomeHeroActionId.BrowseProducts))
-        assertEquals(EumDestination.QuoteRequest(), destinationForHomeHeroAction(HomeHeroActionId.RequestQuote))
         assertEquals(EumDestination.CompanyIntro, destinationForHomeHeroAction(HomeHeroActionId.ViewCompany))
     }
 

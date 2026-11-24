@@ -46,11 +46,6 @@ import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestType
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderStatus
 import com.nativelap.eumshoppingmall.ui.productreview.ProductReviewUiModel
 import com.nativelap.eumshoppingmall.ui.productreview.ProductReviewWriteUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteCompleteUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteHistoryUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryDetailUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryStatus
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
 import com.nativelap.eumshoppingmall.ui.recent.RecentProductsUiModel
 import com.nativelap.eumshoppingmall.ui.support.CustomerSupportUiModel
 import com.nativelap.eumshoppingmall.ui.support.InquiryDetailUiModel
@@ -117,7 +112,7 @@ interface ShoppingScreenDataProvider {
         product = CatalogProductUiModel(
             id = productId,
             name = "",
-            price = CatalogPriceUiModel.QuoteRequired,
+            price = CatalogPriceUiModel.Undisclosed,
         ),
     )
 
@@ -155,31 +150,6 @@ interface ShoppingScreenDataProvider {
         orderRows = emptyList(),
         supportRows = emptyList(),
         recentProducts = emptyList(),
-    )
-
-    fun quoteRequest(productId: String?): QuoteRequestUiModel = QuoteRequestUiModel()
-
-    fun quoteComplete(): QuoteCompleteUiModel = QuoteCompleteUiModel(
-        inquiryNumber = "",
-        responseTimeLabel = "",
-        requestTypeLabel = "",
-        companyName = "",
-        contactName = "",
-        productsSummary = "",
-        preferredDeliveryDate = "",
-    )
-
-    fun quoteHistory(): QuoteHistoryUiModel = QuoteHistoryUiModel()
-
-    fun quoteInquiryDetail(inquiryId: String): QuoteInquiryDetailUiModel = QuoteInquiryDetailUiModel(
-        title = "",
-        dateLabel = "",
-        inquiryNumber = "",
-        status = QuoteInquiryStatus.Received,
-        companyName = "",
-        contactName = "",
-        contactPhone = "",
-        contactEmail = "",
     )
 
     fun orderHistory(): OrderHistoryUiModel = OrderHistoryUiModel(
@@ -362,10 +332,6 @@ private val EmptyAccountProfile = AccountProfileUiModel(
     name = "",
     email = "",
     phoneNumber = "",
-    companyName = "",
-    businessRegistrationNumber = "",
-    department = "",
-    isBusinessMember = false,
     isSmsConsentEnabled = false,
     isEmailConsentEnabled = false,
 )

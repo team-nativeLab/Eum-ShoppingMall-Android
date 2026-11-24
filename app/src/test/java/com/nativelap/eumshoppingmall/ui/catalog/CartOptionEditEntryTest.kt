@@ -111,7 +111,7 @@ class CartOptionEditEntryTest {
         currentProductId = productId,
         optionGroups = groups,
         isSoldOut = isSoldOut,
-        isQuoteRequired = false,
+        isPriceUndisclosed = false,
         isSaving = isSaving,
     )
 
@@ -123,7 +123,7 @@ class CartOptionEditEntryTest {
         quantity = 3,
         optionExtraWon = 0,
         productPriceLabel = "₩1,000",
-        isQuoteRequired = false,
+        isPriceUndisclosed = false,
         productUnitPriceWon = 1_000,
     )
 }

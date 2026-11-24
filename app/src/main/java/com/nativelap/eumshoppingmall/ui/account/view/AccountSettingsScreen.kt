@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
@@ -77,54 +78,72 @@ fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSetti
                     contentPadding = PaddingValues(start = EumSpacing.x20, top = EumSpacing.x24, end = EumSpacing.x20, bottom = EumSpacing.x40),
                     verticalArrangement = Arrangement.spacedBy(EumSpacing.x32),
                 ) {
-                    item {
-                        Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                            SettingSection(stringResource(R.string.settings_notification_group)) {
-                                SettingSwitchRow(
-                                    label = stringResource(R.string.settings_app_push),
-                                    description = stringResource(R.string.settings_order_push_description),
-                                    enabled = uiModel.isDeviceNotificationEnabled,
-                                    onClick = { onEvent(AccountSettingsScreenEvent.DeviceNotificationChanged) },
-                                )
-                            }
-                            if (uiModel.isDeviceNotificationWarningVisible) {
-                                DeviceNotificationWarning(onClick = { onEvent(AccountSettingsScreenEvent.NotificationSettingsClicked) })
-                            }
+                    if (!uiModel.areTogglesAvailable) {
+                        item {
+                            Text(
+                                stringResource(R.string.settings_toggles_unavailable),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.eumColors.textSecondary,
+                            )
                         }
                     }
-                    if (uiModel.isLoggedIn) {
+                    // 실제 알림·수신 동의 상태를 알 수 없으면 꺼짐으로 보이는 토글을 만들지 않고 위의 준비 중 안내만 보인다.
+                    if (uiModel.areTogglesAvailable) {
                         item {
                             Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                                MarketingIntro()
-                                SettingSection(null) {
-                                    SettingSwitchRow(stringResource(R.string.settings_marketing_app), enabled = uiModel.isAppMarketingEnabled, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("app", !uiModel.isAppMarketingEnabled)) })
-                                    SettingDivider()
-                                    SettingSwitchRow(stringResource(R.string.settings_marketing_sms), enabled = uiModel.isSmsMarketingEnabled, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("sms", !uiModel.isSmsMarketingEnabled)) })
-                                    SettingDivider()
-                                    SettingSwitchRow(stringResource(R.string.settings_marketing_email), enabled = uiModel.isEmailMarketingEnabled, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("email", !uiModel.isEmailMarketingEnabled)) })
-                                    SettingDivider()
-                                    SettingSwitchRow(stringResource(R.string.settings_marketing_night), stringResource(R.string.settings_marketing_night_description), uiModel.isNightMarketingEnabled, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("night", !uiModel.isNightMarketingEnabled)) })
+                                SettingSection(stringResource(R.string.settings_notification_group)) {
+                                    SettingSwitchRow(
+                                        label = stringResource(R.string.settings_app_push),
+                                        description = stringResource(R.string.settings_order_push_description),
+                                        enabled = uiModel.isDeviceNotificationEnabled,
+                                        onClick = { onEvent(AccountSettingsScreenEvent.DeviceNotificationChanged) },
+                                        isInteractive = uiModel.areTogglesAvailable,
+                                    )
                                 }
-                                Text(stringResource(R.string.settings_consent_changed, uiModel.lastConsentChangedLabel), style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
+                                if (uiModel.isDeviceNotificationWarningVisible) {
+                                    DeviceNotificationWarning(onClick = { onEvent(AccountSettingsScreenEvent.NotificationSettingsClicked) })
+                                }
                             }
                         }
-                    } else {
-                        item {
-                            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                                MarketingIntro()
-                                Column(
-                                    Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.lineNeutral, RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x20),
-                                    verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
-                                ) {
-                                    Text(stringResource(R.string.settings_guest_marketing_message), style = MaterialTheme.typography.bodySmall)
-                                    OutlinedButton(
-                                        onClick = { onEvent(AccountSettingsScreenEvent.LoginClicked) },
-                                        shape = RoundedCornerShape(EumRadius.x8),
-                                        border = BorderStroke(1.dp, MaterialTheme.eumColors.textPrimary),
-                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
-                                        contentPadding = PaddingValues(horizontal = EumSpacing.x16),
+                        if (uiModel.isLoggedIn) {
+                            item {
+                                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                                    MarketingIntro()
+                                    SettingSection(null) {
+                                        SettingSwitchRow(stringResource(R.string.settings_marketing_app), enabled = uiModel.isAppMarketingEnabled, isInteractive = uiModel.areTogglesAvailable, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("app", !uiModel.isAppMarketingEnabled)) })
+                                        SettingDivider()
+                                        SettingSwitchRow(stringResource(R.string.settings_marketing_sms), enabled = uiModel.isSmsMarketingEnabled, isInteractive = uiModel.areTogglesAvailable, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("sms", !uiModel.isSmsMarketingEnabled)) })
+                                        SettingDivider()
+                                        SettingSwitchRow(stringResource(R.string.settings_marketing_email), enabled = uiModel.isEmailMarketingEnabled, isInteractive = uiModel.areTogglesAvailable, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("email", !uiModel.isEmailMarketingEnabled)) })
+                                        SettingDivider()
+                                        SettingSwitchRow(stringResource(R.string.settings_marketing_night), stringResource(R.string.settings_marketing_night_description), uiModel.isNightMarketingEnabled, isInteractive = uiModel.areTogglesAvailable, onClick = { onEvent(AccountSettingsScreenEvent.MarketingChanged("night", !uiModel.isNightMarketingEnabled)) })
+                                    }
+                                    if (uiModel.lastConsentChangedLabel.isNotBlank()) {
+                                        Text(stringResource(R.string.settings_consent_changed, uiModel.lastConsentChangedLabel), style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
+                                    }
+                                }
+                            }
+                        } else {
+                            item {
+                                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                                    MarketingIntro()
+                                    Column(
+                                        Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.lineNeutral, RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x20),
+                                        verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
                                     ) {
-                                        Text(stringResource(R.string.account_login), style = MaterialTheme.typography.labelMedium)
+                                        Text(stringResource(R.string.settings_guest_marketing_message), style = MaterialTheme.typography.bodySmall)
+                                        // 수신 설정이 준비 중이면 로그인으로 해결되는 문제가 아니므로 로그인 버튼을 두지 않는다.
+                                        if (uiModel.areTogglesAvailable) {
+                                            OutlinedButton(
+                                                onClick = { onEvent(AccountSettingsScreenEvent.LoginClicked) },
+                                                shape = RoundedCornerShape(EumRadius.x8),
+                                                border = BorderStroke(1.dp, MaterialTheme.eumColors.textPrimary),
+                                                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.eumColors.textPrimary),
+                                                contentPadding = PaddingValues(horizontal = EumSpacing.x16),
+                                            ) {
+                                                Text(stringResource(R.string.account_login), style = MaterialTheme.typography.labelMedium)
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -139,7 +158,10 @@ fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSetti
                                 "open_source" to R.string.settings_open_source,
                             ).forEachIndexed { index, (id, label) ->
                                 if (index > 0) SettingDivider()
-                                SettingNavigationRow(stringResource(label)) { onEvent(AccountSettingsScreenEvent.PolicyClicked(id)) }
+                                SettingNavigationRow(
+                                    stringResource(label),
+                                    note = if (id == "open_source") stringResource(R.string.settings_preparing) else null,
+                                ) { onEvent(AccountSettingsScreenEvent.PolicyClicked(id)) }
                             }
                         }
                     }
@@ -155,11 +177,11 @@ fun AccountSettingsScreen(uiModel: AccountSettingUiModel, onEvent: (AccountSetti
                         item {
                             Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
                                 SettingSection(stringResource(R.string.settings_account)) {
-                                    SettingNavigationRow(stringResource(R.string.account_logout), showChevron = false) { onEvent(AccountSettingsScreenEvent.LogoutClicked) }
+                                    SettingNavigationRow(stringResource(R.string.account_logout), showChevron = false, note = stringResource(R.string.settings_preparing)) { onEvent(AccountSettingsScreenEvent.LogoutClicked) }
                                 }
                                 Text(
                                     stringResource(R.string.account_withdrawal),
-                                    Modifier.clickable { onEvent(AccountSettingsScreenEvent.WithdrawalClicked) }.heightIn(min = 48.dp),
+                                    Modifier.clickable(role = Role.Button) { onEvent(AccountSettingsScreenEvent.WithdrawalClicked) }.heightIn(min = 48.dp),
                                     style = EumTypographyTokens.caption,
                                     color = MaterialTheme.eumColors.textTertiary,
                                     textDecoration = TextDecoration.Underline,
@@ -260,10 +282,11 @@ private fun settingSwitchColors(): SwitchColors {
 }
 
 @Composable
-private fun SettingSwitchRow(label: String, description: String? = null, enabled: Boolean, onClick: () -> Unit) {
+private fun SettingSwitchRow(label: String, description: String? = null, enabled: Boolean, isInteractive: Boolean = true, onClick: () -> Unit) {
     // 스위치 자체 높이(48dp 터치 영역)가 행 높이를 키우지 않도록 세로 여백은 텍스트 열에만 준다.
     Row(
-        Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { onClick() },
+        Modifier.fillMaxWidth().heightIn(min = 56.dp)
+            .then(if (isInteractive) Modifier.clickable { onClick() } else Modifier.semantics(mergeDescendants = true) {}),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f).padding(vertical = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
@@ -274,6 +297,7 @@ private fun SettingSwitchRow(label: String, description: String? = null, enabled
         Switch(
             checked = enabled,
             onCheckedChange = { onClick() },
+            enabled = isInteractive,
             modifier = Modifier.graphicsLayer(scaleX = 0.7f, scaleY = 0.7f, transformOrigin = TransformOrigin(1f, 0.5f)),
             colors = settingSwitchColors(),
         )
@@ -281,9 +305,12 @@ private fun SettingSwitchRow(label: String, description: String? = null, enabled
 }
 
 @Composable
-private fun SettingNavigationRow(label: String, showChevron: Boolean = true, onClick: () -> Unit) {
+private fun SettingNavigationRow(label: String, showChevron: Boolean = true, note: String? = null, onClick: () -> Unit) {
     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { onClick() }, verticalAlignment = Alignment.CenterVertically) {
         Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+        if (note != null) {
+            Text(note, style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
+        }
         if (showChevron) {
             Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = MaterialTheme.eumColors.textTertiary)
         }

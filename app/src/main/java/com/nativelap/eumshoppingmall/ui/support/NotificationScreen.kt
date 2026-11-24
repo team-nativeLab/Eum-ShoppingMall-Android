@@ -51,29 +51,32 @@ fun NotificationScreen(groups: List<NotificationGroupUiModel>, unreadCount: Int,
     UiAuditScreenScaffold(stringResource(R.string.notification_title), { onEvent(NotificationScreenEvent.BackClicked) }, modifier) { padding ->
         // 알림 행은 화면 폭을 채우고 행 안쪽 좌우 20dp를 직접 갖는다. 나머지 요소는 scaffold 좌우 여백을 쓴다.
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-            Row(
-                Modifier.fillMaxWidth().padding(padding).padding(vertical = EumSpacing.x8),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    stringResource(R.string.notification_unread_count, unreadCount),
-                    Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.eumColors.textSecondary,
-                )
-                Box(
-                    Modifier.heightIn(min = 48.dp).clickable(role = Role.Button) { onEvent(NotificationScreenEvent.MarkAllReadClicked) },
-                    contentAlignment = Alignment.Center,
+            // 알림이 없으면 읽지 않은 개수와 모두 읽음 버튼은 의미가 없어 빈 상태 안내만 보인다.
+            if (hasNotifications) {
+                Row(
+                    Modifier.fillMaxWidth().padding(padding).padding(vertical = EumSpacing.x8),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    Text(
+                        stringResource(R.string.notification_unread_count, unreadCount),
+                        Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.eumColors.textSecondary,
+                    )
                     Box(
-                        Modifier.heightIn(min = MARK_ALL_READ_VISUAL_HEIGHT).padding(horizontal = EumSpacing.x12),
+                        Modifier.heightIn(min = 48.dp).clickable(role = Role.Button) { onEvent(NotificationScreenEvent.MarkAllReadClicked) },
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(
-                            stringResource(R.string.notification_mark_all_read),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.eumColors.textPrimary,
-                        )
+                        Box(
+                            Modifier.heightIn(min = MARK_ALL_READ_VISUAL_HEIGHT).padding(horizontal = EumSpacing.x12),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                stringResource(R.string.notification_mark_all_read),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.eumColors.textPrimary,
+                            )
+                        }
                     }
                 }
             }
@@ -81,7 +84,8 @@ fun NotificationScreen(groups: List<NotificationGroupUiModel>, unreadCount: Int,
                 SupportEmptyState(
                     iconRes = R.drawable.ic_bell,
                     title = stringResource(R.string.notification_empty_title),
-                    body = stringResource(R.string.notification_empty_body),
+                    // 제목이 이미 "알림이 없다"는 사실을 전하므로 같은 뜻의 본문은 두지 않는다.
+                    body = null,
                 )
             } else {
                 groups.forEach { group ->

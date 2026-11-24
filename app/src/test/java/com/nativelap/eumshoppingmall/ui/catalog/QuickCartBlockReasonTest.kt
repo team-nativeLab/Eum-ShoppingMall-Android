@@ -26,8 +26,8 @@ class QuickCartBlockReasonTest {
     }
 
     @Test
-    fun quoteProductHasNoReasonChipSoButtonStaysAbsent() {
-        assertNull(quickCartBlockReason(plain.copy(price = CatalogPriceUiModel.QuoteRequired)))
+    fun undisclosedProductHasNoReasonChipSoButtonStaysAbsent() {
+        assertNull(quickCartBlockReason(plain.copy(price = CatalogPriceUiModel.Undisclosed)))
     }
 
     @Test

@@ -23,7 +23,7 @@ class EumLoginGateTest {
 
     @Test
     fun loginTargetIsNeverWrappedAgain() {
-        val loginDestination = EumDestination.Login(pendingDestination = EumDestination.QuoteHistory)
+        val loginDestination = EumDestination.Login(pendingDestination = EumDestination.OrderHistory)
 
         assertEquals(loginDestination, gateDestination(loginDestination, isLoggedIn = false))
         assertEquals(loginDestination, gateDestination(loginDestination, isLoggedIn = true))
@@ -56,7 +56,8 @@ class EumLoginGateTest {
             EumDestination.ClaimDetail("request-1"),
             EumDestination.ClaimWithdrawal("request-1"),
             EumDestination.ClaimRejection("request-1"),
-            EumDestination.InquiryWrite,
+            EumDestination.InquiryWrite(),
+            EumDestination.InquiryWrite("안전모"),
             EumDestination.InquiryDetail("inquiry-1"),
             EumDestination.ReviewWrite("p1"),
             EumDestination.ProductInquiryWrite("p1"),
@@ -64,8 +65,6 @@ class EumLoginGateTest {
             EumDestination.Favorites,
             EumDestination.OrderHistory,
             EumDestination.InquiryHistory,
-            EumDestination.QuoteHistory,
-            EumDestination.QuoteInquiryDetail("inquiry-1"),
             EumDestination.Coupons,
             EumDestination.Points,
             EumDestination.CheckoutAddress(),
@@ -89,6 +88,8 @@ class EumLoginGateTest {
             EumDestination.Signup,
             EumDestination.AccountRecovery(),
             EumDestination.CustomerSupport,
+            EumDestination.Notifications,
+            EumDestination.AccountSettings,
             EumDestination.RecentProducts,
             EumDestination.Terms,
             EumDestination.PrivacyPolicy,

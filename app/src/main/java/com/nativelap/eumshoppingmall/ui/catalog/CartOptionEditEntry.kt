@@ -20,7 +20,7 @@ internal fun cartOptionEditEntry(
     currentProductId: String,
     optionGroups: List<CatalogOptionGroupUiModel>,
     isSoldOut: Boolean,
-    isQuoteRequired: Boolean,
+    isPriceUndisclosed: Boolean,
     isSaving: Boolean,
 ): CartOptionEditEntry = when {
     editSourceLineId == null -> CartOptionEditEntry.NotEditing
@@ -31,7 +31,7 @@ internal fun cartOptionEditEntry(
 
     else -> {
         val editGroup = resolveCartOptionEditGroup(sourceLine, currentProductId, optionGroups)
-        if (isCartOptionEditAllowed(sourceLine, currentProductId, editGroup, isSoldOut, isQuoteRequired)) {
+        if (isCartOptionEditAllowed(sourceLine, currentProductId, editGroup, isSoldOut, isPriceUndisclosed)) {
             CartOptionEditEntry.Editable
         } else {
             CartOptionEditEntry.Invalid

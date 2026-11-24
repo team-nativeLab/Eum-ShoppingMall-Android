@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,7 +42,7 @@ fun AccountWithdrawalReasonScreen(uiModel: AccountWithdrawalReasonUiModel, onEve
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
         ) { padding ->
             Column(
-                Modifier.fillMaxSize().padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
+                Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
                 verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {

@@ -25,7 +25,6 @@
 | A-12 드로어 | `182:2416` | `AccountDrawerScreen`, `account/view/AccountDrawerScreen.kt` | 기존 화면; Preview fixture 적용 |
 | A-13 로그인 | `182:2524` | `AuthLoginScreen`, `auth/view/AuthLoginScreen.kt` | A-13 기본 및 A-13e 오류·좁은 화면 responsive Preview 확인 |
 | A-14 회원가입 | `182:2601` | `AuthSignupScreen`, `auth/view/AuthSignupScreen.kt` | 기존 화면; Preview fixture 적용 |
-| A-15 견적 문의 | `182:2696` | `QuoteRequestScreen`, `quote/view/QuoteRequestScreen.kt` | 기존 화면; Preview fixture 적용 |
 | A-16 주문 내역 | `350:3346` | `OrderHistoryScreen`, `orders/view/OrderHistoryScreen.kt` | 본 작업에서 폭 및 long-content 대응 |
 | A-17 주문 상세 | `351:3440` | `OrderDetailScreen`, `orders/view/OrderDetailScreen.kt` | 본 작업에서 폭 대응 |
 | A-18 배송 조회 | `351:3570` | `DeliveryTrackingScreen`, `orders/view/DeliveryTrackingScreen.kt` | 본 작업에서 폭 대응 |
@@ -35,7 +34,6 @@
 | A-22 쿠폰함 | `355:3895` | `CouponScreen`, `benefits/CouponScreen.kt` | 본 작업에서 고정 높이 텍스트 잘림·최소 컨트롤 높이 조정 |
 | A-23 내 정보 관리 | `350:3490` | `AccountProfileScreen`, `account/view/AccountProfileScreen.kt` | 비밀번호 재확인 gate Preview와 캡처 추가 |
 | A-24 배송지 관리 | `357:4081` | `AccountAddressListScreen` / `AccountAddressFormScreen`, `account/view/AccountAddressScreens.kt` | 본 작업에서 폭 대응 |
-| A-25 견적 문의 내역 | `358:4125` | `QuoteHistoryScreen`, `quote/view/QuoteHistoryScreen.kt` | 기존 화면; Preview fixture 적용 |
 | A-26 탈퇴 안내 | `458:4210` | `AccountWithdrawalGuideScreen`, `auth/view/AccountWithdrawalGuideScreen.kt` | 기존 구현 확인; 반응형 런타임 비교 미수행 |
 | A-27 이메일 찾기 | `479:4567` | `AccountRecoveryScreen`, `auth/view/AccountRecoveryScreen.kt` | 기존 구현 확인; 반응형 런타임 비교 미수행 |
 | A-28 비밀번호 찾기 | `479:4974` | `AuthPasswordResetScreen`, `auth/view/AuthPasswordResetScreen.kt` | 기존 구현 확인; 반응형 런타임 비교 미수행 |
@@ -76,11 +74,10 @@
 
 | 프레임 변형 | Node ID | 화면·상태 모델 | Preview / 대응 |
 |---|---:|---|---|
-| A-05h, A-05s, A-05sh | `179:1109`, `180:1142`, `180:1258` | `CatalogProductDetailScreen` | `CatalogPreviews.kt`의 상세/견적 옵션 상태 |
+| A-05h, A-05s, A-05sh | `179:1109`, `180:1142`, `180:1258` | `CatalogProductDetailScreen` | `CatalogPreviews.kt`의 상세/가격 미표시 옵션 상태 |
 | A-06b, A-06z | `180:1511`, `180:1681` | 검색 결과/빈 결과 composable | `CatalogPreviews.kt` 결과/빈 결과 |
 | A-07h, A-07h2 | `181:1738`, `181:1940` | `CartScreen` 선택·금액 상태 | `CartPreviews.kt` 목록/빈 상태 |
 | A-11g | `182:2279` | `MyPageScreen` guest | `AccountPreviews.kt` guest |
-| A-15d | `557:5389` | `QuoteCompleteScreen` | `QuotePreviews.kt` 완료 상태 |
 | A-19a, A-19b | `879:44844`, `879:44922` | `OrderRequestFormScreen` cancel/return/exchange | `OrderRequestPreviews.kt` 3종 상태 |
 | A-19c, A-19l, A-19s | `927:8508`, `353:3725`, `929:46104` | 요청 허브/내역/주문 선택 | `OrderRequestPreviews.kt` 허브·내역·주문 선택 상태 |
 | A-19l 철회 후, A-19le | `879:45202`, `927:44448` | 요청 내역 | `OrderRequestPreviews.kt`의 A-19le 철회 후 신청 내역 빈 상태 Preview 포함 |
@@ -89,12 +86,11 @@
 | A-22p, A-22e, A-22pe | `355:4019`, `927:44673`, `927:44782` | 적립금/쿠폰/적립금 빈 상태 | `CollectionEmptyPreviews.kt` 적립금 목록/빈 상태, 쿠폰 사용내역 빈 상태/전체 빈 상태 Preview |
 | A-23e, A-23-err | `357:3977`, `528:21835` | 프로필 수정/비밀번호 오류 | `AccountPreviews.kt` 수정·오류 상태 |
 | A-24e, A-24e(empty) | `357:4147`, `927:44885` | 배송지 추가/빈 목록 | `AccountPreviews.kt` 입력·빈 목록 |
-| A-25d, A-25e | `358:4230`, `927:44954` | 견적 상세/빈 목록 | `QuotePreviews.kt` 상세·빈 상태 |
 | A-26r/c/d/b/r-pw | `458:4379`, `459:4287`, `459:4328`, `467:4358`, `467:4461` | 탈퇴 사유/최종 확인/완료/불가/비밀번호 오류 | `AuthPreviews.kt` 상태 변형 |
 | A-27r/z, A-28n/d | `479:4725`, `479:4854`, `479:5127`, `479:5277` | 이메일 결과·없음, 비밀번호 재설정·완료 | `AuthPreviews.kt` 상태 변형 |
 | A-31z/d, A-32z | `480:5262`, `480:5375`, `480:5756` | 문의 내역 빈 상태/문의 상세/알림 빈 상태 | `SupportAndPolicyPreviews.kt`에 빈/응답/대기 상태 추가 |
 | A-09t/t-in/c/c-p, A-10v | `557:5580`, `557:5727`, `557:5906`, `566:26719`, `557:5483` | 결제 영수증·세금계산서·가상계좌 | `CheckoutPreviews.kt` 현금영수증 입력/세금계산서 직접·저장 사업자 정보/가상계좌 Preview |
-| A-13e, A-14b | `558:5680`, `558:5787` | 로그인 오류/사업자 가입 | `AuthPreviews.kt` A-13e 오류/좁은 화면 및 A-14b 사업자 상태 Preview |
+| A-13e | `558:5680` | 로그인 오류 | `AuthPreviews.kt` A-13e 오류/좁은 화면 Preview |
 | A-23-err | `528:21835` | 프로필 비밀번호 오류 | `AccountPreviews.kt` 오류 상태 |
 | A-35g/p/t/l | `655:7269`, `655:7397`, `655:7579`, `655:7760` | guest/알림 꺼짐/토스트/로그아웃 확인 | `AccountPreviews.kt` 대응 Preview |
 | A-36o/u/v, A-39p | `656:7779`, `656:7989`, `657:7797`, `657:8011` | 이전 약관/개정 예정/버전 선택/동의서 | `PolicyDocumentScreen`의 previous/upcoming/version-picker Preview와 `PrivacyConsentDetailScreen` 동의 상세 Preview 추가 |
@@ -120,15 +116,11 @@
 | `recent/RecentProductsScreen.kt` | 2/3열 adaptive grid 및 스크롤, 48dp 삭제 hit target 확인; 상품명·부제 ellipsis 명시 |
 | `account/view/AccountDrawerScreen.kt` | 82%/최대 360dp drawer 확인; 긴 메뉴가 작은 높이에서 푸터를 밀 수 있어 메뉴 영역에 vertical scroll 추가 |
 | `orders/view/OrderRequestFormScreen.kt` | scroll/하단 CTA 구성 확인; 320dp에서는 요청 유형/사유 chips를 2열로 감싸도록 적용 |
-| `quote/view/QuoteCompleteScreen.kt` | LazyColumn 및 sticky actions 확인; 진행 단계 텍스트를 균등 폭, 두 줄 ellipsis로 적용 |
-| `quote/view/QuoteInquiryDetailScreen.kt` | LazyColumn, 2개 하단 actions, 84dp 요약 라벨 뒤 값 wrap 확인; 추가 수정 없음 |
-| `quote/view/QuoteRequestScreen.kt` | LazyColumn, IME 처리 bottom action, weighted field 행 확인; 선택 상품명/부제를 한 줄 ellipsis로 표시 |
-| `quote/view/QuoteHistoryScreen.kt` | LazyRow filter, 빈/목록 상태 및 고정 하단 action 확인; 추가 수정 없음 |
 | `auth/view/AccountWithdrawalGuideScreen.kt` | 안내 본문 scroll 및 고정 CTA 확인; 추가 수정 없음 |
 | `auth/view/AccountWithdrawalCompletedScreen.kt` | 완료 요약이 좁은 높이/큰 글자에서 넘칠 수 있어 본문 scroll 추가 |
 | `auth/view/AccountWithdrawalReasonScreen.kt` | 2열 선택지, scroll/IME-aware CTA 확인; 추가 수정 없음 |
 | `auth/view/AuthPasswordChangeScreen.kt` | 본문 scroll, 키보드 및 하단 CTA 처리 확인; 추가 수정 없음 |
-| `auth/view/AuthSignupScreen.kt` | 개인/사업자 폼 scroll, IME-aware CTA, weighted 입력·검증 행 확인; 추가 수정 없음 |
+| `auth/view/AuthSignupScreen.kt` | 4단계 가입 폼 scroll, IME-aware CTA(2026-11-23 단계 분리), 입력·검증 행 확인 |
 | `auth/view/AuthPasswordResetScreen.kt` | 긴 안내와 입력 필드 scroll, IME-aware CTA 확인; 추가 수정 없음 |
 | `auth/view/AuthPhoneNumberChangeScreen.kt` | 인증 필드 scroll 및 IME-aware CTA 확인; 추가 수정 없음 |
 | `auth/view/AuthPasswordUpdatedScreen.kt` | 짧은 완료 메시지와 하단 action이 800dp 타깃 높이에 들어가는 구성 확인; 추가 수정 없음 |
@@ -167,7 +159,7 @@ A-46 주소 검색은 `1249:9195`(screen child `1249:9196`), A-47 배송 요청�
 
 - 추가 sweep의 run manifest는 596행이며 576개 instrumentation case가 `OK (1 test)`, 20개는 `SKIP_EXISTING`(이미 존재하는 캡처 재사용)이었다. run manifest에는 서로 다른 Compose Preview 149개가 등록되어 있다. 이는 Preview 함수 × viewport/fontScale 실행 수이며 Figma frame 수와 다른 지표다. 2026-11-08 authoritative node 목록으로 [110-node manifest](FIGMA_APP_RESPONSIVE_MANIFEST.csv)를 작성했다(110 unique node rows, 110 fixture alias mapped, 0 `UNMAPPED`). `MAPPED`는 alias가 `@Preview` 또는 `@ResponsiveUiPreview` 함수로 실제 존재함을 뜻한다. Figma pixel fidelity를 뜻하지 않는다. 110개 node별 runtime evidence는 manifest `runtime_evidence`에 node→Preview→캡처 파일로 연결했다. 105개 node는 320dp/fs1.0, 320dp/fs1.5, 390dp/fs1.0, 800dp/fs1.0의 4개 파일이 있으며, 5개 overlay state node는 root 캡처만 존재하고 overlay는 미검증으로 표시했다. Contact sheet와 상세 캡처의 범위는 기존 sweep 기록을 따른다. sweep 상세 기록은 `/tmp/eum-responsive-all/visual_findings.md`, 실행표는 `/tmp/eum-responsive-all/runs.csv`다.
 - 네 시각 결함 수정 후 갱신 캡처는 `/tmp/eum-responsive-all/recaptured/figma-ui-captures/`에 저장했다. `cart-mixed-{320-fs1.5,390-fs1.0,800-fs1.0}.png`, `cart-narrow-320-fs1.5.png`, `review-write-{320-fs1.5,390-fs1.0,800-fs1.0}.png`, `quote-complete-{320-fs1.5,390-fs1.0,800-fs1.0}.png`, `quote-detail-{320-fs1.5,390-fs1.0,800-fs1.0}.png`를 직접 확인했다.
-- 캡처에서는 장바구니 금액이 수량 조절기와 세로로 분리되어 한 줄로 표시되고, 리뷰 사진 안내 및 추가 타일이 등록 CTA 위에 보인다. 견적 완료 화면에는 `문의번호` 라벨과 번호 값만 표시되며, 견적 상세의 문의번호 끝자리는 분리되지 않고 320dp sticky CTA는 읽기 쉬운 세로 배치로 표시된다. 이 결과는 Preview fixture의 지정 폭/글자 크기 렌더 확인이며, 실제 Figma 110 node 전체 매핑·pixel-perfect 비교·화면 상호작용 테스트 완료를 뜻하지 않는다.
+- 캡처에서는 장바구니 금액이 수량 조절기와 세로로 분리되어 한 줄로 표시되고, 리뷰 사진 안내 및 추가 타일이 등록 CTA 위에 보인다. 이 결과는 Preview fixture의 지정 폭/글자 크기 렌더 확인이며, 실제 Figma 110 node 전체 매핑·pixel-perfect 비교·화면 상호작용 테스트 완료를 뜻하지 않는다.
 - 해당 구현의 최종 검증 `./gradlew :app:compileDebugKotlin :app:testDebugUnitTest :app:lintDebug :app:assembleDebug spotlessCheck`와 `git diff --check`는 통과했다. emulator는 1080x2340, density 440, fontScale 1.0으로 복구했다.
 
 ## 2026-11-08 authoritative frame-to-preview inventory
@@ -188,3 +180,6 @@ A-46 주소 검색은 `1249:9195`(screen child `1249:9196`), A-47 배송 요청�
 - 11개 보정 node-state의 320/390/800dp·fontScale 1.0 및 320dp·fontScale 1.5 조합 44개는 `emulator-5554`에서 `ResponsiveCatalogRenderTest`의 ComposableInvoker 인자로 직접 실행했고, 모든 호출이 `OK (1 test)`로 종료됐다. PNG는 `docs/figma-responsive-captures/canonical-*.png`에 저장했다. 320dp/fontScale 1.5 주소 입력 및 필터 결과, 반품 필터, 주문 불가 장바구니, 탈퇴 사유 캡처에서 화면 폭 밖으로 나가는 콘텐츠는 보이지 않았다. 배송지 추가·탈퇴 사유의 긴 본문은 sticky 하단 action 위의 scroll viewport 안에서 이어지므로 정적 한 장으로 스크롤 전체를 검증하지는 않았다.
 - 실제 framebuffer를 동시에 캡처해 modal overlay를 보려는 시도는 시험 Activity가 화면 전면에 렌더되지 않아 launcher/blank surface만 얻었다. overlay pixel 검증을 하지 않았다. Manifest에서 `180:1142`, `180:1258`, `459:4287`, `655:7760`, `657:7797`은 `UNVERIFIED_OVERLAY_CAPTURE`로 표시한다. 해당 preview state는 model을 통해 켜졌으나 overlay 자체 렌더 결과는 확인하지 못했다.
 - AVD는 size/density reset 후 1080×2340, 440dpi, system fontScale 1.0을 확인했다. runtime capture는 스크롤 제스처, IME 표시 중 입력, 전 화면 pixel comparison을 검증하지 않는다.
+
+2026-11-23: 견적 기능 삭제(사용자 요청, 웹 기준 기능 정렬·견적을 1:1 문의로 대체)로 A-15·A-15d·A-25·A-25d·A-25e 프레임과 해당 Preview·manifest 행을 제거했다. 위 110 node 수치와 A-01~A-57 번호는 삭제 전 기준의 기록이다.
+2026-11-23: 사업자 회원 유형 삭제로 A-14b 프레임과 Preview·manifest 행을 제거했다.

@@ -65,7 +65,7 @@ data class EumColorTokens(
     val checkboxChecked: Color,
     // Figma 상품 카드(179:743) 이미지 박스 회색은 기존 placeholder 토큰과 달라 신규 토큰으로 둔다.
     val productImageBackground: Color,
-    // Figma 상품 카드 견적 배지 테두리(#8C8C8C)는 기존 토큰과 달라 신규 토큰으로 둔다.
+    // Figma 상품 카드 라벨 배지 테두리(#8C8C8C)는 기존 토큰과 달라 신규 토큰으로 둔다.
     val productBadgeBorder: Color,
     // Figma accent-tint. 아이콘 정보 카드의 아이콘 타일 배경에 쓴다.
     val accentTint: Color,

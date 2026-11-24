@@ -21,20 +21,17 @@ fun CatalogProductListRoute(
     onProductClick: (productId: String) -> Unit,
     isLoggedIn: Boolean,
     onLoginRequired: () -> Unit,
-    // null이면 카드에 담기 버튼을 그리지 않는다(쿼트 선택 화면). 담기 동작을 넘긴 목록에서만 버튼이 보인다.
+    // null이면 카드에 담기 버튼을 그리지 않는다. 담기 동작을 넘긴 목록에서만 버튼이 보인다.
     onQuickAddToCart: ((CatalogProductUiModel) -> Unit)? = null,
     cartAddOutcome: CartAddOutcome? = null,
     onCartAddOutcomeChange: (CartAddOutcome?) -> Unit = {},
     onCartClick: () -> Unit = {},
-    // 견적 상품 선택 화면이면 제목·안내를 바꾸고 찜 하트를 숨긴다.
-    isQuotePicker: Boolean = false,
     onCartLoginRequired: () -> Unit = onLoginRequired,
 ) {
     var selectedCategoryId by rememberSaveable { mutableStateOf(uiModel.selectedCategoryId) }
     var isListLayout by rememberSaveable { mutableStateOf(uiModel.isListLayout) }
     val snackbarHostState = rememberCartAddSnackbarHostState(cartAddOutcome, onCartAddOutcomeChange, onCartClick)
     val listTitle = uiModel.titleResId?.let { titleResId -> stringResource(titleResId) } ?: uiModel.title
-    val screenTitle = if (isQuotePicker) stringResource(R.string.quote_product_picker_title) else listTitle
     val filterState = rememberProductFilterState()
     val favoriteToggles = rememberFavoriteToggles(
         initialFavoriteIds = uiModel.products.filter { product -> product.isFavorite }.map { product -> product.id }.toSet(),
@@ -64,7 +61,7 @@ fun CatalogProductListRoute(
     ) {
         CatalogProductListScreen(
             uiModel = uiModel.copy(
-                title = screenTitle,
+                title = listTitle,
                 selectedCategoryId = selectedCategoryId,
                 resultCountLabel = stringResource(R.string.catalog_product_result_count, filteredProducts.size),
                 isListLayout = isListLayout,
@@ -72,14 +69,13 @@ fun CatalogProductListRoute(
                 products = shownProducts,
             ),
             hasMoreProducts = filteredProducts.size > shownProducts.size,
+            // 원본 목록은 있는데 칩·필터 적용 뒤 0건이면 조건 때문에 비었다고 안내한다.
+            isEmptyByFilter = isEmptyByFilter(sourceCount = uiModel.products.size, filteredCount = filteredProducts.size),
             selectedBottomItem = selectedTab,
             onBottomItemSelected = onTabSelected,
             cartItemCount = cartItemCount,
             snackbarHostState = snackbarHostState,
             showQuickCart = onQuickAddToCart != null,
-            guidanceText = if (isQuotePicker) stringResource(R.string.quote_product_picker_guidance) else null,
-            showFavorite = showsFavoriteToggle(isQuotePicker),
-            showBlockReason = showsBlockReasonChip(isQuotePicker),
             onEvent = { event ->
                 when (event) {
                     CatalogProductListEvent.BackClicked -> onBackClick()
@@ -92,6 +88,11 @@ fun CatalogProductListRoute(
                     }
 
                     CatalogProductListEvent.LoadMoreClicked -> filterState.loadMore()
+
+                    CatalogProductListEvent.FiltersResetClicked -> {
+                        selectedCategoryId = CATALOG_ALL_CATEGORY_ID
+                        filterState.reset()
+                    }
 
                     CatalogProductListEvent.LayoutToggled -> isListLayout = !isListLayout
 

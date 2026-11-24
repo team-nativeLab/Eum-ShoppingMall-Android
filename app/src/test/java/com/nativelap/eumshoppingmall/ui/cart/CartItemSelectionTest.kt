@@ -9,22 +9,22 @@ import org.junit.Test
 
 class CartItemSelectionTest {
     @Test
-    fun orderableItemsKeepSoldOutItemsButDropQuoteRequiredItems() {
+    fun orderableItemsKeepSoldOutItemsButDropPriceUndisclosedItems() {
         val items = listOf(
             cartItem(id = "normal"),
             cartItem(id = "sold-out", isSoldOut = true),
-            cartItem(id = "quote", type = CartItemType.QuoteRequired),
+            cartItem(id = "undisclosed", type = CartItemType.PriceUndisclosed),
         )
 
         assertEquals(listOf("normal", "sold-out"), items.orderableItems().map { it.id })
     }
 
     @Test
-    fun selectableItemsExcludeSoldOutAndQuoteRequiredItems() {
+    fun selectableItemsExcludeSoldOutAndPriceUndisclosedItems() {
         val items = listOf(
             cartItem(id = "normal"),
             cartItem(id = "sold-out", isSoldOut = true),
-            cartItem(id = "quote", type = CartItemType.QuoteRequired),
+            cartItem(id = "undisclosed", type = CartItemType.PriceUndisclosed),
         )
 
         assertEquals(listOf("normal"), items.selectableItems().map { it.id })

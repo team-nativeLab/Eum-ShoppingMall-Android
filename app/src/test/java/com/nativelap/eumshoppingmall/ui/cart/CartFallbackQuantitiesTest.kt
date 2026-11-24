@@ -10,7 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class CartFallbackQuantitiesTest {
-    private val labels = CartPriceLabels(priceCheck = "가격 확인 필요", quotePrice = "가격 문의")
+    private val labels = CartPriceLabels(priceCheck = "가격 확인 필요", undisclosedPrice = "가격 문의")
     private val saverScope = object : SaverScope {
         override fun canBeSaved(value: Any): Boolean = true
     }

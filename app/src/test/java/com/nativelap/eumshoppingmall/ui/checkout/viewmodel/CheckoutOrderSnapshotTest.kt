@@ -55,8 +55,8 @@ class CheckoutOrderSnapshotTest {
         assertEquals(setOf("helmet/default"), restored?.cartLineIdsToRemove)
     }
 
-    @Test fun quoteOnlyAndNonPositiveQuantityAreRejected() {
-        assertNull(checkoutOrderSnapshot(listOf(cartLine("quote", 1, 1L, 0L).copy(isQuoteRequired = true)), CheckoutOrderSource.SavedCart))
+    @Test fun priceUndisclosedOnlyAndNonPositiveQuantityAreRejected() {
+        assertNull(checkoutOrderSnapshot(listOf(cartLine("undisclosed", 1, 1L, 0L).copy(isPriceUndisclosed = true)), CheckoutOrderSource.SavedCart))
         assertNull(checkoutOrderSnapshot(listOf(cartLine("invalid", 0, 1L, 0L)), CheckoutOrderSource.BuyNow))
     }
 
@@ -97,7 +97,7 @@ class CheckoutOrderSnapshotTest {
         quantity = quantity,
         optionExtraWon = extra,
         productPriceLabel = "label ignored",
-        isQuoteRequired = false,
+        isPriceUndisclosed = false,
         productUnitPriceWon = price,
     )
 }

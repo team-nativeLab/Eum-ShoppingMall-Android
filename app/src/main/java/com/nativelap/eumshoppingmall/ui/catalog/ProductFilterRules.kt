@@ -187,13 +187,16 @@ private fun sortByPrice(
     products: List<CatalogProductUiModel>,
     descending: Boolean,
 ): List<CatalogProductUiModel> {
-    val (pricedProducts, quoteRequiredProducts) = products.partition { product -> product.unitPriceWon() != null }
+    val (pricedProducts, undisclosedProducts) = products.partition { product -> product.unitPriceWon() != null }
     val sortedPricedProducts = if (descending) {
         pricedProducts.sortedByDescending { product -> product.unitPriceWon() }
     } else {
         pricedProducts.sortedBy { product -> product.unitPriceWon() }
     }
-    return sortedPricedProducts + quoteRequiredProducts
+    return sortedPricedProducts + undisclosedProducts
 }
 
 private fun CatalogProductUiModel.unitPriceWon(): Long? = (price as? CatalogPriceUiModel.Available)?.unitPriceWon
+
+/** 원본 목록은 있는데 칩·필터 적용 뒤 0건이면 true. 원본 자체가 비었을 때는 false라 "준비 중" 안내를 쓴다. */
+internal fun isEmptyByFilter(sourceCount: Int, filteredCount: Int): Boolean = sourceCount > 0 && filteredCount == 0

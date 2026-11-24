@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
@@ -33,15 +34,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthLoginUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
+import com.nativelap.eumshoppingmall.ui.common.EumBrandLogo
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
-import com.nativelap.eumshoppingmall.ui.theme.eumCheckboxColors
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 // 간편로그인 A/B는 출시 전 임시 항목이라 숨긴다. 이벤트·Route 분기·문자열은 그대로 두어 다시 켤 수 있게 한다.
@@ -59,7 +61,7 @@ fun AuthLoginScreen(uiModel: AuthLoginUiModel, onEvent: (AuthScreenEvent) -> Uni
         ) {
             Spacer(Modifier.height(EumSpacing.x24))
 
-            Text(stringResource(R.string.auth_brand_title), style = MaterialTheme.typography.headlineLarge)
+            EumBrandLogo(size = 72.dp)
 
             Spacer(Modifier.height(EumSpacing.x32))
 
@@ -83,11 +85,17 @@ fun AuthLoginScreen(uiModel: AuthLoginUiModel, onEvent: (AuthScreenEvent) -> Uni
                         else -> null
                     },
                 )
+                // 체크박스는 시각 20dp이고 터치 영역은 행 전체(48dp 이상)가 맡는다. 토글과 접근성 역할은 행이 가진다.
                 Row(
-                    Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(AuthScreenEvent.RememberLoginChanged(!uiModel.isRemembered)) },
+                    Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(
+                        value = uiModel.isRemembered,
+                        role = Role.Checkbox,
+                        onValueChange = { onEvent(AuthScreenEvent.RememberLoginChanged(it)) },
+                    ),
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
                 ) {
-                    Checkbox(checked = uiModel.isRemembered, colors = eumCheckboxColors(), onCheckedChange = { onEvent(AuthScreenEvent.RememberLoginChanged(it)) })
+                    AuthCheckbox(checked = uiModel.isRemembered, size = 20.dp)
                     Text(stringResource(R.string.account_keep_signed_in), style = MaterialTheme.typography.bodySmall)
                 }
             }

@@ -14,7 +14,7 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class CartQuantityChangeTest {
-    private val labels = CartPriceLabels(priceCheck = "가격 확인 필요", quotePrice = "가격 문의")
+    private val labels = CartPriceLabels(priceCheck = "가격 확인 필요", undisclosedPrice = "가격 문의")
 
     @Test
     fun quantityChangeDoublesTheLineTotalAndRewritesItsLabels() {
@@ -72,20 +72,20 @@ class CartQuantityChangeTest {
     }
 
     @Test
-    fun quoteLineQuantityChangeKeepsQuoteLabels() {
-        val quote = CartItemUiModel(
-            id = "quote",
-            name = "견적 상품",
+    fun undisclosedLineQuantityChangeKeepsInquiryLabels() {
+        val undisclosed = CartItemUiModel(
+            id = "undisclosed",
+            name = "가격 미표시",
             optionLabel = "기본",
             quantity = 1,
             unitPriceLabel = "가격 문의",
             totalPriceLabel = "가격 문의",
-            type = CartItemType.QuoteRequired,
+            type = CartItemType.PriceUndisclosed,
         ).withQuantity(2, labels)
 
-        assertEquals(2, quote.quantity)
-        assertEquals("가격 문의", quote.totalPriceLabel)
-        assertNull(quote.lineTotalWon)
+        assertEquals(2, undisclosed.quantity)
+        assertEquals("가격 문의", undisclosed.totalPriceLabel)
+        assertNull(undisclosed.lineTotalWon)
     }
 
     private fun orderableItem(unitPriceWon: Long?) = CartItemUiModel(
@@ -108,7 +108,7 @@ class CartQuantityChangeTest {
         quantity = quantity,
         optionExtraWon = 0L,
         productPriceLabel = "₩18,000",
-        isQuoteRequired = false,
+        isPriceUndisclosed = false,
         productUnitPriceWon = unitPriceWon,
     )
 }

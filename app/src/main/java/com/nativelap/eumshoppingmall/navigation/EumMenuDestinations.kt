@@ -1,5 +1,7 @@
 package com.nativelap.eumshoppingmall.navigation
 
+import com.nativelap.eumshoppingmall.ui.catalog.ProductListPreset
+
 /**
  * 드로어(A-12)와 마이(A-11) 화면이 내보내는 문자열 메뉴 ID를 목적지로 바꾸는 단일 매핑.
  *
@@ -10,11 +12,19 @@ package com.nativelap.eumshoppingmall.navigation
 object EumMenuDestinations {
     /** A-12 드로어 메뉴 ID(AccountDrawerScreen의 MenuClicked). */
     fun drawerMenu(menuId: String): EumDestination? = when (menuId) {
+        "best" -> EumDestination.ProductList(preset = ProductListPreset.Best)
+        "recommended" -> EumDestination.ProductList(preset = ProductListPreset.Recommended)
+        "discount" -> EumDestination.ProductList(preset = ProductListPreset.Discount)
+        "favorites" -> EumDestination.Favorites
         "events" -> EumDestination.EventList
-        "quotes" -> EumDestination.QuoteRequest()
-        "support" -> EumDestination.CustomerSupport
         "notices" -> EumDestination.NoticeList
+        "support" -> EumDestination.CustomerSupport
+        "guide" -> EumDestination.UsageGuide
+        "terms" -> EumDestination.Terms
+        "privacy" -> EumDestination.PrivacyPolicy
         "company" -> EumDestination.CompanyIntro
+        "notifications" -> EumDestination.Notifications
+        "settings" -> EumDestination.AccountSettings
         "login" -> EumDestination.Login()
         else -> null
     }
@@ -31,7 +41,6 @@ object EumMenuDestinations {
 
     /** A-11 마이 화면의 메뉴 행 ID(MyPageScreenEvent.MenuRowClicked). */
     fun myPageMenuRow(rowId: String): EumDestination? = when (rowId) {
-        "quotes" -> EumDestination.QuoteHistory
         "inquiries" -> EumDestination.InquiryHistory
         "customer" -> EumDestination.CustomerSupport
         "notices" -> EumDestination.NoticeList

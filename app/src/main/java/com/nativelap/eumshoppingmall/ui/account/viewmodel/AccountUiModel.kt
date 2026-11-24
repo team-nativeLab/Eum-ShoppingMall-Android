@@ -10,10 +10,6 @@ data class AccountProfileUiModel(
     val name: String,
     val email: String,
     val phoneNumber: String,
-    val companyName: String,
-    val businessRegistrationNumber: String,
-    val department: String,
-    val isBusinessMember: Boolean,
     val isSmsConsentEnabled: Boolean,
     val isEmailConsentEnabled: Boolean,
 )
@@ -71,12 +67,13 @@ data class AccountSettingUiModel(
     val isLogoutDialogVisible: Boolean,
     val appVersionLabel: String,
     val lastConsentChangedLabel: String,
+    // false면 알림·수신 토글을 비활성으로 두고 준비 중 안내를 보인다(저장·전송 경로가 없을 때).
+    val areTogglesAvailable: Boolean = true,
 )
 
 sealed interface MyPageScreenEvent {
     data object LoginClicked : MyPageScreenEvent
     data object ProfileClicked : MyPageScreenEvent
-    data object SettingsClicked : MyPageScreenEvent
     data object DrawerClicked : MyPageScreenEvent
     data class ShortcutClicked(val shortcutId: String) : MyPageScreenEvent
     data class MenuRowClicked(val rowId: String) : MyPageScreenEvent
@@ -85,9 +82,7 @@ sealed interface MyPageScreenEvent {
 
 sealed interface AccountDrawerScreenEvent {
     data object CloseClicked : AccountDrawerScreenEvent
-    data object NotificationClicked : AccountDrawerScreenEvent
     data object ProfileClicked : AccountDrawerScreenEvent
-    data object SettingsClicked : AccountDrawerScreenEvent
     data object LogoutClicked : AccountDrawerScreenEvent
     data class MenuClicked(val menuId: String) : AccountDrawerScreenEvent
 }
@@ -100,8 +95,6 @@ sealed interface AccountProfileScreenEvent {
     data class PasswordChangedValue(val value: CharArray) : AccountProfileScreenEvent
     data class NameChanged(val value: String) : AccountProfileScreenEvent
     data class PhoneChanged(val value: String) : AccountProfileScreenEvent
-    data class CompanyChanged(val value: String) : AccountProfileScreenEvent
-    data class DepartmentChanged(val value: String) : AccountProfileScreenEvent
     data class SmsConsentChanged(val enabled: Boolean) : AccountProfileScreenEvent
     data class EmailConsentChanged(val enabled: Boolean) : AccountProfileScreenEvent
     data object WithdrawalClicked : AccountProfileScreenEvent

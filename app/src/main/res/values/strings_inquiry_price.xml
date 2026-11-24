@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 가격이 표시되지 않는 상품은 1:1 문의로 연결한다. -->
+    <string name="inquiry_price_prefill_title">%1$s 가격 문의</string>
+    <string name="product_price_inquiry_action">1:1 문의하기</string>
+    <string name="catalog_inquiry_action">1:1 문의하기</string>
+    <string name="catalog_price_undisclosed_options_notice">가격 및 구매 조건은 1:1 문의를 통해 확인해 주세요.</string>
+    <string name="catalog_search_inquiry_card_title">찾는 상품이 없나요?</string>
+    <string name="catalog_search_inquiry_card_description">원하시는 상품을 1:1 문의로 알려 주세요.</string>
+    <string name="cart_price_undisclosed_badge">가격 미표시</string>
+    <string name="cart_price_undisclosed_products">주문할 수 없는 상품 (%1$d)</string>
+    <string name="cart_price_inquiry_action">이 상품 1:1 문의</string>
+    <string name="account_order_section">주문 관리</string>
+    <string name="inquiry_submission_unavailable">문의 접수는 준비 중이에요. 지금은 작성한 내용이 전송되지 않아요.</string>
+    <string name="inquiry_open_customer_support">고객센터 보기</string>
+</resources>

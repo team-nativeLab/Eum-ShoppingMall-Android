@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="settings_guest_marketing_message">로그인하면 마케팅 정보 수신 설정을 변경할 수 있습니다.</string>
+    <string name="settings_guest_marketing_message">마케팅 정보 수신 설정은 준비 중입니다.</string>
     <string name="settings_logout_body">다시 로그인하면 이어서 이용할 수 있습니다.</string>
     <string name="settings_device_notification_warning_message">기기 알림이 꺼져 있어 알림을 받을 수 없습니다.</string>
     <string name="settings_device_notification_settings_link">기기 설정 열기</string>
+    <!-- 설정 화면: 저장·전송 경로가 없는 항목의 준비 중 고지 -->
+    <string name="settings_toggles_unavailable">알림·수신 설정은 준비 중이에요. 지금은 변경할 수 없어요.</string>
+    <string name="settings_preparing">준비 중</string>
 </resources>

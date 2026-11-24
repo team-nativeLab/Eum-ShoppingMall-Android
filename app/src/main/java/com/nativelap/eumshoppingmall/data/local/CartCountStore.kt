@@ -24,7 +24,8 @@ data class CartLine(
     val optionExtraWon: Long?,
     /** 담을 때의 상품 기본가 표시 문구. 가격 문의 상품은 문의 문구다. */
     val productPriceLabel: String,
-    val isQuoteRequired: Boolean,
+    /** 가격이 표시되지 않아 주문할 수 없는 줄. 1:1 문의로 안내한다. 저장 형식의 8번째 필드와 같다. */
+    val isPriceUndisclosed: Boolean,
     /** 상품 기본가(원). null이면 가격 미상(구 형식 줄 포함)이다. */
     val productUnitPriceWon: Long? = null,
 ) {

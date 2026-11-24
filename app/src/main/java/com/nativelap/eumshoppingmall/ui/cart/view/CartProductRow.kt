@@ -51,7 +51,7 @@ fun CartProductRow(
     isQuantityLocked: Boolean = false,
 ) {
     val isOrderable = item.type == CartItemType.Orderable && !item.isSoldOut
-    val canEditQuantity = (item.type == CartItemType.QuoteRequired || isOrderable) && !isQuantityLocked
+    val canEditQuantity = (item.type == CartItemType.PriceUndisclosed || isOrderable) && !isQuantityLocked
     val textColor = if (item.isSoldOut) MaterialTheme.eumColors.textTertiary else MaterialTheme.eumColors.textPrimary
     Row(
         modifier = modifier.fillMaxWidth().heightIn(min = 120.dp).padding(vertical = EumSpacing.x12),
@@ -80,9 +80,9 @@ fun CartProductRow(
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(EumSpacing.x2)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (item.type == CartItemType.QuoteRequired) {
+                if (item.type == CartItemType.PriceUndisclosed) {
                     Text(
-                        stringResource(R.string.cart_quote_product_badge),
+                        stringResource(R.string.cart_price_undisclosed_badge),
                         modifier = Modifier
                             .padding(end = EumSpacing.x4)
                             .border(1.dp, MaterialTheme.eumColors.lineControl, RoundedCornerShape(4.dp))
@@ -121,7 +121,7 @@ fun CartProductRow(
                 )
             }
             Text(item.optionLabel, style = EumTypographyTokens.caption, color = MaterialTheme.eumColors.textTertiary)
-            // 견적 전용 줄은 옵션 편집 대상이 아니므로 버튼을 두지 않는다. 클릭 처리(CartRoute)와 같은 판정을 쓴다.
+            // 가격 미표시 줄은 옵션 편집 대상이 아니므로 버튼을 두지 않는다. 클릭 처리(CartRoute)와 같은 판정을 쓴다.
             if (item.canChangeOption()) {
                 TextButton(
                     onClick = onOptionChangeClicked,
@@ -145,13 +145,14 @@ fun CartProductRow(
             }
             BoxWithConstraints(Modifier.fillMaxWidth()) {
                 val fontScale = LocalDensity.current.fontScale
-                val priceLabel = if (item.type == CartItemType.QuoteRequired) {
-                    stringResource(R.string.cart_price_inquiry)
+                val priceLabel = if (item.type == CartItemType.PriceUndisclosed) {
+                    stringResource(R.string.cart_price_undisclosed_note)
                 } else {
                     item.totalPriceLabel
                 }
-                if (maxWidth < 180.dp || fontScale >= 1.3f) {
-                    Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
+                // 가격(한 줄)과 스테퍼(약 108dp) 사이에 최소 12dp를 두려면 폭이 220dp 이상이어야 한다. 좁으면 가격을 위 줄로 올린다.
+                if (maxWidth < 220.dp || fontScale >= 1.3f) {
+                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
                         Text(
                             text = priceLabel,
                             style = EumTypographyTokens.priceM,
@@ -167,7 +168,7 @@ fun CartProductRow(
                         )
                     }
                 } else {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
                         Text(
                             text = priceLabel,
                             modifier = Modifier.weight(1f),

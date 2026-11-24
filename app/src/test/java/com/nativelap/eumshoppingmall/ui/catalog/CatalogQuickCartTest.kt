@@ -20,15 +20,15 @@ class CatalogQuickCartTest {
     }
 
     @Test
-    fun optionProductQuoteProductAndSoldOutProductCannotBeAddedFromCard() {
+    fun optionProductUndisclosedProductAndSoldOutProductCannotBeAddedFromCard() {
         assertFalse(canQuickAddToCart(plain.copy(hasOptions = true)))
-        assertFalse(canQuickAddToCart(plain.copy(price = CatalogPriceUiModel.QuoteRequired)))
+        assertFalse(canQuickAddToCart(plain.copy(price = CatalogPriceUiModel.Undisclosed)))
         assertFalse(canQuickAddToCart(plain.copy(isSoldOut = true)))
     }
 
     @Test
     fun cardButtonHiddenWhenCallerPassesNoQuickCartAction() {
-        // 쿼트 선택 화면은 담기 동작을 넘기지 않으므로 담을 수 있는 상품이어도 버튼이 없다.
+        // 담기 동작을 넘기지 않는 화면에서는 담을 수 있는 상품이어도 버튼이 없다.
         assertFalse(quickCartButtonVisible(plain, hasQuickCartAction = false))
         assertTrue(quickCartButtonVisible(plain, hasQuickCartAction = true))
     }
@@ -43,7 +43,7 @@ class CatalogQuickCartTest {
         assertEquals(1, line?.quantity)
         assertEquals("₩18,000", line?.productPriceLabel)
         assertEquals(18_000L, line?.productUnitPriceWon)
-        assertFalse(line?.isQuoteRequired ?: true)
+        assertFalse(line?.isPriceUndisclosed ?: true)
     }
 
     @Test

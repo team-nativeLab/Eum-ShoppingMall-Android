@@ -146,8 +146,8 @@ private fun RecentProductCard(
                     color = MaterialTheme.eumColors.danger,
                 )
             }
-            // 견적 배지는 가격이 견적 문의일 때만 견적 스타일로 보여 준다.
-            product.badgeLabel?.takeIf { product.price == CatalogPriceUiModel.QuoteRequired }?.let { badge ->
+            // 라벨 배지는 가격이 표시되지 않는 상품일 때만 테두리 스타일로 보여 준다.
+            product.badgeLabel?.takeIf { product.price == CatalogPriceUiModel.Undisclosed }?.let { badge ->
                 Text(
                     badge,
                     Modifier.align(Alignment.TopStart).padding(EumSpacing.x8).clip(RoundedCornerShape(EumRadius.x4))
@@ -174,7 +174,7 @@ private fun RecentProductCard(
             when (val price = product.price) {
                 is CatalogPriceUiModel.Available -> Text(price.currentLabel, style = EumTypographyTokens.priceM, color = nameColor)
 
-                CatalogPriceUiModel.QuoteRequired -> Text(
+                CatalogPriceUiModel.Undisclosed -> Text(
                     stringResource(R.string.product_price_inquiry),
                     style = EumTypographyTokens.priceM,
                     color = if (product.isSoldOut) MaterialTheme.eumColors.textTertiary else MaterialTheme.eumColors.textSecondary,

@@ -5,6 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import com.nativelap.eumshoppingmall.R
 
 /** 공지 상세(A-41). */
 @Composable
@@ -42,15 +44,27 @@ fun InquiryWriteRoute(
     uiModel: OneToOneInquiryUiModel,
     onBackClick: () -> Unit,
     onUnavailableAction: () -> Unit,
+    onCustomerSupportClick: () -> Unit,
+    // 가격 미표시 상품에서 들어왔을 때 문의 제목에 상품명을 미리 채운다. 빈 값이면 채우지 않는다.
+    prefilledProductName: String = "",
 ) {
-    var selectedType by rememberSaveable { mutableStateOf(uiModel.selectedType) }
+    val prefilledTitle = if (prefilledProductName.isBlank()) {
+        uiModel.title
+    } else {
+        stringResource(R.string.inquiry_price_prefill_title, prefilledProductName)
+    }
+    // 가격 미표시 상품에서 들어오면 문의 유형 기본값을 "상품"으로 둔다.
+    var selectedType by rememberSaveable {
+        mutableStateOf(if (prefilledProductName.isBlank()) uiModel.selectedType else OneToOneInquiryType.Product)
+    }
     var selectedOrderId by rememberSaveable { mutableStateOf(uiModel.selectedOrderId) }
-    var title by rememberSaveable { mutableStateOf(uiModel.title) }
+    var title by rememberSaveable { mutableStateOf(prefilledTitle) }
     var content by rememberSaveable { mutableStateOf(uiModel.content) }
     // 펼침 상태는 Route가 보관한다. 화면 회전에도 남도록 rememberSaveable을 쓰고, 항목을 고르면 닫는다.
     var isTypeListExpanded by rememberSaveable { mutableStateOf(uiModel.isTypeListExpanded) }
     var isOrderListExpanded by rememberSaveable { mutableStateOf(uiModel.isOrderListExpanded) }
     OneToOneInquiryFormScreen(
+        isSubmissionAvailable = false,
         uiModel = uiModel.copy(
             selectedType = selectedType,
             selectedOrderId = selectedOrderId,
@@ -81,9 +95,10 @@ fun InquiryWriteRoute(
 
                 is OneToOneInquiryFormEvent.ContentChanged -> content = limitOneToOneInquiryContent(event.content)
 
-                OneToOneInquiryFormEvent.SubmitClicked -> when (resolveOneToOneInquirySubmit()) {
-                    OneToOneInquirySubmitOutcome.UnavailableNotice -> onUnavailableAction()
-                }
+                // 서버 연동 전이라 제출은 저장하지 않고 준비 중 안내만 낸다(화면 쪽에서 버튼도 비활성이다).
+                OneToOneInquiryFormEvent.SubmitClicked -> onUnavailableAction()
+
+                OneToOneInquiryFormEvent.CustomerSupportClicked -> onCustomerSupportClick()
 
                 OneToOneInquiryFormEvent.AttachmentClicked -> onUnavailableAction()
             }

@@ -50,7 +50,6 @@ import com.nativelap.eumshoppingmall.ui.home.components.HomeCompanyInfoFooter
 import com.nativelap.eumshoppingmall.ui.home.components.HomeHeroCarousel
 import com.nativelap.eumshoppingmall.ui.home.components.HomeNavigationRail
 import com.nativelap.eumshoppingmall.ui.home.components.HomeProductCard
-import com.nativelap.eumshoppingmall.ui.home.components.HomeQuoteBanner
 import com.nativelap.eumshoppingmall.ui.home.components.HomeSearchBar
 import com.nativelap.eumshoppingmall.ui.home.components.HomeSectionHeader
 import com.nativelap.eumshoppingmall.ui.home.components.HomeSeeAllProductsButton
@@ -73,9 +72,7 @@ fun HomeRoute(
     onCategoryClick: (HomeCategoryUiModel) -> Unit = {},
     onProductClick: (HomeProductUiModel) -> Unit = {},
     onHeroAction: (HomeHeroActionId) -> Unit = {},
-    onQuoteClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
-    onNotificationClick: () -> Unit = {},
     // 섹션 전체 보기와 하단 전체 상품 보기가 고른 목록 preset을 넘긴다.
     onSeeProductsClick: (ProductListPreset) -> Unit,
     onFavoriteClick: (HomeProductUiModel) -> Unit = {},
@@ -138,11 +135,7 @@ fun HomeRoute(
 
                 is HomeScreenEvent.HeroActionClicked -> onHeroAction(event.action)
 
-                HomeScreenEvent.QuoteClicked -> onQuoteClick()
-
                 HomeScreenEvent.MenuClicked -> onMenuClick()
-
-                HomeScreenEvent.NotificationsClicked -> onNotificationClick()
 
                 is HomeScreenEvent.SeeProductsClicked -> onSeeProductsClick(event.preset)
 
@@ -201,7 +194,6 @@ private fun HomeScreen(
                 if (!isExpanded) {
                     HomeTopBar(
                         onMenuClick = { onEvent(HomeScreenEvent.MenuClicked) },
-                        onNotificationClick = { onEvent(HomeScreenEvent.NotificationsClicked) },
                         modifier = Modifier.statusBarsPadding(),
                     )
                 }
@@ -229,7 +221,6 @@ private fun HomeScreen(
                     if (isExpanded) {
                         HomeTopBar(
                             onMenuClick = {},
-                            onNotificationClick = { onEvent(HomeScreenEvent.NotificationsClicked) },
                             modifier = Modifier.statusBarsPadding(),
                             showMenu = false,
                             horizontalPadding = EumSpacing.x20,
@@ -267,7 +258,6 @@ private fun HomeScreen(
                                     onActionClick = {
                                         onEvent(HomeScreenEvent.HeroActionClicked(it))
                                     },
-                                    onQuoteClick = { onEvent(heroQuoteCtaEvent()) },
                                 )
                             }
                             item { Spacer(Modifier.height(EumSpacing.x24)) }
@@ -283,7 +273,6 @@ private fun HomeScreen(
                             item(key = "home-service-band") {
                                 HomeServiceBand(
                                     freeShippingThresholdLabel = stringResource(R.string.home_free_shipping_threshold),
-                                    onQuoteClick = { onEvent(HomeScreenEvent.QuoteClicked) },
                                     modifier = Modifier.padding(horizontal = EumSpacing.x20),
                                 )
                             }
@@ -381,15 +370,8 @@ private fun HomeScreen(
                                 }
                                 item { Spacer(Modifier.height(EumSpacing.x40)) }
                             }
-                            item {
-                                HomeQuoteBanner(
-                                    onClick = { onEvent(HomeScreenEvent.QuoteClicked) },
-                                    modifier = Modifier.padding(horizontal = EumSpacing.x20),
-                                )
-                            }
                             // 정책·지원 링크는 사업자 정보가 없어도 보여야 하므로 푸터는 항상 그린다. 사업자 정보 행은 값이 있을 때만 보인다.
                             val companyInfoRows = companyIntro.visibleInfoRows()
-                            item { Spacer(Modifier.height(EumSpacing.x40)) }
                             item(key = "home-company-info") {
                                 HomeCompanyInfoFooter(
                                     rows = companyInfoRows,

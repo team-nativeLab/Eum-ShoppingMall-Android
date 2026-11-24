@@ -14,8 +14,8 @@ class ProductFilterRulesTest {
     private val lowerBoundProduct = product("lower", 10_000L)
     private val midProduct = product("mid", 29_999L)
     private val upperBoundProduct = product("upper", 30_000L)
-    private val quoteProduct = CatalogProductUiModel(id = "quote", name = "quote", price = CatalogPriceUiModel.QuoteRequired)
-    private val allProducts = listOf(upperBoundProduct, quoteProduct, cheapProduct, midProduct, lowerBoundProduct)
+    private val undisclosedProduct = CatalogProductUiModel(id = "undisclosed", name = "undisclosed", price = CatalogPriceUiModel.Undisclosed)
+    private val allProducts = listOf(upperBoundProduct, undisclosedProduct, cheapProduct, midProduct, lowerBoundProduct)
 
     @Test
     fun recommendedSortWithoutConditionsKeepsOriginalOrder() {
@@ -68,7 +68,7 @@ class ProductFilterRulesTest {
     }
 
     @Test
-    fun directPriceBoundsIncludeBothEndsInManwonAndExcludeQuoteRequiredProducts() {
+    fun directPriceBoundsIncludeBothEndsInManwonAndExcludeUndisclosedProducts() {
         // 1만원 이상 3만원 이하: 9,999원은 빠지고 10,000원·30,000원은 들어가며, 금액 없는 상품은 제외한다.
         val criteria = ProductFilterCriteria(minPriceManwon = 1, maxPriceManwon = 3)
 
@@ -76,23 +76,23 @@ class ProductFilterRulesTest {
     }
 
     @Test
-    fun quoteRequiredProductIsExcludedWhenPriceConditionIsSet() {
+    fun undisclosedProductIsExcludedWhenPriceConditionIsSet() {
         val filteredProducts = applyProductFilter(
             allProducts,
             ProductFilterCriteria(priceRange = ProductFilterPriceRange.OverThirtyThousand),
         )
 
-        assertFalse(filteredProducts.any { product -> product.id == "quote" })
+        assertFalse(filteredProducts.any { product -> product.id == "undisclosed" })
     }
 
     @Test
-    fun priceSortPutsQuoteRequiredProductLastInBothDirections() {
+    fun priceSortPutsUndisclosedProductLastInBothDirections() {
         assertEquals(
-            listOf("cheap", "lower", "mid", "upper", "quote"),
+            listOf("cheap", "lower", "mid", "upper", "undisclosed"),
             ids(applyProductFilter(allProducts, ProductFilterCriteria(sort = ProductFilterSort.PriceAscending))),
         )
         assertEquals(
-            listOf("upper", "mid", "lower", "cheap", "quote"),
+            listOf("upper", "mid", "lower", "cheap", "undisclosed"),
             ids(applyProductFilter(allProducts, ProductFilterCriteria(sort = ProductFilterSort.PriceDescending))),
         )
     }
@@ -175,7 +175,7 @@ class ProductFilterRulesTest {
             product("a-1", 1_000L, brandId = "brand-a", brandName = "A"),
             product("a-2", 2_000L, brandId = "brand-a", brandName = "A"),
             product("no-brand", 3_000L),
-            quoteProduct,
+            undisclosedProduct,
         )
 
         val options = productFilterOptions(products)
@@ -206,14 +206,14 @@ class ProductFilterRulesTest {
     // 안전인증 상품이 하나도 없으면 인증 섹션을 숨기도록 빈 목록을 준다.
     @Test
     fun safetyCertificationOptionsAreEmptyWhenNoProductIsCertified() {
-        val options = productFilterOptions(listOf(product("plain", 1_000L), quoteProduct))
+        val options = productFilterOptions(listOf(product("plain", 1_000L), undisclosedProduct))
 
         assertTrue(options.safetyCertificationOptions.isEmpty())
     }
 
     @Test
-    fun optionsHidePriceSectionWhenEveryProductNeedsQuote() {
-        val options = productFilterOptions(listOf(quoteProduct))
+    fun optionsHidePriceSectionWhenEveryProductHasNoPrice() {
+        val options = productFilterOptions(listOf(undisclosedProduct))
 
         assertFalse(options.hasPricedProducts)
         assertTrue(options.brands.isEmpty())

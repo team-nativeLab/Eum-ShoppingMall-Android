@@ -8,16 +8,16 @@ import org.junit.Test
 class NoOptionGuidanceTest {
     @Test
     fun productWithoutOptionGroupsSaysItIsAddedAsTheDefaultConfiguration() {
-        assertEquals(R.string.catalog_option_default_label, noOptionGuidanceRes(isQuoteRequired = false, hasOptionGroups = false))
+        assertEquals(R.string.catalog_option_default_label, noOptionGuidanceRes(isPriceUndisclosed = false, hasOptionGroups = false))
     }
 
     @Test
     fun productWithOptionGroupsShowsNoEmptyOptionGuidance() {
-        assertNull(noOptionGuidanceRes(isQuoteRequired = false, hasOptionGroups = true))
+        assertNull(noOptionGuidanceRes(isPriceUndisclosed = false, hasOptionGroups = true))
     }
 
     @Test
-    fun quoteProductShowsNoOptionGuidanceEvenWithoutGroups() {
-        assertNull(noOptionGuidanceRes(isQuoteRequired = true, hasOptionGroups = false))
+    fun undisclosedProductShowsNoOptionGuidanceEvenWithoutGroups() {
+        assertNull(noOptionGuidanceRes(isPriceUndisclosed = true, hasOptionGroups = false))
     }
 }

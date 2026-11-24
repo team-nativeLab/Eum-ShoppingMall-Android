@@ -45,6 +45,7 @@ import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductRow
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogScreenScaffold
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBarAction
+import com.nativelap.eumshoppingmall.ui.common.EumOutlinedButton
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -59,15 +60,12 @@ fun CatalogProductListScreen(
     cartItemCount: Int = 0,
     modifier: Modifier = Modifier,
     snackbarHostState: androidx.compose.material3.SnackbarHostState? = null,
-    // 담기 동작을 넘긴 화면에서만 카드에 담기 버튼을 그린다(쿼트 선택 화면은 false).
+    // 담기 동작을 넘긴 화면에서만 카드에 담기 버튼을 그린다.
     showQuickCart: Boolean = false,
-    // 목록 위 안내 한 줄(견적 상품 선택 등). null이면 그리지 않는다.
-    guidanceText: String? = null,
-    showFavorite: Boolean = true,
-    // 사유 칩(품절·옵션 필요)은 담기 동작이 있는 목록에서만 보인다. 견적 선택 화면은 숨긴다.
-    showBlockReason: Boolean = true,
     // 페이지 분량만 보여 줄 때 true면 목록 끝에 "더 보기" 버튼을 둔다.
     hasMoreProducts: Boolean = false,
+    // true면 원본 목록은 있지만 칩·필터 조건에 맞는 상품이 없는 상태다. false면 원본 목록 자체가 비었다.
+    isEmptyByFilter: Boolean = false,
 ) {
     CatalogScreenScaffold(
         selectedBottomItem = selectedBottomItem,
@@ -88,14 +86,6 @@ fun CatalogProductListScreen(
             BoxWithConstraints(contentModifier) {
                 val columns = catalogProductColumnCount(maxWidth, LocalDensity.current.fontScale)
                 Column(Modifier.fillMaxSize()) {
-                    guidanceText?.let { guidance ->
-                        Text(
-                            guidance,
-                            modifier = Modifier.padding(start = EumSpacing.x20, top = EumSpacing.x8, end = EumSpacing.x20),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.eumColors.textSecondary,
-                        )
-                    }
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x8),
                         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
@@ -130,20 +120,44 @@ fun CatalogProductListScreen(
                     ) {
                         if (uiModel.products.isEmpty()) {
                             item {
-                                Text(
-                                    stringResource(R.string.catalog_empty_products),
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = EumSpacing.x32),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.eumColors.textTertiary,
-                                    textAlign = TextAlign.Center,
-                                )
+                                // 데이터가 없을 때는 상품을 지어내지 않고 안내만 보여 준다(출시 빌드의 베스트·추천·할인 목록 포함).
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = EumSpacing.x40),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+                                ) {
+                                    Icon(
+                                        painterResource(R.drawable.ic_search_x),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.eumColors.textTertiary,
+                                        modifier = Modifier.size(32.dp),
+                                    )
+                                    Text(
+                                        stringResource(if (isEmptyByFilter) R.string.catalog_empty_filtered_title else R.string.catalog_empty_products_title),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.eumColors.textPrimary,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                    Text(
+                                        stringResource(if (isEmptyByFilter) R.string.catalog_empty_filtered_body else R.string.catalog_empty_products_body),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.eumColors.textTertiary,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                    if (isEmptyByFilter) {
+                                        EumOutlinedButton(
+                                            onClick = { onEvent(CatalogProductListEvent.FiltersResetClicked) },
+                                            modifier = Modifier.padding(top = EumSpacing.x8),
+                                        ) {
+                                            Text(stringResource(R.string.catalog_empty_filtered_reset))
+                                        }
+                                    }
+                                }
                             }
                         } else if (uiModel.isListLayout) {
                             items(uiModel.products, key = { it.id }) { product ->
                                 CatalogProductRow(
                                     product = product,
-                                    showFavorite = showFavorite,
-                                    showBlockReason = showBlockReason,
                                     onQuickCartClick = if (showQuickCart) {
                                         { onEvent(CatalogProductListEvent.QuickCartClicked(product.id)) }
                                     } else {
@@ -163,8 +177,6 @@ fun CatalogProductListScreen(
                                     rowProducts.forEach { product ->
                                         CatalogProductCard(
                                             product = product,
-                                            showFavorite = showFavorite,
-                                            showBlockReason = showBlockReason,
                                             onClick = { onEvent(CatalogProductListEvent.ProductSelected(product.id)) },
                                             onFavoriteClick = { onEvent(CatalogProductListEvent.FavoriteToggled(product.id)) },
                                             modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -241,9 +253,9 @@ internal fun CatalogProductListControls(
                 Row(
                     modifier = Modifier.padding(
                         start = EumSpacing.x14,
-                        top = EumSpacing.x6,
+                        top = EumSpacing.x10,
                         end = EumSpacing.x10,
-                        bottom = EumSpacing.x6,
+                        bottom = EumSpacing.x10,
                     ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),

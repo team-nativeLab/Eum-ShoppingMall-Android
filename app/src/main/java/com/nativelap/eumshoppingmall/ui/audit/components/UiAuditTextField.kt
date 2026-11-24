@@ -2,6 +2,7 @@ package com.nativelap.eumshoppingmall.ui.audit.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -13,8 +14,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
@@ -42,10 +48,26 @@ fun UiAuditTextField(
     isSelected: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
+    // 입력 가능한 칸은 보이는 박스 전체가 탭 대상이다. 첫 줄 밖(여러 줄 칸의 아래쪽 등)을 눌러도 포커스와 키보드가 열린다.
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val isEditable = !readOnly && onClick == null
     Surface(
         modifier = modifier.fillMaxWidth().heightIn(min = minHeight)
             .then(
-                if (onClick == null) Modifier else Modifier.clickable(role = Role.Button, onClick = onClick),
+                when {
+                    onClick != null -> Modifier.clickable(role = Role.Button, onClick = onClick)
+
+                    // 접근성 시맨틱(클릭 동작)을 더하지 않도록 포인터 입력만 쓴다. 입력칸 자체의 접근성은 BasicTextField가 맡는다.
+                    isEditable -> Modifier.pointerInput(Unit) {
+                        detectTapGestures {
+                            focusRequester.requestFocus()
+                            keyboardController?.show()
+                        }
+                    }
+
+                    else -> Modifier
+                },
             ).semantics {
                 contentDescription = label
                 selected = isSelected
@@ -72,7 +94,7 @@ fun UiAuditTextField(
                 onValueChange = onValueChange,
                 enabled = !readOnly || onClick == null,
                 readOnly = readOnly,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                 textStyle = TextStyle(
                     color = MaterialTheme.eumColors.textPrimary,
                     fontSize = MaterialTheme.typography.bodySmall.fontSize,

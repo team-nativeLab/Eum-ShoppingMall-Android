@@ -41,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
@@ -106,14 +107,24 @@ fun CompanyIntroScreen(uiModel: CompanyIntroUiModel, onEvent: (CompanyIntroEvent
                     Text(stringResource(R.string.company_about_english).uppercase(), style = EumTypographyTokens.overline, color = MaterialTheme.eumColors.textTertiary)
                     Text(stringResource(R.string.company_tagline_home), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.eumColors.textPrimary)
                 }
-                Text(stringResource(R.string.company_about_description), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary)
+                Text(
+                    stringResource(R.string.company_about_description),
+                    // 한글 문장이 어절 중간("입니/다.")에서 끊기지 않도록 문단용 줄바꿈 규칙을 쓴다.
+                    style = MaterialTheme.typography.bodyMedium.copy(lineBreak = LineBreak.Paragraph),
+                    color = MaterialTheme.eumColors.textSecondary,
+                )
             }
             CompanyAnchorStrip(
                 anchors = anchors,
                 onAnchorClick = { index -> scope.launch { sectionRequesters[index].bringIntoView() } },
             )
             CompanyIntroSection(stringResource(R.string.company_overview_title), stringResource(R.string.company_overview_english), modifier = Modifier.bringIntoViewRequester(sectionRequesters[0])) {
-                Text(stringResource(R.string.company_about_description), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary)
+                Text(
+                    stringResource(R.string.company_about_description),
+                    // 한글 문장이 어절 중간("입니/다.")에서 끊기지 않도록 문단용 줄바꿈 규칙을 쓴다.
+                    style = MaterialTheme.typography.bodyMedium.copy(lineBreak = LineBreak.Paragraph),
+                    color = MaterialTheme.eumColors.textSecondary,
+                )
             }
             CompanyIntroSection(stringResource(R.string.company_business), stringResource(R.string.company_business_english), modifier = Modifier.bringIntoViewRequester(sectionRequesters[1])) {
                 uiModel.businessAreas.chunked(2).forEach { rowAreas ->

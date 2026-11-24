@@ -57,8 +57,6 @@ fun CatalogProductCard(
     highlightQuery: String? = null,
     // null이면 담기 버튼을 그리지 않는다. 버튼이 있어도 옵션 상품과 품절·가격 문의 상품에는 나오지 않는다.
     onQuickCartClick: (() -> Unit)? = null,
-    showFavorite: Boolean = true,
-    showBlockReason: Boolean = true,
 ) {
     val shape = RoundedCornerShape(EumRadius.x12)
     // 상품 속성에는 순위가 없다. 순위 배지는 홈 베스트 섹션 순서로만 붙는다.
@@ -126,23 +124,21 @@ fun CatalogProductCard(
                 )
             }
             badge?.let { resolvedBadge ->
-                // 순위·견적 배지는 이미지 좌상단 같은 자리에 둔다. 순위가 있으면 견적 라벨은 resolve 단계에서 빠진다.
+                // 순위·라벨 배지는 이미지 좌상단 같은 자리에 둔다. 순위가 있으면 라벨은 resolve 단계에서 빠진다.
                 ProductCardBadge(
                     badge = resolvedBadge,
                     modifier = Modifier.align(Alignment.TopStart).padding(EumSpacing.x8),
                 )
             }
-            if (showFavorite) {
-                FavoriteToggleButton(
-                    isFavorite = product.isFavorite,
-                    onToggle = onFavoriteClick,
-                    contentDescription = stringResource(
-                        if (product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
-                        product.name,
-                    ),
-                    modifier = Modifier.align(Alignment.TopEnd),
-                )
-            }
+            FavoriteToggleButton(
+                isFavorite = product.isFavorite,
+                onToggle = onFavoriteClick,
+                contentDescription = stringResource(
+                    if (product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
+                    product.name,
+                ),
+                modifier = Modifier.align(Alignment.TopEnd),
+            )
             onQuickCartClick?.takeIf { canQuickAddToCart(product) }?.let { addToCart ->
                 Box(Modifier.align(Alignment.BottomEnd)) {
                     QuickCartButton(
@@ -176,7 +172,7 @@ fun CatalogProductCard(
                 shippingLabel = product.shippingLabel,
                 benefitLabels = product.benefitLabels,
                 modifier = Modifier.fillMaxWidth(),
-                reasonLabel = if (showBlockReason) quickCartBlockLabel(quickCartBlockReason(product)) else null,
+                reasonLabel = quickCartBlockLabel(quickCartBlockReason(product)),
             )
         }
     }
@@ -190,10 +186,8 @@ fun CatalogProductRow(
     onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier,
     highlightQuery: String? = null,
-    showFavorite: Boolean = true,
     // 목록 행에도 담기 버튼을 넘긴 화면에서만 보인다(격자와 같은 조건).
     onQuickCartClick: (() -> Unit)? = null,
-    showBlockReason: Boolean = true,
 ) {
     val priceSlot = catalogPriceSlotOf(product)
     val badge = resolveCatalogProductBadge(bestRank = null, badgeLabel = product.badgeLabel)
@@ -271,19 +265,17 @@ fun CatalogProductRow(
                 shippingLabel = product.shippingLabel,
                 benefitLabels = product.benefitLabels,
                 modifier = Modifier.fillMaxWidth(),
-                reasonLabel = if (showBlockReason) quickCartBlockLabel(quickCartBlockReason(product)) else null,
+                reasonLabel = quickCartBlockLabel(quickCartBlockReason(product)),
             )
         }
-        if (showFavorite) {
-            FavoriteToggleButton(
-                isFavorite = product.isFavorite,
-                onToggle = onFavoriteClick,
-                contentDescription = stringResource(
-                    if (product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
-                    product.name,
-                ),
-            )
-        }
+        FavoriteToggleButton(
+            isFavorite = product.isFavorite,
+            onToggle = onFavoriteClick,
+            contentDescription = stringResource(
+                if (product.isFavorite) R.string.catalog_remove_favorite else R.string.catalog_add_favorite,
+                product.name,
+            ),
+        )
     }
 }
 
@@ -311,8 +303,8 @@ private fun catalogPriceSlotOf(product: CatalogProductUiModel): CatalogPriceSlot
         currentLabel = available?.currentLabel,
         originalLabel = available?.originalLabel,
         discountLabel = available?.discountLabel,
-        isQuoteTarget = product.price is CatalogPriceUiModel.QuoteRequired,
-        // 카탈로그 상품에는 장바구니 차단 플래그가 없다. 금액이 없으면 견적 대상과 같이 "금액 미표시"가 된다.
+        isPriceUndisclosed = product.price is CatalogPriceUiModel.Undisclosed,
+        // 카탈로그 상품에는 장바구니 차단 플래그가 없다. 금액이 없으면 가격 미표시 상품과 같이 "금액 미표시"가 된다.
         isPurchaseUnavailable = false,
     )
 }

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -76,7 +75,7 @@ fun AccountProfileScreen(
         ResponsiveContentContainer(Modifier.fillMaxSize().padding(contentPadding)) {
             if (isPasswordVerification) {
                 Column(
-                    Modifier.fillMaxSize().imePadding().padding(horizontal = EumSpacing.x20),
+                    Modifier.fillMaxSize().padding(horizontal = EumSpacing.x20),
                     verticalArrangement = Arrangement.spacedBy(EumSpacing.x16),
                 ) {
                     Column(
@@ -114,7 +113,7 @@ fun AccountProfileScreen(
                 }
             } else {
                 LazyColumn(
-                    Modifier.fillMaxSize().imePadding(),
+                    Modifier.fillMaxSize(),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = EumSpacing.x20, vertical = EumSpacing.x16),
                     verticalArrangement = Arrangement.spacedBy(EumSpacing.x24),
                 ) {
@@ -137,31 +136,6 @@ fun AccountProfileScreen(
                                 Icon(painterResource(R.drawable.ic_key_round), contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.eumColors.textPrimary)
                                 Text(stringResource(R.string.account_password_change), Modifier.weight(1f))
                                 Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = MaterialTheme.eumColors.textTertiary)
-                            }
-                        }
-                    }
-                    if (uiModel.profile.isBusinessMember) {
-                        item {
-                            Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                                Text(stringResource(R.string.account_business_information), style = MaterialTheme.typography.titleMedium)
-                                Text(stringResource(R.string.account_business_information_notice), color = MaterialTheme.eumColors.textTertiary, style = MaterialTheme.typography.bodySmall)
-                                AccountTextField(stringResource(R.string.account_company_name), uiModel.profile.companyName, { onEvent(AccountProfileScreenEvent.CompanyChanged(it)) })
-                                Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x6)) {
-                                    AccountTextField(
-                                        stringResource(R.string.business_registration_number),
-                                        uiModel.profile.businessRegistrationNumber,
-                                        {},
-                                        enabled = false,
-                                        placeholder = stringResource(R.string.auth_business_registration_placeholder),
-                                    )
-                                    Text(stringResource(R.string.account_business_registration_notice), color = MaterialTheme.eumColors.textTertiary, style = MaterialTheme.typography.labelSmall)
-                                }
-                                AccountTextField(
-                                    stringResource(R.string.account_department),
-                                    uiModel.profile.department,
-                                    { onEvent(AccountProfileScreenEvent.DepartmentChanged(it)) },
-                                    placeholder = stringResource(R.string.account_department_placeholder),
-                                )
                             }
                         }
                     }

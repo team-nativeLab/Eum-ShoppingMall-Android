@@ -65,8 +65,8 @@ class EumMainNavigationStateRestorationTest {
             navigator.navigateToTab(MainNavigationTab.Search)
             navigator.push(EumDestination.SearchResults("안전모"))
             navigator.navigateToTab(MainNavigationTab.Cart)
-            navigator.push(EumDestination.QuoteRequest())
-            navigator.push(EumDestination.Login(pendingDestination = EumDestination.QuoteHistory))
+            navigator.push(EumDestination.InquiryWrite("안전모"))
+            navigator.push(EumDestination.Login(pendingDestination = EumDestination.OrderHistory))
         }
 
         restorationTester.emulateSavedInstanceStateRestore()
@@ -84,8 +84,8 @@ class EumMainNavigationStateRestorationTest {
             assertEquals(
                 listOf(
                     EumDestination.Cart,
-                    EumDestination.QuoteRequest(),
-                    EumDestination.Login(pendingDestination = EumDestination.QuoteHistory),
+                    EumDestination.InquiryWrite("안전모"),
+                    EumDestination.Login(pendingDestination = EumDestination.OrderHistory),
                 ),
                 stackOf(navigationState, MainNavigationTab.Cart),
             )

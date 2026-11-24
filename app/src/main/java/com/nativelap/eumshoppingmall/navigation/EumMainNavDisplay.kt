@@ -1,14 +1,17 @@
 package com.nativelap.eumshoppingmall.navigation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -19,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -61,8 +65,10 @@ import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.checkoutOrderSnapshot
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.checkoutOrderSnapshotFromCartItems
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.resolveCheckoutOrderForSelection
 import com.nativelap.eumshoppingmall.ui.common.DismissSnackbarOnNavigationChange
+import com.nativelap.eumshoppingmall.ui.common.EumBottomBarMetrics
 import com.nativelap.eumshoppingmall.ui.common.EumSnackbarHost
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
+import com.nativelap.eumshoppingmall.ui.common.clearFocusOnTap
 import com.nativelap.eumshoppingmall.ui.company.CompanyIntroRoute
 import com.nativelap.eumshoppingmall.ui.events.EventListRoute
 import com.nativelap.eumshoppingmall.ui.favorites.FavoritesRoute
@@ -72,19 +78,6 @@ import com.nativelap.eumshoppingmall.ui.home.homeQueryForSearchQuery
 import com.nativelap.eumshoppingmall.ui.ordercomplete.view.OrderCompleteRoute
 import com.nativelap.eumshoppingmall.ui.orders.view.OrderHistoryRoute
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestType
-import com.nativelap.eumshoppingmall.ui.quote.view.QuoteCompleteRoute
-import com.nativelap.eumshoppingmall.ui.quote.view.QuoteHistoryRoute
-import com.nativelap.eumshoppingmall.ui.quote.view.QuoteInquiryDetailRoute
-import com.nativelap.eumshoppingmall.ui.quote.view.QuoteRequestRoute
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteDetailItemUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteHistoryUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryDetailUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryStatus
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.toQuoteCompletePreview
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.toQuoteHistoryPreview
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.unavailableQuoteCompletePreview
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.unavailableQuoteInquiryDetailPreview
 import com.nativelap.eumshoppingmall.ui.recent.RecentProductsRoute
 import com.nativelap.eumshoppingmall.ui.screendata.ShoppingScreenDataProvider
 import com.nativelap.eumshoppingmall.ui.splash.SplashOverlay
@@ -126,7 +119,6 @@ fun EumMainNavDisplay(
 ) {
     val navigationState = rememberEumMainNavigationState()
     val navigator = remember(navigationState) { EumMainNavigator(navigationState) }
-    val quoteProductSelection = rememberEumQuoteProductSelection()
     val loginSession = rememberEumLoginSession()
     val loginAuthenticator = remember { createLoginAuthenticator() }
     val accountService = remember { createAccountService() }
@@ -176,9 +168,6 @@ fun EumMainNavDisplay(
     // 홈 검색창과 검색 결과가 같은 검색어를 쓴다. 결과에서 지우면 여기서도 비운다.
     var homeSearchQuery by rememberSaveable { mutableStateOf("") }
     var activeCheckoutOrder by rememberSaveable(stateSaver = CheckoutOrderSnapshot.Saver) { mutableStateOf<CheckoutOrderSnapshot?>(null) }
-    val quotePreviews = remember { mutableStateListOf<Pair<String, QuoteRequestUiModel>>() }
-    var latestQuotePreviewId by remember { mutableStateOf<String?>(null) }
-    var quotePreviewSerial by remember { mutableStateOf(0) }
     LaunchedEffect(navigationState.currentBackStack.lastOrNull(), activeCheckoutOrder) {
         val destination = navigationState.currentBackStack.lastOrNull()
         if ((destination is EumDestination.CheckoutAddress || destination is EumDestination.CheckoutPayment) && activeCheckoutOrder == null) {
@@ -225,7 +214,7 @@ fun EumMainNavDisplay(
         destinationForCategoryIfAvailable(categoryId, screenDataProvider.productList(categoryId))
             ?.let { destination -> navigator.push(destination) }
     }
-    val entryProvider = remember(navigationState, navigator, screenDataProvider, quoteProductSelection, addressSelection, entryContext, loginSession, loginAuthenticator, accountService, onAddToCart, showUnavailableAction, signedInFallbackName) {
+    val entryProvider = remember(navigationState, navigator, screenDataProvider, addressSelection, entryContext, loginSession, loginAuthenticator, accountService, onAddToCart, showUnavailableAction, signedInFallbackName) {
         entryProvider<NavKey> {
             entry<EumDestination.Home> {
                 HomeRoute(
@@ -238,7 +227,6 @@ fun EumMainNavDisplay(
                     companyIntro = remember { screenDataProvider.homeCompanyIntro() },
                     cartItemCount = currentCartItemCount,
                     selectedTab = MainNavigationTab.Home,
-                    onNotificationClick = showUnavailableAction,
                     onSearch = { query ->
                         if (query.isBlank()) {
                             navigator.navigateToTab(MainNavigationTab.Search)
@@ -249,7 +237,6 @@ fun EumMainNavDisplay(
                     onProductClick = { product -> navigator.push(EumDestination.ProductDetail(product.id)) },
                     onCategoryClick = { category -> openCategory(category.id) },
                     onHeroAction = { action -> navigator.push(destinationForHomeHeroAction(action)) },
-                    onQuoteClick = { navigator.push(EumDestination.QuoteRequest()) },
                     onMenuClick = { navigator.push(EumDestination.Drawer) },
                     onSeeProductsClick = { preset -> navigator.push(EumDestination.ProductList(preset = preset)) },
                     isFavoriteAllowed = loginSession.isLoggedIn,
@@ -274,6 +261,7 @@ fun EumMainNavDisplay(
                     cartItemCount = currentCartItemCount,
                     onTabSelected = navigator::navigateToTab,
                     onSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
+                    onMenuClick = { navigator.push(EumDestination.Drawer) },
                     onCategoryClick = { categoryId -> openCategory(categoryId) },
                     onBrandClick = { brandId -> navigator.push(EumDestination.BrandDetail(brandId)) },
                 )
@@ -286,6 +274,7 @@ fun EumMainNavDisplay(
                     onTabSelected = navigator::navigateToTab,
                     onSearch = { query -> navigator.push(EumDestination.SearchResults(query)) },
                     onCancel = { navigator.goBack() },
+                    onMenuClick = { navigator.push(EumDestination.Drawer) },
                 )
             }
             entry<EumDestination.Cart> {
@@ -303,6 +292,7 @@ fun EumMainNavDisplay(
                     cartItemCount = currentCartItemCount,
                     onTabSelected = navigator::navigateToTab,
                     onSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
+                    onMenuClick = { navigator.push(EumDestination.Drawer) },
                     onCheckoutClick = { selectedItems ->
                         val selectedIds = selectedItems.map { item -> item.id }
                         val savedLines = currentSavedCartLines
@@ -325,7 +315,7 @@ fun EumMainNavDisplay(
                     },
                     // 배너에서는 돌아갈 곳이 지금 장바구니이므로 보류 목적지 없이 로그인만 연다.
                     onLoginClick = { navigator.push(EumDestination.Login()) },
-                    onQuoteRequestClick = { navigator.push(EumDestination.QuoteRequest()) },
+                    onPriceInquiryClick = { productName -> entryContext.open(EumDestination.InquiryWrite(productName)) },
                     // 빈 장바구니의 상품 둘러보기는 홈 탭 루트로 돌아간 뒤 전체 상품 목록을 연다(장바구니 기록은 남기지 않는다).
                     onBrowseProductsClick = {
                         navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home)
@@ -384,18 +374,23 @@ fun EumMainNavDisplay(
                         }
                     },
                     isLoggedIn = loginSession.isLoggedIn,
-                    onCloseClick = { navigator.goBack() },
+                    // 드로어는 퇴장 애니메이션이 끝난 뒤에 이 콜백이 불린다. 맨 위가 Drawer일 때만 걷어 낸다.
+                    onCloseClick = { navigator.popIfTop(EumDestination.Drawer) },
                     onMenuClick = { menuId ->
                         val destination = EumMenuDestinations.drawerMenu(menuId)
                         if (destination == null) {
-                            navigator.goBack()
+                            navigator.popIfTop(EumDestination.Drawer)
                             showUnavailableAction()
                         } else {
-                            navigator.replaceTop(destination)
+                            // 로그인이 필요한 항목은 비로그인이면 보류 목적지를 담은 Login으로 바꿔 쌓는다(F4).
+                            // replaceTop과 같은 효과이며, 퇴장 중 이미 닫힌 경우 아래 화면을 지우지 않도록 맨 위가 Drawer일 때만 바꾼다.
+                            if (navigator.popIfTop(EumDestination.Drawer)) {
+                                navigator.push(gateIfProtected(destination, loginSession.isLoggedIn))
+                            }
                         }
                     },
                     onUnavailableAction = {
-                        navigator.goBack()
+                        navigator.popIfTop(EumDestination.Drawer)
                         showUnavailableAction()
                     },
                 )
@@ -432,7 +427,7 @@ fun EumMainNavDisplay(
                         navigator.replaceTop(EumDestination.SearchResults(query))
                     },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
-                    onQuoteRequestClick = { navigator.push(EumDestination.QuoteRequest()) },
+                    onInquiryClick = { entryContext.open(EumDestination.InquiryWrite()) },
                     isLoggedIn = loginSession.isLoggedIn,
                     onLoginRequired = entryContext::openLogin,
                     // 검색을 비우면 옛 결과를 홈 백스택에 남기지 않고 검색 탭 루트로 돌아간다.
@@ -461,7 +456,7 @@ fun EumMainNavDisplay(
                             entryContext.open(EumDestination.CheckoutAddress())
                         }
                     },
-                    onQuoteRequestClick = { productId -> navigator.push(EumDestination.QuoteRequest(productId)) },
+                    onPriceInquiryClick = { productName -> entryContext.open(EumDestination.InquiryWrite(productName)) },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
                     isLoggedIn = loginSession.isLoggedIn,
                     onLoginRequired = entryContext::openLogin,
@@ -556,107 +551,6 @@ fun EumMainNavDisplay(
                     onUnavailableAction = showUnavailableAction,
                 )
             }
-            entry<EumDestination.QuoteRequest> { destination ->
-                QuoteRequestRoute(
-                    uiModel = remember(destination) { screenDataProvider.quoteRequest(destination.productId) },
-                    pickedProductId = quoteProductSelection.pendingProductId,
-                    productById = remember { { productId -> screenDataProvider.productDetail(productId).product } },
-                    onBackClick = { navigator.goBack() },
-                    onAddProductClick = { navigator.push(EumDestination.QuoteProductPicker) },
-                    onPickedProductConsumed = quoteProductSelection::consume,
-                    onSubmit = { submitted ->
-                        quotePreviewSerial += 1
-                        val previewId = "preview-$quotePreviewSerial"
-                        quotePreviews.add(previewId to submitted)
-                        latestQuotePreviewId = previewId
-                        // 완료 뒤 뒤로가기로 작성 폼에 다시 들어가지 않도록 A-15를 걷어 낸다.
-                        navigator.popWhileAndPush(EumDestination.QuoteComplete) { navKey ->
-                            navKey is EumDestination.QuoteRequest
-                        }
-                    },
-                    onUnavailableAction = showUnavailableAction,
-                )
-            }
-            entry<EumDestination.QuoteProductPicker> {
-                CatalogProductListRoute(
-                    uiModel = remember { screenDataProvider.productList(categoryId = null) },
-                    selectedTab = LocalEumOwnerTab.current,
-                    cartItemCount = currentCartItemCount,
-                    onTabSelected = navigator::navigateToTab,
-                    onBackClick = { navigator.goBack() },
-                    onSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
-                    isLoggedIn = loginSession.isLoggedIn,
-                    onLoginRequired = entryContext::openLogin,
-                    onProductClick = { productId ->
-                        // 상세로 가지 않고 바로 폼에 담는다. 퇴장 애니메이션 중 두 번째 탭이 폼까지 닫거나
-                        // 소비되지 않는 ID를 남기지 않도록, 선택 화면이 맨 위여서 pop에 성공했을 때만 ID를 맡긴다.
-                        if (navigator.popIfTop(EumDestination.QuoteProductPicker)) {
-                            quoteProductSelection.select(productId)
-                        }
-                    },
-                    isQuotePicker = true,
-                )
-            }
-            entry<EumDestination.QuoteComplete> {
-                val unavailablePreviewLabel = stringResource(R.string.quote_preview_unavailable)
-                val preview = quotePreviews.lastOrNull { it.first == latestQuotePreviewId }?.second
-                QuoteCompleteRoute(
-                    uiModel = preview?.toQuoteCompletePreview(
-                        when (preview.requestType) {
-                            com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType.CustomManufacturing -> stringResource(R.string.quote_custom_manufacturing)
-                            com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType.BulkPurchase -> stringResource(R.string.quote_bulk_purchase)
-                            com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType.RegularDelivery -> stringResource(R.string.quote_regular_delivery)
-                            com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestType.Other -> stringResource(R.string.quote_other)
-                        },
-                        noProductsLabel = stringResource(R.string.quote_product_empty),
-                    )
-                        ?: unavailableQuoteCompletePreview(unavailablePreviewLabel),
-                    onCloseClick = { navigator.goBack() },
-                    onContinueShoppingClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home) },
-                    onViewInquiriesClick = { navigator.replaceTop(gateIfProtected(EumDestination.QuoteHistory, loginSession.isLoggedIn)) },
-                )
-            }
-            entry<EumDestination.QuoteHistory> {
-                val previewSessionLabel = stringResource(R.string.quote_preview_session)
-                val previewBadgeLabel = stringResource(R.string.quote_preview_badge)
-                val noProductsLabel = stringResource(R.string.quote_product_empty)
-                val dueDateLabel = stringResource(R.string.quote_preferred_due_date)
-                val previewItems = quotePreviews.map { (id, preview) -> preview.toQuoteHistoryPreview(id, previewSessionLabel, previewBadgeLabel, noProductsLabel, dueDateLabel) }
-                QuoteHistoryRoute(
-                    uiModel = QuoteHistoryUiModel(inquiries = previewItems),
-                    onBackClick = { navigator.goBack() },
-                    onInquiryClick = { inquiryId -> entryContext.open(EumDestination.QuoteInquiryDetail(inquiryId)) },
-                    onNewInquiryClick = { navigator.push(EumDestination.QuoteRequest()) },
-                    onUnavailableAction = showUnavailableAction,
-                )
-            }
-            entry<EumDestination.QuoteInquiryDetail> { destination ->
-                val unavailablePreviewLabel = stringResource(R.string.quote_preview_unavailable)
-                val preview = quotePreviews.firstOrNull { entry -> entry.first == destination.inquiryId }?.second
-                QuoteInquiryDetailRoute(
-                    uiModel = preview?.let { request ->
-                        QuoteInquiryDetailUiModel(
-                            title = request.companyName,
-                            dateLabel = stringResource(R.string.quote_preview_session),
-                            inquiryNumber = stringResource(R.string.quote_preview_badge),
-                            status = QuoteInquiryStatus.Preview,
-                            companyName = request.companyName,
-                            contactName = request.contactName,
-                            contactPhone = request.phoneNumber,
-                            contactEmail = request.email,
-                            items = request.products.map { product -> QuoteDetailItemUiModel(product.id, product.name, "") },
-                            preferredDeliveryDate = request.preferredDeliveryDate,
-                            deliveryAddress = request.deliveryAddress,
-                            requestDetails = request.requestDetails,
-                        )
-                    } ?: remember(destination) {
-                        unavailableQuoteInquiryDetailPreview(unavailablePreviewLabel)
-                    },
-                    onBackClick = { navigator.goBack() },
-                    onRequestAgainClick = { navigator.push(EumDestination.QuoteRequest()) },
-                    onUnavailableAction = showUnavailableAction,
-                )
-            }
             entry<EumDestination.OrderHistory> {
                 OrderHistoryRoute(
                     uiModel = remember { screenDataProvider.orderHistory() },
@@ -710,14 +604,14 @@ fun EumMainNavDisplay(
                     items = remember { screenDataProvider.inquiryHistory() },
                     onBackClick = { navigator.goBack() },
                     onItemClick = { inquiryId -> entryContext.open(EumDestination.InquiryDetail(inquiryId)) },
-                    onWriteClick = { entryContext.open(EumDestination.InquiryWrite) },
+                    onWriteClick = { entryContext.open(EumDestination.InquiryWrite()) },
                 )
             }
             entry<EumDestination.CustomerSupport> {
                 CustomerSupportRoute(
                     uiModel = remember { screenDataProvider.customerSupport() },
                     onBackClick = { navigator.goBack() },
-                    onInquiryClick = { entryContext.open(EumDestination.InquiryWrite) },
+                    onInquiryClick = { entryContext.open(EumDestination.InquiryWrite()) },
                 )
             }
             entry<EumDestination.NoticeList> {
@@ -768,16 +662,17 @@ fun EumMainNavDisplay(
             addCatalogDetailEntries(entryContext)
         }
     }
-    Box(modifier = modifier) {
+    Box(modifier = modifier.clearFocusOnTap()) {
         NavDisplay(
             entries = navigationState.rememberNavEntries(entryProvider),
             sceneStrategies = listOf(
                 DialogSceneStrategy(),
                 SinglePaneSceneStrategy(),
             ),
-            transitionSpec = EumNavTransitions.transitionSpec,
-            popTransitionSpec = EumNavTransitions.popTransitionSpec,
-            predictivePopTransitionSpec = EumNavTransitions.predictivePopTransitionSpec,
+            // 화면·탭 전환 애니메이션은 쓰지 않는다. 인자를 생략하면 NavDisplay 기본 전환이 적용되므로 세 인자를 모두 명시한다.
+            transitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
+            popTransitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
+            predictivePopTransitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
             onBack = {
                 // 시스템 뒤로가기도 A-10에서는 홈으로 보낸다. BackHandler로 가로채지 않고 이 경로로 통일한다.
                 if (!navigator.closeTopAndOpenTabRootIfTop(EumDestination.OrderComplete, MainNavigationTab.Home)) {
@@ -785,9 +680,22 @@ fun EumMainNavDisplay(
                 }
             },
         )
+        // 전역 스낵바는 하단 탭바·주문 바 위에 놓아 겹치지 않게 한다. 각 화면 Scaffold의 호스트와 같은 위치가 된다.
+        val topDestination = navigationState.currentBackStack.lastOrNull()
+        val globalSnackbarBottomInset = when (topDestination) {
+            EumDestination.Cart -> EumBottomBarMetrics.TabBarMinHeight + EumBottomBarMetrics.CartOrderBarMinHeight
+
+            EumDestination.Home,
+            EumDestination.Categories,
+            EumDestination.Search,
+            EumDestination.MyPage,
+            -> EumBottomBarMetrics.TabBarMinHeight
+
+            else -> 0.dp
+        }
         EumSnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = globalSnackbarBottomInset),
         )
         SplashOverlay()
     }

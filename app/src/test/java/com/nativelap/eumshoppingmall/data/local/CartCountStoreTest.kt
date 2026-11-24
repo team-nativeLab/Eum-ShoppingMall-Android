@@ -191,7 +191,7 @@ class CartCountStoreTest {
         quantity = quantity,
         optionExtraWon = 3_000L,
         productPriceLabel = "₩18,000",
-        isQuoteRequired = false,
+        isPriceUndisclosed = false,
     )
 
     private fun createCartStore(): CartCountStore = CartCountStore(createDataStore(temporaryFolder.newFile("cart_test.preferences_pb")))

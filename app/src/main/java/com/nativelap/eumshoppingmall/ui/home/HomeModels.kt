@@ -17,14 +17,14 @@ data class HomeProductUiModel(
     val imageDescription: String? = null,
     val isSoldOut: Boolean = false,
     val isPurchaseUnavailable: Boolean = false,
-    // 견적 대상 상품(금액을 보여 주지 않고 견적 문의로 연결). 가격 문구를 "금액 미표시"로 고르는 기준이다.
-    val isQuoteTarget: Boolean = false,
+    // 가격 미표시 상품(금액을 보여 주지 않고 1:1 문의로 연결). 가격 문구를 "금액 미표시"로 고르는 기준이다.
+    val isPriceUndisclosed: Boolean = false,
     // 베스트 섹션의 표시 순서 순위(withSectionRanks로만 채운다). 상품 속성이 아니므로 다른 섹션에는 붙지 않는다.
     val bestRank: Int? = null,
     val specLabel: String? = null,
     val shippingLabel: String? = null,
     val benefitLabels: List<String> = emptyList(),
-    // 견적 상품 등 라벨 배지. 순위 배지가 있으면 가린다(카탈로그와 같은 규칙).
+    // 라벨 배지. 순위 배지가 있으면 가린다(카탈로그와 같은 규칙).
     val badgeLabel: String? = null,
     // 상위 카테고리 id. 베스트 셀러 탭이 이 값으로 거른다.
     val categoryId: String? = null,
@@ -106,9 +106,7 @@ sealed interface HomeScreenEvent {
     data class QuickCartClicked(val product: HomeProductUiModel) : HomeScreenEvent
     data class ProductClicked(val product: HomeProductUiModel) : HomeScreenEvent
     data class HeroActionClicked(val action: HomeHeroActionId) : HomeScreenEvent
-    data object QuoteClicked : HomeScreenEvent
     data object MenuClicked : HomeScreenEvent
-    data object NotificationsClicked : HomeScreenEvent
 
     // 섹션의 "전체 보기"(베스트·할인·오늘·추천)와 하단 전체 상품 보기가 모두 이 이벤트로 목록 preset을 넘긴다.
     data class SeeProductsClicked(val preset: ProductListPreset) : HomeScreenEvent
@@ -126,11 +124,7 @@ fun homeQueryForSearchQuery(searchQuery: String): String = searchQuery.trim()
 // 홈 검색창 글자: 검색 화면과 공유하는 값이 있으면 그것을, 없으면 홈 자체 입력을 쓴다.
 fun effectiveHomeQuery(hoisted: String?, internal: String): String = hoisted ?: internal
 
-// 히어로 보조 CTA("견적 문의하기")가 내는 이벤트. 기존 견적 진입 경로(QuoteClicked)를 그대로 쓴다.
-fun heroQuoteCtaEvent(): HomeScreenEvent = HomeScreenEvent.QuoteClicked
-
 enum class HomeHeroActionId {
     BrowseProducts,
-    RequestQuote,
     ViewCompany,
 }

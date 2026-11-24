@@ -2,8 +2,6 @@ package com.nativelap.eumshoppingmall.ui.home.components
 
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.home.HomeHeroActionId
-import com.nativelap.eumshoppingmall.ui.home.HomeScreenEvent
-import com.nativelap.eumshoppingmall.ui.home.heroQuoteCtaEvent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -11,26 +9,18 @@ import org.junit.Test
 
 class HeroCtaTest {
     @Test
-    fun heroQuoteCtaUsesExistingQuoteEntryEvent() {
-        assertEquals(HomeScreenEvent.QuoteClicked, heroQuoteCtaEvent())
-    }
-
-    @Test
     fun heroSlidesOpenApprovedActionsInSlideOrder() {
         assertEquals(
-            listOf(HomeHeroActionId.BrowseProducts, HomeHeroActionId.RequestQuote, HomeHeroActionId.ViewCompany),
+            listOf(HomeHeroActionId.BrowseProducts, HomeHeroActionId.ViewCompany),
             homeHeroSlideActionIds(),
         )
     }
 
     @Test
-    fun productBrowsingIsPrimaryOnEverySlideAndSecondaryActionIsContextual() {
+    fun productBrowsingIsPrimaryOnEverySlideAndCompanyLabelIsDefined() {
         assertEquals(HomeHeroActionId.BrowseProducts, homeHeroPrimaryActionId())
         assertEquals(R.string.home_hero_browse_products, homeHeroActionLabelResId(HomeHeroActionId.BrowseProducts))
-        assertEquals(R.string.home_hero_quote_action, homeHeroActionLabelResId(HomeHeroActionId.RequestQuote))
         assertEquals(R.string.home_hero_company_action, homeHeroActionLabelResId(HomeHeroActionId.ViewCompany))
-        assertEquals(R.string.home_hero_quote_action, heroSecondaryActionLabelResId(HomeHeroActionId.RequestQuote))
-        assertEquals(R.string.home_hero_company_action, heroSecondaryActionLabelResId(HomeHeroActionId.ViewCompany))
     }
 
     @Test
@@ -47,9 +37,8 @@ class HeroCtaTest {
     }
 
     @Test
-    fun quoteRemainsSecondaryActionAndCompanyLinkAppearsOnlyOnCompanySlide() {
-        assertTrue(showsHeroSecondaryQuoteCta(HomeHeroActionId.RequestQuote))
-        assertTrue(showsHeroSecondaryQuoteCta(HomeHeroActionId.BrowseProducts))
-        assertFalse(showsHeroSecondaryQuoteCta(HomeHeroActionId.ViewCompany))
+    fun companyLinkAppearsOnlyOnCompanySlide() {
+        assertTrue(showsHeroCompanyLink(HomeHeroActionId.ViewCompany))
+        assertFalse(showsHeroCompanyLink(HomeHeroActionId.BrowseProducts))
     }
 }

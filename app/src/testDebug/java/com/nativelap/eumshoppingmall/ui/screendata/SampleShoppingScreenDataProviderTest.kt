@@ -52,7 +52,7 @@ class SampleShoppingScreenDataProviderTest {
     }
 
     @Test
-    fun quoteOnlyProductIsMarkedPurchaseUnavailable() {
+    fun priceUndisclosedOnlyProductIsMarkedPurchaseUnavailable() {
         val belt = provider.homeBestSellerProducts().first { product -> product.id == "sample-belt" }
 
         assertTrue(belt.isPurchaseUnavailable)
