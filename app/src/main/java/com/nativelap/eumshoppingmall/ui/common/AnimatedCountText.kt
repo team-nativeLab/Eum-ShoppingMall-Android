@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
@@ -44,6 +45,8 @@ fun AnimatedCountText(
     AnimatedContent(
         targetState = count,
         modifier = modifier,
+        // 호출부가 고정 폭을 주면 숫자는 그 폭의 가운데에 놓인다.
+        contentAlignment = Alignment.Center,
         transitionSpec = {
             // 줄이기 여부는 전환이 시작될 때 읽는다(ReducedMotion.kt 주석과 같은 기준).
             if (isReducedMotion(ValueAnimator.areAnimatorsEnabled())) {
@@ -73,6 +76,8 @@ fun AnimatedCountText(
                 style = style,
                 color = color,
                 textAlign = textAlign,
+                maxLines = 1,
+                softWrap = false,
             )
         }
     }

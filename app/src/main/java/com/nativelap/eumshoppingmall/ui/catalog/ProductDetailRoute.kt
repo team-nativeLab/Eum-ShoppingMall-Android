@@ -1,7 +1,6 @@
 package com.nativelap.eumshoppingmall.ui.catalog
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,7 +34,8 @@ fun CatalogProductDetailRoute(
     onBackClick: () -> Unit,
     onCartClick: () -> Unit,
     onBuyNowClick: (List<CartLine>) -> Unit,
-    onQuoteRequestClick: (productId: String) -> Unit,
+    // 가격 미표시 상품의 문의 버튼. 상품명을 1:1 문의 제목에 미리 채우도록 넘긴다.
+    onPriceInquiryClick: (productName: String) -> Unit,
     onProductClick: (productId: String) -> Unit,
     isLoggedIn: Boolean,
     onLoginRequired: () -> Unit,
@@ -79,7 +79,7 @@ fun CatalogProductDetailRoute(
         currentProductId = uiModel.product.id,
         editGroup = editGroup,
         isSoldOut = uiModel.product.isSoldOut,
-        isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired,
+        isPriceUndisclosed = uiModel.product.price is CatalogPriceUiModel.Undisclosed,
     )
     val editEntry = cartOptionEditEntry(
         editSourceLineId = editSourceLineId,
@@ -88,7 +88,7 @@ fun CatalogProductDetailRoute(
         currentProductId = uiModel.product.id,
         optionGroups = uiModel.optionGroups,
         isSoldOut = uiModel.product.isSoldOut,
-        isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired,
+        isPriceUndisclosed = uiModel.product.price is CatalogPriceUiModel.Undisclosed,
         isSaving = isEditSaving,
     )
     var optionSelections by rememberSaveable(uiModel.product.id, editSourceLineId, stateSaver = OptionSelectionsSaver) {
@@ -109,7 +109,7 @@ fun CatalogProductDetailRoute(
     val snackbarHostState = rememberCartAddSnackbarHostState(cartAddOutcome, onCartAddOutcomeChange, onCartClick)
     val productPriceLabel = when (val price = uiModel.product.price) {
         is CatalogPriceUiModel.Available -> price.currentLabel
-        CatalogPriceUiModel.QuoteRequired -> stringResource(R.string.product_price_inquiry)
+        CatalogPriceUiModel.Undisclosed -> stringResource(R.string.product_price_inquiry)
     }
     val defaultOptionLabel = stringResource(R.string.catalog_option_default_label)
     val productUnitPriceWon = (uiModel.product.price as? CatalogPriceUiModel.Available)?.unitPriceWon
@@ -156,7 +156,7 @@ fun CatalogProductDetailRoute(
                 // 옵션 그룹이 없으면 추가금도 없다.
                 optionExtraWon = 0L,
                 productPriceLabel = productPriceLabel,
-                isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired,
+                isPriceUndisclosed = uiModel.product.price is CatalogPriceUiModel.Undisclosed,
                 productUnitPriceWon = productUnitPriceWon,
             ),
         )
@@ -172,7 +172,7 @@ fun CatalogProductDetailRoute(
                     quantity = if (isEditMode) editSourceLine!!.quantity else selected.option.quantity.coerceAtLeast(1),
                     optionExtraWon = selected.option.unitPriceWon,
                     productPriceLabel = productPriceLabel,
-                    isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired,
+                    isPriceUndisclosed = uiModel.product.price is CatalogPriceUiModel.Undisclosed,
                     productUnitPriceWon = productUnitPriceWon,
                 )
             }
@@ -245,8 +245,8 @@ fun CatalogProductDetailRoute(
 
                 CatalogProductDetailEvent.BuyNowClicked -> closeOptionsSheet(afterClosed = { onBuyNowClick(cartLinesForCurrentSelection()) })
 
-                CatalogProductDetailEvent.QuoteRequestClicked -> {
-                    closeOptionsSheet(afterClosed = { onQuoteRequestClick(uiModel.product.id) })
+                CatalogProductDetailEvent.PriceInquiryClicked -> {
+                    closeOptionsSheet(afterClosed = { onPriceInquiryClick(uiModel.product.name) })
                 }
 
                 CatalogProductDetailEvent.AddToCartClicked -> {
@@ -350,8 +350,8 @@ internal fun isCartOptionEditAllowed(
     currentProductId: String,
     editGroup: CatalogOptionGroupUiModel?,
     isSoldOut: Boolean,
-    isQuoteRequired: Boolean,
-): Boolean = sourceLine != null && sourceLine.productId == currentProductId && editGroup != null && !isSoldOut && !isQuoteRequired
+    isPriceUndisclosed: Boolean,
+): Boolean = sourceLine != null && sourceLine.productId == currentProductId && editGroup != null && !isSoldOut && !isPriceUndisclosed
 
 internal fun isSingleValidCartOptionSelection(
     selectedOptions: List<CatalogSelectedOptionUiModel>,

@@ -36,6 +36,14 @@ sealed interface EumDestination : NavKey {
     @Serializable
     data object Drawer : EumDestination
 
+    /** A-32 알림. 사이드바(드로어)에서만 진입한다. 서버 연동 전이라 알림 데이터 없이 빈 상태를 보여 준다. */
+    @Serializable
+    data object Notifications : EumDestination
+
+    /** A-35 설정. 사이드바(드로어)에서만 진입한다. 알림·수신 토글은 저장되지 않아 비활성이다. */
+    @Serializable
+    data object AccountSettings : EumDestination
+
     /**
      * A-04 상품 목록. categoryId가 null이면 카테고리를 거르지 않는다.
      * preset은 홈 전체 보기(베스트·할인·오늘·추천)가 고른 기본 목록 원본이며, 기본값 All은 기존 전체 상품이다.
@@ -70,26 +78,6 @@ sealed interface EumDestination : NavKey {
     /** A-10 주문 완료. */
     @Serializable
     data object OrderComplete : EumDestination
-
-    /** A-15 견적 문의. productId가 있으면 해당 상품을 담아 시작한다(F7). */
-    @Serializable
-    data class QuoteRequest(val productId: String? = null) : EumDestination
-
-    /** A-15 견적 문의의 "상품 추가"에서 여는 상품 선택. 화면은 A-04 전체 상품 목록을 그대로 쓴다. */
-    @Serializable
-    data object QuoteProductPicker : EumDestination
-
-    /** A-15d 견적 문의 완료. */
-    @Serializable
-    data object QuoteComplete : EumDestination
-
-    /** A-25 견적 문의 내역. */
-    @Serializable
-    data object QuoteHistory : EumDestination
-
-    /** A-25에서 진입하는 견적 문의 상세. */
-    @Serializable
-    data class QuoteInquiryDetail(val inquiryId: String) : EumDestination
 
     /** A-16 주문 내역. */
     @Serializable
@@ -207,9 +195,12 @@ sealed interface EumDestination : NavKey {
     @Serializable
     data class InquiryDetail(val inquiryId: String) : EumDestination
 
-    /** A-31 하위 1:1 문의 작성. */
+    /**
+     * A-31 하위 1:1 문의 작성. [prefilledProductName]이 있으면 문의 제목에 상품명을 미리 채운다(가격 미표시 상품 문의).
+     * 상품명은 화면 표시용 문자열일 뿐 상품 식별자가 아니다.
+     */
     @Serializable
-    data object InquiryWrite : EumDestination
+    data class InquiryWrite(val prefilledProductName: String = "") : EumDestination
 
     /** A-41 공지 상세. */
     @Serializable

@@ -25,7 +25,7 @@ private val homePreviewRecommendedProducts = listOf(
     HomeProductUiModel(
         id = "recommended-belt",
         name = "전신 안전벨트",
-        isQuoteTarget = true,
+        isPriceUndisclosed = true,
         ratingLabel = "평점 없음",
     ),
 )

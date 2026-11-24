@@ -9,23 +9,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.EumBrandLogo
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 @Composable
 fun HomeTopBar(
     onMenuClick: () -> Unit,
-    onNotificationClick: () -> Unit,
     modifier: Modifier = Modifier,
     showMenu: Boolean = true,
     horizontalPadding: Dp = EumSpacing.x8,
@@ -52,22 +50,8 @@ fun HomeTopBar(
                     )
                 }
             }
-            Text(
-                text = stringResource(R.string.app_name),
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.eumColors.textPrimary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-        IconButton(onClick = onNotificationClick, modifier = Modifier.size(48.dp)) {
-            Icon(
-                painter = painterResource(R.drawable.ic_bell),
-                contentDescription = stringResource(R.string.home_notifications),
-                tint = MaterialTheme.eumColors.textPrimary,
-                modifier = Modifier.size(24.dp),
-            )
+            // 앱 이름 텍스트 대신 안전맛집 로고를 상단바 높이 안에 둔다.
+            EumBrandLogo(size = 36.dp)
         }
     }
 }

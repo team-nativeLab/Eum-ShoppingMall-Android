@@ -93,14 +93,6 @@ private val homeHeroSlides = listOf(
         imageDescriptionResId = R.string.home_hero_safe_image_description,
     ),
     HomeHeroSlide(
-        actionId = HomeHeroActionId.RequestQuote,
-        imageResId = R.drawable.figma_home_hero_custom_solution,
-        eyebrowResId = R.string.home_hero_custom_eyebrow,
-        titleResId = R.string.home_hero_custom_title,
-        descriptionResId = R.string.home_hero_custom_description,
-        imageDescriptionResId = R.string.home_hero_custom_image_description,
-    ),
-    HomeHeroSlide(
         actionId = HomeHeroActionId.ViewCompany,
         imageResId = R.drawable.figma_home_hero_sustainable_value,
         eyebrowResId = R.string.home_hero_sustainable_eyebrow,
@@ -118,14 +110,12 @@ internal fun homeHeroPrimaryActionId(): HomeHeroActionId = HomeHeroActionId.Brow
 
 internal fun homeHeroActionLabelResId(actionId: HomeHeroActionId): Int = when (actionId) {
     HomeHeroActionId.BrowseProducts -> R.string.home_hero_browse_products
-    HomeHeroActionId.RequestQuote -> R.string.home_hero_quote_action
     HomeHeroActionId.ViewCompany -> R.string.home_hero_company_action
 }
 
 @Composable
 fun HomeHeroCarousel(
     onActionClick: (HomeHeroActionId) -> Unit,
-    onQuoteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val pagerState = rememberPagerState(pageCount = { homeHeroSlides.size })
@@ -202,7 +192,6 @@ fun HomeHeroCarousel(
                 shouldStackActions = shouldStackActions,
                 onActionClick = { onActionClick(homeHeroPrimaryActionId()) },
                 onCompanyClick = { onActionClick(HomeHeroActionId.ViewCompany) },
-                onQuoteClick = onQuoteClick,
                 onIndicatorClick = { targetPage ->
                     onUserInteraction()
                     pagerState.requestScrollToPage(targetPage)
@@ -224,7 +213,6 @@ private fun HomeHeroCard(
     shouldStackActions: Boolean,
     onActionClick: () -> Unit,
     onCompanyClick: () -> Unit,
-    onQuoteClick: () -> Unit,
     onIndicatorClick: (Int) -> Unit,
     isAutoAdvancePaused: Boolean,
     onAutoAdvanceToggle: () -> Unit,
@@ -280,11 +268,9 @@ private fun HomeHeroCard(
             )
             Spacer(Modifier.height(EumSpacing.x8))
             val actionResId = homeHeroActionLabelResId(homeHeroPrimaryActionId())
-            val secondaryLabelResId = heroSecondaryActionLabelResId(slide.actionId)
+            val secondaryLabelResId = R.string.home_hero_company_action
             val secondaryAction: @Composable () -> Unit = {
-                if (showsHeroSecondaryQuoteCta(slide.actionId)) {
-                    HomeHeroActionButton(stringResource(secondaryLabelResId), onQuoteClick)
-                } else {
+                if (showsHeroCompanyLink(slide.actionId)) {
                     Box(
                         modifier = Modifier
                             .heightIn(min = 48.dp)
@@ -453,10 +439,8 @@ private class HeroInteraction {
     var atMillis: Long? = null
 }
 
-// 주 버튼이 이미 견적 문의인 슬라이드(커스텀 견적)에는 보조 견적 CTA를 두지 않는다.
-internal fun showsHeroSecondaryQuoteCta(slideActionId: HomeHeroActionId): Boolean = slideActionId != HomeHeroActionId.ViewCompany
-
-internal fun heroSecondaryActionLabelResId(slideActionId: HomeHeroActionId): Int = if (showsHeroSecondaryQuoteCta(slideActionId)) R.string.home_hero_quote_action else R.string.home_hero_company_action
+// 회사 소개 링크는 회사 소개 슬라이드에만 둔다.
+internal fun showsHeroCompanyLink(slideActionId: HomeHeroActionId): Boolean = slideActionId == HomeHeroActionId.ViewCompany
 
 // 점 중심 좌표와 탭 위치로 가장 가까운 점을 고른다. 중심 좌표가 없으면 null.
 internal fun nearestHeroIndicatorIndex(tapX: Float, centersX: List<Float>): Int? {

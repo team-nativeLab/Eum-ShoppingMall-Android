@@ -173,7 +173,7 @@ internal fun CatalogProductDetailContent(
                 item {
                     ProductGallery(uiModel, onEvent)
                     Column(Modifier.padding(start = EumSpacing.x20, top = EumSpacing.x24, end = EumSpacing.x20, bottom = EumSpacing.x32)) {
-                        // Figma 상단 순서: 브랜드(견적 상품 배지) → 상품명 → 평점 → 가격 → 배송 정보 박스
+                        // Figma 상단 순서: 브랜드(상품 배지) → 상품명 → 평점 → 가격 → 배송 정보 박스
                         val brandName = uiModel.product.subtitle
                         val badgeLabel = uiModel.product.badgeLabel
                         // 브랜드와 배지는 같은 줄에 두되, 한쪽이 없어도 다른 쪽이 사라지지 않도록 각각 따로 판단한다.
@@ -222,7 +222,7 @@ internal fun CatalogProductDetailContent(
                                 )
                             }
 
-                            CatalogPriceUiModel.QuoteRequired -> Text(
+                            CatalogPriceUiModel.Undisclosed -> Text(
                                 stringResource(R.string.product_price_inquiry),
                                 Modifier.padding(top = EumSpacing.x8),
                                 style = EumTypographyTokens.priceL,
@@ -586,11 +586,11 @@ private fun ProductDetailBottomActions(
     onEvent: (CatalogProductDetailEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired
+    val isPriceUndisclosed = uiModel.product.price is CatalogPriceUiModel.Undisclosed
     val isSoldOut = uiModel.product.isSoldOut
     val lineColor = MaterialTheme.eumColors.line
-    if (isQuoteRequired && !isSoldOut) {
-        ProductQuoteBottomActions(uiModel, onEvent, modifier)
+    if (isPriceUndisclosed && !isSoldOut) {
+        ProductPriceInquiryBottomActions(uiModel, onEvent, modifier)
         return
     }
     Row(
@@ -659,7 +659,7 @@ private fun ProductDetailBottomActions(
 
 // 찜·장바구니 버튼은 이 상태에 없으므로 추가하지 않는다(시각만 맞춘다). 버튼 동작은 기존 분기와 같다.
 @Composable
-private fun ProductQuoteBottomActions(
+private fun ProductPriceInquiryBottomActions(
     uiModel: CatalogProductDetailUiModel,
     onEvent: (CatalogProductDetailEvent) -> Unit,
     modifier: Modifier = Modifier,
@@ -680,27 +680,19 @@ private fun ProductQuoteBottomActions(
             )
         }
         Box(Modifier.fillMaxWidth().height(EumSpacing.x1).background(MaterialTheme.eumColors.lineNeutral))
-        OutlinedButton(
+        EumPrimaryButton(
             onClick = {
                 onEvent(
                     if (uiModel.optionGroups.isEmpty()) {
-                        CatalogProductDetailEvent.QuoteRequestClicked
+                        CatalogProductDetailEvent.PriceInquiryClicked
                     } else {
-                        CatalogProductDetailEvent.SelectOptionClicked(CatalogPurchaseAction.QuoteRequest)
+                        CatalogProductDetailEvent.SelectOptionClicked(CatalogPurchaseAction.PriceInquiry)
                     },
                 )
             },
-            modifier = Modifier.fillMaxWidth()
-                .padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12)
-                .heightIn(min = 56.dp),
-            shape = RoundedCornerShape(EumRadius.x8),
-            border = BorderStroke(EumSpacing.x1, MaterialTheme.eumColors.productBadgeBorder),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
         ) {
-            Text(
-                stringResource(R.string.product_request_quote),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.eumColors.textPrimary,
-            )
+            Text(stringResource(R.string.product_price_inquiry_action))
         }
     }
 }
@@ -709,7 +701,7 @@ private fun ProductQuoteBottomActions(
 private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (CatalogProductDetailEvent) -> Unit) {
     // 필수 옵션을 고르지 않은 상태에서 담기·구매를 누르면 안내를 보여 준다. 버튼은 비활성처럼 보이되 누를 수 있다.
     var showSelectPrompt by remember { mutableStateOf(false) }
-    val isQuoteRequired = uiModel.product.price is CatalogPriceUiModel.QuoteRequired
+    val isPriceUndisclosed = uiModel.product.price is CatalogPriceUiModel.Undisclosed
     val isSoldOut = uiModel.product.isSoldOut
     // 옵션 그룹이 있으면 선택된 옵션이 최소 1개여야 담기·구매를 할 수 있다(0개 담기 방지).
     val hasRequiredSelections = (uiModel.optionGroups.isEmpty() || uiModel.selectedOptions.isNotEmpty()) &&
@@ -752,7 +744,7 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
             verticalArrangement = Arrangement.spacedBy(EumSpacing.x12),
         ) {
             // 옵션 그룹이 없는 상품은 기본 구성으로 바로 담는다. 안내 문구는 담기 버튼 활성과 같은 판정을 쓴다(F4).
-            noOptionGuidanceRes(isQuoteRequired = isQuoteRequired, hasOptionGroups = uiModel.optionGroups.isNotEmpty())?.let { guidanceRes ->
+            noOptionGuidanceRes(isPriceUndisclosed = isPriceUndisclosed, hasOptionGroups = uiModel.optionGroups.isNotEmpty())?.let { guidanceRes ->
                 Text(stringResource(guidanceRes), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.eumColors.textTertiary)
             }
             uiModel.optionGroups.forEach { group ->
@@ -782,7 +774,7 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
                 } else {
                     CatalogSelectedOptionCard(
                         option = option,
-                        isQuoteRequired = isQuoteRequired,
+                        isPriceUndisclosed = isPriceUndisclosed,
                         onQuantityChanged = { quantity ->
                             onEvent(CatalogProductDetailEvent.QuantityChanged(selectedOption.groupId, option.id, quantity))
                         },
@@ -792,7 +784,7 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
             }
 
             if (uiModel.selectedOptions.isNotEmpty()) {
-                if (isQuoteRequired) {
+                if (isPriceUndisclosed) {
                     Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
                         Text(stringResource(R.string.catalog_options_selected_quantity), style = MaterialTheme.typography.labelMedium)
                         Text(
@@ -804,7 +796,7 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
                             color = MaterialTheme.eumColors.textPrimary,
                         )
                         Text(
-                            stringResource(R.string.catalog_quote_options_notice),
+                            stringResource(R.string.catalog_price_undisclosed_options_notice),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.eumColors.textSecondary,
                         )
@@ -857,15 +849,15 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
             ) {
                 Text(stringResource(R.string.product_sold_out))
             }
-        } else if (isQuoteRequired) {
+        } else if (isPriceUndisclosed) {
             EumPrimaryButton(
                 onClick = {
-                    if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.QuoteRequestClicked) else showSelectPrompt = true
+                    if (hasRequiredSelections) onEvent(CatalogProductDetailEvent.PriceInquiryClicked) else showSelectPrompt = true
                 },
                 inactiveLook = !hasRequiredSelections,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(stringResource(R.string.catalog_quote_request))
+                Text(stringResource(R.string.catalog_inquiry_action))
             }
         } else {
             Row(
@@ -910,7 +902,7 @@ private fun ProductOptionsSheet(uiModel: CatalogProductDetailUiModel, onEvent: (
 }
 
 /**
- * 옵션 그룹이 없는 일반 상품의 시트 안내. 견적 상품은 안내가 없다. 옵션이 없으면 "기본 구성"으로 담기 때문에
+ * 옵션 그룹이 없는 일반 상품의 시트 안내. 가격 미표시 상품은 안내가 없다. 옵션이 없으면 "기본 구성"으로 담기 때문에
  * "선택 가능한 옵션이 없습니다"처럼 담기를 막는 문구를 쓰지 않는다(F4).
  */
-internal fun noOptionGuidanceRes(isQuoteRequired: Boolean, hasOptionGroups: Boolean): Int? = if (!isQuoteRequired && !hasOptionGroups) R.string.catalog_option_default_label else null
+internal fun noOptionGuidanceRes(isPriceUndisclosed: Boolean, hasOptionGroups: Boolean): Int? = if (!isPriceUndisclosed && !hasOptionGroups) R.string.catalog_option_default_label else null

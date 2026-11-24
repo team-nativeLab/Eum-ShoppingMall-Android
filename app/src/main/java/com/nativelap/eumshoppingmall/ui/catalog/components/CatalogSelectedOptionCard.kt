@@ -5,10 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,7 +22,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.CatalogOptionUiModel
-import com.nativelap.eumshoppingmall.ui.common.AnimatedCountText
+import com.nativelap.eumshoppingmall.ui.common.EUM_MAX_QUANTITY
+import com.nativelap.eumshoppingmall.ui.common.EumQuantityStepper
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -32,7 +31,7 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 @Composable
 fun CatalogSelectedOptionCard(
     option: CatalogOptionUiModel,
-    isQuoteRequired: Boolean,
+    isPriceUndisclosed: Boolean,
     onQuantityChanged: (Int) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
@@ -67,42 +66,16 @@ fun CatalogSelectedOptionCard(
                 Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(
-                    Modifier.heightIn(min = 48.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    IconButton(
-                        onClick = { onQuantityChanged(quantity - 1) },
-                        enabled = quantity > 1,
-                        modifier = Modifier.size(48.dp),
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_minus),
-                            contentDescription = stringResource(R.string.catalog_quantity_decrease),
-                            modifier = Modifier.size(18.dp),
-                        )
-                    }
-                    AnimatedCountText(
-                        count = quantity,
-                        modifier = Modifier.width(28.dp),
-                        style = MaterialTheme.typography.labelMedium,
-                        textAlign = TextAlign.Center,
-                    )
-                    IconButton(
-                        onClick = { onQuantityChanged(if (quantity < Int.MAX_VALUE) quantity + 1 else Int.MAX_VALUE) },
-                        enabled = quantity < Int.MAX_VALUE,
-                        modifier = Modifier.size(48.dp),
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_plus),
-                            contentDescription = stringResource(R.string.catalog_quantity_increase),
-                            modifier = Modifier.size(18.dp),
-                        )
-                    }
-                }
+                EumQuantityStepper(
+                    quantity = quantity,
+                    onDecrease = { onQuantityChanged(quantity - 1) },
+                    onIncrease = { onQuantityChanged((quantity + 1).coerceAtMost(EUM_MAX_QUANTITY)) },
+                    canDecrease = quantity > 1,
+                    canIncrease = quantity < EUM_MAX_QUANTITY,
+                )
                 // 0원 옵션은 "₩0" 행을 만들지 않는다(U-04). 가격 문구가 없어도 같은 규칙으로 숨긴다.
                 val priceLabel = option.priceLabel?.takeIf { it.isNotBlank() && option.unitPriceWon != 0L }
-                if (!isQuoteRequired && priceLabel != null) {
+                if (!isPriceUndisclosed && priceLabel != null) {
                     Text(
                         priceLabel,
                         Modifier.weight(1f),

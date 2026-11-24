@@ -3,10 +3,10 @@ package com.nativelap.eumshoppingmall.ui.cart.viewmodel
 import com.nativelap.eumshoppingmall.data.local.CartLine
 import com.nativelap.eumshoppingmall.ui.catalog.formatWonLabel
 
-/** 저장 줄 화면 문구. 가격 미상은 "가격 확인 필요", 견적 상품은 "가격 문의"를 쓴다. */
+/** 저장 줄 화면 문구. 가격 미상은 "가격 확인 필요", 가격 미표시 상품은 "가격 미표시"를 쓴다. */
 internal data class CartPriceLabels(
     val priceCheck: String,
-    val quotePrice: String,
+    val undisclosedPrice: String,
 )
 
 /**
@@ -28,22 +28,22 @@ internal fun CartLine.cartItemId(): String = lineId()
 
 /**
  * 옵션 변경 버튼 노출과 클릭 처리가 함께 쓰는 판정.
- * 저장된 줄만 옵션 편집 대상이다(샘플 폴백 줄 제외, S2). 견적 전용 줄도 편집 대상이 아니다.
+ * 저장된 줄만 옵션 편집 대상이다(샘플 폴백 줄 제외, S2). 가격 미표시 줄도 편집 대상이 아니다.
  */
-internal fun CartItemUiModel.canChangeOption(): Boolean = isSavedLine && type != CartItemType.QuoteRequired
+internal fun CartItemUiModel.canChangeOption(): Boolean = isSavedLine && type != CartItemType.PriceUndisclosed
 
 internal fun CartLine.toCartItemUiModel(labels: CartPriceLabels): CartItemUiModel {
     val extraWon = optionExtraWon?.takeIf { amount -> amount != 0L }
     val optionText = if (extraWon == null) optionLabel else "$optionLabel (+${formatWonLabel(extraWon)})"
-    if (isQuoteRequired) {
+    if (isPriceUndisclosed) {
         return CartItemUiModel(
             id = cartItemId(),
             name = productName,
             optionLabel = optionText,
             quantity = quantity,
-            unitPriceLabel = labels.quotePrice,
-            totalPriceLabel = labels.quotePrice,
-            type = CartItemType.QuoteRequired,
+            unitPriceLabel = labels.undisclosedPrice,
+            totalPriceLabel = labels.undisclosedPrice,
+            type = CartItemType.PriceUndisclosed,
             isSavedLine = true,
         )
     }

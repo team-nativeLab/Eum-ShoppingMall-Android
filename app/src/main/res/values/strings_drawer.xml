@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 사이드바 섹션 제목과 메뉴 -->
+    <string name="account_drawer_section_shopping">쇼핑</string>
+    <string name="account_drawer_section_support">고객지원</string>
+    <string name="account_drawer_section_settings">설정·알림</string>
+    <string name="account_drawer_best">베스트</string>
+    <string name="account_drawer_recommended">추천상품</string>
+    <string name="account_drawer_discount">할인상품</string>
+    <string name="account_drawer_favorites">찜 목록</string>
+    <string name="account_drawer_guide">이용안내</string>
+    <string name="account_drawer_terms">이용약관</string>
+    <string name="account_drawer_privacy">개인정보처리방침</string>
+    <string name="account_drawer_notifications">알림</string>
+</resources>

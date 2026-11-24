@@ -55,7 +55,8 @@ fun EumSnackbarHost(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = EumSpacing.x16, vertical = EumSpacing.x8),
+            // 아래쪽 여백을 작게 둬 하단 바 바로 위에 붙인다. 위쪽 여백은 두지 않아 호스트가 차지하는 높이도 작다.
+            .padding(start = EumSpacing.x16, end = EumSpacing.x16, bottom = EumSpacing.x4),
         contentAlignment = Alignment.BottomCenter,
     ) {
         AnimatedVisibility(

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,7 +27,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
@@ -46,7 +44,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -60,6 +57,7 @@ import com.nativelap.eumshoppingmall.ui.catalog.components.BrandLogoPlate
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBarAction
+import com.nativelap.eumshoppingmall.ui.common.EumSegmentedControl
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -87,9 +85,11 @@ fun CatalogBrandListScreen(
             contentPadding = PaddingValues(bottom = BrandDirectoryBottomPadding),
         ) {
             item {
-                BrandModeSegmentedControl(
-                    brandModeSelected = uiModel.brandModeSelected,
-                    onProductClick = { onEvent(CatalogBrandListEvent.ProductModeSelected) },
+                EumSegmentedControl(
+                    labels = listOf(stringResource(R.string.catalog_product_tab), stringResource(R.string.catalog_brand_tab)),
+                    selectedIndex = if (uiModel.brandModeSelected) 1 else 0,
+                    // 브랜드 목록 화면에서 브랜드 탭은 이미 선택된 상태라 상품 탭만 이동한다.
+                    onSelected = { index -> if (index == 0) onEvent(CatalogBrandListEvent.ProductModeSelected) },
                     modifier = Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x12),
                 )
             }
@@ -244,61 +244,6 @@ fun CatalogBrandDetailScreen(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun BrandModeSegmentedControl(
-    brandModeSelected: Boolean,
-    onProductClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val outerShape = RoundedCornerShape(EumRadius.x8)
-    Row(
-        modifier
-            .fillMaxWidth()
-            .clip(outerShape)
-            .background(MaterialTheme.eumColors.surface)
-            .border(1.dp, MaterialTheme.eumColors.textPrimary, outerShape)
-            .padding(EumSpacing.x4),
-    ) {
-        BrandModeSegment(
-            label = stringResource(R.string.catalog_product_tab),
-            selected = !brandModeSelected,
-            onClick = onProductClick,
-        )
-        BrandModeSegment(
-            label = stringResource(R.string.catalog_brand_tab),
-            selected = brandModeSelected,
-            onClick = {},
-        )
-    }
-}
-
-// 바깥 48dp 박스가 터치와 선택 의미를 맡고, 안쪽 36dp 박스가 시각 세그먼트를 그린다.
-@Composable
-private fun RowScope.BrandModeSegment(label: String, selected: Boolean, onClick: () -> Unit) {
-    Box(
-        Modifier
-            .weight(1f)
-            .heightIn(min = BrandTouchTargetSize)
-            .selectable(selected = selected, role = Role.Tab, onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = BrandSegmentHeight)
-                .clip(RoundedCornerShape(EumRadius.x6))
-                .background(if (selected) MaterialTheme.eumColors.textPrimary else Color.Transparent),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                label,
-                style = MaterialTheme.typography.labelMedium,
-                color = if (selected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textSecondary,
-            )
         }
     }
 }
@@ -596,7 +541,6 @@ private fun BrandSelectionChip(label: String, selected: Boolean, onClick: () -> 
 
 // 브랜드 화면 전용 Figma 값. EumSpacing 토큰에 없어 이 파일에 둔다.
 private const val BRAND_STORY_COLLAPSED_LINES = 6
-private val BrandSegmentHeight = 36.dp
 private val BrandToolbarControlSize = 44.dp
 private val BrandRowHeight = 72.dp
 private val BrandRowVerticalPadding = 7.5.dp

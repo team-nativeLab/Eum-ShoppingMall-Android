@@ -60,7 +60,7 @@ fun MainBottomNavigationBar(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .heightIn(min = 64.dp)
+            .heightIn(min = EumBottomBarMetrics.TabBarMinHeight)
             .background(backgroundColor)
             .drawBehind {
                 drawLine(dividerColor, Offset(0f, 0f), Offset(size.width, 0f), 1.dp.toPx())

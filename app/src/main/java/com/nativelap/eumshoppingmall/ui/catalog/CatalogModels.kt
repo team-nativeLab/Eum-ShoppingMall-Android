@@ -12,7 +12,7 @@ sealed interface CatalogPriceUiModel {
         val unitPriceWon: Long? = null,
     ) : CatalogPriceUiModel
 
-    data object QuoteRequired : CatalogPriceUiModel
+    data object Undisclosed : CatalogPriceUiModel
 }
 
 // 상품이 받은 안전인증 종류. 한 상품이 여러 종류를 함께 가질 수 있다.
@@ -116,6 +116,7 @@ data class CatalogCategoryScreenUiModel(
 )
 
 sealed interface CatalogCategoryEvent {
+    data object MenuClicked : CatalogCategoryEvent
     data object SearchClicked : CatalogCategoryEvent
     data object ViewAllClicked : CatalogCategoryEvent
     data class ModeSelected(val brandMode: Boolean) : CatalogCategoryEvent
@@ -155,6 +156,7 @@ sealed interface CatalogProductListEvent {
     data class FavoriteToggled(val productId: String) : CatalogProductListEvent
     data class QuickCartClicked(val productId: String) : CatalogProductListEvent
     data object LoadMoreClicked : CatalogProductListEvent
+    data object FiltersResetClicked : CatalogProductListEvent
 }
 
 data class CatalogSearchUiModel(
@@ -165,6 +167,7 @@ data class CatalogSearchUiModel(
 )
 
 sealed interface CatalogSearchEvent {
+    data object MenuClicked : CatalogSearchEvent
     data class QueryChanged(val query: String) : CatalogSearchEvent
     data object SearchSubmitted : CatalogSearchEvent
     data object Cancelled : CatalogSearchEvent
@@ -196,7 +199,7 @@ sealed interface CatalogSearchResultsEvent {
     data class FavoriteToggled(val productId: String) : CatalogSearchResultsEvent
     data class QuickCartClicked(val productId: String) : CatalogSearchResultsEvent
     data object PopularSearchClicked : CatalogSearchResultsEvent
-    data object QuoteRequestClicked : CatalogSearchResultsEvent
+    data object PriceInquiryClicked : CatalogSearchResultsEvent
     data object LoadMoreClicked : CatalogSearchResultsEvent
 }
 
@@ -225,7 +228,7 @@ data class CatalogProductDetailUiModel(
 enum class CatalogPurchaseAction {
     AddToCart,
     BuyNow,
-    QuoteRequest,
+    PriceInquiry,
 }
 
 sealed interface CatalogProductDetailEvent {
@@ -240,7 +243,7 @@ sealed interface CatalogProductDetailEvent {
     data class OptionRemoved(val groupId: String, val optionId: String) : CatalogProductDetailEvent
     data object AddToCartClicked : CatalogProductDetailEvent
     data object BuyNowClicked : CatalogProductDetailEvent
-    data object QuoteRequestClicked : CatalogProductDetailEvent
+    data object PriceInquiryClicked : CatalogProductDetailEvent
     data class RelatedProductSelected(val productId: String) : CatalogProductDetailEvent
     data class FavoriteToggled(val productId: String) : CatalogProductDetailEvent
     data object ProductFavoriteToggled : CatalogProductDetailEvent

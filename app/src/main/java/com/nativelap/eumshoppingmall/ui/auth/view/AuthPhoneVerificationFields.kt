@@ -2,19 +2,15 @@ package com.nativelap.eumshoppingmall.ui.auth.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,9 +34,6 @@ import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthPhoneVerificationUiModel
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
-
-private val PhoneActionButtonPadding = PaddingValues(horizontal = 16.dp)
-private val PhoneConfirmButtonMinWidth = 73.dp
 
 @Composable
 internal fun AuthPhoneVerificationFields(
@@ -90,18 +83,15 @@ internal fun AuthPhoneVerificationFields(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next),
                 colors = codeFieldColors,
             )
-            OutlinedButton(
+            AuthFieldActionButton(
+                // 처음에는 번호 인증을 시작하는 버튼이고, 전송한 뒤에는 다시 보내는 버튼이다.
+                label = stringResource(if (state.isCodeRequested) R.string.auth_phone_resend else R.string.auth_phone_request_code),
                 onClick = {
                     isVerificationCodeVisible = false
                     onResend()
                 },
                 enabled = !state.isVerified,
-                modifier = Modifier.heightIn(min = 48.dp),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PhoneActionButtonPadding,
-            ) {
-                Text(stringResource(R.string.auth_phone_resend), style = MaterialTheme.typography.labelMedium)
-            }
+            )
         }
         if (state.isPhoneInvalid) {
             AuthHelperMessage(phoneInvalidMessage, AuthHelperTone.Error)
@@ -154,16 +144,11 @@ internal fun AuthPhoneVerificationFields(
                 },
                 colors = codeFieldColors,
             )
-            OutlinedButton(
+            AuthFieldActionButton(
+                label = stringResource(R.string.auth_verify),
                 onClick = onConfirm,
                 enabled = state.isCodeRequested && !state.isVerified && state.verificationCode.isNotEmpty(),
-                // 글꼴이 커져도 라벨이 잘리지 않도록 73dp는 최소 폭으로 둔다.
-                modifier = Modifier.widthIn(min = PhoneConfirmButtonMinWidth).heightIn(min = 48.dp),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PhoneActionButtonPadding,
-            ) {
-                Text(stringResource(R.string.auth_verify), style = MaterialTheme.typography.labelMedium)
-            }
+            )
         }
         if (state.isCodeInvalid) {
             AuthHelperMessage(codeInvalidMessage, AuthHelperTone.Error)
@@ -172,12 +157,15 @@ internal fun AuthPhoneVerificationFields(
             state.isVerified -> AuthHelperMessage(stringResource(R.string.auth_verified), AuthHelperTone.Success)
 
             // 남은 시간 문구의 표시 상태와 스타일은 Figma 값이 미확인이라 기존 표시를 유지한다.
-            state.isCodeRequested -> Text(
-                stringResource(R.string.auth_verification_remaining, state.remainingTime),
-                Modifier.padding(start = EumSpacing.x2),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.eumColors.textTertiary,
-            )
+            state.isCodeRequested -> {
+                AuthHelperMessage(stringResource(R.string.auth_verification_sent), AuthHelperTone.Success)
+                Text(
+                    stringResource(R.string.auth_verification_remaining, state.remainingTime),
+                    Modifier.padding(start = EumSpacing.x2),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.eumColors.textTertiary,
+                )
+            }
         }
     }
 }

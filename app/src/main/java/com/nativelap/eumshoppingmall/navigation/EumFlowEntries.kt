@@ -232,11 +232,14 @@ internal fun EntryProviderScope<NavKey>.addSupportEntries(context: EumEntryConte
             onUnavailableAction = context.onUnavailableAction,
         )
     }
-    entry<EumDestination.InquiryWrite> {
+    entry<EumDestination.InquiryWrite> { destination ->
         InquiryWriteRoute(
-            uiModel = remember { provider.inquiryForm() },
+            uiModel = remember(destination) { provider.inquiryForm() },
+            prefilledProductName = destination.prefilledProductName,
             onBackClick = { navigator.goBack() },
             onUnavailableAction = context.onUnavailableAction,
+            // 접수가 준비 중일 때의 대체 경로. 문의 작성 화면을 고객센터로 바꿔 back stack이 쌓이지 않게 한다.
+            onCustomerSupportClick = { navigator.replaceTop(EumDestination.CustomerSupport) },
         )
     }
     entry<EumDestination.NoticeDetail> { destination ->

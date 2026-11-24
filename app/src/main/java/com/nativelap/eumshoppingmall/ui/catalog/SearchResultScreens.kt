@@ -42,6 +42,7 @@ import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductRow
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogScreenScaffold
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
+import com.nativelap.eumshoppingmall.ui.common.EumOutlinedButton
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
@@ -212,7 +213,7 @@ private fun CatalogSearchResultHeader(
     }
 }
 
-// A-06z 검색 결과 없음 Figma(180:1681): 가운데 안내와 하단 견적 문의 카드 순서다. 헤더는 기존 CatalogTopBar를 유지한다.
+// A-06z 검색 결과 없음 Figma(180:1681): 가운데 안내와 하단 1:1 문의 카드 순서다. 헤더는 기존 CatalogTopBar를 유지한다.
 // 인기 검색어 행은 Figma에 없어 제거했고, 인기 검색어 보기 버튼이 같은 동작을 맡는다.
 @Composable
 fun CatalogSearchEmptyScreen(
@@ -284,23 +285,25 @@ fun CatalogSearchEmptyScreen(
                         .padding(bottom = EumSpacing.x24)
                         .border(1.dp, MaterialTheme.eumColors.line, RoundedCornerShape(EumRadius.x12))
                         .padding(EumSpacing.x20),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        stringResource(R.string.catalog_search_quote_card_title),
+                        stringResource(R.string.catalog_search_inquiry_card_title),
                         style = MaterialTheme.typography.titleSmall,
+                        textAlign = TextAlign.Center,
                     )
                     Text(
-                        stringResource(R.string.catalog_search_quote_card_description),
+                        stringResource(R.string.catalog_search_inquiry_card_description),
                         modifier = Modifier.padding(top = EumSpacing.x4),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.eumColors.textSecondary,
+                        textAlign = TextAlign.Center,
                     )
-                    OutlinedButton(
-                        onClick = { onEvent(CatalogSearchResultsEvent.QuoteRequestClicked) },
+                    EumOutlinedButton(
+                        onClick = { onEvent(CatalogSearchResultsEvent.PriceInquiryClicked) },
                         modifier = Modifier.fillMaxWidth().padding(top = EumSpacing.x16),
-                        shape = RoundedCornerShape(EumRadius.x8),
                     ) {
-                        Text(stringResource(R.string.catalog_quote_request))
+                        Text(stringResource(R.string.catalog_inquiry_action))
                     }
                 }
             }

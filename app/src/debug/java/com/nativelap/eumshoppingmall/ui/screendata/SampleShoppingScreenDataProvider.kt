@@ -74,13 +74,6 @@ import com.nativelap.eumshoppingmall.ui.orders.viewmodel.RequestableOrderUiModel
 import com.nativelap.eumshoppingmall.ui.productreview.ProductReviewItemUiModel
 import com.nativelap.eumshoppingmall.ui.productreview.ProductReviewUiModel
 import com.nativelap.eumshoppingmall.ui.productreview.ProductReviewWriteUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteCompleteUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteDetailItemUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteHistoryUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryDetailUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryListItemUiModel
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteInquiryStatus
-import com.nativelap.eumshoppingmall.ui.quote.viewmodel.QuoteRequestUiModel
 import com.nativelap.eumshoppingmall.ui.recent.RecentProductGroupUiModel
 import com.nativelap.eumshoppingmall.ui.recent.RecentProductsUiModel
 import com.nativelap.eumshoppingmall.ui.support.CustomerSupportFaqUiModel
@@ -102,7 +95,7 @@ import com.nativelap.eumshoppingmall.ui.support.OneToOneInquiryUiModel
  */
 object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
     override val enablesDebugCartFallback: Boolean = true
-    private const val QUOTE_ONLY_PRODUCT_ID = "sample-belt"
+    private const val UNDISCLOSED_PRICE_PRODUCT_ID = "sample-belt"
 
     // 상위 카테고리(categoryId)와 세부 카테고리(subcategoryId)를 나눠 둔다. 목록 칩은 세부, 홈 베스트 탭은 상위를 쓴다.
     // 베스트 순위는 상품 속성이 아니라 홈 베스트 섹션의 표시 순서로 정한다(목 데이터에는 두지 않는다).
@@ -150,17 +143,17 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             hasOptions = true,
         ),
         CatalogProductUiModel(
-            id = QUOTE_ONLY_PRODUCT_ID,
+            id = UNDISCLOSED_PRICE_PRODUCT_ID,
             name = "전신 안전벨트",
             subtitle = "샘플 브랜드 B",
             brandId = "sample-brand-b",
             brandName = "샘플 브랜드 B",
             safetyCertifications = emptySet(),
             registeredOrder = 8L,
-            price = CatalogPriceUiModel.QuoteRequired,
+            price = CatalogPriceUiModel.Undisclosed,
             specLabel = "1개",
             shippingLabel = "배송 문의",
-            badgeLabel = "견적 상품",
+            badgeLabel = "가격 미표시",
             categoryId = "protective",
             subcategoryId = "belt",
             hasOptions = false,
@@ -284,10 +277,10 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             brandName = "샘플 브랜드 B",
             safetyCertifications = emptySet(),
             registeredOrder = 1L,
-            price = CatalogPriceUiModel.QuoteRequired,
+            price = CatalogPriceUiModel.Undisclosed,
             specLabel = "1개",
             shippingLabel = "배송 문의",
-            badgeLabel = "견적 상품",
+            badgeLabel = "가격 미표시",
             categoryId = "custom",
             subcategoryId = "sign",
             hasOptions = false,
@@ -320,7 +313,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
         "sign" to "맞춤 표지판",
     )
 
-    // 배송 문구는 무료배송 기준 규칙(ShippingPolicy)에서만 만든다. 견적 상품은 기존 "배송 문의"를 그대로 둔다.
+    // 배송 문구는 무료배송 기준 규칙(ShippingPolicy)에서만 만든다. 가격 미표시 상품은 기존 "배송 문의"를 그대로 둔다.
     // 당일 출고 문구는 운영 조건이 확정될 때까지 사용자 화면에 노출하지 않는다(A). 리소스·샘플 값은 되살리기 쉽게 남긴다.
     private fun withShippingPolicy(product: CatalogProductUiModel): CatalogProductUiModel {
         val price = product.price as? CatalogPriceUiModel.Available ?: return product
@@ -381,10 +374,6 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
         name = "샘플 사용자",
         email = "sample@example.com",
         phoneNumber = "010-0000-0000",
-        companyName = "샘플 건설",
-        businessRegistrationNumber = "000-00-00000",
-        department = "구매팀",
-        isBusinessMember = true,
         isSmsConsentEnabled = false,
         isEmailConsentEnabled = false,
     )
@@ -428,7 +417,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             categoryChips = listOf(
                 CatalogCategoryChipUiModel(id = CATALOG_ALL_CATEGORY_ID, label = "전체", count = products.size),
             ) + subcategoryChips,
-            sortLabel = "인기순",
+            sortLabel = "추천순",
             products = products,
         )
     }
@@ -447,14 +436,14 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             filters = listOf("전체", "개인보호장비"),
             selectedFilter = "전체",
             resultCount = matchedProducts.size,
-            sortLabel = "인기순",
+            sortLabel = "추천순",
             products = matchedProducts,
         )
     }
 
     override fun productDetail(productId: String): CatalogProductDetailUiModel {
         val product = sampleCatalogProducts.firstOrNull { it.id == productId } ?: sampleProducts.first()
-        val isQuoteOnly = product.price is CatalogPriceUiModel.QuoteRequired
+        val isPriceUndisclosed = product.price is CatalogPriceUiModel.Undisclosed
         return CatalogProductDetailUiModel(
             product = product,
             galleryImageResIds = listOf(null, null, null),
@@ -473,8 +462,8 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
                         id = "size",
                         label = "사이즈",
                         options = listOf(
-                            CatalogOptionUiModel("size-l", "사이즈 L", 1, if (isQuoteOnly) null else "₩0", unitPriceWon = if (isQuoteOnly) null else 0L),
-                            CatalogOptionUiModel("size-xl", "사이즈 XL", 1, if (isQuoteOnly) null else "₩0", unitPriceWon = if (isQuoteOnly) null else 0L),
+                            CatalogOptionUiModel("size-l", "사이즈 L", 1, if (isPriceUndisclosed) null else "₩0", unitPriceWon = if (isPriceUndisclosed) null else 0L),
+                            CatalogOptionUiModel("size-xl", "사이즈 XL", 1, if (isPriceUndisclosed) null else "₩0", unitPriceWon = if (isPriceUndisclosed) null else 0L),
                         ),
                     ),
                 )
@@ -500,9 +489,9 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
                 name = "전신 안전벨트",
                 optionLabel = "사이즈 XL",
                 quantity = 2,
-                unitPriceLabel = "가격 문의",
-                totalPriceLabel = "가격 문의",
-                type = CartItemType.QuoteRequired,
+                unitPriceLabel = "가격 미표시",
+                totalPriceLabel = "가격 미표시",
+                type = CartItemType.PriceUndisclosed,
             ),
         ),
         productAmountLabel = "₩18,000",
@@ -567,7 +556,6 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
         ),
         orderRows = listOf(
             AccountMenuRowUiModel("returns", "취소·반품·교환"),
-            AccountMenuRowUiModel("quotes", "견적 문의 내역"),
         ),
         supportRows = listOf(
             AccountMenuRowUiModel("inquiries", "1:1 문의 내역"),
@@ -575,45 +563,6 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             AccountMenuRowUiModel("notices", "공지사항"),
         ),
         recentProducts = sampleProducts.take(2).map { it.name },
-    )
-
-    override fun quoteRequest(productId: String?): QuoteRequestUiModel = QuoteRequestUiModel(
-        products = sampleProducts.filter { it.id == productId },
-    )
-
-    override fun quoteComplete(): QuoteCompleteUiModel = QuoteCompleteUiModel(
-        inquiryNumber = "Q-SAMPLE-0001",
-        responseTimeLabel = "영업일 기준 1~2일",
-        requestTypeLabel = "맞춤 제작",
-        companyName = "샘플 건설",
-        contactName = "샘플 사용자",
-        productsSummary = "전신 안전벨트 외",
-        preferredDeliveryDate = "협의",
-    )
-
-    override fun quoteHistory(): QuoteHistoryUiModel = QuoteHistoryUiModel(
-        inquiries = listOf(
-            QuoteInquiryListItemUiModel(
-                id = "quote-1",
-                dateLabel = "샘플 일자",
-                inquiryNumber = "Q-SAMPLE-0001",
-                title = "안전벨트 대량 구매 문의",
-                productsSummary = "전신 안전벨트 외 1건",
-                status = QuoteInquiryStatus.Consulting,
-            ),
-        ),
-    )
-
-    override fun quoteInquiryDetail(inquiryId: String): QuoteInquiryDetailUiModel = QuoteInquiryDetailUiModel(
-        title = "안전벨트 대량 구매 문의",
-        dateLabel = "샘플 일자",
-        inquiryNumber = "Q-SAMPLE-0001",
-        status = QuoteInquiryStatus.Consulting,
-        companyName = "샘플 건설",
-        contactName = "샘플 사용자",
-        contactPhone = "010-0000-0000",
-        contactEmail = "sample@example.com",
-        items = listOf(QuoteDetailItemUiModel("item-1", "전신 안전벨트", "20개")),
     )
 
     override fun orderHistory(): OrderHistoryUiModel = OrderHistoryUiModel(
@@ -687,12 +636,12 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
         ),
         InquiryHistoryItemUiModel(
             id = "q2",
-            title = "견적서 발급 방법을 알고 싶습니다",
-            categoryLabel = "견적 문의",
+            title = "가격이 표시되지 않은 상품 가격을 알고 싶습니다",
+            categoryLabel = "상품 문의",
             dateLabel = "2026.11.04",
             status = InquiryStatus.Answered,
-            body = "사업자 견적서 발급 절차 문의",
-            answer = "견적 문의 화면에서 사업자 정보를 입력하면 발급됩니다.",
+            body = "가격 미표시 상품 가격 문의",
+            answer = "담당자가 확인한 뒤 안내드립니다.",
         ),
     )
 
@@ -923,7 +872,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
         otherBrands = sampleBrands.filterNot { brand -> brand.id == brandId },
         selectedCategory = "전체",
         categories = listOf("전체", "안전모"),
-        sortLabel = "인기순",
+        sortLabel = "추천순",
     )
 
     override fun productReviews(productId: String): ProductReviewUiModel = ProductReviewUiModel(
@@ -970,7 +919,7 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
             imageDescription = product.imageDescription,
             isSoldOut = product.isSoldOut,
             isPurchaseUnavailable = price == null,
-            isQuoteTarget = product.price is CatalogPriceUiModel.QuoteRequired,
+            isPriceUndisclosed = product.price is CatalogPriceUiModel.Undisclosed,
             categoryId = product.categoryId,
             badgeLabel = product.badgeLabel,
             unitPriceWon = price?.unitPriceWon,

@@ -1,13 +1,11 @@
 package com.nativelap.eumshoppingmall.navigation
 
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -137,23 +135,10 @@ class EumMainNavigatorTest {
     }
 
     @Test
-    fun quoteCompleteRemovesQuoteFormButKeepsPreviousScreen() {
-        navigator.push(EumDestination.ProductDetail("p1"))
-        navigator.push(EumDestination.QuoteRequest("p1"))
-
-        navigator.popWhileAndPush(EumDestination.QuoteComplete) { navKey -> navKey is EumDestination.QuoteRequest }
-
-        assertEquals(
-            listOf(EumDestination.Home, EumDestination.ProductDetail("p1"), EumDestination.QuoteComplete),
-            stackOf(MainNavigationTab.Home),
-        )
-    }
-
-    @Test
     fun popWhileAndPushNeverRemovesTabRoot() {
-        navigator.popWhileAndPush(EumDestination.QuoteComplete) { true }
+        navigator.popWhileAndPush(EumDestination.OrderComplete) { true }
 
-        assertEquals(listOf(EumDestination.Home, EumDestination.QuoteComplete), stackOf(MainNavigationTab.Home))
+        assertEquals(listOf(EumDestination.Home, EumDestination.OrderComplete), stackOf(MainNavigationTab.Home))
     }
 
     @Test
@@ -186,12 +171,11 @@ class EumMainNavigatorTest {
     }
 
     @Test
-    fun continueShoppingAfterQuoteCompleteInSearchTabOpensHomeRoot() {
+    fun closingInquiryFromSearchTabOpensHomeRoot() {
         navigator.push(EumDestination.ProductDetail("p1"))
         navigator.navigateToTab(MainNavigationTab.Search)
         navigator.push(EumDestination.SearchResults("없는 상품"))
-        navigator.push(EumDestination.QuoteRequest())
-        navigator.popWhileAndPush(EumDestination.QuoteComplete) { navKey -> navKey is EumDestination.QuoteRequest }
+        navigator.push(EumDestination.InquiryWrite("없는 상품"))
 
         navigator.closeTopAndOpenTabRoot(MainNavigationTab.Home)
 
@@ -204,49 +188,32 @@ class EumMainNavigatorTest {
     }
 
     @Test
-    fun popIfTopSecondCallDoesNotCloseQuoteForm() {
-        navigator.push(EumDestination.QuoteRequest())
-        navigator.push(EumDestination.QuoteProductPicker)
+    fun popIfTopSecondCallDoesNotCloseTheScreenBelow() {
+        navigator.push(EumDestination.ProductDetail("p1"))
+        navigator.push(EumDestination.InquiryWrite())
 
-        val isFirstPopped = navigator.popIfTop(EumDestination.QuoteProductPicker)
-        val isSecondPopped = navigator.popIfTop(EumDestination.QuoteProductPicker)
+        val isFirstPopped = navigator.popIfTop(EumDestination.InquiryWrite())
+        val isSecondPopped = navigator.popIfTop(EumDestination.InquiryWrite())
 
         assertTrue(isFirstPopped)
         assertFalse(isSecondPopped)
-        assertEquals(listOf(EumDestination.Home, EumDestination.QuoteRequest()), stackOf(MainNavigationTab.Home))
+        assertEquals(listOf(EumDestination.Home, EumDestination.ProductDetail("p1")), stackOf(MainNavigationTab.Home))
     }
 
     @Test
     fun popIfTopReturnsFalseWhenAnotherKeyIsOnTop() {
-        navigator.push(EumDestination.QuoteRequest())
+        navigator.push(EumDestination.ProductDetail("p1"))
 
-        val isPopped = navigator.popIfTop(EumDestination.QuoteProductPicker)
+        val isPopped = navigator.popIfTop(EumDestination.InquiryWrite())
 
         assertFalse(isPopped)
-        assertEquals(listOf(EumDestination.Home, EumDestination.QuoteRequest()), stackOf(MainNavigationTab.Home))
+        assertEquals(listOf(EumDestination.Home, EumDestination.ProductDetail("p1")), stackOf(MainNavigationTab.Home))
     }
 
     @Test
     fun popIfTopNeverRemovesTabRoot() {
         assertFalse(navigator.popIfTop(EumDestination.Home))
         assertEquals(listOf(EumDestination.Home), stackOf(MainNavigationTab.Home))
-    }
-
-    @Test
-    fun quoteProductPickerReturnsSelectedIdToFormBelow() {
-        val quoteProductSelection = EumQuoteProductSelection(mutableStateOf(null))
-        navigator.navigateToTab(MainNavigationTab.Cart)
-        navigator.push(EumDestination.QuoteRequest())
-        navigator.push(EumDestination.QuoteProductPicker)
-
-        if (navigator.popIfTop(EumDestination.QuoteProductPicker)) {
-            quoteProductSelection.select("p2")
-        }
-
-        assertEquals(listOf(EumDestination.Cart, EumDestination.QuoteRequest()), stackOf(MainNavigationTab.Cart))
-        assertEquals("p2", quoteProductSelection.pendingProductId)
-        quoteProductSelection.consume()
-        assertNull(quoteProductSelection.pendingProductId)
     }
 
     @Test
@@ -268,11 +235,11 @@ class EumMainNavigatorTest {
     @Test
     fun completeLoginPopsLoginAndOpensPendingDestination() {
         navigator.navigateToTab(MainNavigationTab.MyPage)
-        navigator.push(EumDestination.Login(pendingDestination = EumDestination.QuoteHistory))
+        navigator.push(EumDestination.Login(pendingDestination = EumDestination.OrderHistory))
 
         navigator.completeLogin()
 
-        assertEquals(listOf(EumDestination.MyPage, EumDestination.QuoteHistory), stackOf(MainNavigationTab.MyPage))
+        assertEquals(listOf(EumDestination.MyPage, EumDestination.OrderHistory), stackOf(MainNavigationTab.MyPage))
     }
 
     @Test
@@ -310,23 +277,23 @@ class EumMainNavigatorTest {
     @Test
     fun completeLoginPopsEveryAuthScreenOnTopAndOpensBottomLoginPending() {
         navigator.navigateToTab(MainNavigationTab.Cart)
-        navigator.push(EumDestination.Login(pendingDestination = EumDestination.QuoteHistory))
+        navigator.push(EumDestination.Login(pendingDestination = EumDestination.OrderHistory))
         navigator.push(EumDestination.Login(pendingDestination = EumDestination.Coupons))
 
         navigator.completeLogin()
 
-        assertEquals(listOf(EumDestination.Cart, EumDestination.QuoteHistory), stackOf(MainNavigationTab.Cart))
+        assertEquals(listOf(EumDestination.Cart, EumDestination.OrderHistory), stackOf(MainNavigationTab.Cart))
     }
 
     @Test
     fun completeLoginTwiceOpensPendingDestinationOnlyOnce() {
         navigator.navigateToTab(MainNavigationTab.Cart)
-        navigator.push(EumDestination.Login(pendingDestination = EumDestination.QuoteHistory))
+        navigator.push(EumDestination.Login(pendingDestination = EumDestination.OrderHistory))
 
         navigator.completeLogin()
         navigator.completeLogin()
 
-        assertEquals(listOf(EumDestination.Cart, EumDestination.QuoteHistory), stackOf(MainNavigationTab.Cart))
+        assertEquals(listOf(EumDestination.Cart, EumDestination.OrderHistory), stackOf(MainNavigationTab.Cart))
     }
 
     @Test

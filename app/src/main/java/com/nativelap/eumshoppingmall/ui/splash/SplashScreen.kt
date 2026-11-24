@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.EumBrandLogo
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -58,12 +59,7 @@ fun SplashScreen(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x16)) {
-                Text(
-                    text = stringResource(R.string.app_name),
-                    style = EumTypographyTokens.webDisplayL,
-                    color = MaterialTheme.eumColors.inverse,
-                    maxLines = 1,
-                )
+                EumBrandLogo(size = 96.dp)
                 Text(
                     text = stringResource(R.string.splash_tagline),
                     style = EumTypographyTokens.webBodyXl,

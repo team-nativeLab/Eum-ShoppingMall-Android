@@ -15,9 +15,4 @@ class OneToOneInquiryContentTest {
     fun contentWithinLimitIsKept() {
         assertEquals("문의 내용입니다.", limitOneToOneInquiryContent("문의 내용입니다."))
     }
-
-    @Test
-    fun submitShowsUnavailableNoticeInsteadOfSaving() {
-        assertEquals(OneToOneInquirySubmitOutcome.UnavailableNotice, resolveOneToOneInquirySubmit())
-    }
 }

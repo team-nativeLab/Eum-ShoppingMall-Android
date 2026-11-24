@@ -45,7 +45,7 @@ private fun InquiryHistoryPreview() = EumShoppingMallTheme {
     InquiryHistoryScreen(
         listOf(
             InquiryHistoryItemUiModel("q1", "현장 납품 가능 일정을 알고 싶습니다", "배송 문의", "2026.11.05", InquiryStatus.Waiting, "경기도 현장 납품 일정 문의"),
-            InquiryHistoryItemUiModel("q2", "견적서 발급 방법을 알고 싶습니다", "견적 문의", "2026.11.04", InquiryStatus.Answered, "사업자 견적서 발급 절차 문의"),
+            InquiryHistoryItemUiModel("q2", "가격이 표시되지 않은 상품 가격을 알고 싶습니다", "상품 문의", "2026.11.04", InquiryStatus.Answered, "가격 미표시 상품 가격 문의"),
             InquiryHistoryItemUiModel("q3", "배송지 변경이 가능한가요?", "배송 문의", "2026.11.02", InquiryStatus.Waiting, "출고 전 배송지 변경 요청"),
             InquiryHistoryItemUiModel("q4", "결제 수단 변경 방법이 궁금합니다", "결제 문의", "2026.11.01", InquiryStatus.Answered, "카드 결제 변경 방법 문의"),
         ),
@@ -95,7 +95,7 @@ private fun NotificationPreview() = EumShoppingMallTheme {
                 "오늘",
                 listOf(
                     NotificationItemUiModel("n1", "배송", "배송이 시작되었습니다", "주문번호 0000000000 상품이 출발했습니다.", "5분 전", true, com.nativelap.eumshoppingmall.R.drawable.ic_truck),
-                    NotificationItemUiModel("n2", "견적 답변", "견적서가 도착했습니다", "'견적 문의 제목'에 견적서가 등록되었습니다.", "10분 전", true, com.nativelap.eumshoppingmall.R.drawable.ic_file_text),
+                    NotificationItemUiModel("n2", "주문", "결제가 완료되었습니다", "주문번호 0000000000 결제가 완료되었습니다.", "10분 전", true, com.nativelap.eumshoppingmall.R.drawable.ic_file_text),
                     NotificationItemUiModel("n3", "문의 답변", "문의에 답변이 등록되었습니다", "'문의 제목'", "20분 전", false, com.nativelap.eumshoppingmall.R.drawable.ic_message_square_text),
                 ),
             ),
@@ -131,7 +131,7 @@ private fun CustomerSupportPreview() = EumShoppingMallTheme {
                 CustomerSupportFaqUiModel("f2", "가격 문의 상품은 어떻게 구매하나요?", "답변 내용"),
                 CustomerSupportFaqUiModel("f3", "세금계산서는 어떻게 발급받나요?", "답변 내용"),
                 CustomerSupportFaqUiModel("f4", "교환·반품은 어떻게 신청하나요?", "답변 내용"),
-                CustomerSupportFaqUiModel("f5", "사업자 회원으로 전환할 수 있나요?", "답변 내용"),
+                CustomerSupportFaqUiModel("f5", "세금계산서는 어떻게 발급받나요?", "답변 내용"),
             ),
             expandedFaqIds = setOf("f1"),
         ),
@@ -161,8 +161,8 @@ private const val PREVIEW_CLAUSE_SECOND_ITEM = "② 항 내용이 들어갑니�
 // Figma 약관 조항 제목 24개(제1조~제24조). 목차 개수는 조항 수와 같아야 합니다.
 private val previewTermsArticleTitles = listOf(
     "제1조(목적)", "제2조(정의)", "제3조(약관 등의 명시와 설명 및 개정)", "제4조(서비스의 제공 및 변경)", "제5조(서비스의 중단)",
-    "제6조(회원가입)", "제7조(사업자 회원)", "제8조(회원 탈퇴 및 자격 상실 등)", "제9조(회원에 대한 통지)",
-    "제10조(구매신청)", "제11조(계약의 성립)", "제12조(지급방법)", "제13조(가격 문의 상품과 견적 문의)", "제14조(세금계산서 및 현금영수증)",
+    "제6조(회원가입)", "제7조(회원 정보의 변경)", "제8조(회원 탈퇴 및 자격 상실 등)", "제9조(회원에 대한 통지)",
+    "제10조(구매신청)", "제11조(계약의 성립)", "제12조(지급방법)", "제13조(가격 문의 상품과 1:1 문의)", "제14조(세금계산서 및 현금영수증)",
     "제15조(재화 등의 공급)", "제16조(환급)", "제17조(청약철회 등)", "제18조(청약철회 등의 효과)",
     "제19조(개인정보보호)", "제20조(회사의 의무)", "제21조(회원의 아이디 및 비밀번호에 대한 의무)", "제22조(이용자의 의무)", "제23조(분쟁해결)", "제24조(재판권 및 준거법)",
 )

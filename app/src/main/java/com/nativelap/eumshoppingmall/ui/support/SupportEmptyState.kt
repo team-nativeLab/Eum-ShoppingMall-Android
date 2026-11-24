@@ -28,7 +28,7 @@ import com.nativelap.eumshoppingmall.ui.theme.eumColors
 internal fun SupportEmptyState(
     @DrawableRes iconRes: Int,
     title: String,
-    body: String,
+    body: String?,
     topPadding: Dp = EumSpacing.x64,
     modifier: Modifier = Modifier,
 ) {
@@ -60,12 +60,14 @@ internal fun SupportEmptyState(
             color = MaterialTheme.eumColors.textPrimary,
             textAlign = TextAlign.Center,
         )
-        Text(
-            text = body,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.eumColors.textSecondary,
-            textAlign = TextAlign.Center,
-        )
+        if (body != null) {
+            Text(
+                text = body,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.eumColors.textSecondary,
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
 

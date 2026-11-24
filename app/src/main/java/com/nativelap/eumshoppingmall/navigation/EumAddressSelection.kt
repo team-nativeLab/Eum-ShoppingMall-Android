@@ -10,7 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 /**
  * 주소 검색(A-46)에서 고른 주소 ID를 배송지(A-08)로 돌려주기 위한 한 칸짜리 보관소.
  *
- * [EumQuoteProductSelection]과 같은 이유로 NavKey나 back stack에 값을 싣지 않는다. 주소 문자열은 개인정보라
+ * NavKey나 back stack에 값을 싣지 않는다. 주소 문자열은 개인정보라
  * rememberSaveable에 넣지 않고 ID 하나만 보관하며, 배송지 Route가 ID를 표시용 주소로 바꾼 뒤 [consume]으로 비운다.
  * 주소 검색은 항상 배송지 바로 위에 push되므로 칸이 차 있는 동안 받을 화면은 그 배송지 하나뿐이다.
  */

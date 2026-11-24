@@ -18,7 +18,7 @@ import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 private val sampleProducts = listOf(
     CatalogProductUiModel("helmet", "안전모 제품명", CatalogPriceUiModel.Available("₩00,000"), subtitle = "평점 없음", isFavorite = true),
-    CatalogProductUiModel("gloves", "작업용 보호 장갑 제품명", CatalogPriceUiModel.QuoteRequired, subtitle = "평점 없음", badgeLabel = "견적 상품", isFavorite = true),
+    CatalogProductUiModel("gloves", "작업용 보호 장갑 제품명", CatalogPriceUiModel.Undisclosed, subtitle = "평점 없음", badgeLabel = "가격 미표시", isFavorite = true),
     CatalogProductUiModel("boots", "안전화", CatalogPriceUiModel.Available("₩00,000"), isFavorite = true, isSoldOut = true),
     CatalogProductUiModel("vest", "안전 조끼", CatalogPriceUiModel.Available("₩00,000"), isFavorite = true),
 )

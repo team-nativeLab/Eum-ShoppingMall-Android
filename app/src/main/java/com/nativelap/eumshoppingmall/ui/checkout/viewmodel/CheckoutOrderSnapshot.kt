@@ -114,12 +114,12 @@ fun checkoutOrderSnapshotFromCartItems(items: List<CartItemUiModel>): CheckoutOr
     )
 }
 
-/** Null price or arithmetic overflow stays visibly unpriced; invalid/quote-only lines are rejected. */
+/** Null price or arithmetic overflow stays visibly unpriced; invalid or price-undisclosed lines are rejected (they are guided to a 1:1 inquiry instead). */
 fun checkoutOrderSnapshot(
     lines: List<CartLine>,
     source: CheckoutOrderSource,
 ): CheckoutOrderSnapshot? {
-    if (lines.isEmpty() || lines.any { it.isQuoteRequired || it.quantity <= 0 }) return null
+    if (lines.isEmpty() || lines.any { it.isPriceUndisclosed || it.quantity <= 0 }) return null
     val mapped = lines.map { line ->
         val total = if (line.productUnitPriceWon == null || line.optionExtraWon == null || line.productUnitPriceWon < 0L || line.optionExtraWon < 0L) {
             null

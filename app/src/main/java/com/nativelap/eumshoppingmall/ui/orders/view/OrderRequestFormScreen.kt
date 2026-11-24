@@ -54,6 +54,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.EumSegmentedControl
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderProductThumbnail
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestCollectionMethod
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestFormScreenEvent
@@ -81,7 +82,13 @@ fun OrderRequestFormScreen(uiModel: OrderRequestFormUiModel, onEvent: (OrderRequ
             if (!uiModel.isOrderValid) {
                 item { Text(stringResource(R.string.request_invalid_order_notice), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.eumColors.textSecondary) }
             } else {
-                item { RequestTypeSegmentedControl(uiModel.type) { onEvent(OrderRequestFormScreenEvent.TypeSelected(it)) } }
+                item {
+                    EumSegmentedControl(
+                        labels = OrderRequestType.entries.map { type -> requestTypeLabel(type) },
+                        selectedIndex = uiModel.type.ordinal,
+                        onSelected = { index -> onEvent(OrderRequestFormScreenEvent.TypeSelected(OrderRequestType.entries[index])) },
+                    )
+                }
                 item { ProductSelectionSection(uiModel.products, onEvent) }
                 item { ReasonSection(uiModel, onEvent) }
                 item { PhotoSection(uiModel, onEvent) }
@@ -92,31 +99,6 @@ fun OrderRequestFormScreen(uiModel: OrderRequestFormUiModel, onEvent: (OrderRequ
                     item { CollectionSection(uiModel, onEvent) }
                 }
                 item { CostSection(uiModel) }
-            }
-        }
-    }
-}
-
-@Composable
-private fun RequestTypeSegmentedControl(selectedType: OrderRequestType, onTypeSelected: (OrderRequestType) -> Unit) {
-    Row(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.textPrimary, RoundedCornerShape(EumRadius.x8)).padding(EumSpacing.x4)) {
-        OrderRequestType.entries.forEach { type ->
-            val isSelected = type == selectedType
-            Box(
-                Modifier
-                    .weight(1f)
-                    .heightIn(min = 48.dp)
-                    .clip(RoundedCornerShape(EumRadius.x6))
-                    .background(if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface)
-                    .clickable(role = Role.RadioButton, onClick = { onTypeSelected(type) })
-                    .semantics { selected = isSelected },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    requestTypeLabel(type),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = if (isSelected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textPrimary,
-                )
             }
         }
     }

@@ -113,10 +113,6 @@ class AccountUiSemanticsTest {
         name = "홍길동",
         email = "example@email.com",
         phoneNumber = "010-0000-0000",
-        companyName = "회사명",
-        businessRegistrationNumber = "000-00-00000",
-        department = "안전관리팀",
-        isBusinessMember = true,
         isSmsConsentEnabled = true,
         isEmailConsentEnabled = false,
     )

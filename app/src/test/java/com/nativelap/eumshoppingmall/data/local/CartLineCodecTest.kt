@@ -6,7 +6,7 @@ import org.junit.Test
 class CartLineCodecTest {
     @Test
     fun encodedLinesDecodeToTheSameValues() {
-        val lines = listOf(line(productId = "a", optionId = "o1"), line(productId = "b", optionId = "o2", optionExtraWon = null, isQuoteRequired = true))
+        val lines = listOf(line(productId = "a", optionId = "o1"), line(productId = "b", optionId = "o2", optionExtraWon = null, isPriceUndisclosed = true))
 
         assertEquals(lines, decodeCartLines(encodeCartLines(lines)))
     }
@@ -50,6 +50,20 @@ class CartLineCodecTest {
 
         assertEquals(5, lines.totalQuantity())
         assertEquals(0, emptyList<CartLine>().totalQuantity())
+    }
+
+    @Test
+    fun mergeCapsQuantityAtLineLimit() {
+        val merged = listOf(line(quantity = 998)).mergedWith(listOf(line(quantity = 5)))
+
+        assertEquals(MAX_CART_LINE_QUANTITY, merged.single().quantity)
+    }
+
+    @Test
+    fun storedQuantityAboveLimitIsReadAtTheLimit() {
+        val stored = "p|%EC%83%81%ED%92%88|o|%EC%98%B5%EC%85%98|5000||%EA%B0%80%EA%B2%A9|0|1000"
+
+        assertEquals(MAX_CART_LINE_QUANTITY, decodeCartLines(stored).single().quantity)
     }
 
     @Test
@@ -110,6 +124,30 @@ class CartLineCodecTest {
         assertEquals(null, old.productUnitPriceWon)
         assertEquals(2, old.quantity)
         assertEquals(500L, old.optionExtraWon)
+    }
+
+    @Test
+    fun storedLegacyFlaggedLinesReadAsPriceUndisclosedLinesWithoutUnitPrice() {
+        // 플래그 필드(8번째)가 1인 기존 저장 줄은 가격 미표시 문의 줄로 읽는다. 단가가 저장돼 있어도 쓰지 않는다.
+        val eightFields = "p|%EC%83%81%ED%92%88|o|%EC%98%B5%EC%85%98|2||%EA%B0%80%EA%B2%A9|1"
+        val nineFields = "p|%EC%83%81%ED%92%88|o|%EC%98%B5%EC%85%98|2||%EA%B0%80%EA%B2%A9|1|18000"
+
+        val fromEight = decodeCartLines(eightFields).single()
+        val fromNine = decodeCartLines(nineFields).single()
+
+        assertEquals(true, fromEight.isPriceUndisclosed)
+        assertEquals(true, fromNine.isPriceUndisclosed)
+        assertEquals(null, fromNine.productUnitPriceWon)
+        assertEquals(2, fromNine.quantity)
+    }
+
+    @Test
+    fun priceUndisclosedLineKeepsNineFieldFormatWhenRewritten() {
+        val rewritten = encodeCartLines(listOf(line(isPriceUndisclosed = true)))
+
+        assertEquals(9, rewritten.split("|").size)
+        assertEquals("1", rewritten.split("|")[7])
+        assertEquals(true, decodeCartLines(rewritten).single().isPriceUndisclosed)
     }
 
     @Test
@@ -248,7 +286,7 @@ class CartLineCodecTest {
         val (raw, _) = replaceCartLineRaw(listOf(broken, encodeCartLines(listOf(source, existing))).joinToString("\n"), source.lineId(), existing)
 
         assertEquals(broken, raw.lineSequence().first())
-        assertEquals(Int.MAX_VALUE, decodeCartLines(raw).single().quantity)
+        assertEquals(MAX_CART_LINE_QUANTITY, decodeCartLines(raw).single().quantity)
     }
 
     private fun line(
@@ -256,7 +294,7 @@ class CartLineCodecTest {
         optionId: String = "o",
         quantity: Int = 1,
         optionExtraWon: Long? = 0L,
-        isQuoteRequired: Boolean = false,
+        isPriceUndisclosed: Boolean = false,
     ): CartLine = CartLine(
         productId = productId,
         productName = "상품 $productId",
@@ -265,6 +303,6 @@ class CartLineCodecTest {
         quantity = quantity,
         optionExtraWon = optionExtraWon,
         productPriceLabel = "₩18,000",
-        isQuoteRequired = isQuoteRequired,
+        isPriceUndisclosed = isPriceUndisclosed,
     )
 }

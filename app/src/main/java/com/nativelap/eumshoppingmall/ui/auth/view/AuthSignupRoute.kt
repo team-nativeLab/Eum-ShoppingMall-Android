@@ -1,12 +1,16 @@
 package com.nativelap.eumshoppingmall.ui.auth.view
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -14,25 +18,27 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.AccountService
 import com.nativelap.eumshoppingmall.ui.auth.AccountServiceResult
-import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthMemberType
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthPhoneVerificationUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthSignupUiModel
+import com.nativelap.eumshoppingmall.ui.auth.viewmodel.SignupInputs
+import com.nativelap.eumshoppingmall.ui.auth.viewmodel.SignupStepRules
+import com.nativelap.eumshoppingmall.ui.common.EumBottomBarMetrics
 import com.nativelap.eumshoppingmall.ui.common.EumSnackbarHost
+import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
-private const val MIN_PASSWORD_LENGTH = 8
-
 /**
- * 회원가입(A-14). 이름·연락처·이메일·사업자 정보는 개인정보라 저장 상태(rememberSaveable)에 넣지 않는다.
+ * 회원가입(A-14). 이름·연락처·이메일은 개인정보라 저장 상태(rememberSaveable)에 넣지 않는다.
  *
  * 서버 호출은 [accountService]에 맡기고 가입이 성공하면 [onSignupSuccess]를 부른다. 비밀번호·인증번호는 저장 상태나 NavKey에
- * 넣지 않고 화면을 떠날 때 지운다(지우기는 참조를 줄이는 최선 노력이다). 사업자 인증·등록증 업로드는 연동 전이라 안내만 한다.
+ * 넣지 않고 화면을 떠날 때 지운다(지우기는 참조를 줄이는 최선 노력이다).
  */
 @Composable
 fun AuthSignupRoute(
@@ -48,7 +54,9 @@ fun AuthSignupRoute(
     val preparingMessage = stringResource(R.string.flow_service_preparing)
     val emailInvalidMessage = stringResource(R.string.flow_signup_email_invalid)
     val codeInvalidMessage = stringResource(R.string.flow_signup_code_invalid)
-    var memberType by rememberSaveable { mutableStateOf(AuthMemberType.PERSONAL) }
+    // 가입 단계는 입력값(remember)과 같은 생존 범위다. 회전·복원으로 입력이 비면 단계도 처음으로 돌아간다.
+    var step by remember { mutableIntStateOf(0) }
+    val focusManager = LocalFocusManager.current
     var email by remember { mutableStateOf("") }
     var isEmailAvailable by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
@@ -56,14 +64,10 @@ fun AuthSignupRoute(
     var isCodeRequested by remember { mutableStateOf(false) }
     var isPhoneVerified by remember { mutableStateOf(false) }
     var isCodeInvalid by remember { mutableStateOf(false) }
-    var isTermsChecked by rememberSaveable { mutableStateOf(false) }
-    var isPrivacyChecked by rememberSaveable { mutableStateOf(false) }
-    var isMarketingChecked by rememberSaveable { mutableStateOf(false) }
-    var registrationNumber by remember { mutableStateOf("") }
-    var companyName by remember { mutableStateOf("") }
-    var representativeName by remember { mutableStateOf("") }
-    var industry by remember { mutableStateOf("") }
-    var taxEmail by remember { mutableStateOf("") }
+    // 동의 체크도 입력값·단계와 같은 remember 범위다. 회전 뒤 입력은 비었는데 동의만 남는 불일치를 막는다.
+    var isTermsChecked by remember { mutableStateOf(false) }
+    var isPrivacyChecked by remember { mutableStateOf(false) }
+    var isMarketingChecked by remember { mutableStateOf(false) }
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
     var isConfirmationVisible by rememberSaveable { mutableStateOf(false) }
     var isSubmitting by remember { mutableStateOf(false) }
@@ -85,24 +89,29 @@ fun AuthSignupRoute(
         }
     }
 
-    fun isPasswordAcceptable(candidate: CharArray): Boolean = candidate.size >= MIN_PASSWORD_LENGTH &&
-        candidate.any(Char::isLetter) &&
-        candidate.any(Char::isDigit)
+    // 콜백에서도 최신 상태를 읽도록 함수로 둔다. 검증 규칙은 SignupStepRules가 정한다.
+    fun currentInputs() = SignupInputs(
+        email = email,
+        isEmailAvailable = isEmailAvailable,
+        name = name,
+        password = password,
+        passwordConfirmation = passwordConfirmation,
+        isPhoneVerified = isPhoneVerified,
+        isTermsChecked = isTermsChecked,
+        isPrivacyChecked = isPrivacyChecked,
+    )
 
-    val isBusinessInformationReady = memberType == AuthMemberType.PERSONAL ||
-        (registrationNumber.isNotBlank() && companyName.isNotBlank() && representativeName.isNotBlank())
-
-    // 콜백에서도 최신 상태를 읽도록 함수로 둔다.
-    fun isReadyToSubmit(): Boolean = isEmailAvailable &&
-        email.isNotBlank() &&
-        isPasswordAcceptable(password) &&
-        password.contentEquals(passwordConfirmation) &&
-        name.isNotBlank() &&
-        isPhoneVerified &&
-        isTermsChecked &&
-        isPrivacyChecked &&
-        isBusinessInformationReady
+    fun isReadyToSubmit(): Boolean = SignupStepRules.isReadyToSubmit(currentInputs())
     val isSubmitEnabled = isReadyToSubmit() && !isSubmitting
+
+    fun isStepValid(targetStep: Int): Boolean = SignupStepRules.isStepValid(targetStep, currentInputs())
+
+    // 단계를 옮길 때 포커스를 풀어 키보드를 닫는다. 첫 단계에서 뒤로 가면 화면을 닫는다.
+    fun goToPreviousStepOrClose() {
+        focusManager.clearFocus()
+        if (step > 0) step -= 1 else onBackClick()
+    }
+    BackHandler(enabled = step > 0) { goToPreviousStepOrClose() }
 
     // 서비스 호출을 한 곳에서 감싸 취소만 전파하고, 그 밖의 실패는 ServiceUnavailable로 본다.
     fun runAccountCall(call: suspend () -> AccountServiceResult, onResult: (AccountServiceResult) -> Unit) {
@@ -145,7 +154,8 @@ fun AuthSignupRoute(
     Box {
         AuthSignupScreen(
             uiModel = AuthSignupUiModel(
-                memberType = memberType,
+                step = step,
+                isStepValid = isStepValid(step),
                 email = email,
                 isEmailAvailable = isEmailAvailable,
                 password = password,
@@ -164,20 +174,18 @@ fun AuthSignupRoute(
                 isTermsChecked = isTermsChecked,
                 isPrivacyChecked = isPrivacyChecked,
                 isMarketingChecked = isMarketingChecked,
-                businessRegistrationNumber = registrationNumber,
-                companyName = companyName,
-                representativeName = representativeName,
-                industry = industry,
-                taxEmail = taxEmail,
                 isSubmitEnabled = isSubmitEnabled,
             ),
             onEvent = { event ->
                 when (event) {
                     AuthScreenEvent.BackClicked,
                     AuthScreenEvent.CloseClicked,
-                    -> onBackClick()
+                    -> goToPreviousStepOrClose()
 
-                    is AuthScreenEvent.SignupMemberTypeChanged -> memberType = event.value
+                    AuthScreenEvent.SignupNextClicked -> if (step < SignupStepRules.STEP_COUNT - 1 && isStepValid(step)) {
+                        focusManager.clearFocus()
+                        step += 1
+                    }
 
                     is AuthScreenEvent.SignupFieldChanged -> when (event.fieldId) {
                         "email" -> {
@@ -192,16 +200,6 @@ fun AuthSignupRoute(
                             isPhoneVerified = false
                             isCodeInvalid = false
                         }
-
-                        "registration_number" -> registrationNumber = event.value
-
-                        "company_name" -> companyName = event.value
-
-                        "representative" -> representativeName = event.value
-
-                        "industry" -> industry = event.value
-
-                        "tax_email" -> taxEmail = event.value
                     }
 
                     is AuthScreenEvent.SignupSecretChanged -> when (event.fieldId) {
@@ -285,11 +283,6 @@ fun AuthSignupRoute(
 
                     AuthScreenEvent.SignupMarketingDetailsClicked -> onMarketingDetailsClick()
 
-                    // 사업자 인증·등록증 파일 선택은 서버·파일 선택 연동 전이라 안내만 한다.
-                    AuthScreenEvent.SignupBusinessVerificationClicked,
-                    AuthScreenEvent.BusinessRegistrationFileClicked,
-                    -> showMessage(preparingMessage)
-
                     AuthScreenEvent.SignupSubmitted -> submitSignup()
 
                     else -> Unit
@@ -298,7 +291,9 @@ fun AuthSignupRoute(
         )
         EumSnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding(),
+            // 하단 CTA 바(마지막 단계는 안내 문구 포함)와 겹치지 않게 그 높이만큼 올리고, 키보드가 열리면 키보드 위로 올린다.
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().imePadding()
+                .padding(bottom = if (step == SignupStepRules.STEP_COUNT - 1) EumBottomBarMetrics.AuthCtaBarMinHeight + EumSpacing.x32 else EumBottomBarMetrics.AuthCtaBarMinHeight),
         )
     }
 }

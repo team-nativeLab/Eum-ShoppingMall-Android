@@ -19,7 +19,7 @@ fun CatalogSearchResultsRoute(
     onPopularSearchClick: () -> Unit,
     onSearch: (query: String) -> Unit,
     onProductClick: (productId: String) -> Unit,
-    onQuoteRequestClick: () -> Unit,
+    onInquiryClick: () -> Unit,
     isLoggedIn: Boolean,
     onLoginRequired: () -> Unit,
     onSearchCleared: () -> Unit = {},
@@ -67,7 +67,8 @@ fun CatalogSearchResultsRoute(
 
             is CatalogSearchResultsEvent.ProductSelected -> onProductClick(event.productId)
 
-            CatalogSearchResultsEvent.QuoteRequestClicked -> onQuoteRequestClick()
+            // 검색 결과가 없을 때의 문의는 특정 상품의 가격 문의가 아니므로 제목을 채우지 않고 1:1 문의로 보낸다.
+            CatalogSearchResultsEvent.PriceInquiryClicked -> onInquiryClick()
 
             // 정렬과 필터는 같은 A-48 화면에서 고른다.
             CatalogSearchResultsEvent.SortClicked,

@@ -56,14 +56,14 @@ fun HomeProductCard(
     onQuickCartClick: (() -> Unit)? = null,
 ) {
     val cardShape = RoundedCornerShape(EumRadius.x8)
-    // 순위 배지가 있으면 견적 라벨은 가린다(resolveCatalogProductBadge 규칙).
+    // 순위 배지가 있으면 가격 미표시 라벨은 가린다(resolveCatalogProductBadge 규칙).
     val badge = resolveCatalogProductBadge(bestRank = product.bestRank, badgeLabel = product.badgeLabel)
-    // 견적 대상은 "금액 미표시", 가격 없이 장바구니가 막힌 상품은 "구매 불가"를 보여 준다. 품절은 가격 자리를 바꾸지 않는다(웹 기준).
+    // 가격 미표시 상품은 "금액 미표시", 가격 없이 장바구니가 막힌 상품은 "구매 불가"를 보여 준다. 품절은 가격 자리를 바꾸지 않는다(웹 기준).
     val priceSlot = resolveCatalogPriceSlot(
         currentLabel = product.priceLabel,
         originalLabel = product.originalPriceLabel,
         discountLabel = product.discountRateLabel,
-        isQuoteTarget = product.isQuoteTarget,
+        isPriceUndisclosed = product.isPriceUndisclosed,
         isPurchaseUnavailable = product.isPurchaseUnavailable,
     )
     Column(

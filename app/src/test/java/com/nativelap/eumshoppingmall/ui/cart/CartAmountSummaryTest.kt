@@ -53,8 +53,8 @@ class CartAmountSummaryTest {
     }
 
     @Test
-    fun quoteLinesAreNotCountedAsUnknownOrderableLines() {
-        val summary = cartAmountSummary(listOf(item(id = "q", type = CartItemType.QuoteRequired, lineTotalWon = null, isSelected = true)))
+    fun undisclosedLinesAreNotCountedAsUnknownOrderableLines() {
+        val summary = cartAmountSummary(listOf(item(id = "q", type = CartItemType.PriceUndisclosed, lineTotalWon = null, isSelected = true)))
 
         assertEquals(CartAmountSummary(0L, 0, 0), summary)
     }

@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 
 enum class CartItemType {
     Orderable,
-    QuoteRequired,
+    PriceUndisclosed,
 }
 
 data class CartItemUiModel(

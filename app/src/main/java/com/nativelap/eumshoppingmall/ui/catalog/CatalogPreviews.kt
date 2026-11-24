@@ -24,7 +24,7 @@ private val previewProducts = listOf(
         id = "preview-glove",
         name = "작업용 보호 장갑 제품명",
         subtitle = "내절단 기능성 장갑",
-        price = CatalogPriceUiModel.QuoteRequired,
+        price = CatalogPriceUiModel.Undisclosed,
         ratingLabel = "4.6",
         reviewCountLabel = "(42)",
     ),
@@ -49,12 +49,12 @@ private val productDetailFigmaRelatedProducts = listOf(
     CatalogProductUiModel(
         id = "related-belt",
         name = "전신 안전벨트",
-        price = CatalogPriceUiModel.QuoteRequired,
+        price = CatalogPriceUiModel.Undisclosed,
     ),
     CatalogProductUiModel(
         id = "related-coating-glove",
         name = "코팅 장갑 10컬렉",
-        price = CatalogPriceUiModel.QuoteRequired,
+        price = CatalogPriceUiModel.Undisclosed,
         ratingLabel = "4.0",
         reviewCountLabel = "(1)",
     ),
@@ -79,10 +79,10 @@ private val productListFigmaProducts = listOf(
     CatalogProductUiModel(
         id = "list-coating-glove",
         name = "코팅 장갑 10컬렉",
-        price = CatalogPriceUiModel.QuoteRequired,
+        price = CatalogPriceUiModel.Undisclosed,
         ratingLabel = "4.0",
         reviewCountLabel = "(1)",
-        badgeLabel = "견적 상품",
+        badgeLabel = "가격 미표시",
     ),
     CatalogProductUiModel(
         id = "list-extinguisher",
@@ -114,8 +114,8 @@ private val searchResultFigmaProducts = listOf(
     CatalogProductUiModel(
         id = "search-placeholder-4",
         name = "제품명",
-        price = CatalogPriceUiModel.QuoteRequired,
-        badgeLabel = "견적 상품",
+        price = CatalogPriceUiModel.Undisclosed,
+        badgeLabel = "가격 미표시",
     ),
 )
 
@@ -134,7 +134,7 @@ private fun previewBrand(id: String, name: String, productCount: Int, letterGrou
 private val brandDetailFigmaProducts = listOf(
     CatalogProductUiModel(id = "brand-placeholder-1", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000")),
     CatalogProductUiModel(id = "brand-placeholder-2", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000")),
-    CatalogProductUiModel(id = "brand-placeholder-3", name = "제품명", price = CatalogPriceUiModel.QuoteRequired, badgeLabel = "견적 상품"),
+    CatalogProductUiModel(id = "brand-placeholder-3", name = "제품명", price = CatalogPriceUiModel.Undisclosed, badgeLabel = "가격 미표시"),
     CatalogProductUiModel(id = "brand-placeholder-4", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000")),
     CatalogProductUiModel(id = "brand-placeholder-5", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000"), isSoldOut = true),
     CatalogProductUiModel(id = "brand-placeholder-6", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000")),
@@ -204,9 +204,9 @@ private fun CatalogProductDetailPreview() {
 }
 
 @ResponsiveUiPreview
-@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "견적 상품 옵션 시트")
+@Preview(showBackground = true, widthDp = 390, heightDp = 852, name = "가격 미표시 상품 옵션 시트")
 @Composable
-private fun CatalogQuoteOptionsPreview() {
+private fun CatalogPriceUndisclosedOptionsPreview() {
     EumShoppingMallTheme {
         CatalogProductDetailScreen(
             uiModel = CatalogProductDetailUiModel(
@@ -386,7 +386,7 @@ private fun CatalogProductListRowsPreview() {
                 title = "개인보호장비",
                 categoryChips = previewCategoryChips("전체", "안전모", "보호구", "작업복"),
                 resultCountLabel = "총 24개",
-                sortLabel = "인기순",
+                sortLabel = "추천순",
                 products = previewProducts,
                 isListLayout = true,
             ),
@@ -403,7 +403,7 @@ private fun CatalogProductListEmptyPreview() {
         CatalogProductListScreen(
             uiModel = CatalogProductListUiModel(
                 title = "개인보호장비",
-                sortLabel = "인기순",
+                sortLabel = "추천순",
             ),
             onEvent = {},
         )
@@ -420,7 +420,7 @@ private fun CatalogProductListNarrowPreview() {
                 title = "개인보호장비",
                 categoryChips = previewCategoryChips("전체", "안전모", "보호구", "작업복"),
                 resultCountLabel = "총 24개",
-                sortLabel = "인기순",
+                sortLabel = "추천순",
                 products = previewProducts,
                 isListLayout = true,
             ),
@@ -473,7 +473,7 @@ private fun CatalogProductCardRankQuickCartPreview() {
                     reviewCountLabel = "(3)",
                     specLabel = "1개",
                     shippingLabel = "당일 출고",
-                    badgeLabel = "견적 상품",
+                    badgeLabel = "가격 미표시",
                     benefitLabels = listOf("쿠폰 적용"),
                 ),
                 onClick = {},
@@ -512,7 +512,7 @@ private fun CatalogSelectionChipCountPreview() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 390, name = "카탈로그 카드 할인·견적·품절")
+@Preview(showBackground = true, widthDp = 390, name = "카탈로그 카드 할인·가격 미표시·품절")
 @Composable
 private fun CatalogProductCardStatesPreview() {
     EumShoppingMallTheme {

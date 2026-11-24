@@ -15,7 +15,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CartLineUiMappingTest {
-    private val labels = CartPriceLabels(priceCheck = "가격 확인 필요", quotePrice = "가격 문의")
+    private val labels = CartPriceLabels(priceCheck = "가격 확인 필요", undisclosedPrice = "가격 문의")
 
     @Test
     fun savedLinesAreShownBeforeTheFallbackList() {
@@ -55,22 +55,22 @@ class CartLineUiMappingTest {
     }
 
     @Test
-    fun quoteLinesKeepTheQuoteLabelAndAreNotSelected() {
-        val item = cartUiModelOf(listOf(line(isQuoteRequired = true, unitPriceWon = 18_000L)), labels, fallback = { CartUiModel() })
+    fun undisclosedLinesKeepTheInquiryLabelAndAreNotSelected() {
+        val item = cartUiModelOf(listOf(line(isPriceUndisclosed = true, unitPriceWon = 18_000L)), labels, fallback = { CartUiModel() })
             .items.single()
 
         assertEquals("가격 문의", item.unitPriceLabel)
-        assertEquals(CartItemType.QuoteRequired, item.type)
+        assertEquals(CartItemType.PriceUndisclosed, item.type)
         assertFalse(item.isSelected)
         assertNull(item.lineTotalWon)
     }
 
     @Test
-    fun quoteLinesCannotChangeOptionWhileOrderableLinesCan() {
-        val quote = cartUiModelOf(listOf(line(productId = "q", isQuoteRequired = true)), labels, fallback = { CartUiModel() }).items.single()
+    fun undisclosedLinesCannotChangeOptionWhileOrderableLinesCan() {
+        val undisclosed = cartUiModelOf(listOf(line(productId = "q", isPriceUndisclosed = true)), labels, fallback = { CartUiModel() }).items.single()
         val orderable = cartUiModelOf(listOf(line(productId = "o")), labels, fallback = { CartUiModel() }).items.single()
 
-        assertFalse(quote.canChangeOption())
+        assertFalse(undisclosed.canChangeOption())
         assertTrue(orderable.canChangeOption())
     }
 
@@ -144,7 +144,7 @@ class CartLineUiMappingTest {
         productId: String = "helmet",
         quantity: Int = 1,
         optionExtraWon: Long? = null,
-        isQuoteRequired: Boolean = false,
+        isPriceUndisclosed: Boolean = false,
         unitPriceWon: Long? = null,
     ) = CartLine(
         productId = productId,
@@ -154,7 +154,7 @@ class CartLineUiMappingTest {
         quantity = quantity,
         optionExtraWon = optionExtraWon,
         productPriceLabel = "₩18,000",
-        isQuoteRequired = isQuoteRequired,
+        isPriceUndisclosed = isPriceUndisclosed,
         productUnitPriceWon = unitPriceWon,
     )
 }

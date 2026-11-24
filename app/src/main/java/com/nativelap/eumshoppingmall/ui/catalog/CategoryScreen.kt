@@ -27,12 +27,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogScreenScaffold
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBarAction
+import com.nativelap.eumshoppingmall.ui.common.EumSegmentedControl
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumShadows
@@ -60,14 +60,17 @@ fun CatalogCategoryScreen(
                     CatalogTopBarAction("search", R.drawable.ic_search, stringResource(R.string.common_search)),
                 ),
                 onActionClick = { onEvent(CatalogCategoryEvent.SearchClicked) },
+                leadingAction = CatalogTopBarAction("drawer", R.drawable.ic_menu, stringResource(R.string.account_drawer_open)),
+                onLeadingActionClick = { onEvent(CatalogCategoryEvent.MenuClicked) },
                 modifier = Modifier.statusBarsPadding(),
             )
         },
         content = { contentModifier ->
             Column(contentModifier) {
-                CategoryModeSelector(
-                    isBrandSelected = uiModel.brandModeSelected,
-                    onSelect = { onEvent(CatalogCategoryEvent.ModeSelected(it)) },
+                EumSegmentedControl(
+                    labels = listOf(stringResource(R.string.catalog_product_tab), stringResource(R.string.catalog_brand_tab)),
+                    selectedIndex = if (uiModel.brandModeSelected) 1 else 0,
+                    onSelected = { index -> onEvent(CatalogCategoryEvent.ModeSelected(index == 1)) },
                     modifier = Modifier.padding(horizontal = EumSpacing.x20, vertical = EumSpacing.x20),
                 )
                 Row(
@@ -124,62 +127,6 @@ fun CatalogCategoryScreen(
             }
         },
     )
-}
-
-@Composable
-private fun CategoryModeSelector(
-    isBrandSelected: Boolean,
-    onSelect: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .border(1.dp, MaterialTheme.eumColors.textPrimary, RoundedCornerShape(EumRadius.x8))
-            // 세그먼트 높이는 36이고 터치 영역 48은 항목의 투명 패딩이 맡으므로 세로 패딩은 두지 않는다.
-            .padding(horizontal = EumSpacing.x4),
-        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
-    ) {
-        CategoryModeItem(
-            label = stringResource(R.string.catalog_product_tab),
-            selected = !isBrandSelected,
-            onClick = { onSelect(false) },
-            modifier = Modifier.weight(1f),
-        )
-        CategoryModeItem(
-            label = stringResource(R.string.catalog_brand_tab),
-            selected = isBrandSelected,
-            onClick = { onSelect(true) },
-            modifier = Modifier.weight(1f),
-        )
-    }
-}
-
-@Composable
-private fun CategoryModeItem(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    // 보이는 알약은 36dp, 터치 영역은 바깥 Box의 투명 여백으로 48dp를 유지한다.
-    Box(
-        modifier = modifier.heightIn(min = 48.dp).clickable(role = Role.Button, onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            modifier = Modifier.fillMaxWidth().heightIn(min = 36.dp)
-                .clip(RoundedCornerShape(EumRadius.x6))
-                .background(if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                label,
-                style = MaterialTheme.typography.labelMedium,
-                color = if (selected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textSecondary,
-            )
-        }
-    }
 }
 
 @Composable

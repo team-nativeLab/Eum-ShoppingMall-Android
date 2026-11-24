@@ -1,8 +1,6 @@
 package com.nativelap.eumshoppingmall.ui.checkout.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -16,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -24,17 +21,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
@@ -47,6 +40,7 @@ import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutScreenEvent
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.CheckoutUiModel
 import com.nativelap.eumshoppingmall.ui.checkout.viewmodel.shippingFeeText
 import com.nativelap.eumshoppingmall.ui.common.EumPrimaryButton
+import com.nativelap.eumshoppingmall.ui.common.EumSelectField
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
@@ -167,7 +161,7 @@ private fun AddressSectionCard(
     }
 }
 
-// 선택 메뉴(DropdownMenu)는 유지하고 입력 필드 모양(48dp, r8)만 맞춘다.
+// 선택 메뉴(DropdownMenu)는 유지하고 입력 칸 모양은 공통 EumSelectField를 쓴다.
 @Composable
 private fun DeliveryRequestSectionCard(
     uiModel: CheckoutUiModel,
@@ -175,31 +169,12 @@ private fun DeliveryRequestSectionCard(
 ) {
     CheckoutSectionCard(R.string.checkout_shipping_request) {
         Box {
-            val fieldShape = RoundedCornerShape(EumRadius.x8)
             val requestLabel = uiModel.deliveryRequestLabel
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .heightIn(min = 48.dp)
-                    .background(MaterialTheme.eumColors.surface, fieldShape)
-                    .border(1.dp, MaterialTheme.eumColors.lineNeutral, fieldShape)
-                    .clip(fieldShape)
-                    .clickable(role = Role.Button) { onEvent(CheckoutScreenEvent.DeliveryRequestPickerToggled) }
-                    .padding(horizontal = 14.dp, vertical = EumSpacing.x12),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = requestLabel ?: stringResource(R.string.checkout_delivery_request_prompt),
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (requestLabel == null) MaterialTheme.eumColors.textDisabled else MaterialTheme.eumColors.textPrimary,
-                )
-                Icon(
-                    painterResource(R.drawable.ic_chevron_down),
-                    contentDescription = null,
-                    tint = MaterialTheme.eumColors.textSecondary,
-                    modifier = Modifier.size(20.dp),
-                )
-            }
+            EumSelectField(
+                text = requestLabel ?: stringResource(R.string.checkout_delivery_request_prompt),
+                onClick = { onEvent(CheckoutScreenEvent.DeliveryRequestPickerToggled) },
+                isPlaceholder = requestLabel == null,
+            )
             DropdownMenu(
                 expanded = uiModel.isDeliveryRequestPickerVisible,
                 onDismissRequest = { onEvent(CheckoutScreenEvent.DeliveryRequestPickerToggled) },

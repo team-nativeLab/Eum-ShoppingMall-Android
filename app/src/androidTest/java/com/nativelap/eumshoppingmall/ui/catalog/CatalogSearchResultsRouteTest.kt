@@ -35,7 +35,7 @@ class CatalogSearchResultsRouteTest {
                     onPopularSearchClick = { popularSearchClickCount++ },
                     onSearch = {},
                     onProductClick = {},
-                    onQuoteRequestClick = {},
+                    onInquiryClick = {},
                     isLoggedIn = true,
                     onLoginRequired = {},
                 )

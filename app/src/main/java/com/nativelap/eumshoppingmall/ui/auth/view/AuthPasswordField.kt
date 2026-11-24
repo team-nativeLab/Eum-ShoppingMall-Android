@@ -41,6 +41,7 @@ internal fun AuthPasswordField(
     isRequired: Boolean = false,
     labelStyle: TextStyle = MaterialTheme.typography.labelMedium,
     labelSpacing: Dp = EumSpacing.x8,
+    placeholder: String = stringResource(R.string.auth_password_placeholder),
 ) {
     val requiredDescription = stringResource(R.string.auth_field_required)
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
@@ -53,6 +54,7 @@ internal fun AuthPasswordField(
                     contentDescription = label
                     if (isRequired) stateDescription = requiredDescription
                 },
+                placeholder = placeholder,
                 isError = errorText != null,
                 errorDescription = errorText,
                 visualTransformation = if (isVisible) VisualTransformation.None else PasswordVisualTransformation(),

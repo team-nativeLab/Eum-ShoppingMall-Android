@@ -9,14 +9,13 @@
 - 서체: Pretendard 유지. Figma·문서의 Noto Sans KR/시스템 서체 표기는 정정 대상(디자이너 전달 항목 포함).
 - 기본 강조색(primary): 파란색(info) → Figma 기준 #111 계열로 전역 교체 승인.
 - 담기 완료 후: Snackbar "장바구니에 담았어요 · 장바구니 보기" (안내 바 + 바로가기).
-- 견적 문의 "납품 지역"·"희망 납기"는 필수. 둘 다 유효해야 접수 버튼 활성, 날짜 형식 오류 시 안내.
-- 핵심 사용자: B2B 구매 담당자 + B2C 소비자. 가장 중요한 것: 빠르고 정확한 구매·견적.
+- 핵심 사용자: B2B 구매 담당자 + B2C 소비자. 가장 중요한 것: 빠르고 정확한 구매.
 - Navigation 3 등 의존성 추가 허용.
 
 ## 2. Figma 구조 요약
 - 06 Design — App(178:345): 390폭, 약 120 프레임(A-01~A-57 + 변형). 래퍼 `A-xx card` 안에 `A-xx … · HF` 화면.
-- 01 IA & Flow(72:3): 하단 탭 5개 = 홈 A-02 / 카테고리 A-03 / 검색 A-06 / 장바구니 A-07 / 마이 A-11. 드로어 A-12 = 이벤트·견적문의·고객지원·공지·회사소개.
-- 플로우 F0~F7: F1 장바구니 구매, F2 검색(0건·네트워크 실패), F3 바로구매, F4 비로그인 인증 후 원래 화면 복귀, F5 마이페이지, F6 B2B 견적, F7 금액 미표시 상품 구매.
+- 01 IA & Flow(72:3): 하단 탭 5개 = 홈 A-02 / 카테고리 A-03 / 검색 A-06 / 장바구니 A-07 / 마이 A-11. 드로어 A-12 = 이벤트·고객지원·공지·회사소개.
+- 플로우 F0~F7: F1 장바구니 구매, F2 검색(0건·네트워크 실패), F3 바로구매, F4 비로그인 인증 후 원래 화면 복귀, F5 마이페이지, F6(삭제, 견적 기능 제거 2026-11-23), F7 금액 미표시 상품 1:1 문의.
 - IA는 디자인보다 오래됨(A-17/18/24, A-33~39, A-19 클레임, A-40~43 네이티브는 IA 밖). 프로토타입 transition은 확인 불가.
 - 스타일가이드: 무채색, primary=#111, brand 색 없음. 서체 Noto Sans KR(앱은 Pretendard 유지). radius 4/6/8/12/999, sh-1~3. spacing 토큰 없음. **모션 정의 없음.**
 - 정의된 상태: 빈 상태 다수, 로그인/비번 오류, 바텀시트(A-05s, A-36v, A-47/48 추정), 다이얼로그(A-35l, A-52, A-26c, A-39), 토스트 A-35t.
@@ -27,7 +26,7 @@
 ## 3. UI 점검 결과 (앱 코드 기준)
 
 ### Major
-- **M1** A-05/05s CTA(바로 구매·견적 문의·옵션 시트)가 기본 Button = 파란 캡슐. Figma 기준 #111, radius 8, 찜 버튼은 48dp 1dp 라인 테두리 r8. → 공용 `EumPrimaryButton` / `EumOutlinedButton` (container=textPrimary, shape=EumRadius.x8, disabled=surfaceSecondary/textTertiary). 대상: `ProductDetailScreen.kt:501,531,708,716,728`
+- **M1** A-05/05s CTA(바로 구매·1:1 문의·옵션 시트)가 기본 Button = 파란 캡슐. Figma 기준 #111, radius 8, 찜 버튼은 48dp 1dp 라인 테두리 r8. → 공용 `EumPrimaryButton` / `EumOutlinedButton` (container=textPrimary, shape=EumRadius.x8, disabled=surfaceSecondary/textTertiary). 대상: `ProductDetailScreen.kt:501,531,708,716,728`
 - **M2** 전역 CTA shape 미지정 → 캡슐. 대상: `CartScreen.kt:220`, `CheckoutAddressScreen.kt:58`, `CheckoutPaymentScreen.kt:66`, `OrderCompleteScreen.kt:67,73` → 공용 버튼으로 통일.
 - **M3** `theme/Color.kt` `EumLightColorScheme.primary = info`(파랑) → RadioButton/TextButton/Switch/커서가 파랑. 권고: primary=textPrimary, onPrimary=inverse. (사용자 승인 완료)
 - **M4** ColorScheme `surfaceContainer*` 미정의 → ModalBottomSheet/AlertDialog가 M3 기본 표면색을 쓸 가능성. 대상: `ProductDetailScreen.kt:269`, `AccountWithdrawalReasonScreen.kt:99`, `AccountSettingsScreen.kt:191`. → surfaceContainerLowest~Highest, surfaceBright/Dim 정의.
@@ -54,7 +53,6 @@
 - 결제 버튼 비활성 안내 위치 (U-03)
 - 옵션 시트에 ₩0이 보이고 총 금액이 비는 문제 (U-04)
 - 드로어가 열렸을 때 상태 바 아이콘 대비 (U-06)
-- 견적 필수 항목(납품 지역·희망 납기) 검증 (N-01)
 - 장바구니 상태 계층(담기·주문 후 반영, U-05)은 후속
 
 ## 4. 모션 명세
@@ -69,13 +67,15 @@
 ### 4.2 P0 (#34 1차 구현 대상 7개)
 | # | 항목 | 명세 | 축소 동작(reduced motion) |
 |---|---|---|---|
-| P0-1 | Nav3 push/pop 화면 전환 | 진입: slideX +10%→0 + fade, 300ms EmphasizedDecelerate / 이탈: fade 150ms EmphasizedAccelerate. predictivePop 동일. 전환 정의는 `navigation/EumNavTransitions.kt` 한 곳에만 둠 | fade 150ms |
-| P0-2 | 탭 전환 fade-through | out 90ms StandardAccelerate, in 210ms(delay 90) StandardDecelerate. 같은 탭 재탭 시 맨 위로 스크롤 | 즉시 |
+| P0-1 | (폐기 2026-11-23) Nav3 push/pop 화면 전환 | 사용자 결정으로 화면 전환 애니메이션을 쓰지 않는다. `EumMainNavDisplay`가 transitionSpec·popTransitionSpec·predictivePopTransitionSpec을 모두 `EnterTransition.None togetherWith ExitTransition.None`으로 명시한다(생략하면 NavDisplay 기본 전환이 되살아난다) | 즉시 |
+| P0-2 | (폐기 2026-11-23) 탭 전환 fade-through | 사용자 결정으로 탭 전환 애니메이션을 쓰지 않는다. 같은 탭 재탭 시 탭 루트로 돌아가는 동작은 유지 | 즉시 |
 | P0-3 | 바텀시트/다이얼로그 | M3 기본 유지. Nav3 오버레이 NavKey 사용, onRemove에서 sheetState.hide() 완료 후 제거(옵션 시트 닫힘 보장), scrim dim | — |
 | P0-4 | 담기 완료 Snackbar | fade + translateY 8dp. 등장 250ms StandardDecelerate / 퇴장 150ms. 4초 표시, 액션 "장바구니 보기". CTA 위에 위치. `common/EumSnackbar.kt` | fade |
 | P0-5 | 찜 토글 | 아이콘 crossfade 150ms, heartIdle→heartActive. 켤 때만 scale 1→1.12→1 (Press). 공용 `FavoriteToggleButton` | 즉시 |
 | P0-6 | 버튼·카드 누름 scale | 리플 유지. 주 CTA·상품 카드 scale 0.98 (누름 100ms Standard, 놓음 Press 스프링) | 리플만 |
 | P0-7 | 수량 스테퍼 숫자 | AnimatedContent: 증가 위로·감소 아래로 6dp + fade 150ms Standard. 금액은 즉시 변경. 대상: `CartQuantityStepper.kt:47`, `CatalogSelectedOptionCard.kt` | 즉시 |
+| P0-8 | 사이드바(드로어) 슬라이드 | 2026-11-23 추가. 진입: 왼쪽에서 slideX -100%→0 300ms EmphasizedDecelerate, dim fade in 300ms Standard / 이탈: slideX 0→-100% 250ms EmphasizedAccelerate, dim fade out 250ms. 닫기·dim 탭·뒤로가기·메뉴 선택 모두 퇴장 후 pop. Dialog 창 내부 `AnimatedVisibility`로 구현(Nav3 전환은 쓰지 않음) | 이동 없이 즉시 |
+| P0-9 | 공통 세그먼트 선택 캡슐 이동 | 2026-11-23 추가. `EumSegmentedControl`의 선택 캡슐 하나가 항목 사이를 슬라이드한다(250ms Standard). 대상: 상품/브랜드(카테고리·브랜드), 계정 찾기, 쿠폰 탭, 클레임 유형. 항목은 Role.Tab·selected 시맨틱, 시각·터치 높이 48dp 이상 | 즉시 이동 |
 
 ### 4.3 P1 (명세만 기록, 후속 이슈)
 - shimmer 1200ms linear (스켈레톤)

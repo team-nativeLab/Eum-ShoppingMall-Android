@@ -11,6 +11,9 @@ private const val FIELD_SEPARATOR = "|"
 private const val FIELD_COUNT_WITHOUT_UNIT_PRICE = 8
 private const val FIELD_COUNT = 9
 
+/** 한 줄의 수량 상한. 합산·병합과 읽기에서 이 값으로 자른다(화면 스테퍼 상한과 같다). */
+const val MAX_CART_LINE_QUANTITY = 999
+
 /** 장바구니 줄 목록을 한 문자열로 바꾼다. 각 필드는 URL 인코딩해서 구분자와 줄바꿈이 값에 섞이지 않게 한다. */
 internal fun encodeCartLines(lines: List<CartLine>): String = lines.joinToString(LINE_SEPARATOR) { line -> encodeCartLine(line) }
 
@@ -22,7 +25,7 @@ private fun encodeCartLine(line: CartLine): String = listOf(
     line.quantity.toString(),
     line.optionExtraWon?.toString().orEmpty(),
     line.productPriceLabel,
-    if (line.isQuoteRequired) "1" else "0",
+    if (line.isPriceUndisclosed) "1" else "0",
     line.productUnitPriceWon?.toString().orEmpty(),
 ).joinToString(FIELD_SEPARATOR) { field -> URLEncoder.encode(field, StandardCharsets.UTF_8.name()) }
 
@@ -45,14 +48,16 @@ private fun decodeCartLine(text: String): CartLine? {
     }
     val productId = decoded[0]
     val optionId = decoded[2]
-    val quantity = decoded[4].toIntOrNull()?.takeIf { it >= 1 } ?: return null
+    // 상한을 넘게 저장된 기존 값은 읽을 때 상한으로 맞춘다.
+    val quantity = decoded[4].toIntOrNull()?.takeIf { it >= 1 }?.coerceAtMost(MAX_CART_LINE_QUANTITY) ?: return null
     val optionExtraWon = if (decoded[5].isEmpty()) null else decoded[5].toLongOrNull() ?: return null
-    val isQuoteRequired = when (decoded[7]) {
+    val isPriceUndisclosed = when (decoded[7]) {
         "1" -> true
         "0" -> false
         else -> return null
     }
-    val productUnitPriceWon = if (decoded.size < FIELD_COUNT || decoded[8].isEmpty()) {
+    // 가격 미표시 줄은 저장된 단가가 있어도 쓰지 않는다. 가격이 없는 상품으로 주문 금액이 계산되면 안 된다.
+    val productUnitPriceWon = if (isPriceUndisclosed || decoded.size < FIELD_COUNT || decoded[8].isEmpty()) {
         null
     } else {
         decoded[8].toLongOrNull() ?: return null
@@ -66,7 +71,7 @@ private fun decodeCartLine(text: String): CartLine? {
         quantity = quantity,
         optionExtraWon = optionExtraWon,
         productPriceLabel = decoded[6],
-        isQuoteRequired = isQuoteRequired,
+        isPriceUndisclosed = isPriceUndisclosed,
         productUnitPriceWon = productUnitPriceWon,
     )
 }
@@ -172,4 +177,4 @@ internal fun List<CartLine>.totalQuantity(): Int = fold(0L) { total, line -> tot
     .coerceAtMost(Int.MAX_VALUE.toLong())
     .toInt()
 
-private fun saturatedSum(first: Int, second: Int): Int = (first.toLong() + second.toLong()).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+private fun saturatedSum(first: Int, second: Int): Int = (first.toLong() + second.toLong()).coerceAtMost(MAX_CART_LINE_QUANTITY.toLong()).toInt()

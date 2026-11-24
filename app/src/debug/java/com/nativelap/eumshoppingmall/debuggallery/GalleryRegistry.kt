@@ -15,7 +15,7 @@ private fun entry(
 
 /**
  * docs/FIGMA_APP_RESPONSIVE_AUDIT.md·FIGMA_APP_RESPONSIVE_MANIFEST.csv의 A-01~A-57과 상태 변형을
- * 기존 Preview fixture에 연결한 레지스트리.
+ * 기존 Preview fixture에 연결한 레지스트리. 삭제된 기능의 프레임 번호(A-15·A-25)는 결번이다.
  *
  * - 같은 Preview를 여러 항목이 공유한다: A-07/A-07h(CartMixedPreview), A-19l/A-19l-2(RequestHistoryPreview).
  *   CSV가 Figma node를 서로 다른 프레임(금액 미표시 혼합, 철회 후 내역)으로 같은 Preview에 매핑했기 때문이다.
@@ -58,10 +58,10 @@ object GalleryRegistry {
             entry("A-12g", "드로어 비로그인", "account.view.AccountPreviewsKt", "AccountDrawerGuestPreview"),
             entry("A-13", "로그인", "auth.view.AuthPreviewsKt", "AuthLoginPreview"),
             entry("A-13e", "로그인 오류", "auth.view.AuthPreviewsKt", "AuthLoginErrorPreview"),
-            entry("A-14", "회원가입", "auth.view.AuthPreviewsKt", "AuthSignupPersonalPreview"),
-            entry("A-14b", "사업자 회원가입", "auth.view.AuthPreviewsKt", "AuthSignupBusinessPreview"),
-            entry("A-15", "견적문의", "quote.view.QuotePreviewsKt", "QuoteRequestPreview"),
-            entry("A-15d", "견적 완료", "quote.view.QuotePreviewsKt", "QuoteCompletePreview"),
+            entry("A-14", "회원가입 1단계", "auth.view.AuthPreviewsKt", "AuthSignupPersonalPreview"),
+            entry("A-14-2", "회원가입 2단계 비밀번호", "auth.view.AuthPreviewsKt", "AuthSignupPasswordStepPreview"),
+            entry("A-14-3", "회원가입 3단계 휴대폰 인증", "auth.view.AuthPreviewsKt", "AuthSignupPhoneStepPreview"),
+            entry("A-14-4", "회원가입 4단계 약관 동의", "auth.view.AuthPreviewsKt", "AuthSignupConsentStepPreview"),
             entry("A-16", "주문내역", "orders.OrdersPreviewsKt", "OrderHistoryPreview"),
             entry("A-16e", "주문내역 빈 상태", "orders.OrdersPreviewsKt", "OrderHistoryEmptyPreview"),
             entry("A-17", "주문상세", "orders.OrdersPreviewsKt", "OrderDetailNarrowPreview"),
@@ -91,9 +91,6 @@ object GalleryRegistry {
             entry("A-24", "배송지관리", "account.view.AccountPreviewsKt", "AccountAddressListPreview"),
             entry("A-24e", "배송지추가", "auditpreview.CanonicalStatePreviewsKt", "AccountAddressAddPreview"),
             entry("A-24e-2", "배송지 빈상태", "account.view.AccountPreviewsKt", "AccountAddressEmptyPreview"),
-            entry("A-25", "견적 문의 내역", "quote.view.QuotePreviewsKt", "QuoteHistoryPreview"),
-            entry("A-25d", "견적 상세", "quote.view.QuotePreviewsKt", "QuoteInquiryDetailPreview"),
-            entry("A-25e", "견적 문의 빈상태", "quote.view.QuotePreviewsKt", "QuoteHistoryEmptyPreview"),
             entry("A-26", "탈퇴 안내", "auth.view.AuthPreviewsKt", "AccountWithdrawalGuidePreview"),
             entry("A-26b", "탈퇴 불가", "auth.view.AuthPreviewsKt", "AccountWithdrawalUnavailablePreview"),
             entry("A-26c", "탈퇴 최종 확인", "auth.view.AuthPreviewsKt", "AccountWithdrawalConfirmationPreview"),

@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.EumSelectField
 import com.nativelap.eumshoppingmall.ui.common.ResponsiveContentContainer
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrdersTopBar
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryEmptyState
@@ -99,13 +100,10 @@ fun OrderHistoryScreen(
                     }
                     item {
                         Box(Modifier.padding(horizontal = EumSpacing.x20)) {
-                            TextButton(
+                            EumSelectField(
+                                text = uiModel.periodLabel,
                                 onClick = { onEvent(OrderHistoryScreenEvent.PeriodPickerToggled) },
-                                modifier = Modifier.heightIn(min = 48.dp),
-                            ) {
-                                Text(uiModel.periodLabel, color = MaterialTheme.eumColors.textPrimary)
-                                Icon(painterResource(R.drawable.ic_chevron_down), contentDescription = null, modifier = Modifier.size(16.dp))
-                            }
+                            )
                             DropdownMenu(
                                 expanded = uiModel.isPeriodPickerVisible,
                                 onDismissRequest = { onEvent(OrderHistoryScreenEvent.PeriodPickerToggled) },

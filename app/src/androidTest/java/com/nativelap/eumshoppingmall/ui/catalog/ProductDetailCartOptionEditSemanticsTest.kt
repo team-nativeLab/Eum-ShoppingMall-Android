@@ -134,7 +134,7 @@ class ProductDetailCartOptionEditSemanticsTest {
             quantity = 3,
             optionExtraWon = 0,
             productPriceLabel = "₩1,000",
-            isQuoteRequired = false,
+            isPriceUndisclosed = false,
             productUnitPriceWon = 1_000,
         )
         val options = listOf(
@@ -149,7 +149,7 @@ class ProductDetailCartOptionEditSemanticsTest {
             onBackClick = onBackClick,
             onCartClick = {},
             onBuyNowClick = {},
-            onQuoteRequestClick = {},
+            onPriceInquiryClick = {},
             onProductClick = {},
             isLoggedIn = true,
             onLoginRequired = {},

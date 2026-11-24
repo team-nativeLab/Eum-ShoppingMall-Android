@@ -23,7 +23,7 @@ import org.junit.Test
  */
 class EumDestinationSerializationTest {
     private val nestedLoginDestination = EumDestination.Login(
-        pendingDestination = EumDestination.QuoteInquiryDetail(inquiryId = "inquiry-1"),
+        pendingDestination = EumDestination.InquiryWrite(prefilledProductName = "안전모"),
     )
 
     private val sampleDestinations: List<EumDestination> = listOf(
@@ -33,9 +33,11 @@ class EumDestinationSerializationTest {
         EumDestination.Cart,
         EumDestination.MyPage,
         EumDestination.Drawer,
+        EumDestination.Notifications,
+        EumDestination.AccountSettings,
+        EumDestination.ProductList(preset = ProductListPreset.Best),
         EumDestination.ProductList(),
         EumDestination.ProductList(categoryId = "protective"),
-        EumDestination.ProductList(preset = ProductListPreset.Best),
         EumDestination.ProductList(categoryId = "protective", preset = ProductListPreset.Discount),
         EumDestination.SearchResults(query = "안전모"),
         EumDestination.ProductDetail(productId = "p1"),
@@ -45,12 +47,6 @@ class EumDestinationSerializationTest {
         EumDestination.CheckoutPayment(),
         EumDestination.CheckoutPayment(orderedCartLineIds = listOf("line-1")),
         EumDestination.OrderComplete,
-        EumDestination.QuoteRequest(),
-        EumDestination.QuoteRequest(productId = "p1"),
-        EumDestination.QuoteProductPicker,
-        EumDestination.QuoteComplete,
-        EumDestination.QuoteHistory,
-        EumDestination.QuoteInquiryDetail(inquiryId = "inquiry-1"),
         EumDestination.OrderHistory,
         EumDestination.Favorites,
         EumDestination.RecentProducts,
@@ -81,7 +77,8 @@ class EumDestinationSerializationTest {
         EumDestination.ProductInquiryWrite(productId = "p1"),
         EumDestination.ProductInquiryComplete(productId = "p1"),
         EumDestination.InquiryDetail(inquiryId = "inquiry-1"),
-        EumDestination.InquiryWrite,
+        EumDestination.InquiryWrite(),
+        EumDestination.InquiryWrite(prefilledProductName = "안전모"),
         EumDestination.NoticeDetail(noticeId = "notice-1"),
         EumDestination.EventDetail(eventId = "event-1"),
         EumDestination.Terms,
@@ -125,7 +122,7 @@ class EumDestinationSerializationTest {
         val encodedValues = encodeToList(EumDestination.Login.serializer(), nestedLoginDestination)
         val decodedLogin = decodeFromList(EumDestination.Login.serializer(), encodedValues)
 
-        assertEquals(EumDestination.QuoteInquiryDetail(inquiryId = "inquiry-1"), decodedLogin.pendingDestination)
+        assertEquals(EumDestination.InquiryWrite(prefilledProductName = "안전모"), decodedLogin.pendingDestination)
     }
 
     @OptIn(ExperimentalSerializationApi::class)

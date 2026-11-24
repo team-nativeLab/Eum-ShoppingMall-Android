@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
+import com.nativelap.eumshoppingmall.ui.common.EumSelectField
 import com.nativelap.eumshoppingmall.ui.orders.view.components.OrderInfoCard
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryEmptyState
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderHistoryFilter
@@ -65,10 +66,10 @@ fun OrderRequestOrderSelectionScreen(uiModel: OrderRequestOrderSelectionUiModel,
             }
             item {
                 Box(Modifier.padding(horizontal = EumSpacing.x20)) {
-                    TextButton(onClick = { onEvent(OrderRequestOrderSelectionScreenEvent.PeriodPickerToggled) }, modifier = Modifier.heightIn(min = 48.dp), colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.eumColors.textPrimary)) {
-                        Text(uiModel.periodLabel, style = MaterialTheme.typography.bodyMedium)
-                        Text(" ⌄", style = MaterialTheme.typography.bodyMedium)
-                    }
+                    EumSelectField(
+                        text = uiModel.periodLabel,
+                        onClick = { onEvent(OrderRequestOrderSelectionScreenEvent.PeriodPickerToggled) },
+                    )
                     DropdownMenu(expanded = uiModel.isPeriodPickerVisible, onDismissRequest = { onEvent(OrderRequestOrderSelectionScreenEvent.PeriodPickerToggled) }) {
                         uiModel.periods.forEach { period -> DropdownMenuItem(text = { Text(period) }, onClick = { onEvent(OrderRequestOrderSelectionScreenEvent.PeriodSelected(period)) }) }
                     }

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -57,8 +56,8 @@ fun MyPageScreen(uiModel: MyPageUiModel, onEvent: (MyPageScreenEvent) -> Unit, c
         topBar = {
             CatalogTopBar(
                 title = stringResource(R.string.common_my_page),
-                actions = listOf(CatalogTopBarAction("drawer", R.drawable.ic_menu, stringResource(R.string.account_drawer_open))),
-                onActionClick = { onEvent(MyPageScreenEvent.DrawerClicked) },
+                leadingAction = CatalogTopBarAction("drawer", R.drawable.ic_menu, stringResource(R.string.account_drawer_open)),
+                onLeadingActionClick = { onEvent(MyPageScreenEvent.DrawerClicked) },
                 modifier = Modifier.statusBarsPadding(),
             )
         },
@@ -107,16 +106,6 @@ fun MyPageScreen(uiModel: MyPageUiModel, onEvent: (MyPageScreenEvent) -> Unit, c
                                         style = MaterialTheme.typography.headlineMedium,
                                         color = MaterialTheme.eumColors.textPrimary,
                                     )
-                                    if (uiModel.profile.isBusinessMember) {
-                                        Box(
-                                            modifier = Modifier.heightIn(min = 20.dp)
-                                                .border(1.dp, MaterialTheme.eumColors.lineStrong, RoundedCornerShape(EumRadius.x4))
-                                                .padding(horizontal = EumSpacing.x6),
-                                            contentAlignment = Alignment.Center,
-                                        ) {
-                                            Text(stringResource(R.string.account_business_badge), style = EumTypographyTokens.labelXs, color = MaterialTheme.eumColors.textSecondary)
-                                        }
-                                    }
                                 }
                                 Text(stringResource(R.string.account_greeting), color = MaterialTheme.eumColors.textSecondary, style = MaterialTheme.typography.bodySmall)
                             }
@@ -150,11 +139,8 @@ fun MyPageScreen(uiModel: MyPageUiModel, onEvent: (MyPageScreenEvent) -> Unit, c
                             onEvent,
                         )
                     }
-                    item { AccountMenuGroup(stringResource(R.string.account_order_quote_section), uiModel.orderRows, onEvent) }
+                    item { AccountMenuGroup(stringResource(R.string.account_order_section), uiModel.orderRows, onEvent) }
                     item { AccountMenuGroup(stringResource(R.string.account_inquiries_support), uiModel.supportRows, onEvent) }
-                    item {
-                        Text(stringResource(R.string.account_settings), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(MyPageScreenEvent.SettingsClicked) }.padding(vertical = EumSpacing.x12), style = MaterialTheme.typography.bodySmall)
-                    }
                 } else {
                     item {
                         Column(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x20), verticalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
@@ -174,7 +160,6 @@ fun MyPageScreen(uiModel: MyPageUiModel, onEvent: (MyPageScreenEvent) -> Unit, c
                         }
                     }
                     item { AccountMenuGroup(null, uiModel.supportRows, onEvent) }
-                    item { Text(stringResource(R.string.account_settings), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { onEvent(MyPageScreenEvent.SettingsClicked) }.padding(vertical = EumSpacing.x12)) }
                 }
             }
         }
@@ -236,7 +221,6 @@ private fun AccountMenuGroup(title: String?, rows: List<AccountMenuRowUiModel>, 
                         "profile" -> R.drawable.ic_user_round
                         "addresses" -> R.drawable.ic_map_pin
                         "returns" -> R.drawable.ic_rotate_ccw
-                        "quotes" -> R.drawable.ic_message_square_text
                         "inquiries" -> R.drawable.ic_mail
                         "customer" -> R.drawable.ic_headphones
                         else -> R.drawable.ic_megaphone

@@ -34,21 +34,17 @@ import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
 private val noPriceProduct = CatalogProductUiModel(
-    id = "preview-quote-required",
+    id = "preview-price-undisclosed",
     name = "제품명",
     subtitle = "브랜드명",
-    price = CatalogPriceUiModel.QuoteRequired,
-    badgeLabel = "견적 상품",
+    price = CatalogPriceUiModel.Undisclosed,
+    badgeLabel = "가격 미표시",
 )
 
 private val profileGatePreview = AccountProfileUiModel(
     name = "홍길동",
     email = "example@email.com",
     phoneNumber = "010-0000-0000",
-    companyName = "회사명",
-    businessRegistrationNumber = "000-00-00000",
-    department = "안전관리팀",
-    isBusinessMember = true,
     isSmsConsentEnabled = true,
     isEmailConsentEnabled = false,
 )
@@ -93,9 +89,9 @@ private fun ProductDetailNoPricePreview() {
                     CatalogKeyValueUiModel("반품 배송비", "편도 ₩0"),
                 ),
                 relatedProducts = listOf(
-                    CatalogProductUiModel(id = "quote-related-1", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000")),
-                    CatalogProductUiModel(id = "quote-related-2", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000")),
-                    CatalogProductUiModel(id = "quote-related-3", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000")),
+                    CatalogProductUiModel(id = "related-1", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000")),
+                    CatalogProductUiModel(id = "related-2", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000")),
+                    CatalogProductUiModel(id = "related-3", name = "제품명", price = CatalogPriceUiModel.Available("₩00,000")),
                 ),
             ),
             onEvent = {},
@@ -160,22 +156,22 @@ private fun CartNoOrderableItemsPreview() {
             CartUiModel(
                 items = listOf(
                     CartItemUiModel(
-                        id = "preview-quote-1",
+                        id = "preview-undisclosed-1",
                         name = "코팅 장갑 10켤레",
                         optionLabel = "옵션: 사이즈 L",
                         quantity = 1,
                         unitPriceLabel = "",
                         totalPriceLabel = "",
-                        type = CartItemType.QuoteRequired,
+                        type = CartItemType.PriceUndisclosed,
                     ),
                     CartItemUiModel(
-                        id = "preview-quote-2",
+                        id = "preview-undisclosed-2",
                         name = "방진 마스크 필터 세트",
                         optionLabel = "옵션: 사이즈 L",
                         quantity = 1,
                         unitPriceLabel = "",
                         totalPriceLabel = "",
-                        type = CartItemType.QuoteRequired,
+                        type = CartItemType.PriceUndisclosed,
                     ),
                 ),
                 productAmountLabel = "₩0",

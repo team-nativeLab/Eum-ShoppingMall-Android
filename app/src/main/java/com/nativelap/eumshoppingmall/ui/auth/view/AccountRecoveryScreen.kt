@@ -10,17 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,8 +32,8 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AccountRecoveryMode
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AccountRecoveryUiModel
-import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthMemberType
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
+import com.nativelap.eumshoppingmall.ui.common.EumSegmentedControl
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -67,9 +64,9 @@ private fun AccountRecoveryFormScreen(uiModel: AccountRecoveryUiModel, onEvent: 
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { padding ->
         Column(
-            Modifier.fillMaxSize().padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(start = EumSpacing.x20, end = EumSpacing.x20, top = EumSpacing.x16, bottom = EumSpacing.x16),
+            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(start = EumSpacing.x20, end = EumSpacing.x20, top = EumSpacing.x16, bottom = EumSpacing.x16),
         ) {
-            AuthSegmentedControl(
+            EumSegmentedControl(
                 labels = listOf(stringResource(R.string.account_find_email), stringResource(R.string.account_find_password)),
                 selectedIndex = if (isEmailMode) 0 else 1,
                 onSelected = { onEvent(AuthScreenEvent.RecoveryModeChanged(if (it == 0) AccountRecoveryMode.FIND_EMAIL else AccountRecoveryMode.FIND_PASSWORD)) },
@@ -193,16 +190,6 @@ private fun AccountRecoveryResultScreen(uiModel: AccountRecoveryUiModel, onEvent
                             Column(verticalArrangement = Arrangement.spacedBy(EumSpacing.x4)) {
                                 Text(uiModel.maskedEmail, style = MaterialTheme.typography.titleMedium)
                                 Text(stringResource(R.string.auth_member_joined_at, uiModel.joinedAt), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.eumColors.textTertiary)
-                            }
-                            uiModel.memberType?.let { memberType ->
-                                Surface(shape = RoundedCornerShape(4.dp), color = MaterialTheme.eumColors.background, border = BorderStroke(1.dp, MaterialTheme.eumColors.line)) {
-                                    Text(
-                                        stringResource(if (memberType == AuthMemberType.PERSONAL) R.string.auth_member_personal else R.string.auth_member_business),
-                                        Modifier.padding(horizontal = EumSpacing.x8, vertical = EumSpacing.x2),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.eumColors.textSecondary,
-                                    )
-                                }
                             }
                         }
                     }

@@ -2,7 +2,6 @@ package com.nativelap.eumshoppingmall.ui.benefits
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,9 +52,7 @@ import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Density
@@ -65,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.common.EmptyCollectionState
+import com.nativelap.eumshoppingmall.ui.common.EumSegmentedControl
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
@@ -143,36 +141,14 @@ fun CouponScreen(
                     }
                 }
                 Spacer(Modifier.height(EumSpacing.x20))
-                // Figma 세그먼트: 높이 46(테두리 1 + 패딩 4 + 탭 36 + 패딩 4 + 테두리 1).
-                // 탭 클릭 영역이 컨테이너 높이 46 전체를 쓰고 시각 36 박스는 그 안쪽에 둔다. 터치 높이 46은 48보다 2dp 작다.
-                Row(
-                    Modifier.fillMaxWidth().padding(horizontal = EumSpacing.x20).heightIn(min = COUPON_SEGMENT_HEIGHT).height(IntrinsicSize.Min)
-                        .border(1.dp, MaterialTheme.eumColors.lineControl, RoundedCornerShape(8.dp))
-                        .padding(horizontal = COUPON_SEGMENT_PADDING),
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                ) {
-                    CouponTab.entries.forEach { tab ->
-                        val selected = uiModel.selectedTab == tab
-                        Box(
-                            Modifier.weight(1f).fillMaxHeight()
-                                .clickable(role = Role.Tab, onClick = { onEvent(CouponScreenEvent.TabSelected(tab)) })
-                                .semantics { this.selected = selected },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Box(
-                                Modifier.fillMaxWidth().heightIn(min = COUPON_SEGMENT_TAB_HEIGHT).clip(RoundedCornerShape(6.dp))
-                                    .background(if (selected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.background),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    stringResource(if (tab == CouponTab.Available) R.string.coupon_available_tab else R.string.coupon_used_expired_tab, uiModel.countFor(tab)),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = if (selected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textSecondary,
-                                )
-                            }
-                        }
-                    }
-                }
+                EumSegmentedControl(
+                    labels = CouponTab.entries.map { tab ->
+                        stringResource(if (tab == CouponTab.Available) R.string.coupon_available_tab else R.string.coupon_used_expired_tab, uiModel.countFor(tab))
+                    },
+                    selectedIndex = uiModel.selectedTab.ordinal,
+                    onSelected = { index -> onEvent(CouponScreenEvent.TabSelected(CouponTab.entries[index])) },
+                    modifier = Modifier.padding(horizontal = EumSpacing.x20),
+                )
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(start = EumSpacing.x20, end = EumSpacing.x20, top = EumSpacing.x20, bottom = EumSpacing.x20),
@@ -209,9 +185,6 @@ fun CouponScreen(
 
 private val COUPON_REGISTER_BUTTON_WIDTH = 58.dp
 private val COUPON_POINTS_LINK_HEIGHT = 54.dp
-private val COUPON_SEGMENT_PADDING = 4.dp
-private val COUPON_SEGMENT_HEIGHT = 46.dp
-private val COUPON_SEGMENT_TAB_HEIGHT = 36.dp
 private val COUPON_STUB_WIDTH = 76.dp
 private val COUPON_DIVIDER_WIDTH = 1.dp
 

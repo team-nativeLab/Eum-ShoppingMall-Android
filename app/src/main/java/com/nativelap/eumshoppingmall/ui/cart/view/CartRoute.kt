@@ -52,9 +52,11 @@ fun CartRoute(
     cartItemCount: Int,
     onTabSelected: (MainNavigationTab) -> Unit,
     onSearchClick: () -> Unit,
+    onMenuClick: () -> Unit,
     onCheckoutClick: (selectedItems: List<CartItemUiModel>) -> Unit,
     onLoginClick: () -> Unit,
-    onQuoteRequestClick: () -> Unit,
+    // 가격 미표시 줄의 문의 버튼. 상품명을 1:1 문의 제목에 미리 채우도록 넘긴다.
+    onPriceInquiryClick: (productName: String) -> Unit,
     onBrowseProductsClick: () -> Unit,
     onOptionChangeClick: (line: CartLine) -> Unit = {},
     onQuantityChanged: suspend (itemId: String, quantity: Int) -> Unit,
@@ -69,7 +71,7 @@ fun CartRoute(
     val snackbarHostState = remember { SnackbarHostState() }
     val priceLabels = CartPriceLabels(
         priceCheck = stringResource(R.string.cart_price_check_needed),
-        quotePrice = stringResource(R.string.cart_price_inquiry),
+        undisclosedPrice = stringResource(R.string.cart_price_undisclosed_note),
     )
     val freeShippingLabel = stringResource(R.string.checkout_delivery_free)
     val shippingAtOrderLabel = stringResource(R.string.cart_shipping_at_order)
@@ -122,7 +124,7 @@ fun CartRoute(
     } else {
         fallbackItems.withFallbackQuantities(fallbackQuantities, priceLabels)
     }
-    // 견적 상품은 주문 선택에서 항상 제외한다. 선택 덮어쓰기는 주문 가능한 줄에만 적용된다.
+    // 가격 미표시 상품은 주문 선택에서 항상 제외한다. 선택 덮어쓰기는 주문 가능한 줄에만 적용된다.
     val items = baseItems.map { item ->
         val isSelected = item.type == CartItemType.Orderable && (selectionOverrides[item.id] ?: item.isSelected)
         item.copy(isSelected = isSelected)
@@ -223,6 +225,8 @@ fun CartRoute(
         quantityLockedItemIds = quantityLockIds,
         onEvent = { event ->
             when (event) {
+                CartScreenEvent.MenuClicked -> onMenuClick()
+
                 CartScreenEvent.SearchClicked -> onSearchClick()
 
                 is CartScreenEvent.BottomTabSelected -> onTabSelected(event.tab)
@@ -245,7 +249,10 @@ fun CartRoute(
 
                 is CartScreenEvent.QuantityChanged -> changeQuantity(event.itemId, event.quantity)
 
-                CartScreenEvent.QuoteRequestClicked -> onQuoteRequestClick()
+                is CartScreenEvent.PriceInquiryClicked -> {
+                    items.firstOrNull { item -> item.id == event.itemId && item.type == CartItemType.PriceUndisclosed }
+                        ?.let { item -> onPriceInquiryClick(item.name) }
+                }
 
                 CartScreenEvent.BrowseProductsClicked -> onBrowseProductsClick()
 
@@ -274,5 +281,5 @@ fun CartRoute(
 
 private fun isSelectable(item: CartItemUiModel): Boolean = item.type == CartItemType.Orderable && !item.isSoldOut
 
-// 주문 대상은 선택된 주문 가능한 줄이다. 품절·견적 상품은 선택돼 있어도 제외한다.
+// 주문 대상은 선택된 주문 가능한 줄이다. 품절·가격 미표시 상품은 선택돼 있어도 제외한다.
 internal fun orderedCartLineIds(items: List<CartItemUiModel>): List<String> = items.filter { item -> isSelectable(item) && item.isSelected }.map { item -> item.id }
