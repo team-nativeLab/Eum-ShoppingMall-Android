@@ -74,7 +74,6 @@ import com.nativelap.eumshoppingmall.ui.events.EventListRoute
 import com.nativelap.eumshoppingmall.ui.favorites.FavoritesRoute
 import com.nativelap.eumshoppingmall.ui.home.HomeProductUiModel
 import com.nativelap.eumshoppingmall.ui.home.HomeRoute
-import com.nativelap.eumshoppingmall.ui.home.homeQueryForSearchQuery
 import com.nativelap.eumshoppingmall.ui.ordercomplete.view.OrderCompleteRoute
 import com.nativelap.eumshoppingmall.ui.orders.view.OrderHistoryRoute
 import com.nativelap.eumshoppingmall.ui.orders.viewmodel.OrderRequestType
@@ -83,7 +82,6 @@ import com.nativelap.eumshoppingmall.ui.screendata.ShoppingScreenDataProvider
 import com.nativelap.eumshoppingmall.ui.splash.SplashOverlay
 import com.nativelap.eumshoppingmall.ui.support.CustomerSupportRoute
 import com.nativelap.eumshoppingmall.ui.support.InquiryHistoryRoute
-import com.nativelap.eumshoppingmall.ui.support.NoticeListRoute
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -165,8 +163,6 @@ fun EumMainNavDisplay(
     var cartAddOutcome by rememberSaveable(stateSaver = CartAddOutcome.Saver) { mutableStateOf<CartAddOutcome?>(null) }
     // 편집 화면이 장바구니로 넘기는 안내 결과. 장바구니 화면이 한 번 보여 주면 표시를 남기고 비운다(C).
     var cartEditOutcome by rememberSaveable(stateSaver = CartEditOutcome.Saver) { mutableStateOf<CartEditOutcome?>(null) }
-    // 홈 검색창과 검색 결과가 같은 검색어를 쓴다. 결과에서 지우면 여기서도 비운다.
-    var homeSearchQuery by rememberSaveable { mutableStateOf("") }
     var activeCheckoutOrder by rememberSaveable(stateSaver = CheckoutOrderSnapshot.Saver) { mutableStateOf<CheckoutOrderSnapshot?>(null) }
     LaunchedEffect(navigationState.currentBackStack.lastOrNull(), activeCheckoutOrder) {
         val destination = navigationState.currentBackStack.lastOrNull()
@@ -226,13 +222,9 @@ fun EumMainNavDisplay(
                     bestSellerProducts = remember { screenDataProvider.homeBestSellerProducts() },
                     cartItemCount = currentCartItemCount,
                     selectedTab = MainNavigationTab.Home,
-                    onSearch = { query ->
-                        if (query.isBlank()) {
-                            navigator.navigateToTab(MainNavigationTab.Search)
-                        } else {
-                            navigator.push(EumDestination.SearchResults(query.trim()))
-                        }
-                    },
+                    // 홈 검색바는 검색 탭 루트를 연다. navigateToTab은 탭의 이전 기록(검색 결과)을 되살리므로 쓰지 않는다.
+                    // 옛 공유 검색어는 홈에 넘기지 않는다.
+                    onSearchFieldClick = { navigator.closeTopAndOpenTabRoot(MainNavigationTab.Search) },
                     onProductClick = { product -> navigator.push(EumDestination.ProductDetail(product.id)) },
                     onCategoryClick = { category -> openCategory(category.id) },
                     onHeroAction = { action -> navigator.push(destinationForHomeHeroAction(action)) },
@@ -247,8 +239,6 @@ fun EumMainNavDisplay(
                     cartAddOutcome = currentCartAddOutcome,
                     onCartAddOutcomeChange = { outcome -> cartAddOutcome = outcome },
                     onCartClick = { navigator.navigateToTab(MainNavigationTab.Cart) },
-                    query = homeSearchQuery,
-                    onQueryChange = { homeSearchQuery = it },
                     onCartLoginRequired = entryContext::openLoginForCart,
                 )
             }
@@ -343,6 +333,7 @@ fun EumMainNavDisplay(
                     onShortcutClick = { shortcutId ->
                         EumMenuDestinations.myPageShortcut(shortcutId)?.let(entryContext::open)
                     },
+                    onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
                     onMenuRowClick = { rowId ->
                         val destination = EumMenuDestinations.myPageMenuRow(rowId)
                         if (destination == null) {
@@ -420,8 +411,6 @@ fun EumMainNavDisplay(
                     onBackClick = { navigator.goBack() },
                     onPopularSearchClick = { navigator.navigateToTab(MainNavigationTab.Search) },
                     onSearch = { query ->
-                        // 결과 화면에서 다시 검색하면 홈 검색창 공유 상태도 같은 검색어로 맞춘다.
-                        homeSearchQuery = homeQueryForSearchQuery(query)
                         navigator.replaceTop(EumDestination.SearchResults(query))
                     },
                     onProductClick = { productId -> navigator.push(EumDestination.ProductDetail(productId)) },
@@ -430,7 +419,6 @@ fun EumMainNavDisplay(
                     onLoginRequired = entryContext::openLogin,
                     // 검색을 비우면 옛 결과를 홈 백스택에 남기지 않고 검색 탭 루트로 돌아간다.
                     onSearchCleared = {
-                        homeSearchQuery = ""
                         navigator.closeTopAndOpenTabRoot(MainNavigationTab.Search)
                     },
                     onQuickAddToCart = quickAddToCart,
@@ -610,13 +598,6 @@ fun EumMainNavDisplay(
                     uiModel = remember { screenDataProvider.customerSupport() },
                     onBackClick = { navigator.goBack() },
                     onInquiryClick = { entryContext.open(EumDestination.InquiryWrite()) },
-                )
-            }
-            entry<EumDestination.NoticeList> {
-                NoticeListRoute(
-                    notices = remember { screenDataProvider.notices() },
-                    onBackClick = { navigator.goBack() },
-                    onNoticeClick = { noticeId -> navigator.push(EumDestination.NoticeDetail(noticeId)) },
                 )
             }
             entry<EumDestination.EventList> {

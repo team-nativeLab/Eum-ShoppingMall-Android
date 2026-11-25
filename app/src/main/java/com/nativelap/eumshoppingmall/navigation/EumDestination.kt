@@ -107,10 +107,6 @@ sealed interface EumDestination : NavKey {
     @Serializable
     data object CustomerSupport : EumDestination
 
-    /** A-40 공지사항 목록. */
-    @Serializable
-    data object NoticeList : EumDestination
-
     /** A-54 이벤트 목록. */
     @Serializable
     data object EventList : EumDestination
@@ -201,10 +197,6 @@ sealed interface EumDestination : NavKey {
      */
     @Serializable
     data class InquiryWrite(val prefilledProductName: String = "") : EumDestination
-
-    /** A-41 공지 상세. */
-    @Serializable
-    data class NoticeDetail(val noticeId: String) : EumDestination
 
     /** A-55 이벤트 상세. */
     @Serializable

@@ -1,4 +1,4 @@
-package com.nativelap.eumshoppingmall.ui.auth.view
+package com.nativelap.eumshoppingmall.ui.common
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,10 +19,11 @@ import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 /**
- * Figma 동의 체크박스(기본 16dp·모서리 4·테두리 1.5, 로그인 유지는 20dp). 표시 전용이며 토글과 접근성 역할은 감싸는 행의 toggleable이 맡는다.
+ * 흑백 톤 체크박스(모서리 4, 테두리 1.5, 체크 시 검정 채움). 기본 크기는 16dp이고 호출부가 [size]로 바꾼다.
+ * 표시 전용이며 토글과 접근성 역할은 감싸는 행의 toggleable이 맡는다.
  */
 @Composable
-internal fun AuthCheckbox(checked: Boolean, modifier: Modifier = Modifier, size: Dp = 16.dp) {
+internal fun EumCheckbox(checked: Boolean, modifier: Modifier = Modifier, size: Dp = 16.dp) {
     val checkedColor = MaterialTheme.eumColors.checkboxChecked
     val boxShape = RoundedCornerShape(EumRadius.x4)
     Box(

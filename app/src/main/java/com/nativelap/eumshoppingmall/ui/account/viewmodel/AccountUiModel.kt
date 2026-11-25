@@ -1,5 +1,6 @@
 package com.nativelap.eumshoppingmall.ui.account.viewmodel
 
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 
 data class AccountOrderStatusUiModel(val label: String, val count: String)
@@ -33,7 +34,7 @@ data class MyPageUiModel(
     val orderStatuses: List<AccountOrderStatusUiModel>,
     val orderRows: List<AccountMenuRowUiModel>,
     val supportRows: List<AccountMenuRowUiModel>,
-    val recentProducts: List<String>,
+    val recentProducts: List<CatalogProductUiModel>,
 )
 
 data class AccountProfileEditUiModel(
@@ -78,6 +79,8 @@ sealed interface MyPageScreenEvent {
     data class ShortcutClicked(val shortcutId: String) : MyPageScreenEvent
     data class MenuRowClicked(val rowId: String) : MyPageScreenEvent
     data class BottomNavigationClicked(val tab: MainNavigationTab) : MyPageScreenEvent
+    data class ProductClicked(val productId: String) : MyPageScreenEvent
+    data class FavoriteClicked(val productId: String) : MyPageScreenEvent
 }
 
 sealed interface AccountDrawerScreenEvent {

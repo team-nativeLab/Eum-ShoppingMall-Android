@@ -17,7 +17,6 @@ object EumMenuDestinations {
         "discount" -> EumDestination.ProductList(preset = ProductListPreset.Discount)
         "favorites" -> EumDestination.Favorites
         "events" -> EumDestination.EventList
-        "notices" -> EumDestination.NoticeList
         "support" -> EumDestination.CustomerSupport
         "guide" -> EumDestination.UsageGuide
         "terms" -> EumDestination.Terms
@@ -43,7 +42,6 @@ object EumMenuDestinations {
     fun myPageMenuRow(rowId: String): EumDestination? = when (rowId) {
         "inquiries" -> EumDestination.InquiryHistory
         "customer" -> EumDestination.CustomerSupport
-        "notices" -> EumDestination.NoticeList
         "returns" -> EumDestination.ClaimHub
         else -> null
     }

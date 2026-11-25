@@ -60,10 +60,6 @@
     <string name="product_list_title_today">오늘의 상품</string>
     <string name="product_list_title_recommended">추천 상품</string>
     <string name="home_best_category_all">전체</string>
-    <string name="home_free_shipping_threshold">₩50,000</string>
-    <string name="home_service_free_shipping">%1$s 이상 무료배송</string>
-    <string name="home_service_same_day">당일 출고</string>
-    <string name="home_service_tax_invoice">세금계산서 발행</string>
     <string name="home_tab_home">홈</string>
     <string name="home_tab_categories">카테고리</string>
     <string name="home_tab_search">검색</string>
@@ -332,8 +328,6 @@
     <string name="account_find_email">이메일 찾기</string>
     <string name="account_find_password">비밀번호 찾기</string>
     <string name="account_sign_up">회원가입</string>
-    <string name="account_login_orders_message">로그인하면 주문 정보를 한곳에서 관리할 수 있습니다</string>
-    <string name="account_login_benefits_message">주문·배송 조회와 찜한 상품을 한 곳에서 확인할 수 있습니다.</string>
     <string name="account_password_reenter">비밀번호를 다시 입력해 주세요</string>
     <string name="account_password_forgotten">비밀번호가 기억나지 않으세요?</string>
     <string name="account_email_found">이메일을 찾았습니다</string>
@@ -702,7 +696,6 @@
     <string name="account_drawer_events">이벤트</string>
     <string name="account_drawer_member_name">%1$s님</string>
     <string name="account_member_fallback">회원</string>
-    <string name="account_drawer_notices">공지사항</string>
     <string name="account_drawer_open">메뉴 열기</string>
     <string name="account_drawer_support">고객센터·FAQ</string>
     <string name="account_email">이메일</string>

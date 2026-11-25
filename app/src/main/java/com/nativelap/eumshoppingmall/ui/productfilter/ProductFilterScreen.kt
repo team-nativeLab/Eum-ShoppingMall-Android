@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -20,7 +19,6 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -34,17 +32,18 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditRadioIndicator
 import com.nativelap.eumshoppingmall.ui.audit.components.UiAuditScreenScaffold
 import com.nativelap.eumshoppingmall.ui.catalog.SafetyCertificationType
+import com.nativelap.eumshoppingmall.ui.common.EumCheckbox
 import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
-import com.nativelap.eumshoppingmall.ui.theme.eumCheckboxColors
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
 enum class ProductFilterPriceRange {
@@ -283,12 +282,16 @@ private fun <T> FilterChipSection(
                         color = if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.surface,
                         border = BorderStroke(EumSpacing.x1, if (isSelected) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.lineNeutral),
                     ) {
-                        Text(
-                            text = label,
-                            modifier = Modifier.padding(horizontal = FilterChipHorizontalPadding, vertical = EumSpacing.x6),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (isSelected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textPrimary,
-                        )
+                        // 칩 최소 높이(34dp) 안에서 글자를 세로 가운데에 둔다. 터치 구조는 바깥 Box가 그대로 맡는다.
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = label,
+                                modifier = Modifier.padding(horizontal = FilterChipHorizontalPadding, vertical = EumSpacing.x6),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = if (isSelected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.textPrimary,
+                            )
+                        }
                     }
                 }
             }
@@ -329,13 +332,8 @@ private fun FilterCheckboxRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
     ) {
-        // 행 전체가 토글을 받으므로 Checkbox 자체의 클릭 처리는 끈다.
-        Checkbox(
-            checked = checked,
-            onCheckedChange = null,
-            modifier = Modifier.size(20.dp),
-            colors = eumCheckboxColors(),
-        )
+        // 행 전체가 토글을 받으므로 체크박스 자체는 표시만 한다.
+        EumCheckbox(checked = checked)
         Text(
             text = label,
             modifier = Modifier.weight(1f),

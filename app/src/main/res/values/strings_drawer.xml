@@ -3,7 +3,7 @@
     <!-- 사이드바 섹션 제목과 메뉴 -->
     <string name="account_drawer_section_shopping">쇼핑</string>
     <string name="account_drawer_section_support">고객지원</string>
-    <string name="account_drawer_section_settings">설정·알림</string>
+    <string name="account_drawer_section_settings">설정</string>
     <string name="account_drawer_best">베스트</string>
     <string name="account_drawer_recommended">추천상품</string>
     <string name="account_drawer_discount">할인상품</string>

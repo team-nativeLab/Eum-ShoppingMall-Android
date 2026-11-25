@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -41,6 +40,7 @@ import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountShortcutUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.MyPageScreenEvent
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.MyPageUiModel
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogBottomNavigation
+import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogProductCard
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBar
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogTopBarAction
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
@@ -153,32 +153,26 @@ fun MyPageScreen(uiModel: MyPageUiModel, onEvent: (MyPageScreenEvent) -> Unit, c
                             )
                         }
                     }
-                    item { Text(stringResource(R.string.home_recent_products), style = MaterialTheme.typography.titleMedium) }
-                    item {
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
-                            items(uiModel.recentProducts) { productName -> AccountRecentProductCard(productName) }
+                    // 최근 본 상품 데이터가 없으면 제목과 목록을 모두 숨긴다.
+                    if (uiModel.recentProducts.isNotEmpty()) {
+                        item { Text(stringResource(R.string.home_recent_products), style = MaterialTheme.typography.titleMedium) }
+                        item {
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12)) {
+                                items(uiModel.recentProducts, key = { product -> product.id }) { product ->
+                                    CatalogProductCard(
+                                        product = product,
+                                        onClick = { onEvent(MyPageScreenEvent.ProductClicked(product.id)) },
+                                        onFavoriteClick = { onEvent(MyPageScreenEvent.FavoriteClicked(product.id)) },
+                                        modifier = Modifier.width(148.dp),
+                                    )
+                                }
+                            }
                         }
                     }
                     item { AccountMenuGroup(null, uiModel.supportRows, onEvent) }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun AccountRecentProductCard(productName: String) {
-    Column(
-        modifier = Modifier.width(148.dp).border(1.dp, MaterialTheme.eumColors.line, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x12)).padding(EumSpacing.x8),
-        verticalArrangement = Arrangement.spacedBy(EumSpacing.x8),
-    ) {
-        Box(
-            Modifier.fillMaxWidth().aspectRatio(1f).background(MaterialTheme.eumColors.productImageBackground, androidx.compose.foundation.shape.RoundedCornerShape(EumRadius.x8)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(painterResource(R.drawable.ic_image), contentDescription = null, modifier = Modifier.size(32.dp), tint = MaterialTheme.eumColors.placeholderGlyph)
-        }
-        Text(productName, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 

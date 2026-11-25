@@ -1,6 +1,6 @@
 package com.nativelap.eumshoppingmall.ui.catalog
 
-/** 무료배송 기준 금액(원). 홈 서비스 띠의 기준 문구(home_free_shipping_threshold)와 같은 금액이다. */
+/** 무료배송 기준 금액(원). 상품 배송 문구와 장바구니 배송비가 같은 금액을 쓴다. */
 internal const val FREE_SHIPPING_THRESHOLD_WON = 50_000L
 
 /** 기준 미만일 때 적용하는 기본 배송비(원). */

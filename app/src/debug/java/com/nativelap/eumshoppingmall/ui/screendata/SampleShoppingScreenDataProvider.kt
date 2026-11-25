@@ -81,8 +81,6 @@ import com.nativelap.eumshoppingmall.ui.support.CustomerSupportUiModel
 import com.nativelap.eumshoppingmall.ui.support.InquiryDetailUiModel
 import com.nativelap.eumshoppingmall.ui.support.InquiryHistoryItemUiModel
 import com.nativelap.eumshoppingmall.ui.support.InquiryStatus
-import com.nativelap.eumshoppingmall.ui.support.NoticeDetailUiModel
-import com.nativelap.eumshoppingmall.ui.support.NoticeItemUiModel
 import com.nativelap.eumshoppingmall.ui.support.OneToOneInquiryOrderOption
 import com.nativelap.eumshoppingmall.ui.support.OneToOneInquiryType
 import com.nativelap.eumshoppingmall.ui.support.OneToOneInquiryUiModel
@@ -560,9 +558,8 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
         supportRows = listOf(
             AccountMenuRowUiModel("inquiries", "1:1 문의 내역"),
             AccountMenuRowUiModel("customer", "고객센터"),
-            AccountMenuRowUiModel("notices", "공지사항"),
         ),
-        recentProducts = sampleProducts.take(2).map { it.name },
+        recentProducts = sampleProducts.take(2),
     )
 
     override fun orderHistory(): OrderHistoryUiModel = OrderHistoryUiModel(
@@ -655,21 +652,10 @@ object SampleShoppingScreenDataProvider : ShoppingScreenDataProvider {
         expandedFaqIds = emptySet(),
     )
 
-    override fun notices(): List<NoticeItemUiModel> = listOf(
-        NoticeItemUiModel("notice-1", "샘플 공지사항", "샘플 일자", isPinned = true),
-    )
-
     override fun events(): List<EventUiModel> = listOf(
         EventUiModel("event-1", "현장 안전용품 특별 기획전", java.time.LocalDate.of(2026, 11, 1), java.time.LocalDate.of(2026, 11, 30), R.drawable.ic_ticket),
         EventUiModel("event-2", "겨울맞이 안전장비 할인", java.time.LocalDate.of(2026, 12, 1), java.time.LocalDate.of(2026, 12, 31), R.drawable.ic_calendar),
         EventUiModel("event-3", "신규 회원 웰컴 혜택", java.time.LocalDate.of(2026, 9, 1), java.time.LocalDate.of(2026, 9, 30), R.drawable.ic_clock),
-    )
-
-    override fun noticeDetail(noticeId: String): NoticeDetailUiModel = NoticeDetailUiModel(
-        title = "샘플 공지사항",
-        dateLabel = "샘플 일자",
-        content = "샘플 공지 본문입니다.",
-        isPinned = true,
     )
 
     override fun eventDetail(eventId: String): EventDetailUiModel = EventDetailUiModel(

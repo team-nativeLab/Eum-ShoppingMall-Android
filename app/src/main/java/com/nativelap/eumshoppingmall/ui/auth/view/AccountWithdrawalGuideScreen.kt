@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AccountWithdrawalGuideUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
+import com.nativelap.eumshoppingmall.ui.common.EumCheckbox
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
@@ -116,7 +117,7 @@ fun AccountWithdrawalGuideScreen(uiModel: AccountWithdrawalGuideUiModel, onEvent
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
                 ) {
-                    AuthCheckbox(uiModel.isAgreementChecked)
+                    EumCheckbox(uiModel.isAgreementChecked)
                     Text(stringResource(R.string.account_leave_agreement), style = MaterialTheme.typography.labelMedium)
                 }
             }

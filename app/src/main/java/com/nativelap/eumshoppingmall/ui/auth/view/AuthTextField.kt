@@ -2,10 +2,11 @@ package com.nativelap.eumshoppingmall.ui.auth.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -30,23 +31,28 @@ internal fun AuthTextField(
     imeAction: ImeAction = ImeAction.Next,
     enabled: Boolean = true,
     isRequired: Boolean = false,
+    // 입력칸 오른쪽에 함께 놓는 보조 버튼. 라벨은 행 밖(위)에 두고, 행은 가운데 정렬해 입력칸과 버튼의 높이 중심을 맞춘다.
+    trailingAction: (@Composable () -> Unit)? = null,
 ) {
     val requiredDescription = stringResource(R.string.auth_field_required)
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
         AuthFieldLabel(label, isRequired = isRequired)
-        AuthOutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).semantics {
-                contentDescription = label
-                if (isRequired) stateDescription = requiredDescription
-            },
-            enabled = enabled,
-            placeholder = placeholder,
-            isError = errorText != null,
-            errorDescription = errorText,
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
-        )
+        Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12), verticalAlignment = Alignment.CenterVertically) {
+            AuthOutlinedTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier.weight(1f).heightIn(min = 48.dp).semantics {
+                    contentDescription = label
+                    if (isRequired) stateDescription = requiredDescription
+                },
+                enabled = enabled,
+                placeholder = placeholder,
+                isError = errorText != null,
+                errorDescription = errorText,
+                keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
+            )
+            trailingAction?.invoke()
+        }
         if (errorText != null) {
             AuthHelperMessage(errorText, AuthHelperTone.Error)
         } else if (helperText != null) {

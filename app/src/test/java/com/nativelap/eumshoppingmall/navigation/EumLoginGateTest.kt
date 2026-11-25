@@ -82,7 +82,6 @@ class EumLoginGateTest {
             EumDestination.ProductDetail("p1"),
             EumDestination.ProductReviews("p1"),
             EumDestination.BrandDetail("brand-a"),
-            EumDestination.NoticeDetail("notice-1"),
             EumDestination.EventDetail("event-1"),
             EumDestination.AddressSearch,
             EumDestination.Signup,
@@ -108,6 +107,5 @@ class EumLoginGateTest {
             gateIfProtected(protectedDestination, isLoggedIn = false),
         )
         assertEquals(protectedDestination, gateIfProtected(protectedDestination, isLoggedIn = true))
-        assertEquals(EumDestination.NoticeDetail("n"), gateIfProtected(EumDestination.NoticeDetail("n"), isLoggedIn = false))
     }
 }

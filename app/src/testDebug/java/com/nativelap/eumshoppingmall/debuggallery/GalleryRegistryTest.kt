@@ -18,8 +18,8 @@ class GalleryRegistryTest {
             GalleryRegistry.entries
                 .mapNotNull { galleryEntry -> Regex("^A-(\\d+)").find(galleryEntry.id)?.groupValues?.get(1)?.toInt() }
                 .toSet()
-        // 삭제된 기능의 프레임(A-15·A-25)은 결번이다.
-        assertEquals((1..57).toSet() - setOf(15, 25), coveredNumbers)
+        // 삭제된 기능의 프레임(A-15·A-25, 공지 A-40·A-41)은 결번이다.
+        assertEquals((1..57).toSet() - setOf(15, 25, 40, 41), coveredNumbers)
     }
 
     @Test

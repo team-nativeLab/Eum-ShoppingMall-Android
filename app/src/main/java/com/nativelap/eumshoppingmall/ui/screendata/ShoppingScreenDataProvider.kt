@@ -49,8 +49,6 @@ import com.nativelap.eumshoppingmall.ui.recent.RecentProductsUiModel
 import com.nativelap.eumshoppingmall.ui.support.CustomerSupportUiModel
 import com.nativelap.eumshoppingmall.ui.support.InquiryDetailUiModel
 import com.nativelap.eumshoppingmall.ui.support.InquiryHistoryItemUiModel
-import com.nativelap.eumshoppingmall.ui.support.NoticeDetailUiModel
-import com.nativelap.eumshoppingmall.ui.support.NoticeItemUiModel
 import com.nativelap.eumshoppingmall.ui.support.OneToOneInquiryUiModel
 
 /**
@@ -146,7 +144,8 @@ interface ShoppingScreenDataProvider {
         orderStatuses = emptyList(),
         orderRows = emptyList(),
         supportRows = emptyList(),
-        recentProducts = emptyList(),
+        // 최근 본 상품 카드의 LazyRow 키는 상품 id이므로 같은 상품이 두 번 오지 않게 맞춘다.
+        recentProducts = recentProducts().groups.flatMap { group -> group.products }.distinctBy { product -> product.id },
     )
 
     fun orderHistory(): OrderHistoryUiModel = OrderHistoryUiModel(
@@ -178,11 +177,7 @@ interface ShoppingScreenDataProvider {
         expandedFaqIds = emptySet(),
     )
 
-    fun notices(): List<NoticeItemUiModel> = emptyList()
-
     fun events(): List<EventUiModel> = emptyList()
-
-    fun noticeDetail(noticeId: String): NoticeDetailUiModel = NoticeDetailUiModel(title = "", dateLabel = "", content = "")
 
     fun eventDetail(eventId: String): EventDetailUiModel = EventDetailUiModel(
         title = "",

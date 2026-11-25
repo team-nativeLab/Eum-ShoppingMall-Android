@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 회원가입 단계 -->
-    <string name="auth_signup_step_progress">%1$d/%2$d 단계</string>
-    <string name="auth_signup_step_title_account">이메일과 이름을 입력해 주세요</string>
-    <string name="auth_signup_step_title_password">비밀번호를 정해 주세요</string>
-    <string name="auth_signup_step_title_phone">휴대폰 번호를 인증해 주세요</string>
-    <string name="auth_signup_step_title_consent">약관에 동의해 주세요</string>
+    <string name="auth_signup_step_label">%1$d / %2$d · %3$s</string>
+    <string name="auth_signup_step_name_account">이메일과 이름 입력</string>
+    <string name="auth_signup_step_name_password">비밀번호 설정</string>
+    <string name="auth_signup_step_name_phone">휴대폰 인증</string>
+    <string name="auth_signup_step_name_consent">약관 동의</string>
     <string name="auth_phone_request_code">인증번호 받기</string>
     <string name="auth_verification_sent">인증번호를 보냈어요</string>
     <string name="auth_consent_details_description">%1$s 보기</string>

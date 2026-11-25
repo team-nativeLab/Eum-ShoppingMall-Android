@@ -88,7 +88,6 @@ private val DrawerSections = listOf(
     DrawerSection(
         R.string.account_drawer_section_support,
         listOf(
-            "notices" to R.string.account_drawer_notices,
             "support" to R.string.account_drawer_support,
             "guide" to R.string.account_drawer_guide,
             "terms" to R.string.account_drawer_terms,
@@ -99,7 +98,6 @@ private val DrawerSections = listOf(
     DrawerSection(
         R.string.account_drawer_section_settings,
         listOf(
-            "notifications" to R.string.account_drawer_notifications,
             "settings" to R.string.account_settings,
         ),
     ),
@@ -161,6 +159,12 @@ fun AccountDrawerScreen(
                         IconButton(onClick = { onEvent(AccountDrawerScreenEvent.CloseClicked) }) {
                             Icon(painterResource(R.drawable.ic_x), contentDescription = stringResource(R.string.common_close), modifier = Modifier.size(24.dp))
                         }
+
+                        Spacer(Modifier.weight(1f))
+
+                        IconButton(onClick = { onEvent(AccountDrawerScreenEvent.MenuClicked("notifications")) }) {
+                            Icon(painterResource(R.drawable.ic_bell), contentDescription = stringResource(R.string.account_drawer_notifications), modifier = Modifier.size(24.dp))
+                        }
                     }
                     EumBrandLogo(size = 48.dp, modifier = Modifier.padding(horizontal = EumSpacing.x20))
 
@@ -200,13 +204,13 @@ fun AccountDrawerScreen(
                         DrawerSections.forEach { section ->
                             Text(
                                 stringResource(section.titleRes),
-                                Modifier.padding(horizontal = EumSpacing.x20).padding(top = EumSpacing.x16, bottom = EumSpacing.x4),
+                                Modifier.padding(horizontal = EumSpacing.x20).padding(top = EumSpacing.x24, bottom = EumSpacing.x4),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.eumColors.textTertiary,
                             )
                             section.items.forEach { (id, labelResource) ->
                                 Box(
-                                    Modifier.fillMaxWidth().heightIn(min = 52.dp).clickable(role = Role.Button) { onEvent(AccountDrawerScreenEvent.MenuClicked(id)) }.padding(horizontal = EumSpacing.x20),
+                                    Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(role = Role.Button) { onEvent(AccountDrawerScreenEvent.MenuClicked(id)) }.padding(horizontal = EumSpacing.x20),
                                     contentAlignment = Alignment.CenterStart,
                                 ) {
                                     Text(stringResource(labelResource), style = EumTypographyTokens.bodyLMedium, color = MaterialTheme.eumColors.textPrimary)
