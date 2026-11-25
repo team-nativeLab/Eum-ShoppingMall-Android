@@ -60,8 +60,8 @@ data class HomeCategoryUiModel(
 )
 
 sealed interface HomeScreenEvent {
-    data class QueryChanged(val query: String) : HomeScreenEvent
-    data object SearchSubmitted : HomeScreenEvent
+    // 홈 검색바 탭. 검색어와 무관하게 검색 탭으로 들어간다(공유 검색어를 읽지 않는다).
+    data object SearchFieldClicked : HomeScreenEvent
     data class CategoryClicked(val category: HomeCategoryUiModel) : HomeScreenEvent
     data class BestCategorySelected(val categoryId: String?) : HomeScreenEvent
     data class QuickCartClicked(val product: HomeProductUiModel) : HomeScreenEvent
@@ -74,12 +74,6 @@ sealed interface HomeScreenEvent {
     data class FavoriteClicked(val product: HomeProductUiModel) : HomeScreenEvent
     data class NavigationSelected(val item: MainNavigationTab) : HomeScreenEvent
 }
-
-// 검색 결과에서 다시 검색하면 그 검색어를 홈 검색창 공유 상태로 옮긴다. 공백은 다듬는다.
-fun homeQueryForSearchQuery(searchQuery: String): String = searchQuery.trim()
-
-// 홈 검색창 글자: 검색 화면과 공유하는 값이 있으면 그것을, 없으면 홈 자체 입력을 쓴다.
-fun effectiveHomeQuery(hoisted: String?, internal: String): String = hoisted ?: internal
 
 enum class HomeHeroActionId {
     BrowseProducts,

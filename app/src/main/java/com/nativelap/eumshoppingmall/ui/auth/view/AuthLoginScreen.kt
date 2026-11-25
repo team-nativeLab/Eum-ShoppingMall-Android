@@ -41,6 +41,7 @@ import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthLoginUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
 import com.nativelap.eumshoppingmall.ui.common.EumBrandLogo
+import com.nativelap.eumshoppingmall.ui.common.EumCheckbox
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
@@ -61,7 +62,7 @@ fun AuthLoginScreen(uiModel: AuthLoginUiModel, onEvent: (AuthScreenEvent) -> Uni
         ) {
             Spacer(Modifier.height(EumSpacing.x24))
 
-            EumBrandLogo(size = 72.dp)
+            EumBrandLogo(size = 72.dp, modifier = Modifier.align(Alignment.CenterHorizontally))
 
             Spacer(Modifier.height(EumSpacing.x32))
 
@@ -95,7 +96,7 @@ fun AuthLoginScreen(uiModel: AuthLoginUiModel, onEvent: (AuthScreenEvent) -> Uni
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
                 ) {
-                    AuthCheckbox(checked = uiModel.isRemembered, size = 20.dp)
+                    EumCheckbox(checked = uiModel.isRemembered, size = 20.dp)
                     Text(stringResource(R.string.account_keep_signed_in), style = MaterialTheme.typography.bodySmall)
                 }
             }

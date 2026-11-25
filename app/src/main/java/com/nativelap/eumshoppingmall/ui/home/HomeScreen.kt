@@ -52,7 +52,6 @@ import com.nativelap.eumshoppingmall.ui.home.components.HomeProductCard
 import com.nativelap.eumshoppingmall.ui.home.components.HomeSearchBar
 import com.nativelap.eumshoppingmall.ui.home.components.HomeSectionHeader
 import com.nativelap.eumshoppingmall.ui.home.components.HomeSeeAllProductsButton
-import com.nativelap.eumshoppingmall.ui.home.components.HomeServiceBand
 import com.nativelap.eumshoppingmall.ui.home.components.HomeTopBar
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -66,7 +65,7 @@ fun HomeRoute(
     bestSellerProducts: List<HomeProductUiModel> = emptyList(),
     cartItemCount: Int = 0,
     selectedTab: MainNavigationTab = MainNavigationTab.Home,
-    onSearch: (String) -> Unit = {},
+    onSearchFieldClick: () -> Unit = {},
     onCategoryClick: (HomeCategoryUiModel) -> Unit = {},
     onProductClick: (HomeProductUiModel) -> Unit = {},
     onHeroAction: (HomeHeroActionId) -> Unit = {},
@@ -83,20 +82,14 @@ fun HomeRoute(
     cartAddOutcome: CartAddOutcome? = null,
     onCartAddOutcomeChange: (CartAddOutcome?) -> Unit = {},
     onCartClick: () -> Unit = {},
-    // 검색 화면과 공유하는 검색어. null이면 홈 자체 입력을 쓴다.
-    query: String? = null,
-    onQueryChange: (String) -> Unit = {},
     // 담기 버튼을 비로그인으로 눌렀을 때. 찜과 달리 장바구니 안내가 붙은 로그인으로 간다.
     onCartLoginRequired: () -> Unit = onLoginRequired,
 ) {
-    var internalQuery by rememberSaveable { mutableStateOf("") }
-    val currentQuery = effectiveHomeQuery(hoisted = query, internal = internalQuery)
     val snackbarHostState = rememberCartAddSnackbarHostState(cartAddOutcome, onCartAddOutcomeChange, onCartClick)
     var favoriteProductIds by rememberSaveable { mutableStateOf(emptySet<String>()) }
     // 베스트 탭 선택은 Route가 보관하고, null이면 전체 상품을 보여 준다.
     var selectedBestCategoryId by rememberSaveable { mutableStateOf<String?>(null) }
     HomeScreen(
-        query = currentQuery,
         recommendedProducts = recommendedProducts,
         todayProducts = todayProducts,
         discountProducts = discountProducts,
@@ -111,12 +104,7 @@ fun HomeRoute(
         favoriteProductIds = favoriteProductIds,
         onEvent = { event ->
             when (event) {
-                is HomeScreenEvent.QueryChanged -> {
-                    if (query == null) internalQuery = event.query
-                    onQueryChange(event.query)
-                }
-
-                HomeScreenEvent.SearchSubmitted -> onSearch(currentQuery)
+                HomeScreenEvent.SearchFieldClicked -> onSearchFieldClick()
 
                 is HomeScreenEvent.CategoryClicked -> onCategoryClick(event.category)
 
@@ -155,7 +143,6 @@ fun HomeRoute(
 
 @Composable
 private fun HomeScreen(
-    query: String,
     recommendedProducts: List<HomeProductUiModel>,
     todayProducts: List<HomeProductUiModel>,
     discountProducts: List<HomeProductUiModel>,
@@ -238,10 +225,9 @@ private fun HomeScreen(
                             verticalArrangement = Arrangement.spacedBy(0.dp),
                         ) {
                             item {
+                                // 홈 검색바는 입력을 받지 않는다. 탭하면 SearchFieldClicked만 보내고, 검색 탭으로 간다(공유 검색어는 읽지 않는다).
                                 HomeSearchBar(
-                                    query = query,
-                                    onQueryChange = { onEvent(HomeScreenEvent.QueryChanged(it)) },
-                                    onSearch = { onEvent(HomeScreenEvent.SearchSubmitted) },
+                                    onSearchClick = { onEvent(HomeScreenEvent.SearchFieldClicked) },
                                     modifier = Modifier.padding(horizontal = EumSpacing.x20),
                                 )
                             }
@@ -263,13 +249,6 @@ private fun HomeScreen(
                                 }
                                 item { Spacer(Modifier.height(EumSpacing.x24)) }
                             }
-                            item(key = "home-service-band") {
-                                HomeServiceBand(
-                                    freeShippingThresholdLabel = stringResource(R.string.home_free_shipping_threshold),
-                                    modifier = Modifier.padding(horizontal = EumSpacing.x20),
-                                )
-                            }
-                            item { Spacer(Modifier.height(EumSpacing.x40)) }
                             item(key = "home-recommended-products") {
                                 HomeProductSection(
                                     title = stringResource(R.string.home_recommended_products),

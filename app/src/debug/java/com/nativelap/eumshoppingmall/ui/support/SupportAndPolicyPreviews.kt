@@ -15,30 +15,6 @@ import com.nativelap.eumshoppingmall.ui.policy.rememberUsageGuideDocument
 import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
-private val previewNotice = listOf(
-    NoticeItemUiModel("pinned-privacy", "[공지] 개인정보 처리방침 개정 안내", "0000.00.00", true),
-    NoticeItemUiModel("pinned-holiday", "[공지] 설 연휴 배송 일정 안내", "0000.00.00", true),
-    NoticeItemUiModel("normal-1", "공지사항 제목이 들어갑니다", "0000.00.00"),
-    NoticeItemUiModel("normal-2", "공지사항 제목이 들어갑니다. 제목이 길면 두 줄까지 보여줍니다", "0000.00.00"),
-    NoticeItemUiModel("normal-3", "공지사항 제목이 들어갑니다", "0000.00.00"),
-    NoticeItemUiModel("normal-4", "공지사항 제목이 들어갑니다", "0000.00.00"),
-    NoticeItemUiModel("normal-5", "공지사항 제목이 들어갑니다", "0000.00.00"),
-)
-
-@ResponsiveUiPreview
-@Composable
-private fun NoticeListPreview() = EumShoppingMallTheme { NoticeListScreen(previewNotice, onEvent = {}) }
-
-@ResponsiveUiPreview
-@Composable
-private fun NoticeEmptyPreview() = EumShoppingMallTheme { NoticeListScreen(emptyList(), onEvent = {}) }
-
-@ResponsiveUiPreview
-@Composable
-private fun NoticeDetailPreview() = EumShoppingMallTheme {
-    NoticeDetailScreen(NoticeDetailUiModel("공지사항", "0000.00.00", "등록된 공지가 없어요. 새로운 소식이 등록되면 여기에서 확인할 수 있어요.", true), onBack = {})
-}
-
 @ResponsiveUiPreview
 @Composable
 private fun InquiryHistoryPreview() = EumShoppingMallTheme {

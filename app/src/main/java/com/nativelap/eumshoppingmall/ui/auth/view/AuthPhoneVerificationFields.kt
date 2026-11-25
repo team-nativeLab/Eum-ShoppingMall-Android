@@ -91,6 +91,7 @@ internal fun AuthPhoneVerificationFields(
                     onResend()
                 },
                 enabled = !state.isVerified,
+                minWidth = AuthPhoneActionButtonWidth,
             )
         }
         if (state.isPhoneInvalid) {
@@ -148,6 +149,7 @@ internal fun AuthPhoneVerificationFields(
                 label = stringResource(R.string.auth_verify),
                 onClick = onConfirm,
                 enabled = state.isCodeRequested && !state.isVerified && state.verificationCode.isNotEmpty(),
+                minWidth = AuthPhoneActionButtonWidth,
             )
         }
         if (state.isCodeInvalid) {

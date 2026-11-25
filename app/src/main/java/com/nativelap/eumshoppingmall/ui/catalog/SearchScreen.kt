@@ -17,30 +17,23 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.catalog.components.CatalogScreenScaffold
+import com.nativelap.eumshoppingmall.ui.common.EumSearchField
 import com.nativelap.eumshoppingmall.ui.common.EumTopBarBackButton
 import com.nativelap.eumshoppingmall.ui.common.MainNavigationTab
 import com.nativelap.eumshoppingmall.ui.theme.EumRadius
@@ -181,11 +174,14 @@ fun CatalogSearchScreen(
 }
 
 // 검색 화면 섹션 카드. 제목 줄(아이콘 + 제목 + 오른쪽 보조 내용) 아래에 내용을 둔다.
+// 제목 줄은 48dp 터치 높이로 고정해 보조 내용의 유무와 상관없이 제목 자리가 같다.
+// 최근 검색어·인기 검색어 카드가 같은 위 여백(8dp)을 쓴다. 제목 줄 안쪽 여백과 합쳐져 아래 여백과 비슷해진다.
 @Composable
 private fun SearchSectionCard(
     title: String,
     iconResId: Int,
     trailing: @Composable () -> Unit,
+    topPadding: Dp = EumSpacing.x8,
     content: @Composable () -> Unit,
 ) {
     val shape = RoundedCornerShape(EumRadius.x12)
@@ -193,10 +189,14 @@ private fun SearchSectionCard(
         modifier = Modifier.fillMaxWidth()
             .background(MaterialTheme.eumColors.surface, shape)
             .border(1.dp, MaterialTheme.eumColors.line, shape)
-            .padding(horizontal = EumSpacing.x16, vertical = EumSpacing.x8),
+            .padding(start = EumSpacing.x16, end = EumSpacing.x16, top = topPadding, bottom = EumSpacing.x8),
         verticalArrangement = Arrangement.spacedBy(EumSpacing.x4),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+        Row(
+            modifier = Modifier.heightIn(min = 48.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
+        ) {
             Icon(painterResource(iconResId), contentDescription = null, tint = MaterialTheme.eumColors.textSecondary, modifier = Modifier.size(18.dp))
             Text(title, Modifier.weight(1f), style = EumTypographyTokens.title)
             trailing()
@@ -226,7 +226,6 @@ internal fun CatalogSearchHeader(
     // 탭 루트에서는 뒤로 버튼 자리에 햄버거를 둔다. null이면 뒤로 버튼이다.
     onMenuClick: (() -> Unit)? = null,
 ) {
-    var isFocused by remember { mutableStateOf(false) }
     Row(
         modifier = modifier.fillMaxWidth().background(MaterialTheme.eumColors.background)
             .padding(start = EumSpacing.topBarInset, end = EumSpacing.x12, top = EumSpacing.x4, bottom = EumSpacing.x4),
@@ -241,45 +240,13 @@ internal fun CatalogSearchHeader(
         } else {
             EumTopBarBackButton(onClick = onCancel, contentDescription = stringResource(R.string.common_back))
         }
-        Row(
-            modifier = Modifier.weight(1f).heightIn(min = 44.dp)
-                .background(MaterialTheme.eumColors.surface, RoundedCornerShape(EumRadius.capsule))
-                .border(if (isFocused) 1.5.dp else 1.dp, if (isFocused) MaterialTheme.eumColors.textPrimary else MaterialTheme.eumColors.lineControl, RoundedCornerShape(EumRadius.capsule))
-                .padding(horizontal = EumSpacing.x16),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8),
-        ) {
-            Icon(painterResource(R.drawable.ic_search), null, tint = MaterialTheme.eumColors.textPrimary, modifier = Modifier.size(20.dp))
-            BasicTextField(
-                value = query,
-                onValueChange = onQueryChanged,
-                // 44dp 알약 전체가 포커스 영역이 되도록 최소 높이를 둔다.
-                modifier = Modifier.weight(1f).heightIn(min = 44.dp).onFocusChanged { focusState -> isFocused = focusState.isFocused },
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.eumColors.textPrimary),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { onSubmit() }),
-                decorationBox = { innerTextField ->
-                    // 플레이스홀더와 입력 텍스트를 같은 상자에서 세로 가운데로 맞춘다.
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
-                        if (query.isEmpty()) {
-                            Text(
-                                stringResource(R.string.catalog_search_placeholder),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.eumColors.textTertiary,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                        innerTextField()
-                    }
-                },
-            )
-            if (query.isNotEmpty()) {
-                IconButton(onClick = { onQueryChanged("") }, modifier = Modifier.size(48.dp)) {
-                    Icon(painterResource(R.drawable.ic_circle_x), stringResource(R.string.search_clear_query), tint = MaterialTheme.eumColors.textTertiary)
-                }
-            }
-        }
+        EumSearchField(
+            value = query,
+            placeholder = stringResource(R.string.catalog_search_placeholder),
+            onValueChange = onQueryChanged,
+            onSearch = onSubmit,
+            onClear = { onQueryChanged("") },
+            modifier = Modifier.weight(1f),
+        )
     }
 }

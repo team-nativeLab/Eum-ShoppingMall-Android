@@ -29,7 +29,7 @@ private val AuthFieldVerticalPadding = 12.dp
 
 // 입력칸 최소 높이. 터치 영역 48dp를 채우는 컴팩트한 높이이며 글꼴이 커지면 내용에 맞춰 늘어난다.
 private val AuthFieldMinHeight = 48.dp
-private val AuthFieldBorderThickness = 1.dp
+internal val AuthFieldBorderThickness = 1.dp
 private val AuthFieldEmphasizedBorderThickness = 1.5.dp
 
 /**

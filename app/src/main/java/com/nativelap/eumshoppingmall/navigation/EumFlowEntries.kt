@@ -32,7 +32,6 @@ import com.nativelap.eumshoppingmall.ui.productreview.ProductReviewWriteRoute
 import com.nativelap.eumshoppingmall.ui.screendata.ShoppingScreenDataProvider
 import com.nativelap.eumshoppingmall.ui.support.InquiryDetailRoute
 import com.nativelap.eumshoppingmall.ui.support.InquiryWriteRoute
-import com.nativelap.eumshoppingmall.ui.support.NoticeDetailRoute
 
 /**
  * 엔트리 그룹 함수들이 함께 쓰는 의존성. 보호 화면 판단은 [open]에서 [gateIfProtected]에 맡기고 Navigator는 요청받은 목적지만 쌓는다.
@@ -221,7 +220,7 @@ internal fun EntryProviderScope<NavKey>.addOrderEntries(
     }
 }
 
-/** 1:1 문의 상세·작성, 공지 상세(A-41), 이벤트 상세(A-55). */
+/** 1:1 문의 상세·작성, 이벤트 상세(A-55). */
 internal fun EntryProviderScope<NavKey>.addSupportEntries(context: EumEntryContext) {
     val navigator = context.navigator
     val provider = context.screenDataProvider
@@ -240,12 +239,6 @@ internal fun EntryProviderScope<NavKey>.addSupportEntries(context: EumEntryConte
             onUnavailableAction = context.onUnavailableAction,
             // 접수가 준비 중일 때의 대체 경로. 문의 작성 화면을 고객센터로 바꿔 back stack이 쌓이지 않게 한다.
             onCustomerSupportClick = { navigator.replaceTop(EumDestination.CustomerSupport) },
-        )
-    }
-    entry<EumDestination.NoticeDetail> { destination ->
-        NoticeDetailRoute(
-            uiModel = remember(destination) { provider.noticeDetail(destination.noticeId) },
-            onBackClick = { navigator.goBack() },
         )
     }
     entry<EumDestination.EventDetail> { destination ->

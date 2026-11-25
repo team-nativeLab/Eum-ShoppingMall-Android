@@ -45,7 +45,6 @@ flowchart LR
     D -- 베스트·추천상품·할인상품 --> PL["A-04 ProductList(preset)"]
     D -- 찜 목록 --> FV["A-20 Favorites (로그인 게이트)"]
     D -- 이벤트 --> E["A-54 이벤트 / EventList"]
-    D -- 공지사항 --> N["A-40 공지사항 / NoticeList"]
     D -- 고객센터·FAQ --> CS["A-42 고객센터 / CustomerSupport"]
     D -- 이용안내·이용약관·개인정보처리방침 --> POL["A-38·A-36·A-37 UsageGuide·Terms·PrivacyPolicy"]
     D -- 회사소개 --> CO["A-43 회사 소개 / CompanyIntro"]
@@ -59,7 +58,7 @@ flowchart LR
 
 **사이드바 모션**: 열릴 때 왼쪽에서 슬라이드 인(300ms, EmphasizedDecelerate)하고 dim은 fade in한다. 닫기 버튼·dim 탭·시스템 뒤로가기·메뉴 선택은 모두 슬라이드 아웃(250ms, EmphasizedAccelerate)이 끝난 뒤에 back stack에서 Drawer를 걷어 낸다(`AccountDrawerRoute`의 `BackHandler`가 Dialog의 기본 닫기를 가로챈다). 줄이기 설정이면 이동 없이 즉시 바뀐다. 이 모션은 Dialog 창 안에서 처리하며, 삭제한 화면·탭 전환 애니메이션과 별개다.
 
-**항목 구성**: 쇼핑(베스트·추천상품·할인상품·찜 목록·이벤트), 고객지원(공지사항·고객센터·FAQ·이용안내·이용약관·개인정보처리방침·회사소개), 설정·알림(알림·설정). FAQ 전용 화면은 없어 고객센터로 연결한다. 브랜드 항목은 독립 브랜드 목록 목적지가 없어(카테고리 탭의 브랜드 모드뿐) 넣지 않았다. 목록 ID → 목적지는 `EumMenuDestinations.drawerMenu`가 정한다.
+**항목 구성**: 쇼핑(베스트·추천상품·할인상품·찜 목록·이벤트), 고객지원(고객센터·FAQ·이용안내·이용약관·개인정보처리방침·회사소개), 설정·알림(알림·설정). FAQ 전용 화면은 없어 고객센터로 연결한다. 브랜드 항목은 독립 브랜드 목록 목적지가 없어(카테고리 탭의 브랜드 모드뿐) 넣지 않았다. 목록 ID → 목적지는 `EumMenuDestinations.drawerMenu`가 정한다.
 
 **알림(A-32)과 설정(A-35)**: `EumDestination.Notifications`·`AccountSettings`는 공개 목적지다(`requiresLogin` false). 알림은 서버 데이터가 없어 거짓 알림 없이 빈 상태 안내만 보인다. 설정의 알림·마케팅 수신 토글은 저장·전송 경로가 없어 비활성이며 "준비 중" 고지를 보인다. 약관·개인정보처리방침·이용안내 행은 각 목적지로 가고, 오픈소스 라이선스 행은 NavKey가 없어 "준비 중"이다. 로그아웃·탈퇴·기기 알림 설정 열기는 인증 경계라 구현하지 않고 "준비 중" 안내만 한다.
 
@@ -141,7 +140,6 @@ flowchart LR
     A11 -- 적립금 --> A22p["A-22p 적립금 / Points"]
     A11 -- 1:1 문의 내역 --> A31["A-31 1:1 문의 내역 / InquiryHistory"]
     A11 -- 고객센터 --> A42["A-42 고객센터 / CustomerSupport"]
-    A11 -- 공지사항 --> A40["A-40 공지사항 / NoticeList"]
     A11 -- 로그인 --> A13["A-13 로그인 / Login()"]
 ```
 
@@ -154,7 +152,7 @@ flowchart LR
 | ID | 위치 | 연결 |
 |---|---|---|
 | `orders`, `favorites`, `recent`, `coupons`, `points` | 바로가기 | A-16, A-20, A-21, A-22, A-22p |
-| `inquiries`, `customer`, `notices` | 메뉴 행 | A-31, A-42, A-40 |
+| `inquiries`, `customer` | 메뉴 행 | A-31, A-42 (공지 A-40·A-41은 삭제, `notices` ID는 목적지 없음) |
 | `profile` | 메뉴 행 "내 정보 관리" | 목적지 없음. 누르면 "준비 중" 안내만 보인다(저장 경로 없음) |
 | `addresses` | 메뉴 행 "배송지 관리" | 목적지 없음. 누르면 "준비 중" 안내만 보인다(저장 경로 없음) |
 | `returns` | 메뉴 행 "취소·반품·교환" | `ClaimHub`(A-19 허브), 로그인 게이트 적용 |
@@ -212,7 +210,7 @@ flowchart LR
 
 ### F10 지원·콘텐츠·상품 부가
 
-- 공지 목록 → `NoticeDetail`(A-41), 이벤트 목록 → `EventDetail`(A-55), 쿠폰함 → `Points`, 고객센터 전화 → 전화 앱(ACTION_DIAL), 고객센터·문의 내역 → `InquiryWrite`/`InquiryDetail`(게이트).
+- 이벤트 목록 → `EventDetail`(A-55), 쿠폰함 → `Points`, 고객센터 전화 → 전화 앱(ACTION_DIAL), 고객센터·문의 내역 → `InquiryWrite`/`InquiryDetail`(게이트).
 - 카테고리 브랜드 → `BrandDetail`(A-34), 상세의 전체 리뷰 → `ProductReviews`(A-49), 리뷰 작성 → `ReviewWrite`(게이트), 상품 문의 → `ProductInquiryWrite`(게이트). 상품 문의 제출은 저장·완료 이동 없이 준비 중 안내만 보여 준다(제출 동작은 "알려진 한계"의 상품 문의 항목을 따른다). `ProductInquiryComplete`(A-45)는 목적지만 남기고 열리는 경로는 끊었다.
 - 찜 하트(홈·목록·검색결과·상세·브랜드): 비로그인이면 `Login()`(보류 없음)으로 보내 이전 화면으로 복귀하고 자동 재생하지 않는다. 로그인 후 토글은 화면 로컬 상태이다.
 - 필터·정렬(A-48): 별도 NavKey 없이 목록 Route가 `ProductFilterState`(rememberSaveable)를 소유하고 `ProductFilterHost`가 화면 안에서 연다. 적용 범위는 F13을 따른다.

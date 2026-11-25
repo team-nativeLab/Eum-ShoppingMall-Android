@@ -18,6 +18,8 @@ import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountProfileUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountSettingUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.AccountShortcutUiModel
 import com.nativelap.eumshoppingmall.ui.account.viewmodel.MyPageUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogPriceUiModel
+import com.nativelap.eumshoppingmall.ui.catalog.CatalogProductUiModel
 import com.nativelap.eumshoppingmall.ui.preview.ResponsiveUiPreview
 import com.nativelap.eumshoppingmall.ui.theme.EumShoppingMallTheme
 
@@ -99,7 +101,7 @@ private fun MyPageMemberPreview() {
                     AccountOrderStatusUiModel("배송완료", "0"),
                 ),
                 orderRows = listOf(AccountMenuRowUiModel("returns", "취소·반품·교환")),
-                supportRows = listOf(AccountMenuRowUiModel("inquiries", "1:1 문의 내역"), AccountMenuRowUiModel("customer", "고객센터"), AccountMenuRowUiModel("notices", "공지사항")),
+                supportRows = listOf(AccountMenuRowUiModel("inquiries", "1:1 문의 내역"), AccountMenuRowUiModel("customer", "고객센터")),
                 recentProducts = emptyList(),
             ),
             {},
@@ -119,8 +121,14 @@ private fun MyPageGuestPreview() {
                 shortcuts = emptyList(),
                 orderStatuses = emptyList(),
                 orderRows = emptyList(),
-                supportRows = listOf(AccountMenuRowUiModel("customer", "고객센터"), AccountMenuRowUiModel("notices", "공지사항")),
-                recentProducts = listOf("제품명", "제품명", "제품명"),
+                supportRows = listOf(AccountMenuRowUiModel("customer", "고객센터")),
+                recentProducts = List(3) { index ->
+                    CatalogProductUiModel(
+                        id = "preview-recent-$index",
+                        name = "제품명",
+                        price = CatalogPriceUiModel.Available(currentLabel = "₩10,000"),
+                    )
+                },
             ),
             {},
         )

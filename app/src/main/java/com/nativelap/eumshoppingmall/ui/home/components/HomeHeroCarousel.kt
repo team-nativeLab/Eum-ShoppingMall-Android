@@ -36,6 +36,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -122,7 +123,11 @@ fun HomeHeroCarousel(
     onActionClick: (HomeHeroActionId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val pagerState = rememberPagerState(pageCount = { homeHeroSlides.size })
+    // 가상 페이지로 드래그를 양방향으로 끊김 없이 돌린다. 시작 위치는 가운데 사이클의 첫 슬라이드다.
+    val pagerState = rememberPagerState(
+        initialPage = heroCycleBasePage(homeHeroSlides.size),
+        pageCount = { homeHeroVirtualPageCount },
+    )
     val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
     var autoAdvanceResetKey by remember { mutableIntStateOf(0) }
     // 접근성 결정 기록: docs/WEB_FORMAT_AUDIT.md '접근성 결정 기록 (히어로 자동 넘김, WCAG 2.2.2)'. 정지 수단을 바꾸기 전에 확인한다.
@@ -151,7 +156,15 @@ fun HomeHeroCarousel(
         if (!heroAutoAdvanceEnabled(isResumed, isDragged, isReducedMotion(ValueAnimator.areAnimatorsEnabled()))) return@LaunchedEffect
         while (true) {
             delay(heroAutoAdvanceDelayMillis(lastInteraction.atMillis, System.currentTimeMillis(), HOME_HERO_AUTO_ADVANCE_MILLIS))
-            pagerState.animateScrollToPage((pagerState.currentPage + 1) % homeHeroSlides.size)
+            pagerState.animateScrollToPage(heroNextVirtualPage(pagerState.currentPage, homeHeroSlides.size, homeHeroVirtualPageCount))
+        }
+    }
+
+    // 드래그로 가상 페이지 양 끝 한 바퀴 안에 정착하면 같은 슬라이드의 가운데 사이클 페이지로 애니메이션 없이 옮겨 순환을 이어 간다.
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }.collect { settledPage ->
+            val rebasedPage = heroEdgeRebasedPage(settledPage, homeHeroSlides.size, homeHeroVirtualPageCount)
+            if (rebasedPage != settledPage) pagerState.scrollToPage(rebasedPage)
         }
     }
 
@@ -181,17 +194,19 @@ fun HomeHeroCarousel(
             pageSpacing = EumSpacing.x20,
             beyondViewportPageCount = 1,
         ) { page ->
-            val slide = homeHeroSlides[page]
+            val slideIndex = heroSlideIndex(page, homeHeroSlides.size)
             HomeHeroCard(
-                slide = slide,
-                pageIndex = page,
+                slide = homeHeroSlides[slideIndex],
+                slideIndex = slideIndex,
                 pageCount = homeHeroSlides.size,
                 isCurrentPage = pagerState.currentPage == page,
                 shouldStackActions = shouldStackActions,
                 onActionClick = { onActionClick(homeHeroPrimaryActionId()) },
-                onIndicatorClick = { targetPage ->
+                onIndicatorClick = { targetSlideIndex ->
                     onUserInteraction()
-                    pagerState.requestScrollToPage(targetPage)
+                    pagerState.requestScrollToPage(
+                        heroTargetVirtualPage(pagerState.currentPage, targetSlideIndex, homeHeroSlides.size, homeHeroVirtualPageCount),
+                    )
                 },
                 modifier = Modifier.fillMaxSize(),
             )
@@ -202,7 +217,7 @@ fun HomeHeroCarousel(
 @Composable
 private fun HomeHeroCard(
     slide: HomeHeroSlide,
-    pageIndex: Int,
+    slideIndex: Int,
     pageCount: Int,
     isCurrentPage: Boolean,
     shouldStackActions: Boolean,
@@ -238,7 +253,14 @@ private fun HomeHeroCard(
         Column(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(start = HERO_CONTENT_START_PADDING, top = EumSpacing.x16, end = HERO_CONTENT_END_PADDING),
+                .fillMaxWidth()
+                .padding(
+                    start = HERO_CONTENT_START_PADDING,
+                    top = EumSpacing.x16,
+                    end = HERO_CONTENT_END_PADDING,
+                    // 텍스트·버튼 열의 아래쪽을 점 슬롯 높이만큼 비워 점 줄과 레이아웃을 분리한다.
+                    bottom = HERO_INDICATOR_SLOT_HEIGHT,
+                ),
         ) {
             Text(
                 text = stringResource(slide.eyebrowResId),
@@ -256,6 +278,8 @@ private fun HomeHeroCard(
                 text = stringResource(slide.descriptionResId),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.eumColors.inverseSecondary,
+                // 설명은 항상 2줄 높이를 차지해, 짧은 슬라이드와 긴 슬라이드 사이에서 아래 버튼 위치가 흔들리지 않는다.
+                minLines = 2,
                 maxLines = 2,
             )
             Spacer(Modifier.height(EumSpacing.x8))
@@ -269,72 +293,74 @@ private fun HomeHeroCard(
                     HomeHeroActionButton(stringResource(actionResId), onActionClick, isPrimary = true)
                 }
             }
-            // 점은 버튼 바로 아래에 둔다. 버튼 하단과 점 상단 사이는 HERO_INDICATOR_TOP_GAP이다.
-            val indicatorLayout = remember(pageCount) { HeroIndicatorLayout(pageCount) }
-            Row(
-                modifier = Modifier.padding(top = HERO_INDICATOR_TOP_GAP),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        repeat(pageCount) { index ->
-                            val selected = index == pageIndex && isCurrentPage
-                            val pageDescription = stringResource(R.string.common_page_count, index + 1, pageCount)
-                            // 시각 점은 기존 위치와 크기(알약 12dp, 나머지 6dp)를 그대로 둔다. 레이아웃 높이는 44dp 그대로다.
+        }
+
+        // 점 줄은 배너 전체 폭의 가운데, 카드 맨 아래의 점 슬롯(40dp) 안에 둔다. 텍스트 열 아래에 있어 버튼과 겹치지 않는다.
+        // 바깥 Box가 배너 폭 전체를 쓰고, 안쪽 Box는 가운데 정렬해서 히트 띠의 폭과 무관하게 점이 가운데 온다.
+        val indicatorLayout = remember(pageCount) { HeroIndicatorLayout(pageCount) }
+        Box(
+            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(HERO_INDICATOR_SLOT_HEIGHT),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    repeat(pageCount) { index ->
+                        val selected = index == slideIndex && isCurrentPage
+                        val pageDescription = stringResource(R.string.common_page_count, index + 1, pageCount)
+                        // 시각 점은 기존 위치와 크기(알약 12dp, 나머지 6dp)를 그대로 둔다. 레이아웃 높이는 점 슬롯 높이(40dp)를 따른다.
+                        Box(
+                            modifier = Modifier
+                                .size(width = if (selected) 12.dp else 6.dp, height = HERO_INDICATOR_SLOT_HEIGHT)
+                                .onGloballyPositioned { coordinates ->
+                                    indicatorLayout.dotCentersX[index] =
+                                        coordinates.positionInRoot().x + coordinates.size.width / 2f
+                                },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            // 접근성 클릭 대상은 점마다 최소 24dp로 잡는다. 점의 시각 크기와 간격은 그대로다(N6).
                             Box(
-                                modifier = Modifier
-                                    .size(width = if (selected) 12.dp else 6.dp, height = HERO_INDICATOR_SLOT_HEIGHT)
-                                    .onGloballyPositioned { coordinates ->
-                                        indicatorLayout.dotCentersX[index] =
-                                            coordinates.positionInRoot().x + coordinates.size.width / 2f
+                                Modifier
+                                    .requiredSize(width = HERO_INDICATOR_MIN_TOUCH, height = HERO_INDICATOR_SLOT_HEIGHT)
+                                    .semantics {
+                                        contentDescription = pageDescription
+                                        role = Role.Button
+                                        onClick(label = pageDescription) {
+                                            onIndicatorClick(index)
+                                            true
+                                        }
                                     },
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                // 접근성 클릭 대상은 점마다 최소 24dp로 잡는다. 점의 시각 크기와 간격은 그대로다(N6).
-                                Box(
-                                    Modifier
-                                        .requiredSize(width = HERO_INDICATOR_MIN_TOUCH, height = HERO_INDICATOR_SLOT_HEIGHT)
-                                        .semantics {
-                                            contentDescription = pageDescription
-                                            role = Role.Button
-                                            onClick(label = pageDescription) {
-                                                onIndicatorClick(index)
-                                                true
-                                            }
-                                        },
-                                )
-                                Box(
-                                    Modifier.size(width = if (selected) 12.dp else 6.dp, height = 6.dp)
-                                        .clip(CircleShape)
-                                        .background(
-                                            if (selected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.inverseSecondary,
-                                        ),
-                                )
-                            }
+                            )
+                            Box(
+                                Modifier.size(width = if (selected) 12.dp else 6.dp, height = 6.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        if (selected) MaterialTheme.eumColors.inverse else MaterialTheme.eumColors.inverseSecondary,
+                                    ),
+                            )
                         }
                     }
-                    // 점마다 48dp 터치를 겹쳐 두면 이웃 점의 터치와 겹쳐 가운데 점이 눌리지 않는다.
-                    // 그래서 점 줄 위에 48dp 높이의 띠 하나를 두고, 탭한 x에 가장 가까운 점을 고른다.
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .matchParentSize()
-                            .requiredSize(width = HERO_INDICATOR_HIT_WIDTH_PER_DOT * pageCount, height = HERO_INDICATOR_HIT_HEIGHT)
-                            .onGloballyPositioned { coordinates -> indicatorLayout.hitAreaLeftX = coordinates.positionInRoot().x }
-                            .pointerInput(pageCount) {
-                                detectTapGestures { offset ->
-                                    val index = nearestHeroIndicatorIndex(
-                                        tapX = indicatorLayout.hitAreaLeftX + offset.x,
-                                        centersX = indicatorLayout.dotCentersX.toList(),
-                                    )
-                                    if (index != null) onIndicatorClick(index)
-                                }
-                            },
-                    )
                 }
+                // 점마다 48dp 터치를 겹쳐 두면 이웃 점의 터치와 겹쳐 가운데 점이 눌리지 않는다.
+                // 그래서 점 줄 위에 48dp 높이의 띠 하나를 두고, 탭한 x에 가장 가까운 점을 고른다.
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .matchParentSize()
+                        .requiredSize(width = HERO_INDICATOR_HIT_WIDTH_PER_DOT * pageCount, height = HERO_INDICATOR_HIT_HEIGHT)
+                        .onGloballyPositioned { coordinates -> indicatorLayout.hitAreaLeftX = coordinates.positionInRoot().x }
+                        .pointerInput(pageCount) {
+                            detectTapGestures { offset ->
+                                val index = nearestHeroIndicatorIndex(
+                                    tapX = indicatorLayout.hitAreaLeftX + offset.x,
+                                    centersX = indicatorLayout.dotCentersX.toList(),
+                                )
+                                if (index != null) onIndicatorClick(index)
+                            }
+                        },
+                )
             }
         }
     }
@@ -356,21 +382,51 @@ private val HERO_HORIZONTAL_MARGIN: Dp = 20.dp
 private val HERO_CONTENT_START_PADDING: Dp = 24.dp
 private val HERO_CONTENT_END_PADDING: Dp = 16.dp
 
-// 버튼 하단과 점 상단 사이 간격(요청값 3dp). 토큰 목록에 3dp가 없어 이 파일 상수로 둔다.
-private val HERO_INDICATOR_TOP_GAP: Dp = 3.dp
-
-// 점 줄의 레이아웃 높이(기존 44dp 유지). 점의 시각 위치가 이 값에 따라 정해진다.
-private val HERO_INDICATOR_SLOT_HEIGHT: Dp = 44.dp
+// 점 줄의 레이아웃 높이. 기기 측정에서 44dp면 점의 터치 노드가 버튼 하단과 1px 겹쳐 40dp로 줄였다(카드 맨 아래에 붙는다).
+private val HERO_INDICATOR_SLOT_HEIGHT: Dp = 40.dp
 
 // 점 하나의 접근성 클릭 최소 폭(WCAG 2.5.8). 시각 점은 그대로 두고 클릭 대상만 넓힌다.
 private val HERO_INDICATOR_MIN_TOUCH: Dp = 24.dp
 
-// 접근성 최소 터치 크기. 점 줄 위의 터치 띠는 높이 48dp, 점 한 개당 가로 48dp 몫이다.
-private val HERO_INDICATOR_HIT_HEIGHT: Dp = 48.dp
+// 점 줄 위의 터치 띠 높이는 점 슬롯 높이(40dp)와 같게 둔다. 점 한 개당 가로 48dp 몫이다.
+private val HERO_INDICATOR_HIT_HEIGHT: Dp = 40.dp
 private val HERO_INDICATOR_HIT_WIDTH_PER_DOT: Dp = 48.dp
 
 // 사용자 조작 뒤 자동 넘김을 멈추는 시간(요구값 약 15초). 일시정지 버튼은 두지 않는다.
 internal const val HERO_INTERACTION_PAUSE_MILLIS = 15_000L
+
+// 가상 페이지 사이클 수. 전체 가상 페이지 수는 슬라이드 수 × 사이클 수이고, 시작은 가운데 사이클이다.
+internal const val HERO_VIRTUAL_CYCLES = 1000
+
+private val homeHeroVirtualPageCount: Int = homeHeroSlides.size * HERO_VIRTUAL_CYCLES
+
+// 가운데 사이클의 첫 페이지. 이 값은 슬라이드 수의 배수이므로 첫 슬라이드를 가리킨다.
+internal fun heroCycleBasePage(slideCount: Int): Int = slideCount * (HERO_VIRTUAL_CYCLES / 2)
+
+// 가상 페이지가 가리키는 슬라이드 번호. 음수 페이지도 같은 순환으로 맞춘다.
+internal fun heroSlideIndex(virtualPage: Int, slideCount: Int): Int = Math.floorMod(virtualPage, slideCount)
+
+// 점을 눌렀을 때 갈 가상 페이지. 현재 페이지에서 가장 가까운 해당 슬라이드를 고른다(앞·뒤 중 짧은 쪽).
+// 범위 밖이면 가운데 사이클의 같은 슬라이드로 옮긴다.
+internal fun heroTargetVirtualPage(currentVirtualPage: Int, slideIndex: Int, slideCount: Int, virtualPageCount: Int): Int {
+    val forwardSteps = Math.floorMod(slideIndex - heroSlideIndex(currentVirtualPage, slideCount), slideCount)
+    val steps = if (forwardSteps <= slideCount / 2) forwardSteps else forwardSteps - slideCount
+    val candidate = currentVirtualPage + steps
+    return if (candidate in 0 until virtualPageCount) candidate else heroCycleBasePage(slideCount) + slideIndex
+}
+
+// 자동 넘김 목표 페이지. 한 칸씩 넘기며, 끝에 닿으면 같은 슬라이드를 가운데 사이클에서 이어 간다.
+internal fun heroNextVirtualPage(currentVirtualPage: Int, slideCount: Int, virtualPageCount: Int): Int {
+    val nextPage = currentVirtualPage + 1
+    return if (nextPage < virtualPageCount) nextPage else heroCycleBasePage(slideCount) + heroSlideIndex(nextPage, slideCount)
+}
+
+// 정착한 가상 페이지가 사이클 양 끝(첫 슬라이드 한 바퀴, 마지막 한 바퀴) 안이면 가운데 사이클의 같은 슬라이드로 옮긴다. 아니면 그대로 둔다.
+internal fun heroEdgeRebasedPage(settledPage: Int, slideCount: Int, virtualPageCount: Int): Int {
+    val isNearStart = settledPage < slideCount
+    val isNearEnd = settledPage >= virtualPageCount - slideCount
+    return if (isNearStart || isNearEnd) heroCycleBasePage(slideCount) + heroSlideIndex(settledPage, slideCount) else settledPage
+}
 
 // 자동 넘김까지 기다릴 시간. 조작 뒤 정지 구간 안이면 남은 정지 시간을 먼저 기다리고, 그 뒤 기본 간격을 더한다.
 internal fun heroAutoAdvanceDelayMillis(lastInteractionAtMillis: Long?, nowMillis: Long, normalDelayMillis: Long): Long {

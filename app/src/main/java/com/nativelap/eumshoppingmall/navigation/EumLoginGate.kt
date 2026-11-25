@@ -58,7 +58,6 @@ fun requiresLogin(target: EumDestination): Boolean = when (target) {
     EumDestination.AccountSettings,
     EumDestination.RecentProducts,
     EumDestination.CustomerSupport,
-    EumDestination.NoticeList,
     EumDestination.EventList,
     EumDestination.CompanyIntro,
     EumDestination.Terms,
@@ -72,7 +71,6 @@ fun requiresLogin(target: EumDestination): Boolean = when (target) {
     is EumDestination.AccountRecovery,
     is EumDestination.BrandDetail,
     is EumDestination.ProductReviews,
-    is EumDestination.NoticeDetail,
     is EumDestination.EventDetail,
     is EumDestination.Login,
     -> false

@@ -8,15 +8,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.nativelap.eumshoppingmall.R
 
-/** 공지 상세(A-41). */
-@Composable
-fun NoticeDetailRoute(
-    uiModel: NoticeDetailUiModel,
-    onBackClick: () -> Unit,
-) {
-    NoticeDetailScreen(uiModel = uiModel, onBack = onBackClick)
-}
-
 /** 1:1 문의 상세. 첨부 파일은 지원 안내를 표시한다. */
 @Composable
 fun InquiryDetailRoute(

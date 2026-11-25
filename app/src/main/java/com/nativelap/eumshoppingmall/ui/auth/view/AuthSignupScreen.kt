@@ -1,5 +1,6 @@
 package com.nativelap.eumshoppingmall.ui.auth.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,25 +12,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthSignupUiModel
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.SignupStepRules
+import com.nativelap.eumshoppingmall.ui.theme.EumRadius
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.EumTypographyTokens
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
@@ -68,20 +67,21 @@ fun AuthSignupScreen(uiModel: AuthSignupUiModel, onEvent: (AuthScreenEvent) -> U
             SignupStepHeader(step = uiModel.step)
             when (uiModel.step) {
                 0 -> {
-                    AuthFieldActionRow(
-                        actionLabel = stringResource(R.string.auth_email_duplicate_check),
-                        onActionClick = { onEvent(AuthScreenEvent.EmailDuplicateCheckClicked) },
-                    ) {
-                        AuthTextField(
-                            stringResource(R.string.auth_email_label),
-                            uiModel.email,
-                            { onEvent(AuthScreenEvent.SignupFieldChanged("email", it)) },
-                            placeholder = stringResource(R.string.auth_email_placeholder),
-                            helperText = if (uiModel.isEmailAvailable) stringResource(R.string.auth_email_available) else null,
-                            keyboardType = KeyboardType.Email,
-                            isRequired = true,
-                        )
-                    }
+                    AuthTextField(
+                        stringResource(R.string.auth_email_label),
+                        uiModel.email,
+                        { onEvent(AuthScreenEvent.SignupFieldChanged("email", it)) },
+                        placeholder = stringResource(R.string.auth_email_placeholder),
+                        helperText = if (uiModel.isEmailAvailable) stringResource(R.string.auth_email_available) else null,
+                        keyboardType = KeyboardType.Email,
+                        isRequired = true,
+                        trailingAction = {
+                            AuthFieldActionButton(
+                                label = stringResource(R.string.auth_email_duplicate_check),
+                                onClick = { onEvent(AuthScreenEvent.EmailDuplicateCheckClicked) },
+                            )
+                        },
+                    )
                     AuthTextField(
                         stringResource(R.string.auth_full_name_label),
                         uiModel.name,
@@ -130,48 +130,35 @@ fun AuthSignupScreen(uiModel: AuthSignupUiModel, onEvent: (AuthScreenEvent) -> U
     }
 }
 
-// 단계 표시: "n/4 단계" 문구, 진행 막대, 단계 제목. 진행 막대는 장식이고 의미는 문구가 전한다.
+// 단계 표시: 4칸 진행 막대와 "N / 4 · 단계명" 라벨. 완료·현재 칸은 primary, 나머지는 회색이다.
+// 막대는 장식이고 의미는 라벨이 전하므로 막대의 접근성 정보는 비운다.
 @Composable
 private fun SignupStepHeader(step: Int) {
-    val titleRes = when (step) {
-        0 -> R.string.auth_signup_step_title_account
-        1 -> R.string.auth_signup_step_title_password
-        2 -> R.string.auth_signup_step_title_phone
-        else -> R.string.auth_signup_step_title_consent
+    val stepNameRes = when (step) {
+        0 -> R.string.auth_signup_step_name_account
+        1 -> R.string.auth_signup_step_name_password
+        2 -> R.string.auth_signup_step_name_phone
+        else -> R.string.auth_signup_step_name_consent
     }
     Column(Modifier.padding(top = EumSpacing.x16), verticalArrangement = Arrangement.spacedBy(EumSpacing.x8)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().clearAndSetSemantics {},
+            horizontalArrangement = Arrangement.spacedBy(EumSpacing.x4),
+        ) {
+            repeat(SignupStepRules.STEP_COUNT) { index ->
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(EumSpacing.x4)
+                        .clip(RoundedCornerShape(EumRadius.capsule))
+                        .background(if (index <= step) MaterialTheme.eumColors.primary else MaterialTheme.eumColors.line),
+                )
+            }
+        }
         Text(
-            stringResource(R.string.auth_signup_step_progress, step + 1, SignupStepRules.STEP_COUNT),
+            stringResource(R.string.auth_signup_step_label, step + 1, SignupStepRules.STEP_COUNT, stringResource(stepNameRes)),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.eumColors.textSecondary,
-        )
-        LinearProgressIndicator(
-            progress = { (step + 1).toFloat() / SignupStepRules.STEP_COUNT },
-            modifier = Modifier.fillMaxWidth().height(4.dp).clearAndSetSemantics {},
-            color = MaterialTheme.eumColors.textPrimary,
-            trackColor = MaterialTheme.eumColors.line,
-            strokeCap = StrokeCap.Round,
-            gapSize = 0.dp,
-            drawStopIndicator = {},
-        )
-        Text(stringResource(titleRes), style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.eumColors.textPrimary)
-    }
-}
-
-/** 입력 필드 오른쪽 액션 버튼 행. 버튼은 필드 상단에 맞추고 라벨 한 줄 높이만큼 내린다. */
-@Composable
-private fun AuthFieldActionRow(
-    actionLabel: String,
-    onActionClick: () -> Unit,
-    field: @Composable () -> Unit,
-) {
-    val labelLineHeight = with(LocalDensity.current) { MaterialTheme.typography.labelMedium.lineHeight.toDp() }
-    Row(horizontalArrangement = Arrangement.spacedBy(EumSpacing.x8), verticalAlignment = Alignment.Top) {
-        Box(Modifier.weight(1f)) { field() }
-        AuthFieldActionButton(
-            label = actionLabel,
-            onClick = onActionClick,
-            modifier = Modifier.padding(top = labelLineHeight + EumSpacing.x8),
         )
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.nativelap.eumshoppingmall.R
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthScreenEvent
 import com.nativelap.eumshoppingmall.ui.auth.viewmodel.AuthSignupUiModel
+import com.nativelap.eumshoppingmall.ui.common.EumCheckbox
 import com.nativelap.eumshoppingmall.ui.theme.EumSpacing
 import com.nativelap.eumshoppingmall.ui.theme.eumColors
 
@@ -72,7 +73,7 @@ private fun AuthConsentRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(EumSpacing.x12),
     ) {
-        AuthCheckbox(checked)
+        EumCheckbox(checked)
         Text(label, Modifier.weight(1f), style = if (emphasized) MaterialTheme.typography.titleSmall else MaterialTheme.typography.bodySmall)
         if (onDetails != null) {
             // 글자를 터치 영역(48dp) 안에서 세로 가운데에 놓고, 접근성 이름은 항목별로 구분한다.

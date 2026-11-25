@@ -30,13 +30,4 @@ class HomeResponsiveLayoutRulesTest {
         assertEquals(353.6f, homeHeroHeight(regularLargeTextStacks, 1.3f).value, 0.01f)
         assertEquals(288.96f, homeHeroHeight(regularTextBeforeThresholdStacks, 1.29f).value, 0.01f)
     }
-
-    @Test
-    fun serviceBandUsesTwoRowsOnNarrowScreensAndLargeText() {
-        assertTrue(shouldStackHomeServiceBand(359.dp, 1f))
-        assertFalse(shouldStackHomeServiceBand(360.dp, 1f))
-        assertFalse(shouldStackHomeServiceBand(390.dp, 1.29f))
-        assertTrue(shouldStackHomeServiceBand(390.dp, 1.3f))
-        assertFalse(shouldStackHomeServiceBand(390.dp, 1f))
-    }
 }
